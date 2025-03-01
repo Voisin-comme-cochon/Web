@@ -4,5 +4,4 @@ import { Entity } from 'typeorm';
 export class User {
     id!: number;
     fullName!: string;
-};
-
+}

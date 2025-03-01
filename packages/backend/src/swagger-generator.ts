@@ -1,10 +1,8 @@
 import path from 'path';
 import { writeFileSync } from 'fs';
 import { NestFactory } from '@nestjs/core';
-import { SwaggerModule } from '@nestjs/swagger';
 import { VersioningType } from '@nestjs/common';
 import { AppModule } from './app.module';
-
 
 const bootstrap = async () => {
     const app = await NestFactory.create(AppModule);

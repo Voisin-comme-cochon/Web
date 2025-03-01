@@ -12,6 +12,7 @@ import { UserRepository } from './user.repository';
             provide: UsersService,
             inject: [UserRepository],
             useFactory: (userRepository: UserRepository) => new UsersService(userRepository),
-        }],
+        },
+    ],
 })
 export class UsersModule {}
