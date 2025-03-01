@@ -1,0 +1,8 @@
+{
+    "collection": "@nestjs/schematics",
+    "sourceRoot": ".",
+    "entryFile": "src/main",
+    "compilerOptions": {
+        "assets": ["config/**/*.json", "src/**/*.json", "src/**/*.ejs", "src/**/*.scss"]
+    }
+}

@@ -1,0 +1,86 @@
+{
+    "name": "@voisin-comme-cochon/backend",
+    "version": "0.1.0",
+    "description": "Skeleton you can use to start a new NestJS App",
+    "author": "",
+    "private": true,
+    "license": "UNLICENSED",
+    "scripts": {
+        "build": "npx nest build",
+        "format": "npx prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
+        "start": "npx nest start",
+        "start:dev": "npx nest start --watch",
+        "start:debug": "npx nest start --debug --watch",
+        "start:prod": "node src/main",
+        "lint": "npx eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
+        "test": "npx jest --runInBand --detectOpenHandles --forceExit"
+    },
+    "dependencies": {
+        "@nestjs/common": "11.0.10",
+        "@nestjs/core": "11.0.10",
+        "@nestjs/platform-express": "11.0.10",
+        "@nestjs/swagger": "11.0.5",
+        "@redocly/cli": "1.30.0",
+        "dayjs": "1.11.13",
+        "class-transformer": "0.5.1",
+        "class-validator": "0.14.1",
+        "express": "4.21.2",
+        "reflect-metadata": "0.2.2",
+        "rimraf": "6.0.1",
+        "rxjs": "7.8.2",
+        "swagger-ui-express": "5.0.1"
+    },
+    "devDependencies": {
+        "@eslint/js": "9.21.0",
+        "@nestjs/cli": "11.0.4",
+        "@nestjs/schematics": "11.0.1",
+        "@nestjs/testing": "11.0.10",
+        "@stylistic/eslint-plugin-ts": "4.0.1",
+        "@types/config": "3.3.5",
+        "@types/eslint__js": "8.42.3",
+        "@types/express": "5.0.0",
+        "@types/jest": "29.5.14",
+        "@types/node": "22.13.5",
+        "@types/supertest": "6.0.2",
+        "cross-env": "7.0.3",
+        "dotenv": "16.4.7",
+        "eslint": "9.21.0",
+        "eslint-config-prettier": "10.0.1",
+        "eslint-plugin-import": "2.31.0",
+        "eslint-plugin-prefer-arrow": "1.2.3",
+        "eslint-plugin-prettier": "5.2.3",
+        "eslint-plugin-unicorn": "57.0.0",
+        "jest": "29.7.0",
+        "prettier": "3.5.2",
+        "supertest": "7.0.0",
+        "ts-jest": "29.2.6",
+        "ts-loader": "9.5.2",
+        "ts-node": "10.9.2",
+        "tsconfig-paths": "4.2.0",
+        "typescript": "5.7.3",
+        "typescript-eslint": "8.25.0"
+    },
+    "jest": {
+        "moduleFileExtensions": [
+            "js",
+            "json",
+            "ts"
+        ],
+        "roots": [
+            "src",
+            "test"
+        ],
+        "testRegex": ".*\\.spec\\.ts$",
+        "transform": {
+            "^.+\\.(t|j)s$": "ts-jest"
+        },
+        "collectCoverageFrom": [
+            "src/**/*.(t|j)s"
+        ],
+        "coverageDirectory": "../coverage",
+        "testEnvironment": "node"
+    },
+    "volta": {
+        "node": "20.11.1"
+    }
+}
