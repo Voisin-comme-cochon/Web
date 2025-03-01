@@ -1,7 +1,7 @@
 {
     "name": "@voisin-comme-cochon/backend",
     "version": "0.1.0",
-    "description": "Skeleton you can use to start a new NestJS App",
+    "description": "Backend for Voisin Comme Cochon",
     "author": "",
     "private": true,
     "license": "UNLICENSED",
@@ -28,7 +28,8 @@
         "reflect-metadata": "0.2.2",
         "rimraf": "6.0.1",
         "rxjs": "7.8.2",
-        "swagger-ui-express": "5.0.1"
+        "swagger-ui-express": "5.0.1",
+        "typeorm": "0.3.20"
     },
     "devDependencies": {
         "@eslint/js": "9.21.0",

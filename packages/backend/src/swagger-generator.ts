@@ -5,8 +5,6 @@ import { SwaggerModule } from '@nestjs/swagger';
 import { VersioningType } from '@nestjs/common';
 import { AppModule } from './app.module';
 
-process.env.NODE_CONFIG_DIR = `${__dirname}/../config/`;
-import { swaggerConfig } from './swagger.config';
 
 const bootstrap = async () => {
     const app = await NestFactory.create(AppModule);
@@ -15,8 +13,6 @@ const bootstrap = async () => {
         type: VersioningType.URI,
     });
 
-    const options = swaggerConfig().addServer('https://skeleton-service.affluences.dev');
-    const document = SwaggerModule.createDocument(app, options.build());
     const outputPath = path.resolve(process.cwd(), 'swagger.json');
     writeFileSync(outputPath, JSON.stringify(document), { encoding: 'utf8' });
 
