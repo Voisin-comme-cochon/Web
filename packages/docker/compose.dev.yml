@@ -1,9 +1,7 @@
 version: '3.8'
 services:
   postgres:
-    env_file:
-      - ../common/.env
-    image: postgres:latest
+    image: postgis/postgis:latest
     container_name: postgres
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
@@ -16,8 +14,6 @@ services:
       - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
 
   minio:
-    env_file:
-      - ../common/.env
     container_name: minio
     restart: unless-stopped
     image: quay.io/minio/minio

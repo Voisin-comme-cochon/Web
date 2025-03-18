@@ -1,12 +1,7 @@
-CREATE DATABASE voisin_comme_cochon;
-
-\c voisin_comme_cochon;
-
-CREATE EXTENSION IF NOT EXISTS "postgis";
-CREATE EXTENSION IF NOT EXISTS "postgis_topology";
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+CREATE EXTENSION IF NOT EXISTS postgis;
 
-CREATE TABLE user{
+CREATE TABLE "User"(
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     firstName VARCHAR(255) NOT NULL,
     lastName VARCHAR(255) NOT NULL,
@@ -18,22 +13,24 @@ CREATE TABLE user{
     description VARCHAR(255) NOT NULL,
     isSuperAdmin BOOLEAN NOT NULL,
     newsletter BOOLEAN NOT NULL,
-    prefferedNotifMethod VARCHAR(255) NOT NULL,
-}
+    prefferedNotifMethod VARCHAR(255) NOT NULL
+);
 
-CREATE TABLE user-stripe{
+CREATE TABLE "User_stripe"(
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     iban VARCHAR(255) NOT NULL,
     userId UUID NOT NULL,
-}
+    CONSTRAINT fk_userId FOREIGN KEY (userId) REFERENCES "User"(id) ON DELETE CASCADE
+);
 
-CREATE TABLE event-registration{
+-- Table Tag
+CREATE TABLE "Tag" (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    userId UUID NOT NULL,
-    eventId UUID NOT NULL,
-}
+    name VARCHAR(255) NOT NULL,
+    color VARCHAR(255) NOT NULL
+);
 
-CREATE TABLE event (
+CREATE TABLE "Event" (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     createdBy UUID NOT NULL,
     name VARCHAR(255) NOT NULL,
@@ -50,21 +47,31 @@ CREATE TABLE event (
     CONSTRAINT fk_tagId FOREIGN KEY (tagId) REFERENCES "Tag"(id) ON DELETE SET NULL
 );
 
--- Table Tag
-CREATE TABLE "Tag" (
+CREATE TABLE "Event_registration"(
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    name VARCHAR(255) NOT NULL,
-    color VARCHAR(255) NOT NULL
+    userId UUID NOT NULL,
+    eventId UUID NOT NULL,
+    CONSTRAINT fk_userId FOREIGN KEY (userId) REFERENCES "User"(id) ON DELETE CASCADE,
+    CONSTRAINT fk_eventId FOREIGN KEY (eventId) REFERENCES "Event"(id) ON DELETE CASCADE
 );
+
 
 -- Table Group
 CREATE TABLE "Group" (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     name VARCHAR(255) NOT NULL,
-    tagId UUID[],
+    tagId UUID,
     isPrivate BOOLEAN NOT NULL,
     description TEXT,
     CONSTRAINT fk_tag FOREIGN KEY (tagId) REFERENCES "Tag"(id) ON DELETE SET NULL
+);
+
+CREATE TABLE "Group_tags" (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    groupId UUID NOT NULL,
+    tagId UUID NOT NULL,
+    CONSTRAINT fk_group FOREIGN KEY (groupId) REFERENCES "Group"(id) ON DELETE CASCADE,
+    CONSTRAINT fk_tag FOREIGN KEY (tagId) REFERENCES "Tag"(id) ON DELETE CASCADE
 );
 
 -- Table Group_membership
@@ -159,7 +166,7 @@ CREATE TABLE "Sales" (
     status VARCHAR(50) NOT NULL,
     description TEXT,
     materialId UUID NOT NULL,
-    paymentType VARCHAR(50) NOT NULL CHECK,
+    paymentType VARCHAR(50) NOT NULL,
     CONSTRAINT fk_neighborhood FOREIGN KEY (neighborhood_id) REFERENCES "neighborhood"(id) ON DELETE CASCADE,
     CONSTRAINT fk_user FOREIGN KEY (userId) REFERENCES "User"(id) ON DELETE CASCADE,
     CONSTRAINT fk_material FOREIGN KEY (materialId) REFERENCES "Material"(id) ON DELETE CASCADE
