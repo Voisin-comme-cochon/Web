@@ -1,0 +1,72 @@
+version: '3.8'
+services:
+  postgres:
+    env_file:
+      - ../common/.env
+    image: postgres:latest
+    container_name: postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+
+  minio:
+    env_file:
+      - ../common/.env
+    container_name: minio
+    restart: unless-stopped
+    image: quay.io/minio/minio
+    environment:
+      - MINIO_ROOT_USER=${MINIO_ROOT_USER}
+      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - /root/docker/volumes/minio/data:/data
+    command: 'server /data --console-address ":9001"'
+
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    environment:
+      MONGO_INITDB_DATABASE: vcc-mongo
+
+  backend:
+    image: node:14
+    container_name: backend
+    working_dir: /app
+    volumes:
+      - ../backend:/app
+    command: sh -c "npm install && npm run start:dev"
+    ports:
+      - "3000:3000"
+    depends_on:
+      - postgres
+      - mongodb
+      - minio
+
+  frontend:
+    image: node:14
+    container_name: frontend
+    working_dir: /app
+    volumes:
+      - ../frontend:/app
+    command: sh -c "npm install && npm run dev"
+    ports:
+      - "3001:3000"
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
+  mongo_data:
