@@ -59,7 +59,7 @@ services:
       - ../frontend:/app
     command: sh -c "npm install && npm run dev"
     ports:
-      - "3001:5132"
+      - "3001:3001"
     depends_on:
       - backend
 
