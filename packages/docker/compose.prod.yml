@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   postgres:
-    image: postgres:latest
+    image: postgis/postgis:latest
     container_name: postgres
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
@@ -12,6 +12,7 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
 
   minio:
     container_name: minio
@@ -38,12 +39,12 @@ services:
       MONGO_INITDB_DATABASE: vcc-mongo
 
   backend:
-    image: node:14
+    image: node:20.11
     container_name: backend
     working_dir: /app
     volumes:
       - ../backend:/app
-    command: sh -c "npm install && npm run start:prod"
+    command: sh -c "npm install && npm run build && npm run start:prod"
     ports:
       - "3000:3000"
     depends_on:
@@ -52,14 +53,13 @@ services:
       - minio
 
   frontend:
-    image: node:14
+    image: nginx:latest
     container_name: frontend
-    working_dir: /app
     volumes:
       - ../frontend/dist:/usr/share/nginx/html
-    command: sh -c "npm install && npm run dev"
+      - ../frontend/nginx.conf:/etc/nginx/conf.d/default.conf
     ports:
-      - "3001:3000"
+      - "3001:80"
     depends_on:
       - backend
 
