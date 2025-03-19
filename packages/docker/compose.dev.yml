@@ -38,7 +38,7 @@ services:
       MONGO_INITDB_DATABASE: vcc-mongo
 
   backend:
-    image: node:14
+    image: node:20.11
     container_name: backend
     working_dir: /app
     volumes:
@@ -52,14 +52,14 @@ services:
       - minio
 
   frontend:
-    image: node:14
+    image: node:20.11
     container_name: frontend
     working_dir: /app
     volumes:
       - ../frontend:/app
     command: sh -c "npm install && npm run dev"
     ports:
-      - "3001:3000"
+      - "3001:5132"
     depends_on:
       - backend
 
