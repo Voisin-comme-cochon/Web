@@ -21,4 +21,4 @@ jobs:
           git pull origin develop
           npm install
           docker-compose -f compose.prod.yml up -d
-          echo "test"
+          echo "test2"
