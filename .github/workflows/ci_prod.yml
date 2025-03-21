@@ -2,7 +2,7 @@ name: Deploy
 
 on:
   push:
-    branches: [ feature/ci-cd ]
+    branches: [ develop ]
 
 jobs:
   build:
@@ -19,7 +19,7 @@ jobs:
         script: |
           cd /home/contabo_user/Voisin-comme-cochon/Web/
           npm install
-          git pull origin feature/ci-cd
+          git pull origin develop
           cd /home/contabo_user/Voisin-comme-cochon/Web/packages/frontend
           npm run build
           cd /home/contabo_user/Voisin-comme-cochon/Web/packages/docker
