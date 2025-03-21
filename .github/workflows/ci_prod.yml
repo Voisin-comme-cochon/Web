@@ -17,7 +17,7 @@ jobs:
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         port: 22
         script: |
-          cd /home/contabo_user/Voisin-comme-cochon/Web
+          cd /home/contabo_user/Voisin-comme-cochon/Web/packages/docker
           git pull origin develop
           npm install
           docker-compose -f compose.prod.yml up -d
