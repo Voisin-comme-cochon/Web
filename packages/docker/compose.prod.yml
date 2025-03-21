@@ -25,7 +25,7 @@ services:
       - "9000:9000"
       - "9001:9001"
     volumes:
-      - /root/docker/volumes/minio/data:/data
+      - minio_data:/data
     command: 'server /data --console-address ":9001"'
 
   mongodb:
@@ -66,3 +66,4 @@ services:
 volumes:
   postgres_data:
   mongo_data:
+  minio_data:
