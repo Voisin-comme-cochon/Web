@@ -2,21 +2,27 @@ import dotenv from 'dotenv';
 dotenv.config();
 import { NestFactory } from '@nestjs/core';
 import { INestApplication } from '@nestjs/common';
-import { SwaggerModule } from '@nestjs/swagger';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as pckg from '../package.json';
-import { swaggerConfig } from './swagger.config';
 import { AppModule } from './app.module';
+import { initValidation } from './setup/init-validation';
+import { loggerMiddleware } from './middleware/logger.middleware';
 
 const port = process.env.PORT ?? 3000;
 
-const initSwagger = (app: INestApplication) => {
-    const document = SwaggerModule.createDocument(app, swaggerConfig().build());
-    SwaggerModule.setup('openapi', app, document);
-};
-
 const bootstrap = async () => {
     const app: INestApplication = await NestFactory.create(AppModule);
-    initSwagger(app);
+    app.use(loggerMiddleware);
+    initValidation(app);
+
+    const config = new DocumentBuilder()
+        .setTitle('Voisin comme cochon API')
+        .setDescription('The vcc openapi documentation')
+        .setVersion('1.0')
+        .build();
+    const documentFactory = () => SwaggerModule.createDocument(app, config);
+    SwaggerModule.setup('openapi', app, documentFactory);
+
 
     await app.listen(port);
 };

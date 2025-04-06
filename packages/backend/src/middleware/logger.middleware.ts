@@ -1,10 +1,19 @@
 import { Request, Response, NextFunction } from 'express';
-import { Injectable, NestMiddleware } from '@nestjs/common';
 
-@Injectable()
-export class LoggerMiddleware implements NestMiddleware {
-    use(req: Request, res: Response, next: NextFunction) {
-        console.log('Request at', req.originalUrl, req.method);
-        next();
-    }
-}
+export const loggerMiddleware = (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+) => {
+    const startTime = Date.now();
+
+    res.on('close', () => {
+        const contentLength = res.get('content-length');
+        const responseTime = Date.now() - startTime;
+
+        console.debug(
+            `${req.method} ${req.originalUrl} ${res.statusCode} - ${contentLength}bytes ${responseTime}ms`,
+        );
+    });
+    next();
+};

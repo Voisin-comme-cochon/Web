@@ -1,13 +1,21 @@
-import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersModule } from './modules/users/users.module';
-import { LoggerMiddleware } from './middleware/logger.middleware';
 
 @Module({
-    imports: [UsersModule],
+    imports: [UsersModule,
+    TypeOrmModule.forRoot({
+        type: 'postgres',
+        host: process.env.DATABASE_HOST,
+        database: process.env.DATABASE_NAME,
+        port: Number(process.env.DATABASE_PORT),
+        username: process.env.DATABASE_USER,
+        password: process.env.DATABASE_PASSWORD,
+        logging: false,
+        synchronize: process.env.DATABASE_SYNCHRONIZE === 'true' || true,
+        entities: [],
+    })
+    ],
     providers: [],
 })
-export class AppModule implements NestModule {
-    configure(consumer: MiddlewareConsumer) {
-        consumer.apply(LoggerMiddleware).forRoutes('');
-    }
-}
+export class AppModule {}

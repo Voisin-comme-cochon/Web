@@ -1,10 +1,9 @@
-import { UserAdapter } from './adapters/user.adapter';
 
 export class UserRepository {
     public getById(userId: number) {
-        return UserAdapter.toDTO({
+        return {
             id: userId,
             fullName: 'John Doe',
-        });
+        };
     }
 }

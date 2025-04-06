@@ -11,7 +11,12 @@ export class CochonError extends Error {
 
     public readonly context: Record<string, unknown>;
 
-    constructor(code: string, message: string, status?: number, context?: Record<string, unknown>) {
+    constructor(
+        code: string,
+        message: string,
+        status?: number,
+        context?: Record<string, unknown>,
+    ) {
         super(message);
 
         this.date = dayjs().format('YYYY-MM-DD[T]HH:mm:ssZ');
@@ -21,7 +26,6 @@ export class CochonError extends Error {
             for (const key of Object.keys(context)) {
                 if (context[key] instanceof Error) {
                     context[key] = {
-                        // eslint-disable-next-line @typescript-eslint/no-misused-spread
                         ...context[key],
                         message: context[key].message,
                         name: context[key].name,
