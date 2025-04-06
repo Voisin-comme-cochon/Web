@@ -11,7 +11,6 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
 
   minio:
     container_name: minio
@@ -35,33 +34,7 @@ services:
     volumes:
       - mongo_data:/data/db
     environment:
-      MONGO_INITDB_DATABASE: vcc-mongo
-
-  backend:
-    image: node:20.11
-    container_name: backend
-    working_dir: /app
-    volumes:
-      - ../backend:/app
-    command: sh -c "npm install && npm run start:dev"
-    ports:
-      - "3000:3000"
-    depends_on:
-      - postgres
-      - mongodb
-      - minio
-
-  frontend:
-    image: node:20.11
-    container_name: frontend
-    working_dir: /app
-    volumes:
-      - ../frontend:/app
-    command: sh -c "npm install && npm run dev"
-    ports:
-      - "8080:8080"
-    depends_on:
-      - backend
+      MONGO_INITDB_DATABASE: ${MONGO_DB_NAME}
 
 volumes:
   postgres_data:
