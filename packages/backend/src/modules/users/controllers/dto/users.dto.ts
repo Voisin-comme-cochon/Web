@@ -1,42 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import {IsBoolean, IsEmail, IsInt, IsPhoneNumber, IsString, MinLength} from 'class-validator';
-import {Type} from "class-transformer";
-
-export class LogInSignInDto {
-    @ApiProperty({ example: "email@email.com", description: 'Email of the user' })
-    @IsEmail()
-    email!: string;
-
-    @ApiProperty({
-        example: 'password',
-        description: 'Password of the user',
-    })
-    @Type(() => String)
-    @MinLength(8)
-    password!: string;
-}
-
-export class RefreshTokenDto {
-    @ApiProperty({ example: "jwt", description: 'Refresh token of the user' })
-    @IsString()
-    refreshToken!: number;
-}
-
-export class LogInSignInDtoOutput {
-    @ApiProperty({
-        example: 'jwt',
-        description: 'The jwt token'
-    })
-    @IsString()
-    access_token!: string;
-
-    @ApiProperty({
-        example: 'jwt',
-        description: 'The jwt token'
-    })
-    @IsString()
-    refresh_token!: string;
-}
+import { IsBoolean, IsEmail, IsInt, IsPhoneNumber, IsString } from 'class-validator';
 
 export class ResponseUserDto {
     @ApiProperty({
@@ -108,5 +71,4 @@ export class ResponseUserDto {
     })
     @IsBoolean()
     prefferedNotifMethod!: string;
-
 }

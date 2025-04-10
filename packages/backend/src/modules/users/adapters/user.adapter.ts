@@ -1,9 +1,9 @@
-import {UserEntity} from "../../../core/entities/user.entity";
-import {User} from "../../domain/user.model";
-import {ResponseUserDto} from "../controllers/dto/users.dto";
+import { UserEntity } from '../../../core/entities/user.entity';
+import { User } from '../domain/user.model';
+import { ResponseUserDto } from '../controllers/dto/users.dto';
 
 export class UserAdapter {
-    static entityToDomain(userEntity: UserEntity): User{
+    static entityToDomain(userEntity: UserEntity): User {
         return {
             id: userEntity.id,
             firstName: userEntity.firstName,
@@ -15,15 +15,15 @@ export class UserAdapter {
             description: userEntity.description,
             isSuperAdmin: userEntity.isSuperAdmin,
             newsletter: userEntity.newsletter,
-            prefferedNotifMethod: userEntity.prefferedNotifMethod
+            prefferedNotifMethod: userEntity.prefferedNotifMethod,
         };
     }
 
-    static listEntityToDomain(userEntities: UserEntity[]): User[]{
-        return userEntities.map((userEntity)=>this.entityToDomain(userEntity));
+    static listEntityToDomain(userEntities: UserEntity[]): User[] {
+        return userEntities.map((userEntity) => this.entityToDomain(userEntity));
     }
 
-    static domainToEntity(user: User): UserEntity{
+    static domainToEntity(user: User): UserEntity {
         return {
             id: user.id,
             firstName: user.firstName,
@@ -35,7 +35,7 @@ export class UserAdapter {
             description: user.description,
             isSuperAdmin: user.isSuperAdmin,
             newsletter: user.newsletter,
-            prefferedNotifMethod: user.prefferedNotifMethod
+            prefferedNotifMethod: user.prefferedNotifMethod,
         };
     }
 
@@ -50,11 +50,11 @@ export class UserAdapter {
             description: user.description,
             isSuperAdmin: user.isSuperAdmin,
             newsletter: user.newsletter,
-            prefferedNotifMethod: user.prefferedNotifMethod
+            prefferedNotifMethod: user.prefferedNotifMethod,
         };
     }
 
     static listDomainToResponseUser(users: User[]): ResponseUserDto[] {
-        return users.map((userEntity)=>this.domainToResponseUser(userEntity));
+        return users.map((userEntity) => this.domainToResponseUser(userEntity));
     }
 }

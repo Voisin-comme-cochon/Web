@@ -1,0 +1,94 @@
+import { JwtService } from '@nestjs/jwt';
+import * as bcrypt from 'bcryptjs';
+import { User } from '../../users/domain/user.model';
+import { AuthAdapter } from '../adapters/auth.adapter';
+import { UsersRepository } from '../../users/domain/users.abstract.repository';
+import { AuthRepository } from '../domain/auth.abstract.repository';
+import { LogInSignInDtoOutput } from '../controllers/dto/auth.dto';
+import { CochonError } from '../../../utils/CochonError';
+
+export class AuthService {
+    constructor(
+        private userRepository: UsersRepository,
+        private authService: AuthRepository,
+        private jwtService: JwtService
+    ) {}
+
+    public async signIn(
+        firstName: string,
+        lastName: string,
+        phone: string,
+        email: string,
+        address: string,
+        password: string,
+        description: string
+    ): Promise<LogInSignInDtoOutput> {
+        const isUserExist = await this.userRepository.findByEmail(email);
+        if (isUserExist) {
+            throw new CochonError('account-already-exist', 'Account already exist', 400);
+        }
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(password, salt);
+
+        const prevUser: User = {
+            id: 0,
+            firstName: firstName,
+            lastName: lastName,
+            phone: phone,
+            email: email,
+            address: address,
+            password: hashedPassword,
+            description: description,
+            isSuperAdmin: false,
+            newsletter: false,
+            prefferedNotifMethod: 'email',
+        };
+        const user = await this.userRepository.createUser(prevUser);
+        const accessToken = this.jwtService.sign(
+            { id: user.id, isSuperAdmin: user.isSuperAdmin },
+            {
+                expiresIn: '5m',
+            }
+        );
+
+        const refreshToken = this.jwtService.sign(
+            { id: user.id, isSuperAdmin: user.isSuperAdmin },
+            {
+                expiresIn: '15d',
+            }
+        );
+
+        await this.authService.saveToken(refreshToken, user.id);
+
+        return AuthAdapter.tokensToDtoOutput(accessToken, refreshToken);
+    }
+
+    public async logIn(email: string, password: string): Promise<LogInSignInDtoOutput> {
+        const user = await this.userRepository.findByEmail(email);
+        if (!user) {
+            throw new CochonError('user-not-found', 'Incorrect email or password', 400);
+        }
+        const isPasswordValid = await bcrypt.compare(password, user.password);
+        if (!isPasswordValid) {
+            throw new CochonError('user-not-found', 'Incorrect email or password', 400);
+        }
+
+        const accessToken = this.jwtService.sign(
+            { id: user.id, isSuperAdmin: user.isSuperAdmin },
+            {
+                expiresIn: '5m',
+            }
+        );
+
+        const refreshToken = this.jwtService.sign(
+            { id: user.id, isSuperAdmin: user.isSuperAdmin },
+            {
+                expiresIn: '15d',
+            }
+        );
+
+        await this.authService.saveToken(refreshToken, user.id);
+
+        return AuthAdapter.tokensToDtoOutput(accessToken, refreshToken);
+    }
+}

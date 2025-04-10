@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { DataSource } from 'typeorm';
-import { UsersRepository } from '../domain/users.abstract.repository';
+import { UsersRepository } from './domain/users.abstract.repository';
 import { UsersController } from './controllers/users.controller';
 import { UsersService } from './services/users.service';
 import { UserRepositoryImplementation } from './repository/user.repository.implementation';
@@ -8,6 +8,7 @@ import { UserRepositoryImplementation } from './repository/user.repository.imple
 @Module({
     imports: [],
     controllers: [UsersController],
+    exports: [UsersRepository],
     providers: [
         {
             provide: UsersRepository,

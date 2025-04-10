@@ -1,6 +1,6 @@
-import {User} from "../../domain/user.model";
-import {UserAdapter} from "../adapters/user.adapter";
-import {UsersRepository} from "../../domain/users.abstract.repository";
+import { User } from '../domain/user.model';
+import { UserAdapter } from '../adapters/user.adapter';
+import { UsersRepository } from '../domain/users.abstract.repository';
 
 export class UsersService {
     constructor(private userRepository: UsersRepository) {}
