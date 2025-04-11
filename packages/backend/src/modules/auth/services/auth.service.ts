@@ -69,6 +69,48 @@ export class AuthService {
         await this.authRepository.deleteToken(refresh_token);
     }
 
+    async refresh(refresh_token: string): Promise<LogInSignInDtoOutput> {
+        const decoded: UserTokenEntity = this.jwtService.decode(refresh_token);
+        if (!decoded.id) {
+            throw new CochonError('invalid-token', 'Invalid token', 400);
+        }
+
+        const isTokenExist = await this.authRepository.getToken(refresh_token);
+        if (!isTokenExist) {
+            throw new CochonError('invalid-token', 'Invalid token', 400);
+        }
+
+        const user = await this.userRepository.getUserById(decoded.id);
+        if (!user) {
+            throw new CochonError('user-not-found', 'User not found', 404);
+        }
+
+        const tokens = await this.authRepository.getTokensByUserId(user.id);
+        if (!tokens.some((token) => token.token === refresh_token)) {
+            throw new CochonError('invalid-token', 'Invalid token', 400);
+        }
+
+        const accessToken = this.jwtService.sign(
+            { id: user.id, isSuperAdmin: user.isSuperAdmin },
+            {
+                expiresIn: '5m',
+            }
+        );
+
+        const newRefreshToken = this.jwtService.sign(
+            { id: user.id, isSuperAdmin: user.isSuperAdmin },
+            {
+                expiresIn: '15d',
+            }
+        );
+
+        await this.authRepository.deleteToken(refresh_token);
+
+        await this.authRepository.saveToken(newRefreshToken, user.id);
+
+        return AuthAdapter.tokensToDtoOutput(accessToken, newRefreshToken);
+    }
+
     public async getTokensById(id: number): Promise<UserTokenEntity[]> {
         return await this.authRepository.getTokensByUserId(id);
     }

@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Patch, Post, UseGuards } from '@nestjs/common';
 import { ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { AuthService } from '../services/auth.service';
 import { IsLoginGuard } from '../../../middleware/is-login.middleware';
@@ -35,10 +35,19 @@ export class AuthController {
 
     @Delete('logout')
     @ApiOperation({ summary: 'Log out' })
-    @ApiOkResponse({ description: 'Log out successful', type: LogInSignInDtoOutput })
+    @ApiOkResponse({ description: 'Log out successful' })
     @ApiNotFoundResponse({ description: 'Log out failed' })
     @UseGuards(IsLoginGuard)
     async logout(@Body() body: RefreshTokenDto): Promise<void> {
         await this.authService.logout(body.refreshToken);
+    }
+
+    @Patch('refresh')
+    @ApiOperation({ summary: 'Refresh token' })
+    @ApiOkResponse({ description: 'Refresh token successful', type: LogInSignInDtoOutput })
+    @ApiNotFoundResponse({ description: 'Refresh token failed' })
+    @UseGuards(IsLoginGuard)
+    async refresh(@Body() body: RefreshTokenDto): Promise<LogInSignInDtoOutput> {
+        return await this.authService.refresh(body.refreshToken);
     }
 }
