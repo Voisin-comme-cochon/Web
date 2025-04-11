@@ -6,12 +6,13 @@ export class AuthRepositoryImplementation implements AuthRepository {
     constructor(private readonly dataSource: DataSource) {}
 
     async deleteToken(token: string): Promise<void> {
+        console.log(`Deleting token: ${token}`);
         await this.dataSource.getRepository(UserTokenEntity).delete({
             token: token,
         });
     }
 
-    getTokensByUserId(userId: string): Promise<UserTokenEntity[]> {
+    getTokensByUserId(userId: number): Promise<UserTokenEntity[]> {
         return this.dataSource
             .getRepository(UserTokenEntity)
             .createQueryBuilder('user_tokens')

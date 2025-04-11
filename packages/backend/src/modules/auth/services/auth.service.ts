@@ -6,11 +6,12 @@ import { UsersRepository } from '../../users/domain/users.abstract.repository';
 import { AuthRepository } from '../domain/auth.abstract.repository';
 import { LogInSignInDtoOutput } from '../controllers/dto/auth.dto';
 import { CochonError } from '../../../utils/CochonError';
+import { UserTokenEntity } from '../../../core/entities/user-tokens.entity';
 
 export class AuthService {
     constructor(
         private userRepository: UsersRepository,
-        private authService: AuthRepository,
+        private authRepository: AuthRepository,
         private jwtService: JwtService
     ) {}
 
@@ -24,7 +25,8 @@ export class AuthService {
         description: string
     ): Promise<LogInSignInDtoOutput> {
         const isUserExist = await this.userRepository.findByEmail(email);
-        if (isUserExist) {
+        const isPhoneExist = await this.userRepository.findByPhone(phone);
+        if (isUserExist || isPhoneExist) {
             throw new CochonError('account-already-exist', 'Account already exist', 400);
         }
         const salt = await bcrypt.genSalt(10);
@@ -58,9 +60,17 @@ export class AuthService {
             }
         );
 
-        await this.authService.saveToken(refreshToken, user.id);
+        await this.authRepository.saveToken(refreshToken, user.id);
 
         return AuthAdapter.tokensToDtoOutput(accessToken, refreshToken);
+    }
+
+    async logout(refresh_token: string): Promise<void> {
+        await this.authRepository.deleteToken(refresh_token);
+    }
+
+    public async getTokensById(id: number): Promise<UserTokenEntity[]> {
+        return await this.authRepository.getTokensByUserId(id);
     }
 
     public async logIn(email: string, password: string): Promise<LogInSignInDtoOutput> {
@@ -87,7 +97,7 @@ export class AuthService {
             }
         );
 
-        await this.authService.saveToken(refreshToken, user.id);
+        await this.authRepository.saveToken(refreshToken, user.id);
 
         return AuthAdapter.tokensToDtoOutput(accessToken, refreshToken);
     }

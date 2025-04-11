@@ -8,7 +8,7 @@ import { UserRepositoryImplementation } from './repository/user.repository.imple
 @Module({
     imports: [],
     controllers: [UsersController],
-    exports: [UsersRepository],
+    exports: [UsersRepository, UsersService],
     providers: [
         {
             provide: UsersRepository,

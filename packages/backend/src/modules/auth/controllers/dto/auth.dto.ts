@@ -39,7 +39,7 @@ export class SignInDto {
 export class RefreshTokenDto {
     @ApiProperty({ example: 'jwt', description: 'Refresh token of the user' })
     @IsString()
-    refreshToken!: number;
+    refreshToken!: string;
 }
 
 export class LoginInDto {

@@ -21,6 +21,22 @@ export class UserRepositoryImplementation implements UsersRepository {
         });
     }
 
+    public findByPhone(phone: string): Promise<UserEntity | null> {
+        return this.dataSource.getRepository(UserEntity).findOne({
+            where: {
+                phone: phone,
+            },
+        });
+    }
+
+    public getUserById(id: number): Promise<UserEntity | null> {
+        return this.dataSource.getRepository(UserEntity).findOne({
+            where: {
+                id: id,
+            },
+        });
+    }
+
     public createUser(user: UserEntity): Promise<UserEntity> {
         return this.dataSource.getRepository(UserEntity).save(user);
     }
