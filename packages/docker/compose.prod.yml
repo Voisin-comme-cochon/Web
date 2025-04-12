@@ -36,7 +36,7 @@ services:
     volumes:
       - mongo_data:/data/db
     environment:
-      MONGO_INITDB_DATABASE: vcc-mongo
+      MONGO_INITDB_DATABASE: ${MONGO_DB_NAME}
 
   backend:
     image: node:20.11

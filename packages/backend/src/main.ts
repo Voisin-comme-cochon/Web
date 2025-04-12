@@ -8,7 +8,7 @@ import { AppModule } from './app.module';
 import { initValidation } from './setup/init-validation';
 import { loggerMiddleware } from './middleware/logger.middleware';
 
-const port = process.env.PORT ?? 3000;
+const port = process.env.VCC_API_PORT ?? 3000;
 
 const bootstrap = async () => {
     const app: INestApplication = await NestFactory.create(AppModule);

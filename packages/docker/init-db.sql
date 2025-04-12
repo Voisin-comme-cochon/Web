@@ -2,7 +2,7 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 CREATE EXTENSION IF NOT EXISTS postgis;
 
 CREATE TABLE "User"(
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id SERIAL PRIMARY KEY,
     firstName VARCHAR(255) NOT NULL,
     lastName VARCHAR(255) NOT NULL,
     phoneNumber CHAR(10) NOT NULL,
@@ -17,27 +17,27 @@ CREATE TABLE "User"(
 );
 
 CREATE TABLE "User_stripe"(
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id SERIAL PRIMARY KEY,
     iban VARCHAR(255) NOT NULL,
-    userId UUID NOT NULL,
+    userId INT NOT NULL,
     CONSTRAINT fk_userId FOREIGN KEY (userId) REFERENCES "User"(id) ON DELETE CASCADE
 );
 
 -- Table Tag
 CREATE TABLE "Tag" (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id SERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     color VARCHAR(255) NOT NULL
 );
 
 CREATE TABLE "Event" (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    createdBy UUID NOT NULL,
+    id SERIAL PRIMARY KEY,
+    createdBy INT NOT NULL,
     name VARCHAR(255) NOT NULL,
     description TEXT,
     dateStart TIMESTAMP NOT NULL,
     dateEnd TIMESTAMP NOT NULL,
-    tagId UUID,
+    tagId INT,
     min INT,
     max INT,
     photo VARCHAR(255),
@@ -48,9 +48,9 @@ CREATE TABLE "Event" (
 );
 
 CREATE TABLE "Event_registration"(
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    userId UUID NOT NULL,
-    eventId UUID NOT NULL,
+    id SERIAL PRIMARY KEY,
+    userId INT NOT NULL,
+    eventId INT NOT NULL,
     CONSTRAINT fk_userId FOREIGN KEY (userId) REFERENCES "User"(id) ON DELETE CASCADE,
     CONSTRAINT fk_eventId FOREIGN KEY (eventId) REFERENCES "Event"(id) ON DELETE CASCADE
 );
@@ -58,27 +58,27 @@ CREATE TABLE "Event_registration"(
 
 -- Table Group
 CREATE TABLE "Group" (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id SERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
-    tagId UUID,
+    tagId INT,
     isPrivate BOOLEAN NOT NULL,
     description TEXT,
     CONSTRAINT fk_tag FOREIGN KEY (tagId) REFERENCES "Tag"(id) ON DELETE SET NULL
 );
 
 CREATE TABLE "Group_tags" (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    groupId UUID NOT NULL,
-    tagId UUID NOT NULL,
+    id SERIAL PRIMARY KEY,
+    groupId INT NOT NULL,
+    tagId INT NOT NULL,
     CONSTRAINT fk_group FOREIGN KEY (groupId) REFERENCES "Group"(id) ON DELETE CASCADE,
     CONSTRAINT fk_tag FOREIGN KEY (tagId) REFERENCES "Tag"(id) ON DELETE CASCADE
 );
 
 -- Table Group_membership
 CREATE TABLE "Group_membership" (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    userId UUID NOT NULL,
-    groupId UUID NOT NULL,
+    id SERIAL PRIMARY KEY,
+    userId INT NOT NULL,
+    groupId INT NOT NULL,
     status VARCHAR(50) NOT NULL,
     CONSTRAINT fk_user FOREIGN KEY (userId) REFERENCES "User"(id) ON DELETE CASCADE,
     CONSTRAINT fk_group FOREIGN KEY (groupId) REFERENCES "Group"(id) ON DELETE CASCADE
@@ -86,10 +86,10 @@ CREATE TABLE "Group_membership" (
 
 -- Table Group_Message
 CREATE TABLE "Group_Message" (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id SERIAL PRIMARY KEY,
     content TEXT NOT NULL,
-    userId UUID NOT NULL,
-    groupId UUID NOT NULL,
+    userId INT NOT NULL,
+    groupId INT NOT NULL,
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_user FOREIGN KEY (userId) REFERENCES "User"(id) ON DELETE CASCADE,
     CONSTRAINT fk_group FOREIGN KEY (groupId) REFERENCES "Group"(id) ON DELETE CASCADE
@@ -97,9 +97,9 @@ CREATE TABLE "Group_Message" (
 
 -- Table Ticket
 CREATE TABLE "Ticket" (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id SERIAL PRIMARY KEY,
     subject VARCHAR(255) NOT NULL,
-    userId UUID NOT NULL,
+    userId INT NOT NULL,
     status VARCHAR(50) NOT NULL,
     priority VARCHAR(50) NOT NULL,
     creationDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -108,10 +108,10 @@ CREATE TABLE "Ticket" (
 
 -- Table Ticket_Message
 CREATE TABLE "Ticket_Message" (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id SERIAL PRIMARY KEY,
     content TEXT NOT NULL,
-    senderId UUID NOT NULL,
-    ticketId UUID NOT NULL,
+    senderId INT NOT NULL,
+    ticketId INT NOT NULL,
     type VARCHAR(50) NOT NULL CHECK (type IN ('user', 'admin', 'system')),
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_sender FOREIGN KEY (senderId) REFERENCES "User"(id) ON DELETE CASCADE,
@@ -120,7 +120,7 @@ CREATE TABLE "Ticket_Message" (
 
 -- Table Neighborhood
 CREATE TABLE "neighborhood" (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id SERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     coordonnees_geo GEOMETRY(Geometry, 4326) NOT NULL,
     status VARCHAR(50) NOT NULL,
@@ -130,9 +130,9 @@ CREATE TABLE "neighborhood" (
 
 -- Table Neighborhood_User
 CREATE TABLE "neighborhood_user" (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    neighborhoodId UUID NOT NULL,
-    userId UUID NOT NULL,
+    id SERIAL PRIMARY KEY,
+    neighborhoodId INT NOT NULL,
+    userId INT NOT NULL,
     role VARCHAR(50) NOT NULL,
     status VARCHAR(50) NOT NULL,
     CONSTRAINT fk_neighborhood FOREIGN KEY (neighborhoodId) REFERENCES "neighborhood"(id) ON DELETE CASCADE,
@@ -141,17 +141,17 @@ CREATE TABLE "neighborhood_user" (
 
 -- Table Material
 CREATE TABLE "Material" (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id SERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     description TEXT,
-    ownerId UUID NOT NULL,
+    ownerId INT NOT NULL,
     CONSTRAINT fk_owner FOREIGN KEY (ownerId) REFERENCES "User"(id) ON DELETE CASCADE
 );
 
 -- Table Material_photos
 CREATE TABLE "Material_photos" (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    materialId UUID NOT NULL,
+    id SERIAL PRIMARY KEY,
+    materialId INT NOT NULL,
     url VARCHAR(255) NOT NULL,
     isPrimary BOOLEAN DEFAULT FALSE,
     CONSTRAINT fk_material FOREIGN KEY (materialId) REFERENCES "Material"(id) ON DELETE CASCADE
@@ -159,13 +159,13 @@ CREATE TABLE "Material_photos" (
 
 -- Table Sales
 CREATE TABLE "Sales" (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    neighborhood_id UUID NOT NULL,
+    id SERIAL PRIMARY KEY,
+    neighborhood_id INT NOT NULL,
     price DECIMAL(10,2) NOT NULL CHECK (price >= 0),
-    userId UUID NOT NULL,
+    userId INT NOT NULL,
     status VARCHAR(50) NOT NULL,
     description TEXT,
-    materialId UUID NOT NULL,
+    materialId INT NOT NULL,
     paymentType VARCHAR(50) NOT NULL,
     CONSTRAINT fk_neighborhood FOREIGN KEY (neighborhood_id) REFERENCES "neighborhood"(id) ON DELETE CASCADE,
     CONSTRAINT fk_user FOREIGN KEY (userId) REFERENCES "User"(id) ON DELETE CASCADE,
@@ -174,9 +174,9 @@ CREATE TABLE "Sales" (
 
 -- Table Loan
 CREATE TABLE "Loan" (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    materialId UUID NOT NULL,
-    neighborhood_id UUID NOT NULL,
+    id SERIAL PRIMARY KEY,
+    materialId INT NOT NULL,
+    neighborhood_id INT NOT NULL,
     status VARCHAR(50) NOT NULL,
     CONSTRAINT fk_material FOREIGN KEY (materialId) REFERENCES "Material"(id) ON DELETE CASCADE,
     CONSTRAINT fk_neighborhood FOREIGN KEY (neighborhood_id) REFERENCES "neighborhood"(id) ON DELETE CASCADE
@@ -184,11 +184,11 @@ CREATE TABLE "Loan" (
 
 -- Table Loan_history
 CREATE TABLE "Loan_history" (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    loanId UUID NOT NULL,
+    id SERIAL PRIMARY KEY,
+    loanId INT NOT NULL,
     startDate TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     endDate TIMESTAMP,
-    loanedUserId UUID NOT NULL,
+    loanedUserId INT NOT NULL,
     CONSTRAINT fk_loan FOREIGN KEY (loanId) REFERENCES "Loan"(id) ON DELETE CASCADE,
     CONSTRAINT fk_loanedUser FOREIGN KEY (loanedUserId) REFERENCES "User"(id) ON DELETE CASCADE
 );

@@ -1,17 +1,24 @@
 import { Module } from '@nestjs/common';
-import { UsersController } from './users.controller';
-import { UsersService } from './users.service';
-import { UserRepository } from './user.repository';
+import { DataSource } from 'typeorm';
+import { UsersRepository } from './domain/users.abstract.repository';
+import { UsersController } from './controllers/users.controller';
+import { UsersService } from './services/users.service';
+import { UserRepositoryImplementation } from './repository/user.repository.implementation';
 
 @Module({
     imports: [],
     controllers: [UsersController],
+    exports: [UsersRepository, UsersService],
     providers: [
-        UserRepository,
+        {
+            provide: UsersRepository,
+            inject: [DataSource],
+            useFactory: (dataSource: DataSource) => new UserRepositoryImplementation(dataSource),
+        },
         {
             provide: UsersService,
-            inject: [UserRepository],
-            useFactory: (userRepository: UserRepository) => new UsersService(userRepository),
+            inject: [UsersRepository],
+            useFactory: (userRepository: UsersRepository) => new UsersService(userRepository),
         },
     ],
 })
