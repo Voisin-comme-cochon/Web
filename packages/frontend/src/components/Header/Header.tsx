@@ -11,7 +11,9 @@ export default function Header() {
                     className="max-w-[150px] h-auto"
                 />
                 <div className="flex ml-16">
-                    <h1 className="hover:underline cursor-pointer">Pourquoi nous</h1>
+                    <h1 onClick={(_) => {
+                        document.querySelector("#why-vcc")?.scrollIntoView({behavior: "smooth"})
+                    }} className="hover:underline cursor-pointer">Pourquoi nous</h1>
                     <h1 className="ml-8 hover:underline cursor-pointer">Voir votre quartier</h1>
                 </div>
             </div>

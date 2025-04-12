@@ -26,7 +26,7 @@ export default function LandingPage() {
                     CRÉER MON QUARTIER
                 </Button>
             </div>
-            <div className={'h-[100vh] w-full bg-white flex justify-center items-center flex-col'}>
+            <div className={'h-[100vh] w-full bg-white flex justify-center items-center flex-col'} id={"why-vcc"}>
                 <div className={'w-[90vw] flex justify-center items-start flex-col mb-16'}>
                     <p className={"text-[48px]"}><span
                         className={'text-[#ED5C3B] font-bold'}>Pourquoi</span> voisin comme cochon</p>
