@@ -1,7 +1,8 @@
 {
   "private": true,
   "scripts": {
-    "startAll:dev": "docker compose -f ./packages/docker/compose.dev.yml up -d && npm run start:dev --prefix packages/backend && npm run start:dev --prefix packages/frontend",
+    "startBack:dev": "docker compose -f ./packages/docker/compose.dev.yml up -d && npm run start:dev --prefix packages/backend",
+    "startFront:dev": "docker compose -f ./packages/docker/compose.dev.yml up -d && npm run dev --prefix packages/frontend",
     "downAll:dev": "docker compose -f ./packages/docker/compose.dev.yml down -v"
   },
   "workspaces": [
