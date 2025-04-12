@@ -1,0 +1,7 @@
+.important-word {
+    background-image: url("@/assets/images/orange_ellipse.png");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 100% 100%;
+    padding: 0.5em;
+}
