@@ -78,7 +78,7 @@ export default function LandingPage() {
                     <p className={"text-[24px] text-white w-[45%]"}>Avec toutes les personnes qui s’y trouvent</p>
                 </div>
 
-                <MapBox/>
+                <MapBox canCreate={false} showDetails={true}/>
             </div>
 
         </div>
