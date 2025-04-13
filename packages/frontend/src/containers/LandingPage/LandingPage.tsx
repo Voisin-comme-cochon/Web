@@ -3,6 +3,7 @@ import neighborhood from "../../assets/images/landing_page_neighborhood.webp";
 import "./landing-page.css"
 import {Button} from "@/components/ui/button.tsx";
 import InfoSection from "@/components/InfoSection/InfoSection.tsx";
+import MapBox from "@/components/MapBox/MapBox.tsx";
 
 export default function LandingPage() {
     return (
@@ -31,8 +32,7 @@ export default function LandingPage() {
                     <p className={"text-[48px]"}><span
                         className={'text-[#ED5C3B] font-bold'}>Pourquoi</span> voisin comme cochon</p>
                     <p className={"text-[24px] w-[45%]"}>Nous proposons divers services afin de fluidifier les
-                        intéractions
-                        entre voisins</p>
+                        intéractions entre voisins</p>
                 </div>
                 <div className={'w-[50vw] flex justify-around flex-row mb-12'}>
                     <InfoSection
@@ -69,6 +69,18 @@ export default function LandingPage() {
                     </InfoSection>
                 </div>
             </div>
+            <div className={'h-[100vh] w-full bg-foreground flex justify-center items-center flex-col'}
+                 id={"discover-your-neighborhood"}>
+                <div className={'w-[90vw] flex justify-center items-start flex-col mb-16'}>
+                    <p className={"text-[48px] text-white"}>
+                        <span className={'text-[#ED5C3B] font-bold'}>Découvrez</span> votre quartier
+                    </p>
+                    <p className={"text-[24px] text-white w-[45%]"}>Avec toutes les personnes qui s’y trouvent</p>
+                </div>
+
+                <MapBox/>
+            </div>
+
         </div>
     );
 }
