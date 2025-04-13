@@ -1,5 +1,5 @@
 import Header from "@/components/Header/Header.tsx";
-import neighborhood from "../../assets/images/landing_page_neighborhood.png";
+import neighborhood from "../../assets/images/landing_page_neighborhood.webp";
 import "./landing-page.css"
 import {Button} from "@/components/ui/button.tsx";
 import InfoSection from "@/components/InfoSection/InfoSection.tsx";

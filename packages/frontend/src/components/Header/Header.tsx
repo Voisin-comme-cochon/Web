@@ -1,4 +1,4 @@
-import logo from '@/assets/images/logoWebV1Light.png';
+import logo from '@/assets/images/logoWebV1Light.webp';
 import {Button} from "@/components/ui/button.tsx";
 
 export default function Header() {
