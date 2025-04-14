@@ -1,5 +1,6 @@
 import { Column, Entity, Geometry, PrimaryGeneratedColumn } from 'typeorm';
 import { IsISO8601 } from 'class-validator';
+import { NeighborhoodStatusEntity } from './neighborhood-status.entity';
 
 @Entity({ name: 'neighborhoods' })
 export class NeighborhoodEntity {
@@ -16,10 +17,14 @@ export class NeighborhoodEntity {
     })
     geo!: Geometry;
 
-    @Column()
-    status!: string;
+    @Column({
+        type: 'enum',
+        enum: NeighborhoodStatusEntity,
+        default: NeighborhoodStatusEntity.waiting,
+    })
+    status!: NeighborhoodStatusEntity;
 
-    @Column({ default: 'waiting' }) // waiting, refused, accepted
+    @Column()
     description!: string;
 
     @Column({ default: () => 'CURRENT_TIMESTAMP' })
