@@ -7,9 +7,9 @@ export default function InfoSection({title, description, icon}: {
 }) {
     return (
         <section className="info-section">
-            <span className="material-symbols-outlined text-[48px]">{icon}</span>
-            <h2 className="text-[24px]">{title}</h2>
-            <p className="text-[16px] font-light">{description}.</p>
+            <span className="material-symbols-outlined text-5xl">{icon}</span>
+            <h2 className="text-xl">{title}</h2>
+            <p className="text-sm font-light">{description}.</p>
         </section>
     );
 }

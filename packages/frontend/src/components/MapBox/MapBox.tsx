@@ -106,7 +106,7 @@ export default function MapBox({canCreate, showDetails}: Parameters) {
     };
 
     return (
-        <div className="w-[90vw] h-[60vh] rounded-2xl overflow-hidden shadow-lg relative">
+        <div className="w-11/12 h-4/6 rounded-2xl overflow-hidden shadow-lg relative">
             <div style={{position: 'absolute', top: 10, left: 10, zIndex: 1, width: 300}}>
                 <SearchBox
                     accessToken={MAPBOX_TOKEN}
