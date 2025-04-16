@@ -1,4 +1,4 @@
-import { Column, Entity, Geometry, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, Geography, PrimaryGeneratedColumn } from 'typeorm';
 import { IsISO8601 } from 'class-validator';
 import { NeighborhoodStatusEntity } from './neighborhood-status.entity';
 
@@ -11,11 +11,12 @@ export class NeighborhoodEntity {
     name!: string;
 
     @Column({
-        type: 'geometry',
+        type: 'geography',
         spatialFeatureType: 'Polygon',
         srid: 4326,
+        nullable: true,
     })
-    geo!: Geometry;
+    geo!: Geography;
 
     @Column({
         type: 'enum',

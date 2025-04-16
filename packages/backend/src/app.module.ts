@@ -2,11 +2,13 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersModule } from './modules/users/users.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { NeighborhoodModule } from './modules/neighborhoods/neighborhood.module';
 
 @Module({
     imports: [
         UsersModule,
         AuthModule,
+        NeighborhoodModule,
         TypeOrmModule.forRoot({
             type: 'postgres',
             host: process.env.VCC_DATABASE_HOST,

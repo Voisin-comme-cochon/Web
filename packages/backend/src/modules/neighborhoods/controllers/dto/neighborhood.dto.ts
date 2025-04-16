@@ -1,74 +1,77 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsBoolean, IsEmail, IsInt, IsPhoneNumber, IsString } from 'class-validator';
+import { IsInt, IsISO8601, IsString } from 'class-validator';
+import { Geography } from 'typeorm';
+import { NeighborhoodStatusEntity } from '../../../../core/entities/neighborhood-status.entity';
 
-export class ResponseUserDto {
+export class ResponseNeighborhoodDto {
     @ApiProperty({
         example: 1,
-        description: 'The id of the User',
+        description: 'The id of the Neighborhood',
     })
     @IsInt()
     id!: number;
 
     @ApiProperty({
-        example: 'Mathis',
-        description: 'The firstname of the User',
+        example: 'Quartier des Lilas',
+        description: 'The name of the Neighborhood',
     })
     @IsString()
-    firstName!: string;
+    name!: string;
 
     @ApiProperty({
-        example: 'Fremiot',
-        description: 'The lastname of the User',
-    })
-    @IsString()
-    lastName!: string;
-
-    @ApiProperty({
-        example: 'name@gmail.com',
-        description: 'The email of the User',
-    })
-    @IsEmail()
-    email!: string;
-
-    @ApiProperty({
-        example: '0123456789',
-        description: 'The phone number of the User',
-    })
-    @IsPhoneNumber()
-    phone!: string;
-
-    @ApiProperty({
-        example: '0123456789',
-        description: 'The address number of the User',
-    })
-    @IsString()
-    address!: string;
-
-    @ApiProperty({
-        example: 'description',
-        description: 'The description number of the User',
+        example: 'Quartier des Lilas de la ville de Villeurbanne',
+        description: 'The description of the Neighborhood',
     })
     @IsString()
     description!: string;
 
     @ApiProperty({
-        example: 'true',
-        description: 'If User is super admin',
+        example: '15/04/2025 12:00:00',
+        description: 'The creation date of the Neighborhood',
     })
-    @IsBoolean()
-    isSuperAdmin!: boolean;
+    @IsISO8601()
+    creationDate!: Date;
 
     @ApiProperty({
-        example: 'true',
-        description: 'If User is register to the newsletter',
+        example: 'object',
+        description: 'The geography informations of the Neighborhood',
     })
-    @IsBoolean()
-    newsletter!: boolean;
+    geo!: Geography;
+}
+
+export class RequestNeighborhoodDto {
+    @ApiProperty({
+        example: 'Quartier des Lilas',
+        description: 'The name of the Neighborhood',
+    })
+    @IsString()
+    name!: string;
 
     @ApiProperty({
-        example: 'Mobile',
-        description: 'The preffered notification method of the User',
+        example: 'Quartier des Lilas de la ville de Villeurbanne',
+        description: 'The description of the Neighborhood',
     })
-    @IsBoolean()
-    prefferedNotifMethod!: string;
+    @IsString()
+    description!: string;
+
+    @ApiProperty({
+        example: 'object',
+        description: 'The geography informations of the Neighborhood',
+    })
+    geo!: Geography;
+
+    @ApiProperty({
+        example: 'Nom Prénom',
+        description: 'The creator of the Neighborhood',
+    })
+    @IsString()
+    creator!: string;
+}
+
+export class StatusNeighborhoodDto {
+    @ApiProperty({
+        example: 'waiting',
+        description: 'The status of the Neighborhood',
+    })
+    status!: NeighborhoodStatusEntity | null;
 }
