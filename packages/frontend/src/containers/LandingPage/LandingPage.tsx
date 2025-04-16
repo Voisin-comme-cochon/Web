@@ -105,7 +105,7 @@ export default function LandingPage() {
                     </p>
                 </div>
 
-                <MapBox canCreate={true} showDetails={true}/>
+                <MapBox canCreate={false} showDetails={true}/>
             </div>
         </div>
     );

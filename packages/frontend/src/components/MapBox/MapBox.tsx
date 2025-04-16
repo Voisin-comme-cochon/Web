@@ -10,47 +10,52 @@ type Parameters = {
     showDetails: boolean;
 };
 
+type Neighborhood = {
+    id: number;
+    name: string;
+    geo: {
+        type: string;
+        coordinates: number[][][];
+    };
+    status: string;
+    description: string;
+    creationDate: string;
+};
+
+type GeoJSONFeatureCollection = {
+    type: 'FeatureCollection';
+    features: Array<{
+        type: 'Feature';
+        geometry: {
+            type: string;
+            coordinates: number[][][];
+        };
+        properties: {
+            id: number;
+            name: string;
+            description: string;
+            color: string;
+        };
+    }>;
+};
+
 export default function MapBox({canCreate, showDetails}: Parameters) {
     const MAPBOX_TOKEN = import.meta.env.VITE_VCC_MAPBOX_PUBLIC_KEY;
-    const mapRef = React.useRef<MapRef>(null); // Gère la référence de la carte
-    const drawRef = React.useRef<MapboxDraw>(); // Gère le dessin sur la carte
-    const [featuresFromDB, setFeaturesFromDB] = React.useState({ // TODO : Récupérer les données de la BDD
-        type: 'FeatureCollection',
-        features: [
-            {
-                type: 'Feature',
-                geometry: {
-                    type: 'Polygon',
-                    coordinates: [
-                        [
-                            [2.1446064070470356, 48.947116696079576],
-                            [2.0986385249381954, 48.89780312326957],
-                            [2.266562012639639, 48.89040188741993],
-                            [2.201831729671312, 48.96682849232582],
-                            [2.1446064070470356, 48.947116696079576],
-                        ],
-                    ],
-                },
-                properties: {
-                    id: 1,
-                    name: "Zone de test",
-                    color: "#0080ff",
-                },
-            },
-        ],
-    });
+    const mapRef = React.useRef<MapRef>(null);
+    const drawRef = React.useRef<MapboxDraw>();
+    const [featuresFromDB, setFeaturesFromDB] = React.useState<GeoJSONFeatureCollection | null>(null);
 
-    const [viewState, setViewState] = React.useState({ // Init la vue de base de la carte
+    const [viewState, setViewState] = React.useState({
         longitude: 2.2137,
         latitude: 46.2276,
         zoom: 4,
     });
 
-    const handleRetrieve = (res: any) => { // TODO : Typer
+    const handleRetrieve = (res: any) => {
         console.log('Résultat de la recherche :', res);
         if (res?.features?.length > 0) {
             const coords = res.features[0].geometry.coordinates;
-            setViewState({ // Met à jour la vue de la carte avec les coordonnées de la recherche
+            setViewState({
                 ...viewState,
                 latitude: coords[1],
                 longitude: coords[0],
@@ -59,13 +64,43 @@ export default function MapBox({canCreate, showDetails}: Parameters) {
         }
     };
 
-    const updateDrawData = () => {
-        const data = drawRef.current?.getAll();
-        // TODO : Envoyer les données à la BDD en fonction de si c'est update, create ou delete
-        console.log('GeoJSON dessiné :', data);
+    const fetchDataFromDB = async () => {
+        const response = await fetch('http://localhost:3000/neighborhoods?status=accepted', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+
+        const data: Neighborhood[] = await response.json();
+        console.log('Données brutes:', data);
+
+        // Transformation en FeatureCollection
+        const geoJson: GeoJSONFeatureCollection = {
+            type: 'FeatureCollection',
+            features: data.map((zone) => ({
+                type: 'Feature',
+                geometry: zone.geo,
+                properties: {
+                    id: zone.id,
+                    name: zone.name,
+                    description: zone.description,
+                    color: '#FF5733', // Couleur statique ou à randomiser
+                },
+            })),
+        };
+
+        console.log('GeoJSON transformé :', geoJson);
+        setFeaturesFromDB(geoJson);
     };
 
-    const onMapLoad = () => {
+    const updateDrawData = () => {
+        const data = drawRef.current?.getAll();
+        console.log('GeoJSON dessiné :', data);
+        // TODO : Envoi vers l'API selon create/update/delete
+    };
+
+    const onMapLoad = async () => {
         const map = mapRef.current?.getMap();
         if (!map) return;
 
@@ -88,6 +123,8 @@ export default function MapBox({canCreate, showDetails}: Parameters) {
         }
 
         if (showDetails) {
+            await fetchDataFromDB();
+
             map.on('click', 'readonly-layer', (e) => {
                 const feature = e.features?.[0];
                 if (feature) {

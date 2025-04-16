@@ -1,12 +1,11 @@
-import dotenv from 'dotenv';
-dotenv.config();
+import './utils/load-env';
 import { NestFactory } from '@nestjs/core';
 import { INestApplication } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as pckg from '../package.json';
-import { AppModule } from './app.module';
 import { initValidation } from './setup/init-validation';
 import { loggerMiddleware } from './middleware/logger.middleware';
+import { AppModule } from './app.module';
 
 const port = process.env.VCC_API_PORT ?? 3000;
 
@@ -23,6 +22,11 @@ const bootstrap = async () => {
     const documentFactory = () => SwaggerModule.createDocument(app, config);
     SwaggerModule.setup('openapi', app, documentFactory);
 
+    app.enableCors({
+        origin: 'http://localhost:8080', // ou '*' pour tous les domaines (pas recommandé en prod)
+        methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+        credentials: true,
+    });
 
     await app.listen(port);
 };
