@@ -15,6 +15,7 @@ export function setupDrawEvents(map: mapboxgl.Map) {
 
     const updateDrawData = () => {
         const data = draw.getAll();
+        console.log(data);
         // TODO : Envoi vers l'API
     };
 

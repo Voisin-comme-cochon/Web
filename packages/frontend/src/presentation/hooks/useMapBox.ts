@@ -7,11 +7,12 @@ import {NeighborhoodFrontRepository} from '@/infrastructure/repositories/Neighbo
 import {ApiService} from '@/infrastructure/api/ApiService';
 import {setupDrawEvents} from "@/presentation/state/drawManager.ts";
 import {MapBoxParameters} from "@/domain/models/MapBoxParameters.ts";
+import {ResponseResearchMapBox} from "@/domain/models/ResponseResearchMapBox.ts";
 
 export const useMapBox = ({canCreate, showDetails}: MapBoxParameters) => {
     const mapRef = useRef<MapRef>(null);
     const drawRef = useRef<MapboxDraw>();
-    const [featuresFromDB, setFeaturesFromDB] = useState<MapBoxGeoJson | null>(null);
+    const [featuresFromDB, setFeaturesFromDB] = useState<MapBoxGeoJson[]>([]);
     const [viewState, setViewState] = useState({
         longitude: 2.2137,
         latitude: 46.2276,
@@ -24,7 +25,8 @@ export const useMapBox = ({canCreate, showDetails}: MapBoxParameters) => {
         new NeighborhoodFrontRepository(new ApiService())
     );
 
-    const handleRetrieve = (res: any) => {
+    const handleRetrieve = (res: ResponseResearchMapBox) => {
+        console.log('Résultat de la recherche :', res);
         if (res?.features?.length > 0) {
             const coords = res.features[0].geometry.coordinates;
             setViewState((prev) => ({

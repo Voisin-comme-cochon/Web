@@ -1,4 +1,3 @@
-import * as React from 'react';
 import Map, {Layer, Source} from 'react-map-gl/mapbox';
 import {SearchBox} from '@mapbox/search-js-react';
 import '@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css';
@@ -36,8 +35,15 @@ export default function MapBox({canCreate, showDetails}: MapBoxParameters) {
                 mapStyle="mapbox://styles/mapbox/streets-v9"
                 interactiveLayerIds={showDetails ? ['readonly-layer'] : []}
             >
-                {featuresFromDB && (
-                    <Source id="readonly-source" type="geojson" data={featuresFromDB}>
+                {featuresFromDB && featuresFromDB.length > 0 && (
+                    <Source
+                        id="readonly-source"
+                        type="geojson"
+                        data={{
+                            type: 'FeatureCollection',
+                            features: featuresFromDB,
+                        }}
+                    >
                         <Layer
                             id="readonly-layer"
                             type="fill"

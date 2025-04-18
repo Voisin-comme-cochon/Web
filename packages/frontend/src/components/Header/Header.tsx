@@ -1,32 +1,32 @@
 import logo from "@/assets/images/logoWebV1Light.webp";
-import { Button } from "@/components/ui/button";
+import {Button} from "@/components/ui/button";
 
 export default function Header() {
-  return (
-    <header className="flex items-center justify-between w-full p-4 bg-white h-[64px]">
-      <div className="flex items-center">
-        <img src={logo} alt="logo" className="max-w-[150px] h-auto" />
-        <div className="flex ml-16">
-            <h1
-            onClick={(_) => {
-                document
-                .querySelector("#why-vcc")
-                ?.scrollIntoView({ behavior: "smooth" });
-            }}
-            className="hover:underline cursor-pointer"
-            >
-            Pourquoi nous
-          </h1>
-          <h1 onClick={(_) => {
-                document
-                .querySelector("#discover-your-neighborhood")
-                ?.scrollIntoView({ behavior: "smooth" });
-            }} className="ml-8 hover:underline cursor-pointer">
-            Voir votre quartier
-          </h1>
-        </div>
-      </div>
-      <Button variant="orange">SE CONNECTER</Button>
-    </header>
-  );
+    return (
+        <header className="flex items-center justify-between w-full p-4 bg-white h-[64px]">
+            <div className="flex items-center">
+                <img src={logo} alt="logo" className="max-w-[150px] h-auto"/>
+                <div className="flex ml-16">
+                    <h1
+                        onClick={() => {
+                            document
+                                .querySelector("#why-vcc")
+                                ?.scrollIntoView({behavior: "smooth"});
+                        }}
+                        className="hover:underline cursor-pointer"
+                    >
+                        Pourquoi nous
+                    </h1>
+                    <h1 onClick={() => {
+                        document
+                            .querySelector("#discover-your-neighborhood")
+                            ?.scrollIntoView({behavior: "smooth"});
+                    }} className="ml-8 hover:underline cursor-pointer">
+                        Voir votre quartier
+                    </h1>
+                </div>
+            </div>
+            <Button variant="orange">SE CONNECTER</Button>
+        </header>
+    );
 }
