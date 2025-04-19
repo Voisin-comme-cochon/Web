@@ -8,6 +8,7 @@ import {ApiService} from '@/infrastructure/api/ApiService';
 import {setupDrawEvents} from "@/presentation/state/drawManager.ts";
 import {MapBoxParameters} from "@/domain/models/MapBoxParameters.ts";
 import {ResponseResearchMapBox} from "@/domain/models/ResponseResearchMapBox.ts";
+import * as mapboxgl from "mapbox-gl";
 
 export const useMapBox = ({canCreate, showDetails}: MapBoxParameters) => {
     const mapRef = useRef<MapRef>(null);
@@ -26,7 +27,6 @@ export const useMapBox = ({canCreate, showDetails}: MapBoxParameters) => {
     );
 
     const handleRetrieve = (res: ResponseResearchMapBox) => {
-        console.log('Résultat de la recherche :', res);
         if (res?.features?.length > 0) {
             const coords = res.features[0].geometry.coordinates;
             setViewState((prev) => ({
@@ -53,8 +53,19 @@ export const useMapBox = ({canCreate, showDetails}: MapBoxParameters) => {
             map.on('click', 'readonly-layer', (e) => {
                 const feature = e.features?.[0];
                 if (feature) {
-                    const id = feature.properties?.id;
-                    console.log('ID cliqué :', id);
+                    const name = feature.properties?.name || 'Nom inconnu';
+                    const description = feature.properties?.description || 'Pas de description';
+
+                    new mapboxgl.Popup({closeButton: false, closeOnClick: true})
+                        .setLngLat(e.lngLat)
+                        .setHTML(`
+                            <div class="min-w-3xs max-w-[300px] max-h-[200px] overflow-y-auto rounded-lg bg-white shadow-lg p-4 text-sm">
+                                <h3 class="text-base font-semibold mb-2 text-gray-800">${name}</h3>
+                                <p class="text-gray-700 leading-snug">
+                                    ${description}
+                                </p>
+                            </div>
+                        `).addTo(map);
                 }
             });
 
