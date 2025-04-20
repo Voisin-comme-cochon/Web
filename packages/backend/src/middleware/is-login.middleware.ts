@@ -15,10 +15,11 @@ export class IsLoginGuard implements CanActivate {
     ) {}
 
     async canActivate(context: ExecutionContext): Promise<boolean> {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        const request = context.switchToHttp().getRequest();
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-call
-        const token: string = request.headers.authorization?.split(' ')[1];
+        const request = context.switchToHttp().getRequest<{
+            headers: { authorization?: string };
+            user?: DecodedToken;
+        }>();
+        const token: string = request.headers.authorization?.split(' ')[1] ?? '';
 
         if (!token) {
             return false;
@@ -26,13 +27,13 @@ export class IsLoginGuard implements CanActivate {
 
         try {
             const decodedToken: DecodedToken = this.jwtService.verify(token);
-            request.user = await this.userService.getUserById(decodedToken.id); // a prendre ensuite dans req.user Request() req
+            request.user = decodedToken; // a prendre ensuite dans req.user Request() req
             const refresh_tokens: UserTokenEntity[] = await this.authService.getTokensById(decodedToken.id);
             if (refresh_tokens.some((refresh_token) => refresh_token.token === token)) {
                 throw new CochonError('invalid-token', 'Token is invalid', 401);
             }
             return true;
-        } catch (error) {
+        } catch {
             return false;
         }
     }

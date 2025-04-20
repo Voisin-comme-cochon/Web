@@ -1,11 +1,14 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
+import { DecodedToken } from '../modules/auth/domain/auth.model';
 
 @Injectable()
 export class IsSuperAdminGuard implements CanActivate {
     canActivate(context: ExecutionContext): boolean {
-        const request = context.switchToHttp().getRequest();
-        const user = request.user;
+        const request = context.switchToHttp().getRequest<{
+            headers: { authorization?: string };
+            user: DecodedToken;
+        }>();
 
-        return user.isSuperAdmin;
+        return request.user.isSuperAdmin;
     }
 }

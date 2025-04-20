@@ -22,7 +22,7 @@ export default function LandingPage() {
                             l'échange entre les membres d'un quartier
                         </p>
                     </div>
-                    <img src={neighborhood} className="max-w-full h-auto"/>
+                    <img src={neighborhood} className="max-w-full h-auto" alt={"Illustration d'un quartier"}/>
                 </div>
                 <Button
                     variant={"floatingOrange"}

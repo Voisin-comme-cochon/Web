@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+
 export class ErrorResponse {
     @ApiProperty({ example: 'internal-server-error' })
     code!: string;

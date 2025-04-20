@@ -1,8 +1,4 @@
-import {
-    INestApplication,
-    ValidationError,
-    ValidationPipe,
-} from '@nestjs/common';
+import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { useContainer } from 'class-validator';
 import { AppModule } from '../app.module';
 import { CochonError } from '../utils/CochonError';
@@ -13,19 +9,12 @@ export const initValidation = (app: INestApplication) => {
     app.useGlobalPipes(
         new ValidationPipe({
             enableDebugMessages: true,
-            exceptionFactory: (errors: ValidationError[]) => {
-                const validationError = new CochonError(
-                    'validation-errors',
-                    'A validation error occurs',
-                    400,
-                    {
-                        errors,
-                    },
-                );
+            exceptionFactory: () => {
+                const validationError = new CochonError('validation-errors', 'A validation error occurs', 400);
                 console.error('validation-errors', validationError);
                 throw validationError;
             },
-        }),
+        })
     );
     app.useGlobalFilters(new ExceptionHandlerInterceptor());
 };

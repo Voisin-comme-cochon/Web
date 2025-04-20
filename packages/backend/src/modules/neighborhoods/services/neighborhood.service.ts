@@ -23,6 +23,7 @@ export class NeighborhoodService {
             creationDate: new Date(),
             status: NeighborhoodStatusEntity.waiting,
         };
+        console.log(owner);
         // TODO : Intégrer les users et les photos
         return this.neighborhoodRepository.createNeighborhood(insertedNeighborhood);
     }
