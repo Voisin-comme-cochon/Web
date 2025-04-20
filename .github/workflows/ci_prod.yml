@@ -19,10 +19,11 @@ jobs:
           script: |
             cd /home/contabo_user/Voisin-comme-cochon/Web/
             git pull origin develop
-            npm install
-            cd /home/contabo_user/Voisin-comme-cochon/Web/packages/frontend
-            npm run build
             cd /home/contabo_user/Voisin-comme-cochon/Web/packages/backend
+            npm install
+            npm run build
+            cd /home/contabo_user/Voisin-comme-cochon/Web/packages/frontend
+            npm install
             npm run build
             cd /home/contabo_user/Voisin-comme-cochon/Web/packages/docker
             docker-compose -f compose.prod.yml up -d
