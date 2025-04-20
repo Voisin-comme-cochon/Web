@@ -26,4 +26,4 @@ jobs:
             npm run build
             cd /home/contabo_user/Voisin-comme-cochon/Web/packages/docker
             docker-compose -f compose.prod.yml up -d
-            echo "Deployed successfully !"
+            echo "Deployed successfully!"
