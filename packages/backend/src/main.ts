@@ -23,7 +23,7 @@ const bootstrap = async () => {
     SwaggerModule.setup('openapi', app, documentFactory);
 
     app.enableCors({
-        origin: ['http://localhost:8080', 'http://192.168.2.1:8080'], // ou '*' pour tous les domaines (pas recommandé en prod)
+        origin: ['http://localhost:8080', 'http://192.168.2.1:8080', 'https://voisincommecochon.fr'], // ou '*' pour tous les domaines (pas recommandé en prod)
         methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
         credentials: true,
     });
