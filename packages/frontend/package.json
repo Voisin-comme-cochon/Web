@@ -10,19 +10,29 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@mapbox/mapbox-gl-draw": "^1.5.0",
+    "@mapbox/search-js-react": "^1.0.0",
+    "@mui/icons-material": "^7.0.2",
     "@radix-ui/react-slot": "1.1.2",
+    "@types/mapbox-gl": "^3.4.1",
+    "@types/react-map-gl": "^6.1.7",
     "class-variance-authority": "^0.7.1",
     "clsx": "2.1.1",
+    "dotenv": "^16.5.0",
     "lucide-react": "0.476.0",
+    "mapbox-gl": "^3.11.0",
+    "mapbox-gl-draw-circle": "^1.1.2",
     "next-themes": "0.4.4",
     "react": "18.3.1",
     "react-dom": "18.3.1",
+    "react-map-gl": "^8.0.3",
     "sonner": "2.0.1",
     "tailwind-merge": "3.0.2",
     "tailwindcss-animate": "1.0.7"
   },
   "devDependencies": {
     "@eslint/js": "9.21.0",
+    "@types/mapbox__mapbox-gl-draw": "^1.4.8",
     "@types/node": "22.13.5",
     "@types/react": "18.3.18",
     "@types/react-dom": "18.3.5",
@@ -36,6 +46,6 @@
     "tailwindcss": "3.4.17",
     "typescript": "5.7.2",
     "typescript-eslint": "8.24.1",
-    "vite": "6.2.0"
+    "vite": "^6.2.0"
   }
 }

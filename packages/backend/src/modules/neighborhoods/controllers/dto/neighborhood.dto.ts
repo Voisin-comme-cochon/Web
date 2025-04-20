@@ -1,0 +1,70 @@
+import { ApiProperty } from '@nestjs/swagger';
+import { IsInt, IsISO8601, IsString } from 'class-validator';
+import { Geography } from 'typeorm';
+import { NeighborhoodStatusEntity } from '../../../../core/entities/neighborhood-status.entity';
+
+export class ResponseNeighborhoodDto {
+    @ApiProperty({
+        example: 1,
+        description: 'The id of the Neighborhood',
+    })
+    @IsInt()
+    id!: number;
+
+    @ApiProperty({
+        example: 'Quartier des Lilas',
+        description: 'The name of the Neighborhood',
+    })
+    @IsString()
+    name!: string;
+
+    @ApiProperty({
+        example: 'Quartier des Lilas de la ville de Villeurbanne',
+        description: 'The description of the Neighborhood',
+    })
+    @IsString()
+    description!: string;
+
+    @ApiProperty({
+        example: '15/04/2025 12:00:00',
+        description: 'The creation date of the Neighborhood',
+    })
+    @IsISO8601()
+    creationDate!: Date;
+
+    @ApiProperty({
+        example: 'object',
+        description: 'The geography informations of the Neighborhood',
+    })
+    geo!: Geography;
+}
+
+export class RequestNeighborhoodDto {
+    @ApiProperty({
+        example: 'Quartier des Lilas',
+        description: 'The name of the Neighborhood',
+    })
+    @IsString()
+    name!: string;
+
+    @ApiProperty({
+        example: 'Quartier des Lilas de la ville de Villeurbanne',
+        description: 'The description of the Neighborhood',
+    })
+    @IsString()
+    description!: string;
+
+    @ApiProperty({
+        example: 'object',
+        description: 'The geography informations of the Neighborhood',
+    })
+    geo!: Geography;
+}
+
+export class StatusNeighborhoodDto {
+    @ApiProperty({
+        example: 'waiting',
+        description: 'The status of the Neighborhood',
+    })
+    status!: NeighborhoodStatusEntity | null;
+}
