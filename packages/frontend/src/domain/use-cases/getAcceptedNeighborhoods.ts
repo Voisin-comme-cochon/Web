@@ -18,7 +18,6 @@ export class GetAcceptedNeighborhoods {
                     id: neighborhood.id,
                     name: neighborhood.name,
                     description: neighborhood.description,
-                    color: '#FF0000',
                 },
             } as MapBoxGeoJson)
         )

@@ -16,4 +16,9 @@ export class NeighborhoodRepositoryImplementation implements NeighborhoodReposit
         });
         return NeighborhoodsAdapter.listDatabaseToDomain(neighborhoods);
     }
+
+    async createNeighborhood(neighborhood: NeighborhoodEntity): Promise<Neighborhood> {
+        const createdNeighborhood = await this.dataSource.getRepository(NeighborhoodEntity).save(neighborhood);
+        return NeighborhoodsAdapter.databaseToDomain(createdNeighborhood);
+    }
 }

@@ -15,6 +15,7 @@ import { AuthRepository } from './domain/auth.abstract.repository';
         }),
         UsersModule,
     ],
+    exports: [AuthService, JwtModule],
     controllers: [AuthController],
     providers: [
         {

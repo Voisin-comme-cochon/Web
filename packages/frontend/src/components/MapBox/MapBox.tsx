@@ -48,7 +48,7 @@ export default function MapBox({canCreate, showDetails}: MapBoxParameters) {
                             id="readonly-layer"
                             type="fill"
                             paint={{
-                                'fill-color': ['get', 'color'],
+                                'fill-color': "#ED5C3B",
                                 'fill-opacity': 0.4,
                             }}
                         />

@@ -59,13 +59,6 @@ export class RequestNeighborhoodDto {
         description: 'The geography informations of the Neighborhood',
     })
     geo!: Geography;
-
-    @ApiProperty({
-        example: 'Nom Prénom',
-        description: 'The creator of the Neighborhood',
-    })
-    @IsString()
-    creator!: string;
 }
 
 export class StatusNeighborhoodDto {

@@ -1,8 +1,8 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query, Request, UseGuards } from '@nestjs/common';
 import { ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { NeighborhoodService } from '../services/neighborhood.service';
-import { Neighborhood } from '../domain/neighborhood.model';
-import { ResponseNeighborhoodDto, StatusNeighborhoodDto } from './dto/neighborhood.dto';
+import { IsLoginGuard } from '../../../middleware/is-login.middleware';
+import { RequestNeighborhoodDto, ResponseNeighborhoodDto, StatusNeighborhoodDto } from './dto/neighborhood.dto';
 
 @ApiTags('neighborhoods')
 @Controller('neighborhoods')
@@ -18,7 +18,27 @@ export class NeighborhoodController {
     @ApiNotFoundResponse({
         description: 'Neighborhoods not found',
     })
-    async getAllNeighborhoods(@Query() query: StatusNeighborhoodDto): Promise<Neighborhood[]> {
+    async getAllNeighborhoods(@Query() query: StatusNeighborhoodDto): Promise<ResponseNeighborhoodDto[]> {
         return this.neighborhoodService.getAllNeighborhoods(query.status);
+    }
+
+    @Post()
+    @ApiOperation({ summary: 'Create a neighborhood' })
+    @ApiOkResponse({
+        description: 'Neighborhood created',
+        type: ResponseNeighborhoodDto,
+    })
+    @ApiNotFoundResponse({
+        description: 'Neighborhood not created',
+    })
+    @UseGuards(IsLoginGuard)
+    async createNeighborhood(
+        @Body() body: RequestNeighborhoodDto,
+        @Request()
+        req: {
+            user: { id: string };
+        }
+    ): Promise<ResponseNeighborhoodDto> {
+        return this.neighborhoodService.createNeighborhood(body.name, body.description, body.geo, req.user.id);
     }
 }
