@@ -7,7 +7,6 @@ import {NeighborhoodFrontRepository} from '@/infrastructure/repositories/Neighbo
 import {ApiService} from '@/infrastructure/api/ApiService';
 import {setupDrawEvents} from "@/presentation/state/drawManager.ts";
 import {MapBoxParameters} from "@/domain/models/MapBoxParameters.ts";
-import {ResponseResearchMapBox} from "@/domain/models/ResponseResearchMapBox.ts";
 import * as mapboxgl from "mapbox-gl";
 
 export const useMapBox = ({canCreate, showDetails}: MapBoxParameters) => {
@@ -26,7 +25,9 @@ export const useMapBox = ({canCreate, showDetails}: MapBoxParameters) => {
         new NeighborhoodFrontRepository(new ApiService())
     );
 
-    const handleRetrieve = (res: ResponseResearchMapBox) => {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-expect-error
+    const handleRetrieve = (res) => {
         if (res?.features?.length > 0) {
             const coords = res.features[0].geometry.coordinates;
             setViewState((prev) => ({

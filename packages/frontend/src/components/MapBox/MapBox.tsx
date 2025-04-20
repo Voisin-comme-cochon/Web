@@ -1,9 +1,9 @@
 import Map, {Layer, Source} from 'react-map-gl/mapbox';
-import {SearchBox} from '@mapbox/search-js-react';
 import '@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import {MapBoxParameters} from "@/domain/models/MapBoxParameters.ts";
 import {useMapBox} from "@/presentation/hooks/useMapBox.ts";
+import SearchBoxWrapper from "@/components/MapBox/SearchBoxWrapper.tsx";
 
 export default function MapBox({canCreate, showDetails}: MapBoxParameters) {
     const {
@@ -19,7 +19,7 @@ export default function MapBox({canCreate, showDetails}: MapBoxParameters) {
     return (
         <div className="w-11/12 h-4/6 rounded-2xl overflow-hidden shadow-lg relative">
             <div style={{position: 'absolute', top: 10, left: 10, zIndex: 1, width: 300}}>
-                <SearchBox
+                <SearchBoxWrapper
                     accessToken={MAPBOX_TOKEN}
                     onRetrieve={handleRetrieve}
                     placeholder="Rechercher une adresse..."
@@ -41,6 +41,8 @@ export default function MapBox({canCreate, showDetails}: MapBoxParameters) {
                         type="geojson"
                         data={{
                             type: 'FeatureCollection',
+                            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                            // @ts-ignore
                             features: featuresFromDB,
                         }}
                     >
