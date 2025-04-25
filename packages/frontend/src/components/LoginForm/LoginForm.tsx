@@ -4,7 +4,10 @@ import {Label} from "@/components/ui/label";
 import {Button} from "@/components/ui/button";
 import PasswordInput from "@/components/PasswordInput.tsx";
 import {usePassword} from "@/presentation/hooks/usePassword.ts";
-import {useEffect} from "react";
+import {LoginUc} from "@/domain/use-cases/loginUc.ts";
+import {LoginSignInFrontRepository} from "@/infrastructure/repositories/LoginSignInFrontRepository.ts";
+import {ApiService} from "@/infrastructure/api/ApiService.ts";
+import {useInput} from "@/presentation/hooks/useInput.ts";
 
 
 export default function LoginForm() {
@@ -13,10 +16,22 @@ export default function LoginForm() {
         setPassword
     } = usePassword();
 
-    useEffect(() => {
-        console.log("Password changed: " + password);
-    }, [password]);
-    
+    const {
+        inputValue,
+        setInputValue
+    } = useInput();
+
+    const handleSubmit = async () => {
+        const loginUc = new LoginUc(new LoginSignInFrontRepository(
+            new ApiService()
+        ))
+        const result = await loginUc.execute(inputValue, password)
+        console.log(result)
+    }
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setInputValue(e.target.value);
+    };
     return (
         <div className={"w-full flex items-center justify-center"}>
             <Card className="w-full max-w-md shadow-lg rounded-2xl">
@@ -26,15 +41,17 @@ export default function LoginForm() {
                         votre compte</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <form className="space-y-4">
+                    <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
                         <div>
                             <Label htmlFor="email" className={"font-bold"}>Adresse email</Label>
-                            <Input id="email" type="email" placeholder="exemple@mail.com" required/>
+                            <Input id="email" type="email" placeholder="exemple@mail.com" onChange={handleChange}
+                                   required/>
                         </div>
                         <PasswordInput value={password} onChangeCallback={setPassword}/>
 
                         <div>
-                            <Button type="submit" className="w-full" variant={"orange"}>Se connecter</Button>
+                            <Button type="submit" className="w-full" variant={"orange"} onClick={handleSubmit}>Se
+                                connecter</Button>
                             <Button
                                 variant="link"
                                 className="text-orange hover:underline w-full text-xs mt-2"
