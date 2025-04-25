@@ -6,9 +6,10 @@ import InfoSection from "@/components/InfoSection/InfoSection.tsx";
 import MapBox from "@/components/MapBox/MapBox.tsx";
 
 export default function LandingPage() {
+
     return (
         <div className="flex items-center justify-center flex-col w-full bg-background overflow-x-hidden">
-            <Header/>
+            <Header isLanding/>
             <div className="h-[calc(100vh-64px)] w-full flex justify-center flex-col relative">
                 <div className="w-full flex items-center justify-center flex-row">
                     <div className={"w-1/2"}>
