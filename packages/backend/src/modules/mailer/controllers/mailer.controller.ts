@@ -8,13 +8,12 @@ import { SendRawEmailDto } from './dto/mailer.dto';
 export class MailerController {
     constructor(private readonly mailerService: MailerService) {}
 
-    @Post('send-raw')
-    @ApiOperation({ summary: 'Send a raw email' })
+    @Post('send-email')
+    @ApiOperation({ summary: 'Send a raw email without template' })
     @ApiResponse({ status: 200, description: 'Email sent successfully' })
     @ApiResponse({ status: 400, description: 'Bad request' })
     @ApiResponse({ status: 500, description: 'Internal server error' })
-    async sendRawEmail(@Body() options: SendRawEmailDto): Promise<{ message: string }> {
-        await this.mailerService.sendMail(options);
-        return { message: 'Email sent successfully' };
+    async sendEmail(@Body() dto: SendRawEmailDto): Promise<void> {
+        await this.mailerService.sendRawEmail(dto);
     }
 }

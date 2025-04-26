@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsArray, IsEmail, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsEmail, IsEnum, IsObject, IsOptional, IsString } from 'class-validator';
+import { Templates } from '../../domain/templates.enum';
 
 export class SendRawEmailDto {
     @ApiProperty({ description: 'Email recipient(s)', example: 'user@example.com' })
@@ -21,12 +22,20 @@ export class SendRawEmailDto {
     @IsOptional()
     html?: string;
 
-    @ApiProperty({ description: 'Email template name', required: false })
-    @IsString()
+    @ApiProperty({ description: 'Template name', required: false, enum: Templates })
+    @IsEnum(Templates)
     @IsOptional()
-    template?: string;
+    template?: Templates;
 
-    @ApiProperty({ description: 'Context data for template', required: false })
+    @ApiProperty({
+        description: 'Context data for template',
+        required: false,
+        example: {
+            name: 'John Doe',
+            resetLink: 'https://example.com/reset-password',
+        },
+    })
     @IsOptional()
-    context?: Record<string, never>;
+    @IsObject()
+    context?: Record<string, unknown>;
 }

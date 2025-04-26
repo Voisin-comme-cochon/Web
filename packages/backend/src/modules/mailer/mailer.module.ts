@@ -1,5 +1,7 @@
+import { join } from 'path';
 import { Module } from '@nestjs/common';
 import { MailerModule as NestMailerModule } from '@nestjs-modules/mailer';
+import { PugAdapter } from '@nestjs-modules/mailer/dist/adapters/pug.adapter';
 import { MailerService } from './services/mailer.service';
 import { MailerController } from './controllers/mailer.controller';
 
@@ -17,6 +19,13 @@ import { MailerController } from './controllers/mailer.controller';
             },
             defaults: {
                 from: process.env.VCC_MAIL_FROM,
+            },
+            template: {
+                dir: join(__dirname, 'templates'),
+                adapter: new PugAdapter(),
+                options: {
+                    strict: true,
+                },
             },
         }),
     ],
