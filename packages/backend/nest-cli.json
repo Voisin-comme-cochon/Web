@@ -3,6 +3,13 @@
     "sourceRoot": ".",
     "entryFile": "src/main",
     "compilerOptions": {
-        "assets": ["config/**/*.json", "src/**/*.json", "src/**/*.ejs", "src/**/*.scss"]
+        "assets": [
+            "config/**/*.json",
+            "src/**/*.json",
+            "src/**/*.ejs",
+            "src/**/*.scss",
+            "src/**/*.pug"
+        ],
+        "watchAssets": true
     }
 }

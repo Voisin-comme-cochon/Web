@@ -9,7 +9,9 @@ export class CochonError extends Error {
 
     public readonly status: number;
 
-    constructor(code: string, message: string, status?: number) {
+    public readonly context?: Record<string, unknown>;
+
+    constructor(code: string, message: string, status?: number, context?: Record<string, unknown>) {
         super(message);
 
         this.date = dayjs().format('YYYY-MM-DD[T]HH:mm:ssZ');
@@ -17,6 +19,7 @@ export class CochonError extends Error {
         this.message = message;
         this.code = code;
         this.status = status ?? 500;
+        this.context = context;
 
         Error.captureStackTrace(this, CochonError);
     }
