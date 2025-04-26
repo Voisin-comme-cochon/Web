@@ -1,5 +1,4 @@
 // @ts-check
-import eslint from '@eslint/js';
 import tseslint from 'typescript-eslint';
 import stylisticTs from '@stylistic/eslint-plugin-ts';
 import preferArrow from 'eslint-plugin-prefer-arrow';
@@ -8,7 +7,7 @@ import eslintConfigPrettier from "eslint-config-prettier";
 import unicorn from 'eslint-plugin-unicorn';
 
 export default [
-    eslint.configs.recommended,
+    { linterOptions: { reportUnusedDisableDirectives: true } },
     eslintConfigPrettier,
     ...tseslint.configs.strictTypeChecked,
     ...tseslint.configs.stylisticTypeChecked,

@@ -65,7 +65,7 @@ export class MetadataResponseBuilder {
         private data: Paginated<unknown>,
         private queryParams: Record<string, unknown>,
         private endpoint: string,
-        private selfUrl: string,
+        private selfUrl: string
     ) {
         this.lastPage = Math.ceil(data.total / data.filters.limit);
     }
@@ -87,18 +87,12 @@ export class MetadataResponseBuilder {
 
     private buildPreviousUrl(): string | undefined {
         if (this.data.filters.page <= 1) return undefined;
-        return this.buildUrl(
-            this.data.filters.page - 1,
-            this.data.filters.limit,
-        );
+        return this.buildUrl(this.data.filters.page - 1, this.data.filters.limit);
     }
 
     private buildNextUrl(): string | undefined {
         if (this.data.filters.page >= this.lastPage) return undefined;
-        return this.buildUrl(
-            this.data.filters.page + 1,
-            this.data.filters.limit,
-        );
+        return this.buildUrl(this.data.filters.page + 1, this.data.filters.limit);
     }
 
     private buildUrl(page: number, limit: number): string {
