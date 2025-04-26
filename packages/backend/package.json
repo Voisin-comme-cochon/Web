@@ -16,7 +16,7 @@
         "test": "npx jest --runInBand --detectOpenHandles --forceExit"
     },
     "dependencies": {
-        "@nestjs-modules/mailer": "1.6.1",
+        "@nestjs-modules/mailer": "2.0.2",
         "@nestjs/common": "11.1.0",
         "@nestjs/core": "11.1.0",
         "@nestjs/jwt": "11.0.0",

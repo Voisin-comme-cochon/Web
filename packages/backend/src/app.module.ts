@@ -3,12 +3,14 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersModule } from './modules/users/users.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { NeighborhoodModule } from './modules/neighborhoods/neighborhood.module';
+import { MailerModule } from './modules/mailer/mailer.module';
 
 @Module({
     imports: [
         UsersModule,
         AuthModule,
         NeighborhoodModule,
+        MailerModule,
         TypeOrmModule.forRoot({
             type: 'postgres',
             host: process.env.VCC_DATABASE_HOST,
