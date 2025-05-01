@@ -2,11 +2,16 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
+import { useSearchParams } from 'react-router-dom';
 import { CardContent, CardFooter } from '@/components/ui/card.tsx';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form.tsx';
 import { Button } from '@/components/ui/button.tsx';
 import PasswordInput from '@/components/PasswordInput.tsx';
 import PasswordRequirements from '@/components/ResetPassword/PasswordRequirements.tsx';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert.tsx';
+import { AuthUc, AuthError } from '@/domain/use-cases/authUc.ts';
+import { AuthRepository } from '@/infrastructure/repositories/AuthRepository.ts';
+import { ApiService } from '@/infrastructure/api/ApiService.ts';
 
 const passwordSchema = z
     .object({
@@ -32,6 +37,9 @@ type ResetPasswordFormProps = {
 
 export default function ResetPasswordForm({ onSubmitSuccess, onLoginClick }: ResetPasswordFormProps) {
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    const [searchParams] = useSearchParams();
+    const token = searchParams.get('token');
 
     const form = useForm<FormValues>({
         resolver: zodResolver(passwordSchema),
@@ -51,20 +59,51 @@ export default function ResetPasswordForm({ onSubmitSuccess, onLoginClick }: Res
     const hasNumber = /[0-9]/.test(password);
     const passwordsMatch = password === confirmPassword && password !== '';
 
-    const onSubmit = () => {
-        setIsSubmitting(true);
+    const onSubmit = async () => {
+        if (!token) {
+            setError("Token de réinitialisation manquant. Veuillez utiliser le lien fourni dans l'email.");
+            return;
+        }
 
-        // TODO: add the real api call
-        setTimeout(() => {
-            setIsSubmitting(false);
+        setIsSubmitting(true);
+        setError(null);
+
+        try {
+            const authUc = new AuthUc(new AuthRepository(new ApiService()));
+            await authUc.resetPassword(token, password);
+
             onSubmitSuccess();
-        }, 1500);
+        } catch (err) {
+            setError(
+                err instanceof AuthError
+                    ? err.message
+                    : 'Une erreur est survenue lors de la réinitialisation du mot de passe'
+            );
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     return (
         <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)}>
                 <CardContent className="space-y-4">
+                    {error && (
+                        <Alert variant="destructive" className="bg-red-50 border-red-200 text-red-800">
+                            <AlertTitle className="text-sm font-medium">Erreur</AlertTitle>
+                            <AlertDescription className="text-xs">{error}</AlertDescription>
+                        </Alert>
+                    )}
+
+                    {!token && (
+                        <Alert variant="destructive" className="bg-amber-50 border-amber-200 text-amber-800">
+                            <AlertTitle className="text-sm font-medium">Attention</AlertTitle>
+                            <AlertDescription className="text-xs">
+                                Token de réinitialisation manquant. Veuillez utiliser le lien fourni dans l'email.
+                            </AlertDescription>
+                        </Alert>
+                    )}
+
                     <FormField
                         control={form.control}
                         name="password"
@@ -120,7 +159,8 @@ export default function ResetPasswordForm({ onSubmitSuccess, onLoginClick }: Res
                             !hasLowerCase ||
                             !hasNumber ||
                             !passwordsMatch ||
-                            isSubmitting
+                            isSubmitting ||
+                            !token
                         }
                     >
                         {isSubmitting ? 'Réinitialisation en cours...' : 'Réinitialiser le mot de passe'}

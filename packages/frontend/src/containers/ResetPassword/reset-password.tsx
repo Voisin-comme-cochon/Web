@@ -1,16 +1,25 @@
 import { useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAppNavigation } from '@/presentation/state/navigate.ts';
 import ResetPasswordForm from '@/components/ResetPassword/ResetPasswordForm.tsx';
+import RequestResetForm from '@/components/ResetPassword/RequestResetForm.tsx';
 import ResetPasswordSuccess from '@/components/ResetPassword/ResetPasswordSuccess.tsx';
 import Header from '@/components/Header/Header.tsx';
 
 export default function ResetPasswordPage() {
     const [resetSuccess, setResetSuccess] = useState(false);
+    const [, setRequestSuccess] = useState(false);
     const { goLogin } = useAppNavigation();
+    const [searchParams] = useSearchParams();
+    const token = searchParams.get('token');
 
     const handleResetSuccess = () => {
         setResetSuccess(true);
+    };
+
+    const handleRequestSuccess = () => {
+        setRequestSuccess(true);
     };
 
     return (
@@ -21,17 +30,23 @@ export default function ResetPasswordPage() {
                 <Card className="w-full max-w-md border-none shadow-lg">
                     <CardHeader className="space-y-1">
                         <CardTitle className="text-2xl font-bold text-primary">
-                            Réinitialiser votre mot de passe
+                            {token ? 'Réinitialiser votre mot de passe' : 'Demande de réinitialisation'}
                         </CardTitle>
                         <CardDescription className="text-primary/70">
-                            Veuillez créer un nouveau mot de passe sécurisé pour votre compte
+                            {token
+                                ? 'Veuillez créer un nouveau mot de passe sécurisé pour votre compte'
+                                : 'Veuillez entrer votre adresse email pour recevoir un lien de réinitialisation'}
                         </CardDescription>
                     </CardHeader>
 
-                    {resetSuccess ? (
-                        <ResetPasswordSuccess onLoginClick={goLogin} />
+                    {token ? (
+                        resetSuccess ? (
+                            <ResetPasswordSuccess onLoginClick={goLogin} />
+                        ) : (
+                            <ResetPasswordForm onSubmitSuccess={handleResetSuccess} onLoginClick={goLogin} />
+                        )
                     ) : (
-                        <ResetPasswordForm onSubmitSuccess={handleResetSuccess} onLoginClick={goLogin} />
+                        <RequestResetForm onSubmitSuccess={handleRequestSuccess} onLoginClick={goLogin} />
                     )}
                 </Card>
             </main>

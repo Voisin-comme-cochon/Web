@@ -7,7 +7,7 @@
     "license": "UNLICENSED",
     "scripts": {
         "build": "npx nest build",
-        "format": "npx prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
+        "format": "npx prettier --write \"src/**/*.ts\"",
         "start": "npx nest start",
         "start:dev": "npx nest start --watch",
         "start:debug": "npx nest start --debug --watch",
@@ -49,6 +49,7 @@
         "@types/node": "22.15.2",
         "@types/nodemailer": "6.4.17",
         "@types/supertest": "6.0.3",
+        "@types/uuid": "9.0.8",
         "cross-env": "7.0.3",
         "dotenv": "16.5.0",
         "eslint": "9.25.1",

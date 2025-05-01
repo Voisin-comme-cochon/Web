@@ -3,6 +3,7 @@ import { ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nest
 import { AuthService } from '../services/auth.service';
 import { IsLoginGuard } from '../../../middleware/is-login.middleware';
 import { LoginInDto, LogInSignInDtoOutput, RefreshTokenDto, SignInDto } from './dto/auth.dto';
+import { PasswordResetResponseDto, RequestPasswordResetDto, ResetPasswordDto } from './dto/password-reset.dto';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -49,5 +50,20 @@ export class AuthController {
     @UseGuards(IsLoginGuard)
     async refresh(@Body() body: RefreshTokenDto): Promise<LogInSignInDtoOutput> {
         return await this.authService.refresh(body.refreshToken);
+    }
+
+    @Post('forgot-password')
+    @ApiOperation({ summary: 'Request password reset' })
+    @ApiOkResponse({ description: 'Password reset email sent', type: PasswordResetResponseDto })
+    async requestPasswordReset(@Body() body: RequestPasswordResetDto): Promise<PasswordResetResponseDto> {
+        return await this.authService.requestPasswordReset(body.email);
+    }
+
+    @Post('reset-password')
+    @ApiOperation({ summary: 'Reset password with token' })
+    @ApiOkResponse({ description: 'Password reset successful', type: PasswordResetResponseDto })
+    @ApiNotFoundResponse({ description: 'Password reset failed' })
+    async resetPassword(@Body() body: ResetPasswordDto): Promise<PasswordResetResponseDto> {
+        return await this.authService.resetPassword(body.token, body.password);
     }
 }

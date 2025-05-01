@@ -10,4 +10,6 @@ export abstract class UsersRepository {
     abstract getUserById(id: number): Promise<UserEntity | null>;
 
     abstract createUser(user: UserEntity): Promise<UserEntity>;
+
+    abstract updateUserPassword(userId: number, password: string): Promise<void>;
 }

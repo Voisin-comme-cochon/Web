@@ -2,8 +2,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import PasswordInput from '@/components/PasswordInput.tsx';
-import { LoginError, LoginUc } from '@/domain/use-cases/loginUc.ts';
-import { LoginSignInFrontRepository } from '@/infrastructure/repositories/LoginSignInFrontRepository.ts';
+import { AuthError, AuthUc } from '@/domain/use-cases/authUc.ts';
+import { AuthRepository } from '@/infrastructure/repositories/AuthRepository.ts';
 import { ApiService } from '@/infrastructure/api/ApiService.ts';
 import { useAppNavigation } from '@/presentation/state/navigate.ts';
 import { useState } from 'react';
@@ -41,12 +41,11 @@ export default function LoginForm() {
         setIsLoading(true);
 
         try {
-            const loginUc = new LoginUc(new LoginSignInFrontRepository(new ApiService()));
-            await loginUc.execute(values.email, values.password);
+            const authUc = new AuthUc(new AuthRepository(new ApiService()));
+            await authUc.login(values.email, values.password);
             goHome();
         } catch (err) {
-            if (err instanceof LoginError) {
-                console.log(err);
+            if (err instanceof AuthError) {
                 setError(err.message);
             } else {
                 setError('Une erreur inattendue est survenue. Veuillez réessayer plus tard.');
