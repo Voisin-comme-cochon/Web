@@ -3,7 +3,7 @@ import { IsArray, IsEmail, IsEnum, IsObject, IsOptional, IsString } from 'class-
 import { Templates } from '../../domain/templates.enum';
 
 export class SendRawEmailDto {
-    @ApiProperty({ description: 'Email recipient(s)', example: 'user@example.com' })
+    @ApiProperty({ description: 'Email recipient(s)', example: ['user@example.com'] })
     @IsEmail({}, { each: true })
     @IsArray()
     to!: string[];

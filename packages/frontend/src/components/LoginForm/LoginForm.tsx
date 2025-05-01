@@ -24,7 +24,7 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>;
 
 export default function LoginForm() {
-    const { goHome } = useAppNavigation();
+    const { goHome, goResetPassword } = useAppNavigation();
     const [error, setError] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
 
@@ -127,6 +127,7 @@ export default function LoginForm() {
                                     className="text-orange hover:underline w-full text-xs mt-2"
                                     type="button"
                                     disabled={isLoading}
+                                    onClick={goResetPassword}
                                 >
                                     Mot de passe oublié ?
                                 </Button>
