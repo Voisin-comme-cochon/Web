@@ -54,7 +54,7 @@ export class LoginInDto {
         description: 'Password of the user',
     })
     @Type(() => String)
-    @MinLength(8)
+    @MinLength(1)
     password!: string;
 }
 

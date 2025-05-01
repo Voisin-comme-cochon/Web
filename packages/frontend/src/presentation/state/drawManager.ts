@@ -1,5 +1,5 @@
 import MapboxDraw from '@mapbox/mapbox-gl-draw';
-import * as mapboxgl from "mapbox-gl";
+import * as mapboxgl from 'mapbox-gl';
 
 export function setupDrawEvents(map: mapboxgl.Map) {
     const draw = new MapboxDraw({
