@@ -1,15 +1,15 @@
-import {useRef, useState} from 'react';
+import { useRef, useState } from 'react';
 import MapboxDraw from '@mapbox/mapbox-gl-draw';
-import {MapRef} from 'react-map-gl/mapbox';
-import {MapBoxGeoJson} from '@/domain/models/MapBoxGeoJson';
-import {GetAcceptedNeighborhoods} from '@/domain/use-cases/getAcceptedNeighborhoods';
-import {NeighborhoodFrontRepository} from '@/infrastructure/repositories/NeighborhoodFrontRepository';
-import {ApiService} from '@/infrastructure/api/ApiService';
-import {setupDrawEvents} from "@/presentation/state/drawManager.ts";
-import {MapBoxParameters} from "@/domain/models/MapBoxParameters.ts";
-import * as mapboxgl from "mapbox-gl";
+import { MapRef } from 'react-map-gl/mapbox';
+import { MapBoxGeoJson } from '@/domain/models/MapBoxGeoJson';
+import { GetAcceptedNeighborhoods } from '@/domain/use-cases/getAcceptedNeighborhoods';
+import { NeighborhoodFrontRepository } from '@/infrastructure/repositories/NeighborhoodFrontRepository';
+import { ApiService } from '@/infrastructure/api/ApiService';
+import { setupDrawEvents } from '@/presentation/state/drawManager.ts';
+import { MapBoxParameters } from '@/domain/models/MapBoxParameters.ts';
+import * as mapboxgl from 'mapbox-gl';
 
-export const useMapBox = ({canCreate, showDetails}: MapBoxParameters) => {
+export const useMapBox = ({ canCreate, showDetails }: MapBoxParameters) => {
     const mapRef = useRef<MapRef>(null);
     const drawRef = useRef<MapboxDraw>();
     const [featuresFromDB, setFeaturesFromDB] = useState<MapBoxGeoJson[]>([]);
@@ -21,9 +21,7 @@ export const useMapBox = ({canCreate, showDetails}: MapBoxParameters) => {
 
     const MAPBOX_TOKEN = import.meta.env.VITE_VCC_MAPBOX_PUBLIC_KEY;
 
-    const getAcceptedNeighborhoodsUc = new GetAcceptedNeighborhoods(
-        new NeighborhoodFrontRepository(new ApiService())
-    );
+    const getAcceptedNeighborhoodsUc = new GetAcceptedNeighborhoods(new NeighborhoodFrontRepository(new ApiService()));
 
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-expect-error
@@ -57,16 +55,19 @@ export const useMapBox = ({canCreate, showDetails}: MapBoxParameters) => {
                     const name = feature.properties?.name || 'Nom inconnu';
                     const description = feature.properties?.description || 'Pas de description';
 
-                    new mapboxgl.Popup({closeButton: false, closeOnClick: true})
+                    new mapboxgl.Popup({ closeButton: false, closeOnClick: true })
                         .setLngLat(e.lngLat)
-                        .setHTML(`
+                        .setHTML(
+                            `
                             <div class="min-w-3xs max-w-[300px] max-h-[200px] overflow-y-auto rounded-lg bg-white shadow-lg p-4 text-sm">
                                 <h3 class="text-base font-semibold mb-2 text-gray-800">${name}</h3>
                                 <p class="text-gray-700 leading-snug">
                                     ${description}
                                 </p>
                             </div>
-                        `).addTo(map);
+                        `
+                        )
+                        .addTo(map);
                 }
             });
 

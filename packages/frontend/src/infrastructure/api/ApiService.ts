@@ -11,12 +11,11 @@ export class ApiError extends Error {
 }
 
 export class ApiService {
-
     async get(endpoint: string) {
         const baseUrl: string = import.meta.env.VITE_VCC_API_URL;
 
         try {
-            const response = await fetch(`${ baseUrl }${ endpoint }`, {
+            const response = await fetch(`${baseUrl}${endpoint}`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -26,7 +25,7 @@ export class ApiService {
             if (!response.ok) {
                 throw new ApiError(
                     response.status,
-                    `API error: ${ response.statusText }`,
+                    `API error: ${response.statusText}`,
                     await response.text().catch(() => null)
                 );
             }
@@ -38,14 +37,10 @@ export class ApiService {
             }
 
             if (error instanceof Error) {
-                throw new ApiError(
-                    500,
-                    `Failed to fetch data: ${ error.message }`,
-                    null
-                );
+                throw new ApiError(500, `Failed to fetch data: ${error.message}`, null);
             }
 
-            throw new ApiError(500, "Unknown error occurred", null);
+            throw new ApiError(500, 'Unknown error occurred', null);
         }
     }
 
@@ -53,7 +48,7 @@ export class ApiService {
         const baseUrl: string = import.meta.env.VITE_VCC_API_URL;
 
         try {
-            const response = await fetch(`${ baseUrl }${ endpoint }`, {
+            const response = await fetch(`${baseUrl}${endpoint}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -64,7 +59,7 @@ export class ApiService {
             if (!response.ok) {
                 throw new ApiError(
                     response.status,
-                    `API error: ${ response.statusText }`,
+                    `API error: ${response.statusText}`,
                     await response.text().catch(() => null)
                 );
             }
@@ -76,14 +71,10 @@ export class ApiService {
             }
 
             if (error instanceof Error) {
-                throw new ApiError(
-                    500,
-                    `Failed to fetch data: ${ error.message }`,
-                    null
-                );
+                throw new ApiError(500, `Failed to fetch data: ${error.message}`, null);
             }
 
-            throw new ApiError(500, "Unknown error occurred", null);
+            throw new ApiError(500, 'Unknown error occurred', null);
         }
     }
 }
