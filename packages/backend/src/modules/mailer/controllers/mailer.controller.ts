@@ -9,7 +9,7 @@ export class MailerController {
     constructor(private readonly mailerService: MailerService) {}
 
     @Post('send-email')
-    @ApiOperation({ summary: 'Send a raw email without template' })
+    @ApiOperation({ summary: 'Send a raw email' })
     @ApiResponse({ status: 200, description: 'Email sent successfully' })
     @ApiResponse({ status: 400, description: 'Bad request' })
     @ApiResponse({ status: 500, description: 'Internal server error' })

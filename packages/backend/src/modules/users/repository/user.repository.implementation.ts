@@ -40,4 +40,8 @@ export class UserRepositoryImplementation implements UsersRepository {
     public createUser(user: UserEntity): Promise<UserEntity> {
         return this.dataSource.getRepository(UserEntity).save(user);
     }
+
+    public async updateUserPassword(userId: number, password: string): Promise<void> {
+        await this.dataSource.getRepository(UserEntity).update({ id: userId }, { password: password });
+    }
 }

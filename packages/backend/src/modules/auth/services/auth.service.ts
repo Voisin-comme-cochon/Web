@@ -7,12 +7,24 @@ import { AuthRepository } from '../domain/auth.abstract.repository';
 import { LogInSignInDtoOutput } from '../controllers/dto/auth.dto';
 import { CochonError } from '../../../utils/CochonError';
 import { UserTokenEntity } from '../../../core/entities/user-tokens.entity';
+import { MailerService } from '../../mailer/services/mailer.service';
+import { Templates } from '../../mailer/domain/templates.enum';
+
+interface DecodedToken {
+    id: number;
+    isSuperAdmin: boolean;
+    purpose?: string;
+    email?: string;
+    iat: number;
+    exp: number;
+}
 
 export class AuthService {
     constructor(
         private userRepository: UsersRepository,
         private authRepository: AuthRepository,
-        private jwtService: JwtService
+        private jwtService: JwtService,
+        private mailerService: MailerService
     ) {}
 
     public async signIn(
@@ -142,5 +154,74 @@ export class AuthService {
         await this.authRepository.saveToken(refreshToken, user.id);
 
         return AuthAdapter.tokensToDtoOutput(accessToken, refreshToken);
+    }
+
+    public async requestPasswordReset(email: string): Promise<{ message: string }> {
+        const user = await this.userRepository.findByEmail(email);
+        if (!user) {
+            // We return success to prevent email enumeration
+            return { message: 'Password reset email sent' };
+        }
+
+        const resetToken = this.jwtService.sign(
+            {
+                id: user.id,
+                email: user.email,
+                purpose: 'password-reset',
+            },
+            {
+                expiresIn: '1h',
+            }
+        );
+
+        const resetLink = `${process.env.VCC_FRONT_URL ?? 'http://localhost:8080'}/reset-password?token=${resetToken}`;
+
+        try {
+            await this.mailerService.sendRawEmail({
+                to: [user.email],
+                subject: 'Réinitialisation de votre mot de passe',
+                template: Templates.RESET_PASSWORD,
+                context: {
+                    name: user.firstName,
+                    resetLink: resetLink,
+                },
+            });
+        } catch (error) {
+            console.error('Failed to send password reset email:', error);
+        }
+
+        return { message: 'Password reset email sent' };
+    }
+
+    public async resetPassword(token: string, newPassword: string): Promise<{ message: string }> {
+        try {
+            const decoded = this.jwtService.verify<DecodedToken>(token);
+
+            if (decoded.purpose !== 'password-reset') {
+                throw new CochonError('invalid-token', 'Invalid token purpose', 400);
+            }
+
+            const user = await this.userRepository.getUserById(decoded.id);
+            if (!user) {
+                throw new CochonError('user-not-found', 'User not found', 404);
+            }
+
+            if (decoded.email !== user.email) {
+                throw new CochonError('invalid-token', 'Token does not match user', 400);
+            }
+
+            const salt = await bcrypt.genSalt(10);
+            const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+            await this.userRepository.updateUserPassword(user.id, hashedPassword);
+
+            return { message: 'Password reset successful' };
+        } catch (error) {
+            if (error instanceof CochonError) {
+                throw error;
+            }
+
+            throw new CochonError('invalid-token', 'Invalid or expired token', 400);
+        }
     }
 }
