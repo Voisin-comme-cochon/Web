@@ -7,6 +7,7 @@ export class User {
     address!: string;
     password!: string;
     description!: string;
+    profileImageUrl?: string;
     isSuperAdmin!: boolean;
     newsletter!: boolean;
     prefferedNotifMethod!: string;

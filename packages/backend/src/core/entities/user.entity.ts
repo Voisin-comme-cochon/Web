@@ -26,6 +26,9 @@ export class UserEntity {
     @Column()
     description!: string;
 
+    @Column({ nullable: true })
+    profileImageUrl?: string;
+
     @Column({ default: false })
     isSuperAdmin!: boolean;
 

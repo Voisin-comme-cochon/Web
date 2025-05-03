@@ -27,6 +27,9 @@ export class SignInDto {
     @IsString()
     description!: string;
 
+    @ApiProperty({ required: false, description: 'Profile image URL of the user' })
+    profileImageUrl?: string;
+
     @ApiProperty({
         example: 'password',
         description: 'Password of the user',

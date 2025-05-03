@@ -9,6 +9,8 @@ import { CochonError } from '../../../utils/CochonError';
 import { UserTokenEntity } from '../../../core/entities/user-tokens.entity';
 import { MailerService } from '../../mailer/services/mailer.service';
 import { Templates } from '../../mailer/domain/templates.enum';
+import { ObjectStorageService } from '../../objectStorage/services/objectStorage.service';
+import { BucketType } from '../../objectStorage/domain/bucket-type.enum';
 
 interface DecodedToken {
     id: number;
@@ -24,7 +26,8 @@ export class AuthService {
         private userRepository: UsersRepository,
         private authRepository: AuthRepository,
         private jwtService: JwtService,
-        private mailerService: MailerService
+        private mailerService: MailerService,
+        private objectStorageService: ObjectStorageService
     ) {}
 
     public async signIn(
@@ -34,7 +37,8 @@ export class AuthService {
         email: string,
         address: string,
         password: string,
-        description: string
+        description: string,
+        profileImage?: Express.Multer.File
     ): Promise<LogInSignInDtoOutput> {
         const isUserExist = await this.userRepository.findByEmail(email);
         const isPhoneExist = await this.userRepository.findByPhone(phone);
@@ -43,6 +47,20 @@ export class AuthService {
         }
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
+
+        let profileImageUrl: string | undefined;
+
+        if (profileImage) {
+            try {
+                profileImageUrl = await this.objectStorageService.uploadFile(
+                    profileImage.buffer,
+                    profileImage.originalname,
+                    BucketType.PROFILE_IMAGES
+                );
+            } catch (error) {
+                console.error('Error uploading profile image:', error);
+            }
+        }
 
         const prevUser: User = {
             id: 0,
@@ -53,6 +71,7 @@ export class AuthService {
             address: address,
             password: hashedPassword,
             description: description,
+            profileImageUrl: profileImageUrl,
             isSuperAdmin: false,
             newsletter: false,
             prefferedNotifMethod: 'email',

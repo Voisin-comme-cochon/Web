@@ -4,6 +4,7 @@ import { UsersModule } from './modules/users/users.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { NeighborhoodModule } from './modules/neighborhoods/neighborhood.module';
 import { MailerModule } from './modules/mailer/mailer.module';
+import { ObjectStorageModule } from './modules/objectStorage/objectStorage.module';
 
 @Module({
     imports: [
@@ -11,6 +12,7 @@ import { MailerModule } from './modules/mailer/mailer.module';
         AuthModule,
         NeighborhoodModule,
         MailerModule,
+        ObjectStorageModule,
         TypeOrmModule.forRoot({
             type: 'postgres',
             host: process.env.VCC_DATABASE_HOST,

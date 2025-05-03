@@ -10,7 +10,6 @@ import { CochonError } from '../utils/CochonError';
 export class IsLoginGuard implements CanActivate {
     constructor(
         private readonly authService: AuthService,
-        private readonly userService: UsersService,
         private readonly jwtService: JwtService
     ) {}
 
