@@ -5,8 +5,22 @@ interface AuthTokens {
     refresh_token: string;
 }
 
+export interface SignupData {
+    firstName: string;
+    lastName: string;
+    phone: string;
+    email: string;
+    address: string;
+    password: string;
+    profileImage?: string;
+}
+
 export class AuthRepository {
     constructor(private apiService: ApiService) {}
+
+    async signup(data: SignupData): Promise<AuthTokens> {
+        return await this.apiService.post('/auth/register', JSON.stringify(data));
+    }
 
     async login(email: string, password: string): Promise<AuthTokens> {
         return await this.apiService.post(

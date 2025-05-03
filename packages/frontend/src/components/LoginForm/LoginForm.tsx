@@ -24,7 +24,7 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>;
 
 export default function LoginForm() {
-    const { goHome, goResetPassword } = useAppNavigation();
+    const { goHome, goResetPassword, goSignin } = useAppNavigation();
     const [error, setError] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
 
@@ -135,6 +135,7 @@ export default function LoginForm() {
                                 <p className={'text-gray-600 mr-2'}>Pas encore de compte ?</p>
                                 <Button
                                     variant="link"
+                                    onClick={goSignin}
                                     className="text-orange hover:underline px-0"
                                     type="button"
                                     disabled={isLoading}
