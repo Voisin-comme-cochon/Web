@@ -37,7 +37,7 @@ export class AuthService {
         email: string,
         address: string,
         password: string,
-        description: string,
+        description?: string,
         profileImage?: Express.Multer.File
     ): Promise<LogInSignInDtoOutput> {
         const isUserExist = await this.userRepository.findByEmail(email);

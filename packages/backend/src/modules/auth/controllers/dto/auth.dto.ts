@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsString, MinLength } from 'class-validator';
+import { IsEmail, IsOptional, IsString, MinLength } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class SignInDto {
@@ -25,9 +25,11 @@ export class SignInDto {
 
     @ApiProperty({ example: 'A short description about the user', description: 'Description of the user' })
     @IsString()
-    description!: string;
+    @IsOptional()
+    description?: string;
 
     @ApiProperty({ required: false, description: 'Profile image URL of the user' })
+    @IsOptional()
     profileImageUrl?: string;
 
     @ApiProperty({

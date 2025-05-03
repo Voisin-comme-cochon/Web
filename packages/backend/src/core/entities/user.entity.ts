@@ -23,8 +23,8 @@ export class UserEntity {
     @Column()
     password!: string;
 
-    @Column()
-    description!: string;
+    @Column({ nullable: true })
+    description?: string;
 
     @Column({ nullable: true })
     profileImageUrl?: string;

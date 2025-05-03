@@ -49,7 +49,7 @@ export class ResponseUserDto {
         description: 'The description number of the User',
     })
     @IsString()
-    description!: string;
+    description?: string;
 
     @ApiProperty({
         example: 'true',

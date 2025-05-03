@@ -6,7 +6,7 @@ export class User {
     email!: string;
     address!: string;
     password!: string;
-    description!: string;
+    description?: string;
     profileImageUrl?: string;
     isSuperAdmin!: boolean;
     newsletter!: boolean;
