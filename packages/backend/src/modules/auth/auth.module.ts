@@ -5,6 +5,8 @@ import { UsersModule } from '../users/users.module';
 import { UsersRepository } from '../users/domain/users.abstract.repository';
 import { MailerModule } from '../mailer/mailer.module';
 import { MailerService } from '../mailer/services/mailer.service';
+import { ObjectStorageModule } from '../objectStorage/objectStorage.module';
+import { ObjectStorageService } from '../objectStorage/services/objectStorage.service';
 import { AuthController } from './controllers/auth.controller';
 import { AuthService } from './services/auth.service';
 import { AuthRepositoryImplementation } from './repository/auth.repository.implementation';
@@ -17,8 +19,8 @@ import { AuthRepository } from './domain/auth.abstract.repository';
         }),
         UsersModule,
         MailerModule,
+        ObjectStorageModule,
     ],
-    exports: [AuthService, JwtModule],
     controllers: [AuthController],
     providers: [
         {
@@ -28,14 +30,16 @@ import { AuthRepository } from './domain/auth.abstract.repository';
         },
         {
             provide: AuthService,
-            inject: [AuthRepository, UsersRepository, JwtService, MailerService],
+            inject: [AuthRepository, UsersRepository, JwtService, MailerService, ObjectStorageService],
             useFactory: (
                 authRepository: AuthRepository,
                 usersRepository: UsersRepository,
                 jwtService: JwtService,
-                mailerService: MailerService
-            ) => new AuthService(usersRepository, authRepository, jwtService, mailerService),
+                mailerService: MailerService,
+                objectStorageService: ObjectStorageService
+            ) => new AuthService(usersRepository, authRepository, jwtService, mailerService, objectStorageService),
         },
     ],
+    exports: [AuthService, JwtModule],
 })
 export class AuthModule {}

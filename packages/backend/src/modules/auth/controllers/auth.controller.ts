@@ -1,5 +1,6 @@
-import { Body, Controller, Delete, Patch, Post, UseGuards } from '@nestjs/common';
-import { ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { Body, Controller, Delete, Patch, Post, UseGuards, UseInterceptors, UploadedFile } from '@nestjs/common';
+import { ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiTags, ApiConsumes } from '@nestjs/swagger';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { AuthService } from '../services/auth.service';
 import { IsLoginGuard } from '../../../middleware/is-login.middleware';
 import { LoginInDto, LogInSignInDtoOutput, RefreshTokenDto, SignInDto } from './dto/auth.dto';
@@ -14,7 +15,12 @@ export class AuthController {
     @ApiOperation({ summary: 'Sign in' })
     @ApiOkResponse({ description: 'Sign in successful', type: LogInSignInDtoOutput })
     @ApiNotFoundResponse({ description: 'Sign in failed' })
-    async signIn(@Body() body: SignInDto): Promise<LogInSignInDtoOutput> {
+    @ApiConsumes('multipart/form-data')
+    @UseInterceptors(FileInterceptor('profileImage'))
+    async signIn(
+        @Body() body: SignInDto,
+        @UploadedFile() profileImage?: Express.Multer.File
+    ): Promise<LogInSignInDtoOutput> {
         return await this.authService.signIn(
             body.firstName,
             body.lastName,
@@ -22,7 +28,8 @@ export class AuthController {
             body.email,
             body.address,
             body.password,
-            body.description
+            body.description,
+            profileImage
         );
     }
 

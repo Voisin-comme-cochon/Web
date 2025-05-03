@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import LandingPage from '@/containers/LandingPage/LandingPage.tsx';
 import LoginPage from '@/containers/Login/LoginPage.tsx';
 import ResetPasswordPage from '@/containers/ResetPassword/reset-password.tsx';
+import SigninPage from '@/containers/Signin/SigninPage.tsx';
 
 export default function App() {
     return (
@@ -9,6 +10,7 @@ export default function App() {
             <Routes>
                 <Route path="/" element={<LandingPage />} />
                 <Route path="/login" element={<LoginPage />} />
+                <Route path="/signin" element={<SigninPage />} />
                 <Route path="/reset-password" element={<ResetPasswordPage />} />
             </Routes>
         </Router>

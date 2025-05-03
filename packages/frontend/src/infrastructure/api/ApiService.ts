@@ -77,4 +77,35 @@ export class ApiService {
             throw new ApiError(500, 'Unknown error occurred', null);
         }
     }
+
+    async postFormData(endpoint: string, formData: FormData) {
+        const baseUrl: string = import.meta.env.VITE_VCC_API_URL;
+
+        try {
+            const response = await fetch(`${baseUrl}${endpoint}`, {
+                method: 'POST',
+                body: formData,
+            });
+
+            if (!response.ok) {
+                throw new ApiError(
+                    response.status,
+                    `API error: ${response.statusText}`,
+                    await response.text().catch(() => null)
+                );
+            }
+
+            return await response.json();
+        } catch (error) {
+            if (error instanceof ApiError) {
+                throw error;
+            }
+
+            if (error instanceof Error) {
+                throw new ApiError(500, `Failed to fetch data: ${error.message}`, null);
+            }
+
+            throw new ApiError(500, 'Unknown error occurred', null);
+        }
+    }
 }
