@@ -1,6 +1,7 @@
 import { Controller, Post, UseInterceptors, UploadedFile, Delete, Param, UseGuards, Query } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiTags, ApiOperation, ApiConsumes, ApiBody, ApiParam, ApiQuery } from '@nestjs/swagger';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { Multer } from 'multer';
 import { ObjectStorageService } from '../services/objectStorage.service';
 import { IsLoginGuard } from '../../../middleware/is-login.middleware';

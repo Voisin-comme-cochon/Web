@@ -1,7 +1,6 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { AuthService } from '../modules/auth/services/auth.service';
-import { UsersService } from '../modules/users/services/users.service';
 import { DecodedToken } from '../modules/auth/domain/auth.model';
 import { UserTokenEntity } from '../core/entities/user-tokens.entity';
 import { CochonError } from '../utils/CochonError';
