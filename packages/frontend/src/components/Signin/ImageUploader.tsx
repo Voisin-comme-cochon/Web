@@ -1,14 +1,27 @@
-import { useRef } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { User, Upload, X } from 'lucide-react';
-import { Label } from '@/components/ui/label';
+import { Label } from '@/components/ui/label.tsx';
 
 interface ImageUploaderProps {
-    value: string | null;
-    onChange: (value: string | null) => void;
+    value: string | File | null;
+    onChange: (value: string | File | null) => void;
 }
 
 export function ImageUploader({ value, onChange }: ImageUploaderProps) {
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+
+    useEffect(() => {
+        if (value instanceof File) {
+            const url = URL.createObjectURL(value);
+            setPreviewUrl(url);
+            return () => URL.revokeObjectURL(url);
+        } else if (typeof value === 'string') {
+            setPreviewUrl(value);
+        } else {
+            setPreviewUrl(null);
+        }
+    }, [value]);
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -23,11 +36,7 @@ export function ImageUploader({ value, onChange }: ImageUploaderProps) {
                 return;
             }
 
-            const reader = new FileReader();
-            reader.onload = () => {
-                onChange(reader.result as string);
-            };
-            reader.readAsDataURL(file);
+            onChange(file);
         }
     };
 
@@ -42,23 +51,17 @@ export function ImageUploader({ value, onChange }: ImageUploaderProps) {
 
         const file = e.dataTransfer.files?.[0];
         if (file) {
-            // Check if file is an image
             if (!file.type.startsWith('image/')) {
                 alert('Veuillez sélectionner une image');
                 return;
             }
 
-            // Check file size (max 5MB)
             if (file.size > 5 * 1024 * 1024) {
                 alert("L'image ne doit pas dépasser 5MB");
                 return;
             }
 
-            const reader = new FileReader();
-            reader.onload = () => {
-                onChange(reader.result as string);
-            };
-            reader.readAsDataURL(file);
+            onChange(file);
         }
     };
 
@@ -73,7 +76,7 @@ export function ImageUploader({ value, onChange }: ImageUploaderProps) {
         <div className="space-y-2">
             <Label>Photo de profil</Label>
             <div
-                className="border-2 border-dashed rounded-lg p-3 text-center cursor-pointer hover:bg-foreground/5 transition-colors"
+                className="border-2 border-dashed border-gray-300 rounded-lg p-3 text-center cursor-pointer hover:bg-foreground/5 transition-colors"
                 onDragOver={handleDragOver}
                 onDrop={handleDrop}
                 onClick={() => fileInputRef.current?.click()}
@@ -81,10 +84,10 @@ export function ImageUploader({ value, onChange }: ImageUploaderProps) {
                 <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleFileChange} />
 
                 <div className="flex items-center gap-4 justify-center">
-                    {value ? (
+                    {previewUrl ? (
                         <div className="relative w-20 h-20">
                             <img
-                                src={value || '/placeholder.svg'}
+                                src={previewUrl}
                                 alt="Profile preview"
                                 className="w-full h-full object-cover rounded-full"
                             />

@@ -20,7 +20,11 @@ export const signupFormSchema = z.object({
         .regex(/[A-Z]/, { message: 'Le mot de passe doit contenir au moins une majuscule' })
         .regex(/[a-z]/, { message: 'Le mot de passe doit contenir au moins une minuscule' })
         .regex(/[0-9]/, { message: 'Le mot de passe doit contenir au moins un chiffre' }),
-    profileImage: z.string().optional(),
+    description: z.string().optional(),
+    profileImage: z
+        .union([z.string(), z.instanceof(File), z.null()])
+        .optional()
+        .nullable(),
 });
 
 export type SignupFormValues = z.infer<typeof signupFormSchema>;

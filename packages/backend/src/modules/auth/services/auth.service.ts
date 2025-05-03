@@ -43,7 +43,7 @@ export class AuthService {
         const isUserExist = await this.userRepository.findByEmail(email);
         const isPhoneExist = await this.userRepository.findByPhone(phone);
         if (isUserExist || isPhoneExist) {
-            throw new CochonError('account-already-exist', 'Account already exist', 400);
+            throw new CochonError('account-already-exist', 'Account already exist', 409);
         }
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);

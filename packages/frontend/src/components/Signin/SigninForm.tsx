@@ -5,10 +5,11 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import PasswordInput from '@/components/PasswordInput';
-import { ImageUploader } from '@/components/ImageUploader/ImageUploader';
+import { ImageUploader } from '@/components/Signin/ImageUploader';
 import { signupFormSchema, type SignupFormValues } from '@/containers/Signin/signin.schema';
 import { useAppNavigation } from '@/presentation/state/navigate';
 import { AuthUc, AuthError } from '@/domain/use-cases/authUc';
@@ -29,6 +30,7 @@ export default function SigninForm() {
             email: '',
             address: '',
             password: '',
+            description: '',
             profileImage: '',
         },
     });
@@ -39,7 +41,16 @@ export default function SigninForm() {
 
         try {
             const authUc = new AuthUc(new AuthRepository(new ApiService()));
-            await authUc.signup(values);
+            await authUc.signup({
+                firstName: values.firstName,
+                lastName: values.lastName,
+                address: values.address,
+                email: values.email,
+                phone: values.phone,
+                password: values.password,
+                description: values.description,
+                profileImage: values.profileImage,
+            });
             goHome();
         } catch (err) {
             if (err instanceof AuthError) {
@@ -89,7 +100,6 @@ export default function SigninForm() {
                                 )}
                             />
 
-                            {/* Name Fields */}
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <FormField
                                     control={form.control}
@@ -98,10 +108,10 @@ export default function SigninForm() {
                                         <FormItem>
                                             <FormLabel>Prénom</FormLabel>
                                             <FormControl>
-                                                <Input 
-                                                    placeholder="Prénom" 
-                                                    disabled={isLoading} 
-                                                    {...field} 
+                                                <Input
+                                                    placeholder="Prénom"
+                                                    disabled={isLoading}
+                                                    {...field}
                                                     onChange={(e) => {
                                                         field.onChange(e);
                                                         setError(null);
@@ -119,10 +129,10 @@ export default function SigninForm() {
                                         <FormItem>
                                             <FormLabel>Nom</FormLabel>
                                             <FormControl>
-                                                <Input 
-                                                    placeholder="Nom" 
-                                                    disabled={isLoading} 
-                                                    {...field} 
+                                                <Input
+                                                    placeholder="Nom"
+                                                    disabled={isLoading}
+                                                    {...field}
                                                     onChange={(e) => {
                                                         field.onChange(e);
                                                         setError(null);
@@ -135,7 +145,6 @@ export default function SigninForm() {
                                 />
                             </div>
 
-                            {/* Contact Information */}
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <FormField
                                     control={form.control}
@@ -182,7 +191,6 @@ export default function SigninForm() {
                                 />
                             </div>
 
-                            {/* Address */}
                             <FormField
                                 control={form.control}
                                 name="address"
@@ -205,7 +213,30 @@ export default function SigninForm() {
                                 )}
                             />
 
-                            {/* Password */}
+                            <FormField
+                                control={form.control}
+                                name="description"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Description</FormLabel>
+                                        <FormControl>
+                                            <Textarea
+                                                placeholder="Parlez-nous un peu de vous..."
+                                                disabled={isLoading}
+                                                {...field}
+                                                onChange={(e) => {
+                                                    field.onChange(e);
+                                                    setError(null);
+                                                }}
+                                                className="resize-none"
+                                                rows={3}
+                                            />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+
                             <FormField
                                 control={form.control}
                                 name="password"
@@ -241,7 +272,7 @@ export default function SigninForm() {
                 </CardContent>
                 <CardFooter className="flex justify-center">
                     <p className="text-sm text-foreground/70">
-                        Vous avez déjà un compte?{' '}
+                        Vous avez déjà un compte ?
                         <Button variant={'link'} onClick={() => goLogin()} className="text-orange hover:underline">
                             Se connecter
                         </Button>

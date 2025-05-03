@@ -12,14 +12,31 @@ export interface SignupData {
     email: string;
     address: string;
     password: string;
-    profileImage?: string;
+    description?: string;
+    profileImage?: File | string | null;
 }
 
 export class AuthRepository {
     constructor(private apiService: ApiService) {}
 
     async signup(data: SignupData): Promise<AuthTokens> {
-        return await this.apiService.post('/auth/register', JSON.stringify(data));
+        const formData = new FormData();
+        formData.append('firstName', data.firstName);
+        formData.append('lastName', data.lastName);
+        formData.append('phone', data.phone);
+        formData.append('email', data.email);
+        formData.append('address', data.address);
+        formData.append('password', data.password);
+
+        if (data.description) {
+            formData.append('description', data.description);
+        }
+
+        if (data.profileImage) {
+            formData.append('profileImage', data.profileImage);
+        }
+
+        return await this.apiService.postFormData('/auth/signin', formData);
     }
 
     async login(email: string, password: string): Promise<AuthTokens> {
