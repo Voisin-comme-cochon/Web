@@ -1,0 +1,250 @@
+doctype html
+html(lang="fr")
+    head
+        meta(charset="UTF-8")
+        meta(name="viewport", content="width=device-width, initial-scale=1.0")
+        title Bienvenue sur Voisin comme Cochon !
+        style.
+            body {
+                font-family: 'Montserrat', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                margin: 0;
+                padding: 0;
+                background-color: #f2f5f8;
+                color: #1a2a41;
+                line-height: 1.6;
+            }
+
+            .container {
+                max-width: 600px;
+                margin: 0 auto;
+                padding: 20px;
+                background-color: #ffffff;
+                border-radius: 8px;
+                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            }
+
+            .header {
+                text-align: center;
+                padding: 20px 0;
+            }
+
+            .logo {
+                max-width: 250px;
+                height: auto;
+            }
+
+            .content {
+                padding: 20px;
+            }
+
+            h1 {
+                color: #1a2a41;
+                font-size: 24px;
+                margin-bottom: 20px;
+            }
+
+            h2 {
+                color: #1a2a41;
+                font-size: 18px;
+                margin-top: 25px;
+                margin-bottom: 15px;
+            }
+
+            p {
+                margin-bottom: 16px;
+                color: rgba(26, 42, 65, 0.8);
+            }
+
+            .button {
+                display: inline-block;
+                background-color: #e36f4c;
+                color: #ffffff !important;
+                text-decoration: none;
+                padding: 12px 24px;
+                border-radius: 4px;
+                font-weight: 600;
+                margin: 10px 0;
+                text-align: center;
+            }
+
+            .button:hover {
+                background-color: #d15e3b;
+            }
+
+            .button-secondary {
+                background-color: transparent;
+                border: 1px solid #e36f4c;
+                color: #e36f4c !important;
+            }
+
+            .button-secondary:hover {
+                background-color: rgba(227, 111, 76, 0.1);
+            }
+
+            .feature-box {
+                display: flex;
+                margin-bottom: 20px;
+                align-items: center;
+            }
+
+            .feature-icon {
+                width: 50px;
+                height: 50px;
+                background-color: rgba(227, 111, 76, 0.1);
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin-right: 15px;
+                flex-shrink: 0;
+            }
+
+            .feature-icon img {
+                width: 24px;
+                height: 24px;
+            }
+
+            .feature-text {
+                flex-grow: 1;
+            }
+
+            .feature-text h3 {
+                margin: 0 0 5px 0;
+                font-size: 16px;
+                color: #1a2a41;
+            }
+
+            .steps {
+                counter-reset: step-counter;
+                margin: 25px 0;
+            }
+
+            .step {
+                position: relative;
+                padding-left: 40px;
+                margin-bottom: 20px;
+            }
+
+            .step:before {
+                content: counter(step-counter);
+                counter-increment: step-counter;
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 28px;
+                height: 28px;
+                background-color: #e36f4c;
+                color: white;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-weight: bold;
+            }
+
+            .footer {
+                text-align: center;
+                padding: 20px;
+                color: rgba(26, 42, 65, 0.6);
+                font-size: 12px;
+                border-top: 1px solid #f2f5f8;
+                margin-top: 20px;
+            }
+
+            .highlight {
+                color: #e36f4c;
+                font-weight: 600;
+            }
+
+            .social-links {
+                margin-top: 15px;
+                text-align: center;
+            }
+
+            .social-links a {
+                display: inline-block;
+                margin: 0 8px;
+                text-decoration: none;
+            }
+
+            .social-links img {
+                width: 24px;
+                height: 24px;
+            }
+
+            .cta-container {
+                text-align: center;
+                margin: 30px 0;
+            }
+
+            .cta-container .button {
+                margin: 0 5px 10px 5px;
+            }
+
+            @media only screen and (max-width: 600px) {
+                .container {
+                    width: 100%;
+                    border-radius: 0;
+                }
+
+                .content {
+                    padding: 15px;
+                }
+
+                .cta-container .button {
+                    display: block;
+                    margin: 10px auto;
+                }
+            }
+
+    body
+        div.container
+            div.header
+                img.logo(src="https://res.cloudinary.com/dqa93fepx/image/upload/v1746350203/logoWebV1Light_qlz38l.webp" alt="VCC Logo")
+
+            div.content
+                h1 Bienvenue sur Voisin comme Cochon, #{name} !
+
+                p Nous sommes ravis de vous accueillir dans la communauté de quartier. Votre inscription a bien été prise en compte et votre compte est maintenant actif.
+
+                div.feature-box
+                    div.feature-icon
+                        img(src="https://res.cloudinary.com/dqa93fepx/image/upload/v1746351810/Material_Icons_Help_dt50gl.png" alt="")
+                    div.feature-text
+                        h3 Découvrez votre communauté
+                        p Connectez-vous avec vos voisins et participez aux événements locaux.
+
+                div.feature-box
+                    div.feature-icon
+                        img(src="https://res.cloudinary.com/dqa93fepx/image/upload/v1746351806/Material_Symbols_Icon_irf5r0.png" alt="")
+                    div.feature-text
+                        h3 Échangez et partagez
+                        p Créez des discussions, partagez des ressources et entraidez-vous.
+
+                div.feature-box
+                    div.feature-icon
+                        img(src="https://res.cloudinary.com/dqa93fepx/image/upload/v1746351771/Material_Symbols_Icon_1_y14bhp.png" alt="")
+                    div.feature-text
+                        h3 Explorez votre quartier
+                        p Découvrez les services, commerces et événements près de chez vous.
+
+                h2 Prochaines étapes
+
+                div.steps
+                    div.step
+                        p - Complétez votre profil pour vous présenter à la communauté.
+                    div.step
+                        p - Rejoignez les groupes qui vous intéressent.
+                    div.step
+                        p - Participez à votre premier événement de quartier.
+
+                div.cta-container
+                    a.button(href=profileLink) Compléter mon profil
+                    a.button.button-secondary(href=communityLink) Explorer ma communauté
+
+                p Si vous avez des questions ou besoin d'aide, n'hésitez pas à contacter notre équipe de support à #{supportEmail}.
+
+            div.footer
+                p Ce message a été envoyé automatiquement suite à votre inscription sur Quartier.
+                p Découvrez ce qu'est vraiment une vie de <span class="highlight">quartier</span>
+                p &copy; 2025 Voisin comme Cochon. Tous droits réservés.
