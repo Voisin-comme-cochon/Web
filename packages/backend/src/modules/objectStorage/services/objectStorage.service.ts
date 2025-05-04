@@ -16,6 +16,7 @@ export class ObjectStorageService implements OnModuleInit {
             useSSL: process.env.VCC_MINIO_USE_SSL === 'true',
             accessKey: process.env.VCC_MINIO_ACCESS_KEY ?? 'minioadmin',
             secretKey: process.env.VCC_MINIO_SECRET_KEY ?? 'minioadmin',
+            pathStyle: true,
         });
 
         this.region = process.env.VCC_MINIO_REGION ?? 'us-east-1';

@@ -1,8 +1,14 @@
 FROM node:20.11 AS build
 
 WORKDIR /app
+
+COPY package*.json ./
+
+RUN npm install
+
 COPY . .
-RUN npm install && npm run build
+
+RUN npm run build
 
 FROM nginx:alpine
 
