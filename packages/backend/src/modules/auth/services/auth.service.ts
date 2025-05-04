@@ -93,6 +93,22 @@ export class AuthService {
 
         await this.authRepository.saveToken(refreshToken, user.id);
 
+        try {
+            await this.mailerService.sendRawEmail({
+                to: [user.email],
+                subject: 'Bienvenue sur Voisin comme Cochon !',
+                template: Templates.WELCOME,
+                context: {
+                    name: user.firstName,
+                    profileLink: `${process.env.VCC_FRONT_URL ?? 'http://localhost:8080'}/profile`,
+                    communityLink: `${process.env.VCC_FRONT_URL ?? 'http://localhost:8080'}/community`,
+                    supportEmail: process.env.VCC_SUPPORT_EMAIL,
+                },
+            });
+        } catch (error) {
+            console.error('Failed to send welcome email:', error);
+        }
+
         return AuthAdapter.tokensToDtoOutput(accessToken, refreshToken);
     }
 
