@@ -59,7 +59,7 @@ export default function LoginForm() {
     return (
         <div className={'w-full flex items-center justify-center'}>
             <Card className="w-full max-w-md shadow-lg rounded-2xl">
-                <CardHeader>
+                <CardHeader className={"text-left"}>
                     <CardTitle className="text-2xl">Connexion</CardTitle>
                     <CardDescription className={'text-xs text-gray-600'}>
                         Entrez vos identifiants pour accéder à votre compte
@@ -79,7 +79,7 @@ export default function LoginForm() {
                                 control={form.control}
                                 name="email"
                                 render={({field}) => (
-                                    <FormItem>
+                                    <FormItem className={"text-left"}>
                                         <FormLabel className="font-bold">Adresse email</FormLabel>
                                         <FormControl>
                                             <Input
@@ -101,7 +101,7 @@ export default function LoginForm() {
                                 control={form.control}
                                 name="password"
                                 render={({field}) => (
-                                    <FormItem>
+                                    <FormItem className={"text-left"}>
                                         <FormLabel className="font-bold">Mot de passe</FormLabel>
                                         <FormControl>
                                             <PasswordInput
@@ -119,7 +119,7 @@ export default function LoginForm() {
                             />
 
                             <div>
-                                <Button type="submit" className="w-full" variant={'orange'} disabled={isLoading}>
+                                <Button type="submit" className="w-full" variant={'blue'} disabled={isLoading}>
                                     {isLoading ? 'Connexion en cours...' : 'Se connecter'}
                                 </Button>
                             </div>

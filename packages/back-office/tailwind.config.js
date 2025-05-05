@@ -52,6 +52,8 @@ export default {
                 },
                 orange: "hsl(var(--orange))",
                 "orange-hover": "hsl(var(--orange-hover))",
+                blue: "hsl(var(--blue))",
+                "blue-hover": "hsl(var(--blue-hover))",
                 border: "hsl(var(--border))",
                 input: "hsl(var(--input))",
                 ring: "hsl(var(--ring))",

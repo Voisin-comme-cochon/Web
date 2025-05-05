@@ -15,7 +15,8 @@
         --border: 20 5.9% 90%; /* #e8e6e0 (Light warm gray) */
         --input: 20 5.9% 90%; /* #e8e6e0 (Light warm gray) */
         --primary: 207.39 69.7% 12.94%; /* #0c1f2e (Dark navy blue) */
-        --primary-foreground: 210 44.44% 96.47%; /* #f2f6fb (Very light blue) */
+        --blue: 207 60% 47.45%; /* #3281C2 (Medium blue) */
+        --blue-hover: 207 60% 43.45%; /* #2d6fa3 (Medium blue hover) */
         --secondary: 207.08 59.02% 47.84%; /* #3a82b4 (Medium blue) */
         --secondary-foreground: 207.39 69.7% 12.94%; /* #0c1f2e (Dark navy blue) */
         --accent: 60 4.8% 95.9%; /* #f5f5f0 (Light beige) */
@@ -45,7 +46,8 @@
         --border: 12 6.5% 15.1%; /* #2a2421 (Dark warm gray) */
         --input: 12 6.5% 15.1%; /* #2a2421 (Dark warm gray) */
         --primary: 20.5 90.2% 48.2%; /* #d2551f (Vibrant orange) */
-        --primary-foreground: 60 9.1% 97.8%; /* #fdfcf5 (Very light cream) */
+        --blue: 207 60% 47.45%; /* #3281C2 (Medium blue) */
+        --blue-hover: 207 60% 43.45%; /* #2d6fa3 (Medium blue hover) */
         --secondary: 12 6.5% 15.1%; /* #2a2421 (Dark waram gray) */
         --secondary-foreground: 60 9.1% 97.8%; /* #fdfcf5 (Very light cream) */
         --accent: 12 6.5% 15.1%; /* #2a2421 (Dark warm gray) */

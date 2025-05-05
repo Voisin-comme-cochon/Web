@@ -12,6 +12,7 @@ const buttonVariants = cva(
                 default:
                     "bg-primary text-primary-foreground shadow hover:bg-primary/90",
                 orange: "bg-orange hover:bg-orange-hover font-bold text-popover",
+                blue: "bg-blue hover:bg-blue-hover font-bold text-popover",
                 floatingOrange:
                     "absolute left-1/2 bottom-12 -translate-x-1/2 bg-orange hover:bg-orange-hover font-bold text-popover",
                 destructive:
