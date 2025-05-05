@@ -25,7 +25,7 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>;
 
 export default function LoginForm() {
-    const {goHome} = useAppNavigation();
+    const {goDashboard} = useAppNavigation();
     const [error, setError] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
 
@@ -45,11 +45,12 @@ export default function LoginForm() {
             const authUc = new AuthUc(new AuthRepository(new ApiService()));
             const tokens = await authUc.login(values.email, values.password);
             const decodedUser = await authUc.decodeToken(tokens.access_token);
-            if (!decodedUser.isSuperAdmin) {
+            console.log(decodedUser);
+            if (!decodedUser.isSuperAdmin || decodedUser.exp < Date.now() / 1000) {
                 setError('Droits insuffisants.');
                 return;
             }
-            goHome();
+            goDashboard();
         } catch (err) {
             if (err instanceof AuthError) {
                 setError(err.message);
