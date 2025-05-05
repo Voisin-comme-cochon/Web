@@ -43,7 +43,12 @@ export default function LoginForm() {
 
         try {
             const authUc = new AuthUc(new AuthRepository(new ApiService()));
-            await authUc.login(values.email, values.password);
+            const tokens = await authUc.login(values.email, values.password);
+            const decodedUser = await authUc.decodeToken(tokens.access_token);
+            if (!decodedUser.isSuperAdmin) {
+                setError('Droits insuffisants.');
+                return;
+            }
             goHome();
         } catch (err) {
             if (err instanceof AuthError) {

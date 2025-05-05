@@ -2,6 +2,8 @@ import {AuthRepository} from '@/infrastructure/repositories/AuthRepository.ts';
 import {ApiError} from "@/infrastructure/api/ApiService.ts";
 import {AuthTokens} from "@/domain/models/AuthTokens.ts";
 import {AuthError} from "../../../../common/errors/AuthError.ts";
+import {DecodedUser} from "@/domain/models/DecodedUser.ts";
+import {jwtDecode} from "jwt-decode";
 
 export class AuthUc {
     constructor(private authRepo: AuthRepository) {
@@ -29,40 +31,8 @@ export class AuthUc {
         }
     }
 
-    public async resetPassword(token: string, password: string): Promise<void> {
-        try {
-            await this.authRepo.resetPassword(token, password);
-        } catch (error) {
-            if (error instanceof ApiError) {
-                if (error.status === 400) {
-                    throw new AuthError(
-                        'Token invalide ou expiré. Veuillez demander un nouveau lien de réinitialisation.',
-                        error
-                    );
-                } else if (error.status >= 500) {
-                    throw new AuthError('Le serveur a rencontré une erreur. Veuillez réessayer plus tard.', error);
-                } else {
-                    throw new AuthError(`Erreur lors de la réinitialisation du mot de passe: ${error.message}`, error);
-                }
-            }
-            throw new AuthError('Une erreur inattendue est survenue. Veuillez réessayer plus tard.');
-        }
+    public async decodeToken(token: string): Promise<DecodedUser> {
+        return jwtDecode<DecodedUser>(token);
     }
 
-    public async requestPasswordReset(email: string): Promise<void> {
-        try {
-            await this.authRepo.requestPasswordReset(email);
-        } catch (error) {
-            if (error instanceof ApiError) {
-                if (error.status === 400) {
-                    throw new AuthError('Email invalide. Veuillez vérifier votre adresse email.', error);
-                } else if (error.status >= 500) {
-                    throw new AuthError('Le serveur a rencontré une erreur. Veuillez réessayer plus tard.', error);
-                } else {
-                    throw new AuthError(`Erreur lors de la demande de réinitialisation: ${error.message}`, error);
-                }
-            }
-            throw new AuthError('Une erreur inattendue est survenue. Veuillez réessayer plus tard.');
-        }
-    }
 }
