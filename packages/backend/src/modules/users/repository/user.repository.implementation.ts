@@ -6,11 +6,7 @@ export class UserRepositoryImplementation implements UsersRepository {
     constructor(private readonly dataSource: DataSource) {}
 
     public getUsers(): Promise<UserEntity[]> {
-        return this.dataSource.getRepository(UserEntity).find({
-            where: {
-                id: 1,
-            },
-        });
+        return this.dataSource.getRepository(UserEntity).find();
     }
 
     public findByEmail(email: string): Promise<UserEntity | null> {

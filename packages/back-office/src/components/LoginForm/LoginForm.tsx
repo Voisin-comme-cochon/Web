@@ -1,7 +1,7 @@
 import {Card, CardContent, CardDescription, CardHeader, CardTitle} from '@/components/ui/card';
 import {Input} from '@/components/ui/input';
 import {Button} from '@/components/ui/button';
-import PasswordInput from '@/components/PasswordInput.tsx';
+import PasswordInput from '@/components/PasswordInput/PasswordInput.tsx';
 import {AuthUc} from '@/domain/use-cases/authUc.ts';
 import {useAppNavigation} from '@/presentation/state/navigate.ts';
 import {useState} from 'react';
