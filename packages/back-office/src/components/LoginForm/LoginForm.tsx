@@ -3,8 +3,6 @@ import {Input} from '@/components/ui/input';
 import {Button} from '@/components/ui/button';
 import PasswordInput from '@/components/PasswordInput.tsx';
 import {AuthUc} from '@/domain/use-cases/authUc.ts';
-import {AuthRepository} from '@/infrastructure/repositories/AuthRepository.ts';
-import {ApiService} from '@/infrastructure/api/ApiService.ts';
 import {useAppNavigation} from '@/presentation/state/navigate.ts';
 import {useState} from 'react';
 import {Alert, AlertDescription, AlertTitle} from '@/components/ui/alert';
@@ -42,10 +40,9 @@ export default function LoginForm() {
         setIsLoading(true);
 
         try {
-            const authUc = new AuthUc(new AuthRepository(new ApiService()));
+            const authUc = new AuthUc();
             const tokens = await authUc.login(values.email, values.password);
             const decodedUser = await authUc.decodeToken(tokens.access_token);
-            console.log(decodedUser);
             if (!decodedUser.isSuperAdmin || decodedUser.exp < Date.now() / 1000) {
                 setError('Droits insuffisants.');
                 return;
