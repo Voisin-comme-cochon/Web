@@ -11,7 +11,7 @@ const links = [
 
 export default function SideHeader() {
     return (
-        <aside className="w-1/12 bg-white border-r border-gray-200 flex flex-col items-center py-6">
+        <aside className="w-1/12 bg-white border-r border-gray-200 flex flex-col items-center py-6 shadow-lg">
             <img src={logo} alt="logo" className="p-2"/>
             <nav className="flex h-full flex-col justify-center gap-6">
                 {links.map(link => (
