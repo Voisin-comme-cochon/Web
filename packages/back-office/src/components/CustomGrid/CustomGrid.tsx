@@ -1,23 +1,51 @@
-import {Grid} from "gridjs";
-import "gridjs/dist/theme/mermaid.css";
-import {useEffect, useRef} from "react";
+// src/components/CustomGrid/CustomGrid.tsx
+import React, {memo, useEffect, useRef} from 'react';
+import {Grid} from 'gridjs';
+import 'gridjs/dist/theme/mermaid.css';
 
-export default function CustomGrid() {
-    const wrapperRef = useRef(null);
+type GridConfig = ConstructorParameters<typeof Grid>[0];
+
+export interface CustomGridProps {
+    /** Colonnes (string ou objet avec formatter React) */
+    columns: Array<
+        | string
+        | {
+        name: string;
+        formatter?: (cell: any) => JSX.Element;
+    }
+    >;
+    /** Données : chaque ligne est un tableau de cellules (texte, nombre ou JSX.Element) */
+    data: Array<Array<string | number | JSX.Element>>;
+    /** Toutes les options Grid.js sauf `columns` et `data` (on les injecte nous‐mêmes) */
+    options?: Omit<GridConfig, 'columns' | 'data'>;
+}
+
+const CustomGrid: React.FC<CustomGridProps> = ({columns, data, options}) => {
+    const containerRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
-        const grid = new Grid({
-            columns: ['Name', 'Email', 'Phone Number'],
-            data: [
-                ['John', 'john@example.com', '(353) 01 222 3333'],
-                ['Mark', 'mark@gmail.com', '(01) 22 888 4444']
-            ]
-        });
+        if (!containerRef.current) return;
 
-        if (wrapperRef.current) {
-            grid.render(wrapperRef.current);
-        }
-    }, []);
+        const config: GridConfig = {
+            columns,
+            data,
+            // Valeurs par défaut
+            search: true,
+            sort: true,
+            pagination: {limit: 10},
+            // Ici soit on rajoute ou on remplace celle dessus
+            ...options,
+        };
 
-    return <div ref={wrapperRef}/>;
-}
+        const grid = new Grid(config);
+        grid.render(containerRef.current);
+
+        return () => {
+            grid.destroy();
+        };
+    }, [columns, data, options]);
+
+    return <div ref={containerRef}/>;
+};
+
+export default memo(CustomGrid);
