@@ -1,5 +1,5 @@
-import { usePassword } from "@/presentation/hooks/usePassword.ts";
-import { Input } from "@/components/ui/input.tsx";
+import {usePassword} from "@/presentation/state/usePassword.ts";
+import {Input} from "@/components/ui/input.tsx";
 
 type PasswordInputProps = {
     value: string
@@ -7,7 +7,7 @@ type PasswordInputProps = {
     disabled?: boolean
 }
 
-export default function PasswordInput({ value, onChangeCallback, disabled }: PasswordInputProps) {
+export default function PasswordInput({value, onChangeCallback, disabled}: PasswordInputProps) {
     const {
         showPassword,
         toggleShowPassword,
@@ -17,22 +17,22 @@ export default function PasswordInput({ value, onChangeCallback, disabled }: Pas
         <div className="relative">
             <Input
                 id="password"
-                type={ showPassword ? "text" : "password" }
+                type={showPassword ? "text" : "password"}
                 placeholder="••••••••"
-                value={ value }
-                disabled={ disabled }
-                onChange={ (e) => onChangeCallback(e.target.value) }
+                value={value}
+                disabled={disabled}
+                onChange={(e) => onChangeCallback(e.target.value)}
                 className="pr-10"
             />
             <span
-                onClick={ () => toggleShowPassword() }
+                onClick={() => toggleShowPassword()}
                 className="absolute right-3 top-1/4 cursor-pointer text-gray-600"
             >
-                { showPassword ? (
+                {showPassword ? (
                     <span className="material-symbols-outlined text-s">visibility</span>
                 ) : (
                     <span className="material-symbols-outlined text-s">visibility_off</span>
-                ) }
+                )}
             </span>
         </div>
     );

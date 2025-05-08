@@ -3,7 +3,6 @@ import {Input} from '@/components/ui/input';
 import {Button} from '@/components/ui/button';
 import PasswordInput from '@/components/PasswordInput/PasswordInput.tsx';
 import {AuthUc} from '@/domain/use-cases/authUc.ts';
-import {useAppNavigation} from '@/presentation/state/navigate.ts';
 import {useState} from 'react';
 import {Alert, AlertDescription, AlertTitle} from '@/components/ui/alert';
 import {useForm} from 'react-hook-form';
@@ -11,6 +10,7 @@ import {zodResolver} from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import {Form, FormControl, FormField, FormItem, FormLabel, FormMessage} from '@/components/ui/form';
 import {AuthError} from "../../../../common/errors/AuthError.ts";
+import {useAppNavigation} from "@/presentation/state/navigate.ts";
 
 const formSchema = z.object({
     email: z
@@ -23,9 +23,9 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>;
 
 export default function LoginForm() {
-    const {goDashboard} = useAppNavigation();
     const [error, setError] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
+    const {goDashboard} = useAppNavigation();
 
     const form = useForm<FormValues>({
         resolver: zodResolver(formSchema),
@@ -38,7 +38,6 @@ export default function LoginForm() {
     const onSubmit = async (values: FormValues) => {
         setError(null);
         setIsLoading(true);
-
         try {
             const authUc = new AuthUc();
             const tokens = await authUc.login(values.email, values.password);
