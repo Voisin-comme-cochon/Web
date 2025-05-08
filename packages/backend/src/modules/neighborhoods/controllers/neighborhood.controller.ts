@@ -1,8 +1,9 @@
-import { Body, Controller, Get, Post, Query, Request, UseGuards } from '@nestjs/common';
-import { ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { Body, Controller, Get, Post, Query, Request, UploadedFiles, UseGuards, UseInterceptors } from '@nestjs/common';
+import { ApiConsumes, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { FilesInterceptor } from '@nestjs/platform-express';
 import { NeighborhoodService } from '../services/neighborhood.service';
 import { IsLoginGuard } from '../../../middleware/is-login.middleware';
-import { RequestNeighborhoodDto, ResponseNeighborhoodDto, StatusNeighborhoodDto } from './dto/neighborhood.dto';
+import { ResponseNeighborhoodDto, StatusNeighborhoodDto } from './dto/neighborhood.dto';
 
 @ApiTags('neighborhoods')
 @Controller('neighborhoods')
@@ -24,21 +25,24 @@ export class NeighborhoodController {
 
     @Post()
     @ApiOperation({ summary: 'Create a neighborhood' })
-    @ApiOkResponse({
-        description: 'Neighborhood created',
-        type: ResponseNeighborhoodDto,
-    })
-    @ApiNotFoundResponse({
-        description: 'Neighborhood not created',
-    })
+    @ApiOkResponse({ description: 'Neighborhood created', type: ResponseNeighborhoodDto })
+    @ApiNotFoundResponse({ description: 'Neighborhood not created' })
     @UseGuards(IsLoginGuard)
+    @UseInterceptors(FilesInterceptor('images'))
+    @ApiConsumes('multipart/form-data')
     async createNeighborhood(
-        @Body() body: RequestNeighborhoodDto,
-        @Request()
-        req: {
-            user: { id: string };
-        }
+        @Body('name') name: string,
+        @Body('description') description: string,
+        @Body('geo') geo: string,
+        @UploadedFiles() files: Express.Multer.File[] = [],
+        @Request() req: { user: { id: string } }
     ): Promise<ResponseNeighborhoodDto> {
-        return this.neighborhoodService.createNeighborhood(body.name, body.description, body.geo, req.user.id);
+        return this.neighborhoodService.createNeighborhood({
+            name,
+            description,
+            geo,
+            userId: req.user.id,
+            files,
+        });
     }
 }

@@ -38,6 +38,12 @@ export class ObjectStorageService implements OnModuleInit {
                 process.env.VCC_MINIO_PROFILE_BUCKET ?? BucketType.PROFILE_IMAGES
             );
         }
+        if (!this.buckets.has(BucketType.NEIGHBORHOOD_IMAGES)) {
+            this.buckets.set(
+                BucketType.NEIGHBORHOOD_IMAGES,
+                process.env.VCC_MINIO_NEIGHBORHOOD_BUCKET ?? BucketType.NEIGHBORHOOD_IMAGES
+            );
+        }
     }
 
     private async initBuckets(): Promise<void> {

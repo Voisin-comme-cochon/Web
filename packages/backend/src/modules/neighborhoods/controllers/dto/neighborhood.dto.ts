@@ -1,7 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsInt, IsISO8601, IsString } from 'class-validator';
+import { IsInt, IsISO8601, IsOptional, IsString } from 'class-validator';
 import { Geography } from 'typeorm';
 import { NeighborhoodStatusEntity } from '../../../../core/entities/neighborhood-status.entity';
+import { ResponseNeighborhoodImageDto } from './neighborhood-image.dto';
 
 export class ResponseNeighborhoodDto {
     @ApiProperty({
@@ -37,6 +38,14 @@ export class ResponseNeighborhoodDto {
         description: 'The geography informations of the Neighborhood',
     })
     geo!: Geography;
+
+    @ApiProperty({
+        type: [ResponseNeighborhoodImageDto],
+        description: 'The images of the Neighborhood',
+        required: false,
+    })
+    @IsOptional()
+    images?: ResponseNeighborhoodImageDto[];
 }
 
 export class RequestNeighborhoodDto {

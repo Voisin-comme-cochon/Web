@@ -1,5 +1,6 @@
 import { NeighborhoodEntity } from '../../../core/entities/neighborhood.entity';
 import { Neighborhood } from '../domain/neighborhood.model';
+import { NeighborhoodImagesAdapter } from './neighborhood-images.adapter';
 
 export class NeighborhoodsAdapter {
     public static databaseToDomain(neighborhood: NeighborhoodEntity): Neighborhood {
@@ -10,6 +11,7 @@ export class NeighborhoodsAdapter {
             status: neighborhood.status,
             description: neighborhood.description,
             creationDate: neighborhood.creationDate,
+            images: NeighborhoodImagesAdapter.listDatabaseToDomain(neighborhood.images),
         };
     }
 
