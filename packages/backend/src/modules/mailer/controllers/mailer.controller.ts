@@ -13,7 +13,11 @@ export class MailerController {
     @ApiResponse({ status: 200, description: 'Email sent successfully' })
     @ApiResponse({ status: 400, description: 'Bad request' })
     @ApiResponse({ status: 500, description: 'Internal server error' })
-    async sendEmail(@Body() dto: SendRawEmailDto): Promise<void> {
+    async sendEmail(@Body() dto: SendRawEmailDto): Promise<{ message: string }> {
         await this.mailerService.sendRawEmail(dto);
+
+        return {
+            message: 'Email sent successfully',
+        };
     }
 }
