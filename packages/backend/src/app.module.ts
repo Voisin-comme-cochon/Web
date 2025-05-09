@@ -5,11 +5,13 @@ import { AuthModule } from './modules/auth/auth.module';
 import { NeighborhoodModule } from './modules/neighborhoods/neighborhood.module';
 import { MailerModule } from './modules/mailer/mailer.module';
 import { ObjectStorageModule } from './modules/objectStorage/objectStorage.module';
+import { TicketsModule } from './modules/tickets/tickets.module';
 
 @Module({
     imports: [
         UsersModule,
         AuthModule,
+        TicketsModule,
         NeighborhoodModule,
         MailerModule,
         ObjectStorageModule,

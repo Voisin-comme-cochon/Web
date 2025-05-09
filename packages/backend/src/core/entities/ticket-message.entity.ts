@@ -21,7 +21,10 @@ export class TicketMessageEntity {
         nullable: false,
     })
     @JoinColumn({ name: 'ticketId' })
-    ticket!: TicketEntity;
+    ticket?: TicketEntity;
+
+    @Column({ name: 'ticketId', type: 'int' })
+    ticketId!: number;
 
     @Column({ type: 'enum', enum: TicketMessageTypeEnum })
     type!: TicketMessageTypeEnum;
