@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsInt, IsISO8601, IsOptional, IsString } from 'class-validator';
+import { IsEnum, IsInt, IsISO8601, IsOptional, IsString } from 'class-validator';
 import { Geography } from 'typeorm';
 import { NeighborhoodStatusEntity } from '../../../../core/entities/neighborhood-status.entity';
 import { ResponseNeighborhoodImageDto } from './neighborhood-image.dto';
@@ -70,10 +70,12 @@ export class RequestNeighborhoodDto {
     geo!: Geography;
 }
 
-export class StatusNeighborhoodDto {
+export class GetNeighborhoodQueryParamsDto {
     @ApiProperty({
         example: 'waiting',
         description: 'The status of the Neighborhood',
     })
-    status!: NeighborhoodStatusEntity | null;
+    @IsOptional()
+    @IsEnum(NeighborhoodStatusEntity)
+    status?: NeighborhoodStatusEntity;
 }

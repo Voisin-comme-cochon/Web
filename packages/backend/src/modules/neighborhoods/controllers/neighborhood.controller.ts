@@ -3,7 +3,10 @@ import { ApiConsumes, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiTags 
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { NeighborhoodService } from '../services/neighborhood.service';
 import { IsLoginGuard } from '../../../middleware/is-login.middleware';
-import { ResponseNeighborhoodDto, StatusNeighborhoodDto } from './dto/neighborhood.dto';
+import { PaginationInterceptor } from '../../../core/pagination/pagination.interceptor';
+import { Paginated, Paging } from '../../../core/pagination/pagination';
+import { NeighborhoodsAdapter } from '../adapters/neighborhoods.adapter';
+import { ResponseNeighborhoodDto, GetNeighborhoodQueryParamsDto } from './dto/neighborhood.dto';
 
 @ApiTags('neighborhoods')
 @Controller('neighborhoods')
@@ -11,6 +14,7 @@ export class NeighborhoodController {
     constructor(private readonly neighborhoodService: NeighborhoodService) {}
 
     @Get()
+    @UseInterceptors(PaginationInterceptor)
     @ApiOperation({ summary: 'Get all neighborhoods' })
     @ApiOkResponse({
         description: 'Get all neighborhoods',
@@ -19,8 +23,20 @@ export class NeighborhoodController {
     @ApiNotFoundResponse({
         description: 'Neighborhoods not found',
     })
-    async getAllNeighborhoods(@Query() query: StatusNeighborhoodDto): Promise<ResponseNeighborhoodDto[]> {
-        return this.neighborhoodService.getAllNeighborhoods(query.status);
+    async getAllNeighborhoods(
+        @Query() query: GetNeighborhoodQueryParamsDto,
+        @Query() pagination: Paging
+    ): Promise<Paginated<ResponseNeighborhoodDto>> {
+        const [neighborhood, count] = await this.neighborhoodService.getAllNeighborhoods(
+            NeighborhoodsAdapter.queryParamsDtoToDomain(query),
+            pagination.page,
+            pagination.limit
+        );
+        return new Paginated(
+            neighborhood.map((neighborhood) => NeighborhoodsAdapter.domainToDto(neighborhood)),
+            pagination,
+            count
+        );
     }
 
     @Post()

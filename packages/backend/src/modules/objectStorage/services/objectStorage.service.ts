@@ -88,10 +88,10 @@ export class ObjectStorageService implements OnModuleInit {
                 'Content-Type': this.getContentType(fileName),
             });
 
-            return `${process.env.VCC_MINIO_ENDPOINT ?? 'localhost'}:${process.env.VCC_MINIO_PORT ?? '9000'}/${bucketName}/${uniqueFileName}`;
+            return uniqueFileName;
         } catch (error) {
             console.error('Error uploading file to Minio:', error);
-            throw new CochonError('file-upload-failed', 'Failed to upload file', 500);
+            throw new CochonError('file_upload_failed', 'Failed to upload file', 500);
         }
     }
 
@@ -105,9 +105,9 @@ export class ObjectStorageService implements OnModuleInit {
             const bucketName = this.getBucketName(bucketType);
 
             const fileExists = await this.minioClient.statObject(bucketName, fileName).catch(() => false);
-            console.log('File exists:', fileExists);
+
             if (!fileExists) {
-                throw new CochonError('file-not-found', 'File not found', 404);
+                throw new CochonError('file_not_found', 'File not found', 404);
             }
 
             await this.minioClient.removeObject(bucketName, fileName);
@@ -115,7 +115,7 @@ export class ObjectStorageService implements OnModuleInit {
             if (error instanceof CochonError) {
                 throw error;
             }
-            throw new CochonError('file-delete-failed', 'Failed to delete file', 500);
+            throw new CochonError('file_delete_failed', 'Failed to delete file', 500);
         }
     }
 
@@ -127,7 +127,7 @@ export class ObjectStorageService implements OnModuleInit {
     private getBucketName(bucketType: BucketType): string {
         const bucketName = this.buckets.get(bucketType);
         if (!bucketName) {
-            throw new CochonError('bucket-not-found', `Bucket type ${bucketType} not configured`, 500);
+            throw new CochonError('bucket_not_found', `Bucket type ${bucketType} not configured`, 500);
         }
         return bucketName;
     }

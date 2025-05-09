@@ -19,3 +19,7 @@ export interface CreateNeighborhoodInput {
     userId: string;
     files: Express.Multer.File[];
 }
+
+export interface GetNeighborhoodQueryParams {
+    status?: NeighborhoodStatusEntity;
+}

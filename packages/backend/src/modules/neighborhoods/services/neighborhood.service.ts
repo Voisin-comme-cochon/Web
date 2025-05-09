@@ -1,8 +1,7 @@
 import { Geography } from 'typeorm';
 import { ObjectStorageService } from 'src/modules/objectStorage/services/objectStorage.service';
 import { NeighborhoodRepository } from '../domain/neighborhood.abstract.repository';
-import { CreateNeighborhoodInput, Neighborhood } from '../domain/neighborhood.model';
-import { NeighborhoodStatusEntity } from '../../../core/entities/neighborhood-status.entity';
+import { CreateNeighborhoodInput, GetNeighborhoodQueryParams, Neighborhood } from '../domain/neighborhood.model';
 import { NeighborhoodEntity } from '../../../core/entities/neighborhood.entity';
 import { NeighborhoodImagesEntity } from '../../../core/entities/neighborhood-images.entity';
 import { ResponseNeighborhoodDto } from '../controllers/dto/neighborhood.dto';
@@ -15,11 +14,12 @@ export class NeighborhoodService {
         private readonly objectStorageService: ObjectStorageService
     ) {}
 
-    async getAllNeighborhoods(status: NeighborhoodStatusEntity | null): Promise<Neighborhood[]> {
-        if (!status || !Object.values(NeighborhoodStatusEntity).includes(status)) {
-            status = null;
-        }
-        return this.neighborhoodRepository.getALlNeighborhoods(status);
+    async getAllNeighborhoods(
+        params: GetNeighborhoodQueryParams,
+        page: number,
+        limit: number
+    ): Promise<[Neighborhood[], number]> {
+        return this.neighborhoodRepository.getAllNeighborhoods(params, page, limit);
     }
 
     async createNeighborhood(input: CreateNeighborhoodInput): Promise<ResponseNeighborhoodDto> {
