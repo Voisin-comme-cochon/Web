@@ -84,6 +84,9 @@ export class ApiService {
         try {
             const response = await fetch(`${baseUrl}${endpoint}`, {
                 method: 'POST',
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('jwt')}`,
+                },
                 body: formData,
             });
 

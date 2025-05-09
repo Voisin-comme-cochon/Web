@@ -6,6 +6,7 @@ export const useAppNavigation = () => {
     const goLogin = () => navigate('/login');
     const goSignin = () => navigate('/signin');
     const goResetPassword = () => navigate('/reset-password');
+    const goCreateNeighborhood = () => navigate('/neighborhoods/create');
     const goHome = () => navigate('/');
 
     return {
@@ -13,5 +14,6 @@ export const useAppNavigation = () => {
         goSignin,
         goHome,
         goResetPassword,
+        goCreateNeighborhood,
     };
 };

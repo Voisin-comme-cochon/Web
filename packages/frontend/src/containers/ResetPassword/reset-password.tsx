@@ -30,7 +30,7 @@ export default function ResetPasswordPage() {
             <main className="flex-1 flex items-center justify-center p-4 md:p-6">
                 <Card className="w-full max-w-md border-none shadow-lg">
                     <CardHeader className="space-y-1">
-                        <CardTitle className="text-2xl font-bold text-primary">
+                        <CardTitle className="text-2xl">
                             {token ? 'Réinitialiser votre mot de passe' : 'Demande de réinitialisation'}
                         </CardTitle>
                         <CardDescription className="text-primary/70">
