@@ -2,6 +2,7 @@ import { Body, Controller, Get, Post, Query, Request, UseGuards } from '@nestjs/
 import { ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { NeighborhoodService } from '../services/neighborhood.service';
 import { IsLoginGuard } from '../../../middleware/is-login.middleware';
+import { Paginated, Paging } from '../../../core/pagination/pagination';
 import { RequestNeighborhoodDto, ResponseNeighborhoodDto, StatusNeighborhoodDto } from './dto/neighborhood.dto';
 
 @ApiTags('neighborhoods')
@@ -18,8 +19,16 @@ export class NeighborhoodController {
     @ApiNotFoundResponse({
         description: 'Neighborhoods not found',
     })
-    async getAllNeighborhoods(@Query() query: StatusNeighborhoodDto): Promise<ResponseNeighborhoodDto[]> {
-        return this.neighborhoodService.getAllNeighborhoods(query.status);
+    async getAllNeighborhoods(
+        @Query() query: StatusNeighborhoodDto,
+        @Query() pagination: Paging
+    ): Promise<Paginated<ResponseNeighborhoodDto>> {
+        const [neighborhoods, count] = await this.neighborhoodService.getAllNeighborhoods(
+            query.status,
+            pagination.page,
+            pagination.limit
+        );
+        return new Paginated(neighborhoods, pagination, count);
     }
 
     @Post()

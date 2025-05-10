@@ -7,11 +7,16 @@ import { NeighborhoodEntity } from '../../../core/entities/neighborhood.entity';
 export class NeighborhoodService {
     constructor(private neighborhoodRepository: NeighborhoodRepository) {}
 
-    async getAllNeighborhoods(status: NeighborhoodStatusEntity | null): Promise<Neighborhood[]> {
+    async getAllNeighborhoods(
+        status: NeighborhoodStatusEntity | null,
+        page: number,
+        limit: number
+    ): Promise<[Neighborhood[], number]> {
         if (!status || !Object.values(NeighborhoodStatusEntity).includes(status)) {
             status = null;
         }
-        return this.neighborhoodRepository.getALlNeighborhoods(status);
+        const offset = page * limit - limit;
+        return this.neighborhoodRepository.getALlNeighborhoods(status, limit, offset);
     }
 
     async createNeighborhood(name: string, description: string, geo: Geography, owner: string): Promise<Neighborhood> {

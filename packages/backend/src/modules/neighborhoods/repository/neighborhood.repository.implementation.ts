@@ -8,13 +8,20 @@ import { NeighborhoodStatusEntity } from '../../../core/entities/neighborhood-st
 export class NeighborhoodRepositoryImplementation implements NeighborhoodRepository {
     constructor(private readonly dataSource: DataSource) {}
 
-    async getALlNeighborhoods(status: NeighborhoodStatusEntity | null): Promise<Neighborhood[]> {
-        const neighborhoods = await this.dataSource.getRepository(NeighborhoodEntity).find({
+    async getALlNeighborhoods(
+        status: NeighborhoodStatusEntity | null,
+        limit: number,
+        offset: number
+    ): Promise<[Neighborhood[], number]> {
+        const [neighborhoods, count] = await this.dataSource.getRepository(NeighborhoodEntity).findAndCount({
             where: {
                 ...(status ? { status: status } : {}),
             },
+            skip: offset,
+            take: limit,
         });
-        return NeighborhoodsAdapter.listDatabaseToDomain(neighborhoods);
+        const domainNeighborhoods = NeighborhoodsAdapter.listDatabaseToDomain(neighborhoods);
+        return [domainNeighborhoods, count];
     }
 
     async createNeighborhood(neighborhood: NeighborhoodEntity): Promise<Neighborhood> {
