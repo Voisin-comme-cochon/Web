@@ -40,10 +40,16 @@ export class ResponseTicketDto {
     createdAt!: Date;
 }
 
-export class StatusTicketDto {
+export class getTicketsQueryDto {
     @ApiProperty({
         example: 'open',
         description: 'The status of the Ticket',
     })
     status!: TicketStatusEnum | null;
+
+    @ApiProperty({
+        example: 'low',
+        description: 'The priority of the Ticket',
+    })
+    priority!: TicketPriorityEnum | null;
 }
