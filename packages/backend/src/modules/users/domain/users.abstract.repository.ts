@@ -1,7 +1,7 @@
 import { UserEntity } from 'src/core/entities/user.entity';
 
 export abstract class UsersRepository {
-    abstract getUsers(): Promise<UserEntity[]>;
+    abstract getUsers(limit: number, offset: number): Promise<[UserEntity[], number]>;
 
     abstract findByEmail(email: string): Promise<UserEntity | null>;
 

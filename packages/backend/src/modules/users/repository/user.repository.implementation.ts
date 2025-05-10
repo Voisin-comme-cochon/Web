@@ -5,8 +5,11 @@ import { UsersRepository } from '../domain/users.abstract.repository';
 export class UserRepositoryImplementation implements UsersRepository {
     constructor(private readonly dataSource: DataSource) {}
 
-    public getUsers(): Promise<UserEntity[]> {
-        return this.dataSource.getRepository(UserEntity).find();
+    public getUsers(limit: number, offset: number): Promise<[UserEntity[], number]> {
+        return this.dataSource.getRepository(UserEntity).findAndCount({
+            skip: offset,
+            take: limit,
+        });
     }
 
     public findByEmail(email: string): Promise<UserEntity | null> {
