@@ -62,7 +62,7 @@ services:
 
   back-office:
     build:
-      context: ./back-office
+      context: ../back-office
       dockerfile: ./Dockerfile
     container_name: vcc_back-office
     ports:
