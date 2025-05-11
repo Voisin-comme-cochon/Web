@@ -15,8 +15,7 @@ export function setupDrawEvents(
         defaultMode: 'draw_polygon',
     });
 
-    // @ts-expect-error - MapboxDraw est compatible avec IControl mais TypeScript ne le sait pas
-    map.addControl(draw);
+    map.addControl(draw as any);
 
     const updateDrawData = () => {
         const data = draw.getAll();
