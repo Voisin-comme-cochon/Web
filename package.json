@@ -12,6 +12,6 @@
     "packages/frontend",
     "packages/backend",
     "packages/common",
-    "packages/backoffice"
+    "packages/back-office"
   ]
 }
