@@ -9,7 +9,7 @@ import { setupDrawEvents } from '@/presentation/state/drawManager.ts';
 import { MapBoxParameters } from '@/domain/models/MapBoxParameters.ts';
 import * as mapboxgl from 'mapbox-gl';
 
-export const useMapBox = ({ canCreate, showDetails }: MapBoxParameters) => {
+export const useMapBox = ({ canCreate, showDetails, onGeoSelect }: MapBoxParameters) => {
     const mapRef = useRef<MapRef>(null);
     const drawRef = useRef<MapboxDraw>();
     const [featuresFromDB, setFeaturesFromDB] = useState<MapBoxGeoJson[]>([]);
@@ -42,7 +42,7 @@ export const useMapBox = ({ canCreate, showDetails }: MapBoxParameters) => {
         if (!map) return;
 
         if (canCreate && !drawRef.current) {
-            drawRef.current = setupDrawEvents(map);
+            drawRef.current = setupDrawEvents(map, onGeoSelect);
         }
 
         if (showDetails) {

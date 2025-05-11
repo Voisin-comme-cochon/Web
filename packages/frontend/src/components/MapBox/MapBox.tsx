@@ -1,24 +1,20 @@
-import Map, {Layer, Source} from 'react-map-gl/mapbox';
+import Map, { Layer, Source } from 'react-map-gl/mapbox';
 import '@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css';
 import 'mapbox-gl/dist/mapbox-gl.css';
-import {MapBoxParameters} from "@/domain/models/MapBoxParameters.ts";
-import {useMapBox} from "@/presentation/hooks/useMapBox.ts";
-import SearchBoxWrapper from "@/components/MapBox/SearchBoxWrapper.tsx";
+import { MapBoxParameters } from '@/domain/models/MapBoxParameters.ts';
+import { useMapBox } from '@/presentation/hooks/useMapBox.ts';
+import SearchBoxWrapper from '@/components/MapBox/SearchBoxWrapper.tsx';
 
-export default function MapBox({canCreate, showDetails}: MapBoxParameters) {
-    const {
-        mapRef,
-        viewState,
-        setViewState,
-        featuresFromDB,
-        onMapLoad,
-        handleRetrieve,
-        MAPBOX_TOKEN,
-    } = useMapBox({canCreate, showDetails});
+export default function MapBox({ canCreate, showDetails, onGeoSelect }: MapBoxParameters) {
+    const { mapRef, viewState, setViewState, featuresFromDB, onMapLoad, handleRetrieve, MAPBOX_TOKEN } = useMapBox({
+        canCreate,
+        showDetails,
+        onGeoSelect,
+    });
 
     return (
         <div className="w-11/12 h-4/6 rounded-2xl overflow-hidden shadow-lg relative">
-            <div style={{position: 'absolute', top: 10, left: 10, zIndex: 1, width: 300}}>
+            <div style={{ position: 'absolute', top: 10, left: 10, zIndex: 1, width: 300 }}>
                 <SearchBoxWrapper
                     accessToken={MAPBOX_TOKEN}
                     onRetrieve={handleRetrieve}
@@ -50,7 +46,7 @@ export default function MapBox({canCreate, showDetails}: MapBoxParameters) {
                             id="readonly-layer"
                             type="fill"
                             paint={{
-                                'fill-color': "#ED5C3B",
+                                'fill-color': '#ED5C3B',
                                 'fill-opacity': 0.4,
                             }}
                         />
