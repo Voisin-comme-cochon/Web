@@ -2,6 +2,7 @@ import { Column, Entity, Geography, OneToMany, PrimaryGeneratedColumn } from 'ty
 import { IsISO8601 } from 'class-validator';
 import { NeighborhoodStatusEntity } from './neighborhood-status.entity';
 import { EventEntity } from './event.entity';
+import { NeighborhoodImagesEntity } from './neighborhood-images.entity';
 
 @Entity({ name: 'neighborhoods' })
 export class NeighborhoodEntity {
@@ -28,6 +29,12 @@ export class NeighborhoodEntity {
 
     @Column()
     description!: string;
+
+    @OneToMany(() => NeighborhoodImagesEntity, (image) => image.neighborhood, {
+        cascade: true,
+        onDelete: 'CASCADE',
+    })
+    images!: NeighborhoodImagesEntity[];
 
     @Column({ default: () => 'CURRENT_TIMESTAMP' })
     @IsISO8601()

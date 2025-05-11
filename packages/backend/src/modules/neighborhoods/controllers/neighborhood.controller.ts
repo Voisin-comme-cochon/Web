@@ -1,10 +1,12 @@
-import { Body, Controller, Get, Param, Post, Query, Request, UseGuards } from '@nestjs/common';
-import { ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { Body, Controller, Get, Post, Query, Request, UploadedFiles, UseGuards, UseInterceptors } from '@nestjs/common';
+import { ApiConsumes, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { FilesInterceptor } from '@nestjs/platform-express';
 import { NeighborhoodService } from '../services/neighborhood.service';
 import { IsLoginGuard } from '../../../middleware/is-login.middleware';
+import { PaginationInterceptor } from '../../../core/pagination/pagination.interceptor';
 import { Paginated, Paging } from '../../../core/pagination/pagination';
-import { CochonError } from '../../../utils/CochonError';
-import { RequestNeighborhoodDto, ResponseNeighborhoodDto, StatusNeighborhoodDto } from './dto/neighborhood.dto';
+import { NeighborhoodsAdapter } from '../adapters/neighborhoods.adapter';
+import { ResponseNeighborhoodDto, GetNeighborhoodQueryParamsDto } from './dto/neighborhood.dto';
 
 @ApiTags('neighborhoods')
 @Controller('neighborhoods')
@@ -12,6 +14,7 @@ export class NeighborhoodController {
     constructor(private readonly neighborhoodService: NeighborhoodService) {}
 
     @Get()
+    @UseInterceptors(PaginationInterceptor)
     @ApiOperation({ summary: 'Get all neighborhoods' })
     @ApiOkResponse({
         description: 'Get all neighborhoods',
@@ -21,18 +24,21 @@ export class NeighborhoodController {
         description: 'Neighborhoods not found',
     })
     async getAllNeighborhoods(
-        @Query() query: StatusNeighborhoodDto,
+        @Query() query: GetNeighborhoodQueryParamsDto,
         @Query() pagination: Paging
     ): Promise<Paginated<ResponseNeighborhoodDto>> {
-        const [neighborhoods, count] = await this.neighborhoodService.getAllNeighborhoods(
-            query.status,
+        const [neighborhood, count] = await this.neighborhoodService.getAllNeighborhoods(
+            NeighborhoodsAdapter.queryParamsDtoToDomain(query),
             pagination.page,
             pagination.limit
         );
-        return new Paginated(neighborhoods, pagination, count);
-    }
-
-    @Get(':id')
+        return new Paginated(
+            neighborhood.map((neighborhood) => NeighborhoodsAdapter.domainToDto(neighborhood)),
+            pagination,
+            count
+        );
+}
+@Get(':id')
     @ApiOperation({ summary: 'Get a neighborhood by id' })
     @ApiOkResponse({
         description: 'Neighborhood found',
@@ -41,7 +47,7 @@ export class NeighborhoodController {
     @ApiNotFoundResponse({
         description: 'Neighborhood not found',
     })
-    async getNeighborhoodById(@Param('id') id: string): Promise<ResponseNeighborhoodDto> {
+async getNeighborhoodById(@Param('id') id: string): Promise<ResponseNeighborhoodDto> {
         const numberId = parseInt(id, 10);
         const neighborhood = await this.neighborhoodService.getNeighborhoodById(numberId);
         if (!neighborhood) {
@@ -52,21 +58,24 @@ export class NeighborhoodController {
 
     @Post()
     @ApiOperation({ summary: 'Create a neighborhood' })
-    @ApiOkResponse({
-        description: 'Neighborhood created',
-        type: ResponseNeighborhoodDto,
-    })
-    @ApiNotFoundResponse({
-        description: 'Neighborhood not created',
-    })
+    @ApiOkResponse({ description: 'Neighborhood created', type: ResponseNeighborhoodDto })
+    @ApiNotFoundResponse({ description: 'Neighborhood not created' })
     @UseGuards(IsLoginGuard)
+    @UseInterceptors(FilesInterceptor('images'))
+    @ApiConsumes('multipart/form-data')
     async createNeighborhood(
-        @Body() body: RequestNeighborhoodDto,
-        @Request()
-        req: {
-            user: { id: string };
-        }
+        @Body('name') name: string,
+        @Body('description') description: string,
+        @Body('geo') geo: string,
+        @UploadedFiles() files: Express.Multer.File[] = [],
+        @Request() req: { user: { id: string } }
     ): Promise<ResponseNeighborhoodDto> {
-        return this.neighborhoodService.createNeighborhood(body.name, body.description, body.geo, req.user.id);
+        return this.neighborhoodService.createNeighborhood({
+            name,
+            description,
+            geo,
+            userId: req.user.id,
+            files,
+        });
     }
 }

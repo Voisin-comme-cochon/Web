@@ -4,8 +4,11 @@ import './landing-page.css';
 import { Button } from '@/components/ui/button.tsx';
 import InfoSection from '@/components/InfoSection/InfoSection.tsx';
 import MapBox from '@/components/MapBox/MapBox.tsx';
+import { useAppNavigation } from '@/presentation/state/navigate';
 
 export default function LandingPage() {
+    const { goCreateNeighborhood } = useAppNavigation();
+
     return (
         <div className="flex items-center justify-center flex-col w-full bg-background overflow-x-hidden">
             <Header isLanding />
@@ -24,7 +27,9 @@ export default function LandingPage() {
                     </div>
                     <img src={neighborhood} className="max-w-full h-auto" alt={"Illustration d'un quartier"} />
                 </div>
-                <Button variant={'floatingOrange'}>CRÉER MON QUARTIER</Button>
+                <Button onClick={goCreateNeighborhood} variant={'floatingOrange'}>
+                    CRÉER MON QUARTIER
+                </Button>
             </div>
             <div className={'h-lvh w-full bg-white flex justify-center items-center flex-col'} id={'why-vcc'}>
                 <div className={'w-full flex ml-16 justify-center items-start flex-col mb-8'}>
