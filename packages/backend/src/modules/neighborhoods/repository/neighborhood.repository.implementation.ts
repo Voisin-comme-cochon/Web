@@ -1,20 +1,36 @@
 import { DataSource } from 'typeorm';
 import { NeighborhoodRepository } from '../domain/neighborhood.abstract.repository';
-import { Neighborhood } from '../domain/neighborhood.model';
+import { GetNeighborhoodQueryParams, Neighborhood } from '../domain/neighborhood.model';
 import { NeighborhoodEntity } from '../../../core/entities/neighborhood.entity';
 import { NeighborhoodsAdapter } from '../adapters/neighborhoods.adapter';
-import { NeighborhoodStatusEntity } from '../../../core/entities/neighborhood-status.entity';
+import { isNotNull } from '../../../utils/tools';
 
 export class NeighborhoodRepositoryImplementation implements NeighborhoodRepository {
     constructor(private readonly dataSource: DataSource) {}
 
-    async getALlNeighborhoods(status: NeighborhoodStatusEntity | null): Promise<Neighborhood[]> {
-        const neighborhoods = await this.dataSource.getRepository(NeighborhoodEntity).find({
-            where: {
-                ...(status ? { status: status } : {}),
-            },
-        });
-        return NeighborhoodsAdapter.listDatabaseToDomain(neighborhoods);
+    async getAllNeighborhoods(
+        params: GetNeighborhoodQueryParams,
+        page: number,
+        limit: number
+    ): Promise<[Neighborhood[], number]> {
+        const queryBuilder = this.dataSource
+            .getRepository(NeighborhoodEntity)
+            .createQueryBuilder('neighborhood')
+            .leftJoinAndSelect('neighborhood.images', 'images');
+
+        if (isNotNull(params.status)) {
+            queryBuilder.andWhere('neighborhood.status = :status', {
+                status: params.status,
+            });
+        }
+
+        const [neighborhoods, count] = await queryBuilder
+            .skip((page - 1) * limit)
+            .take(limit)
+            .orderBy('neighborhood.id', 'ASC')
+            .getManyAndCount();
+
+        return [NeighborhoodsAdapter.listDatabaseToDomain(neighborhoods), count];
     }
 
     async createNeighborhood(neighborhood: NeighborhoodEntity): Promise<Neighborhood> {

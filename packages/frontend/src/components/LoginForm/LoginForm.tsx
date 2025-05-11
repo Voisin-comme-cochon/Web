@@ -24,7 +24,7 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>;
 
 export default function LoginForm() {
-    const { goHome, goResetPassword, goSignin } = useAppNavigation();
+    const { goCreateNeighborhood, goResetPassword, goSignin } = useAppNavigation();
     const [error, setError] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
 
@@ -43,7 +43,7 @@ export default function LoginForm() {
         try {
             const authUc = new AuthUc(new AuthRepository(new ApiService()));
             await authUc.login(values.email, values.password);
-            goHome();
+            goCreateNeighborhood();
         } catch (err) {
             if (err instanceof AuthError) {
                 setError(err.message);
@@ -60,7 +60,7 @@ export default function LoginForm() {
             <Card className="w-full max-w-md shadow-lg rounded-2xl">
                 <CardHeader>
                     <CardTitle className="text-2xl">Connexion</CardTitle>
-                    <CardDescription className={'text-xs text-gray-600'}>
+                    <CardDescription className={'text-primary/70'}>
                         Entrez vos identifiants pour accéder à votre compte
                     </CardDescription>
                 </CardHeader>

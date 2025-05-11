@@ -1,4 +1,3 @@
-import AuthFooter from '@/components/AuthFooter/AuthFooter.tsx';
 import SigninForm from '@/components/Signin/SigninForm.tsx';
 import Header from '@/components/Header/Header.tsx';
 
@@ -11,7 +10,9 @@ export default function SigninPage() {
                     <SigninForm />
                 </main>
             </div>
-            <AuthFooter />
+            <p className={'text-center text-primary text-base m-4'}>
+                Découvrez ce qu'est vraiment une vie de <span className={'text-orange font-bold'}>quartier</span>
+            </p>
         </>
     );
 }

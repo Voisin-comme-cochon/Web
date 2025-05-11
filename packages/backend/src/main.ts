@@ -18,6 +18,7 @@ const bootstrap = async () => {
         .setTitle('Voisin comme cochon API')
         .setDescription('The vcc openapi documentation')
         .setVersion('1.0')
+        .addBearerAuth()
         .build();
     const documentFactory = () => SwaggerModule.createDocument(app, config);
     SwaggerModule.setup('openapi', app, documentFactory);

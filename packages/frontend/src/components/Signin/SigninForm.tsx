@@ -9,7 +9,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import PasswordInput from '@/components/PasswordInput';
-import { ImageUploader } from '@/components/Signin/ImageUploader';
+import { ImageUploader } from '@/components/ImageUploader/ImageUploader';
 import { signupFormSchema, type SignupFormValues } from '@/containers/Signin/signin.schema';
 import { useAppNavigation } from '@/presentation/state/navigate';
 import { AuthUc, AuthError } from '@/domain/use-cases/authUc';
@@ -68,8 +68,8 @@ export default function SigninForm() {
         <div className="w-full flex items-center justify-center">
             <Card className="w-full max-w-xl border-none shadow-lg">
                 <CardHeader className="space-y-1">
-                    <CardTitle className="text-2xl font-bold text-foreground">Créer un compte</CardTitle>
-                    <CardDescription className="text-foreground/70">
+                    <CardTitle className="text-2xl">Créer un compte</CardTitle>
+                    <CardDescription className="text-primary/70">
                         Remplissez le formulaire ci-dessous pour rejoindre la communauté
                     </CardDescription>
                 </CardHeader>
@@ -94,6 +94,11 @@ export default function SigninForm() {
                                                 field.onChange(value || '');
                                                 setError(null);
                                             }}
+                                            onError={(error) => setError(error)}
+                                            label="Photo de profil"
+                                            maxFiles={1}
+                                            aspectRatio="circle"
+                                            showDefaultIcon={true}
                                         />
                                         <FormMessage />
                                     </FormItem>
