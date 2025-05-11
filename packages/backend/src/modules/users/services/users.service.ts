@@ -6,9 +6,11 @@ import { CochonError } from '../../../utils/CochonError';
 export class UsersService {
     constructor(private userRepository: UsersRepository) {}
 
-    public async getUsers(): Promise<User[]> {
-        const users = await this.userRepository.getUsers();
-        return UserAdapter.listEntityToDomain(users);
+    public async getUsers(page: number, limit: number): Promise<[User[], number]> {
+        const offset = page * limit - limit;
+        const [users, count] = await this.userRepository.getUsers(limit, offset);
+        const domainUser = UserAdapter.listEntityToDomain(users);
+        return [domainUser, count];
     }
 
     public async getUserById(id: number): Promise<User> {

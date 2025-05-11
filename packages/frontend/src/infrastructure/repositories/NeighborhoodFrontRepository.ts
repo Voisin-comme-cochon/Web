@@ -6,7 +6,8 @@ export class NeighborhoodFrontRepository {
     constructor(private apiService: ApiService) {}
 
     async getAcceptedNeighborhoods(): Promise<FrontNeighborhood[]> {
-        return await this.apiService.get('/neighborhoods?status=accepted');
+        const response = await this.apiService.get('/neighborhoods?status=accepted');
+        return response.data;
     }
 
     async createNeighborhood(data: NeighborhoodFormValues): Promise<FrontNeighborhood> {

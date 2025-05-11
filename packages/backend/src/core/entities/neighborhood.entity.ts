@@ -1,6 +1,7 @@
 import { Column, Entity, Geography, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { IsISO8601 } from 'class-validator';
 import { NeighborhoodStatusEntity } from './neighborhood-status.entity';
+import { EventEntity } from './event.entity';
 import { NeighborhoodImagesEntity } from './neighborhood-images.entity';
 
 @Entity({ name: 'neighborhoods' })
@@ -38,4 +39,8 @@ export class NeighborhoodEntity {
     @Column({ default: () => 'CURRENT_TIMESTAMP' })
     @IsISO8601()
     creationDate!: Date;
+
+    // clé étrangères :
+    @OneToMany(() => EventEntity, (event) => event.neighborhood)
+    neighborhood_events?: EventEntity[];
 }

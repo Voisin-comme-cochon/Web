@@ -3,6 +3,7 @@
   "scripts": {
     "start:back:dev": "docker compose -f ./packages/docker/compose.dev.yml up -d && npm run start:dev --prefix packages/backend",
     "start:front:dev": "docker compose -f ./packages/docker/compose.dev.yml up -d && npm run dev --prefix packages/frontend",
+    "start:backoffice:dev": "docker compose -f ./packages/docker/compose.dev.yml up -d && npm run dev --prefix packages/backoffice",
     "start:prod": "docker-compose -f ./packages/docker/compose.prod.yml up -d",
     "down:docker:dev": "docker compose -f ./packages/docker/compose.dev.yml down -v",
     "down:docker:prod": "docker compose -f ./packages/docker/compose.prod.yml down -v"
@@ -10,6 +11,7 @@
   "workspaces": [
     "packages/frontend",
     "packages/backend",
-    "packages/common"
+    "packages/common",
+    "packages/backoffice"
   ]
 }

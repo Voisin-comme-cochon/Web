@@ -1,4 +1,6 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { EventEntity } from './event.entity';
+import { EventRegistrationEntity } from './event-registration.entity';
 
 @Entity({ name: 'users' })
 export class UserEntity {
@@ -37,4 +39,11 @@ export class UserEntity {
 
     @Column()
     prefferedNotifMethod!: string;
+
+    // Clé étrangères :
+    @OneToMany(() => EventEntity, (event) => event.creator)
+    user_events?: EventEntity[];
+
+    @OneToMany(() => EventRegistrationEntity, (registration) => registration.user)
+    user_events_registrations?: EventRegistrationEntity[];
 }

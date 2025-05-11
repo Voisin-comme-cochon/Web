@@ -1,4 +1,15 @@
-import { Body, Controller, Get, Post, Query, Request, UploadedFiles, UseGuards, UseInterceptors } from '@nestjs/common';
+import {
+    Body,
+    Controller,
+    Get,
+    Param,
+    Post,
+    Query,
+    Request,
+    UploadedFiles,
+    UseGuards,
+    UseInterceptors,
+} from '@nestjs/common';
 import { ApiConsumes, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { NeighborhoodService } from '../services/neighborhood.service';
@@ -6,6 +17,7 @@ import { IsLoginGuard } from '../../../middleware/is-login.middleware';
 import { PaginationInterceptor } from '../../../core/pagination/pagination.interceptor';
 import { Paginated, Paging } from '../../../core/pagination/pagination';
 import { NeighborhoodsAdapter } from '../adapters/neighborhoods.adapter';
+import { CochonError } from '../../../utils/CochonError';
 import { ResponseNeighborhoodDto, GetNeighborhoodQueryParamsDto } from './dto/neighborhood.dto';
 
 @ApiTags('neighborhoods')
@@ -37,6 +49,26 @@ export class NeighborhoodController {
             pagination,
             count
         );
+    }
+
+    @Get(':id')
+    @ApiOperation({ summary: 'Get a neighborhood by id' })
+    @ApiOkResponse({
+        description: 'Neighborhood found',
+        type: ResponseNeighborhoodDto,
+    })
+    @ApiNotFoundResponse({
+        description: 'Neighborhood not found',
+    })
+    async getNeighborhoodById(@Param('id') id: string): Promise<ResponseNeighborhoodDto> {
+        const numberId = parseInt(id, 10);
+        const neighborhood = await this.neighborhoodService.getNeighborhoodById(numberId);
+
+        if (!neighborhood) {
+            throw new CochonError('neighborhood-not-found', 'Neighborhood not found', 404);
+        }
+
+        return NeighborhoodsAdapter.domainToDto(neighborhood);
     }
 
     @Post()

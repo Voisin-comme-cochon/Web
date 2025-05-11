@@ -29,8 +29,8 @@ export class ApiService {
                     await response.text().catch(() => null)
                 );
             }
-
-            return await response.json();
+            const json = await response.json();
+            return json;
         } catch (error) {
             if (error instanceof ApiError) {
                 throw error;

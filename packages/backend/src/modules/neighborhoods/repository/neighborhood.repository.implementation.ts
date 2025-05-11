@@ -33,6 +33,20 @@ export class NeighborhoodRepositoryImplementation implements NeighborhoodReposit
         return [NeighborhoodsAdapter.listDatabaseToDomain(neighborhoods), count];
     }
 
+    async getNeighborhoodById(id: number): Promise<Neighborhood | null> {
+        const neighborhood = await this.dataSource
+            .getRepository(NeighborhoodEntity)
+            .createQueryBuilder('neighborhood')
+            .leftJoinAndSelect('neighborhood.images', 'images')
+            .where('neighborhood.id = :id', { id })
+            .getOne();
+
+        if (!neighborhood) {
+            return null;
+        }
+        return NeighborhoodsAdapter.databaseToDomain(neighborhood);
+    }
+
     async createNeighborhood(neighborhood: NeighborhoodEntity): Promise<Neighborhood> {
         const createdNeighborhood = await this.dataSource.getRepository(NeighborhoodEntity).save(neighborhood);
         return NeighborhoodsAdapter.databaseToDomain(createdNeighborhood);
