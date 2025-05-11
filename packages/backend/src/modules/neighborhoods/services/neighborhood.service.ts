@@ -20,10 +20,9 @@ export class NeighborhoodService {
         limit: number
     ): Promise<[Neighborhood[], number]> {
         return this.neighborhoodRepository.getAllNeighborhoods(params, page, limit);
-}
+    }
     async getNeighborhoodById(id: number): Promise<Neighborhood | null> {
         return this.neighborhoodRepository.getNeighborhoodById(id);
-
     }
 
     async createNeighborhood(input: CreateNeighborhoodInput): Promise<ResponseNeighborhoodDto> {

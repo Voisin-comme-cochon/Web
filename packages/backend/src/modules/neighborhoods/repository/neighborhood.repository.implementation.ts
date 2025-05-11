@@ -31,12 +31,16 @@ export class NeighborhoodRepositoryImplementation implements NeighborhoodReposit
             .getManyAndCount();
 
         return [NeighborhoodsAdapter.listDatabaseToDomain(neighborhoods), count];
-}
-  
-async getNeighborhoodById(id: number): Promise<Neighborhood | null> {
-        const neighborhood = await this.dataSource.getRepository(NeighborhoodEntity).findOne({
-            where: { id: id },
-        });
+    }
+
+    async getNeighborhoodById(id: number): Promise<Neighborhood | null> {
+        const neighborhood = await this.dataSource
+            .getRepository(NeighborhoodEntity)
+            .createQueryBuilder('neighborhood')
+            .leftJoinAndSelect('neighborhood.images', 'images')
+            .where('neighborhood.id = :id', { id })
+            .getOne();
+
         if (!neighborhood) {
             return null;
         }

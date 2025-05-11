@@ -11,7 +11,7 @@ export class TagsRepositoryImplementation implements TagsRepository {
             take: limit,
         });
     }
-    
+
     public getTagById(id: number): Promise<TagEntity | null> {
         return this.dataSource.getRepository(TagEntity).findOne({
             where: { id: id },
