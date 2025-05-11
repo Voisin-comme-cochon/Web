@@ -6,14 +6,13 @@ import CustomGrid from '@/components/CustomGrid/CustomGrid';
 import StatBloc from '@/components/StatBloc/StatBloc';
 
 const Dashboard: React.FC = () => {
-    type CellValue = string | number | React.ReactNode;
 
     const columns = useMemo( // pour ne pas recréer à chaque render
         () => [
             'ID',
             {
                 name: 'Nom',
-                formatter: (cell: CellValue) => h('strong', {}, cell),
+                formatter: (cell: string | number) => h('strong', {}, cell),
             },
             'Statut',
             {
@@ -33,7 +32,7 @@ const Dashboard: React.FC = () => {
     );
 
     // Données d'exemple
-    const data: CellValue[][] = useMemo(
+    const data = useMemo(
         () => [
             [1, 'Alice', 'En cours', 1],
             [2, 'Bob', 'Clôturé', 2],

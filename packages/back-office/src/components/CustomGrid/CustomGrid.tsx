@@ -11,7 +11,7 @@ export interface CustomGridProps {
         | string
         | {
         name: string;
-        formatter?: (cell: any) => JSX.Element;
+        formatter?: (cell: string | number) => JSX.Element;
     }
     >;
     /** Données : chaque ligne est un tableau de cellules (texte, nombre ou JSX.Element) */
