@@ -62,8 +62,8 @@ services:
 
   back-office:
     build:
-      context: ../back-office
-      dockerfile: Dockerfile
+      context: ../
+      dockerfile: back-office/Dockerfile
     container_name: vcc_back-office
     ports:
       - "8081:80"
