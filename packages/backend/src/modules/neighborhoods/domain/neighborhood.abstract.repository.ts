@@ -9,5 +9,7 @@ export abstract class NeighborhoodRepository {
         offset: number
     ): Promise<[Neighborhood[], number]>;
 
+    abstract getNeighborhoodById(id: number): Promise<Neighborhood | null>;
+
     abstract createNeighborhood(neighborhood: NeighborhoodEntity): Promise<Neighborhood>;
 }

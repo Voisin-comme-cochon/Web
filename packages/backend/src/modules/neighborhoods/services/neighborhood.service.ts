@@ -19,6 +19,10 @@ export class NeighborhoodService {
         return this.neighborhoodRepository.getALlNeighborhoods(status, limit, offset);
     }
 
+    async getNeighborhoodById(id: number): Promise<Neighborhood | null> {
+        return this.neighborhoodRepository.getNeighborhoodById(id);
+    }
+
     async createNeighborhood(name: string, description: string, geo: Geography, owner: string): Promise<Neighborhood> {
         const insertedNeighborhood: NeighborhoodEntity = {
             id: 0,

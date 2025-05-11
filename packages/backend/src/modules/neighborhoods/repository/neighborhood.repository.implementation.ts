@@ -24,6 +24,16 @@ export class NeighborhoodRepositoryImplementation implements NeighborhoodReposit
         return [domainNeighborhoods, count];
     }
 
+    async getNeighborhoodById(id: number): Promise<Neighborhood | null> {
+        const neighborhood = await this.dataSource.getRepository(NeighborhoodEntity).findOne({
+            where: { id: id },
+        });
+        if (!neighborhood) {
+            return null;
+        }
+        return NeighborhoodsAdapter.databaseToDomain(neighborhood);
+    }
+
     async createNeighborhood(neighborhood: NeighborhoodEntity): Promise<Neighborhood> {
         const createdNeighborhood = await this.dataSource.getRepository(NeighborhoodEntity).save(neighborhood);
         return NeighborhoodsAdapter.databaseToDomain(createdNeighborhood);

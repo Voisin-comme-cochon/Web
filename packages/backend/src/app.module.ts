@@ -6,11 +6,15 @@ import { NeighborhoodModule } from './modules/neighborhoods/neighborhood.module'
 import { MailerModule } from './modules/mailer/mailer.module';
 import { ObjectStorageModule } from './modules/objectStorage/objectStorage.module';
 import { TicketsModule } from './modules/tickets/tickets.module';
+import { TagsModule } from './modules/tags/tags.module';
+import { EventsModule } from './modules/events/events.module';
 
 @Module({
     imports: [
         UsersModule,
         AuthModule,
+        TagsModule,
+        EventsModule,
         TicketsModule,
         NeighborhoodModule,
         MailerModule,
