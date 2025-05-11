@@ -14,15 +14,16 @@ import { neighborhoodFormSchema, type NeighborhoodFormValues } from '@/container
 interface NeighborhoodFormProps {
     onSubmit: (values: NeighborhoodFormValues) => Promise<void>;
     onNext: () => void;
+    initialValues?: NeighborhoodFormValues;
 }
 
-export function NeighborhoodForm({ onSubmit, onNext }: NeighborhoodFormProps) {
+export function NeighborhoodForm({ onSubmit, onNext, initialValues }: NeighborhoodFormProps) {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
     const form = useForm<NeighborhoodFormValues>({
         resolver: zodResolver(neighborhoodFormSchema),
-        defaultValues: {
+        defaultValues: initialValues || {
             name: '',
             description: '',
             images: [],

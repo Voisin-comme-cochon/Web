@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { NeighborhoodForm } from '@/components/Neighborhood/NeighborhoodForm';
+import { NeighborhoodMapForm } from '@/components/Neighborhood/NeighborhoodMapForm';
 import type { NeighborhoodFormValues } from './neighborhood.schema';
 import { NeighborhoodUc } from '@/domain/use-cases/neighborhoodUc';
 import { NeighborhoodFrontRepository } from '@/infrastructure/repositories/NeighborhoodFrontRepository';
@@ -9,29 +10,39 @@ import AuthFooter from '@/components/AuthFooter/AuthFooter';
 
 export function CreateNeighborhood() {
     const [step, setStep] = useState(1);
+    const [formData, setFormData] = useState<NeighborhoodFormValues | null>(null);
 
     const handleFormSubmit = async (values: NeighborhoodFormValues) => {
-        const neighborhoodUc = new NeighborhoodUc(new NeighborhoodFrontRepository(new ApiService()));
-        await neighborhoodUc.createNeighborhood(values);
+        setFormData(values);
+        setStep(2);
     };
 
-    const handleNext = () => {
-        setStep(2);
+    const handleMapSubmit = async (geo: { type: string; coordinates: number[][][] }) => {
+        if (!formData) return;
+
+        const neighborhoodUc = new NeighborhoodUc(new NeighborhoodFrontRepository(new ApiService()));
+        await neighborhoodUc.createNeighborhood({
+            ...formData,
+            geo,
+        });
+    };
+
+    const handleBack = () => {
+        setStep(1);
     };
 
     const renderStep = () => {
         switch (step) {
             case 1:
-                return <NeighborhoodForm onSubmit={handleFormSubmit} onNext={handleNext} />;
-            case 2:
                 return (
-                    <div className="w-full flex items-center justify-center">
-                        <div className="text-center">
-                            <h2 className="text-2xl font-bold mb-4">Étape 2 : Définition des contours</h2>
-                            <p>Cette fonctionnalité sera bientôt disponible.</p>
-                        </div>
-                    </div>
+                    <NeighborhoodForm
+                        onSubmit={handleFormSubmit}
+                        onNext={() => {}}
+                        initialValues={formData || undefined}
+                    />
                 );
+            case 2:
+                return <NeighborhoodMapForm onSubmit={handleMapSubmit} onBack={handleBack} />;
             default:
                 return null;
         }
