@@ -1,31 +1,30 @@
-# --- 1) Installer les libs racine (npm workspaces ou pas) ---
-FROM node:20.11 AS deps
+# 1) Stage de build
+FROM node:20.11 AS build
 WORKDIR /app
-# Si tu utilises npm workspaces : copie le package.json racine + lockfile
-COPY package*.json pnpm-lock.yaml* ./
+
+# 1.a) On copie seulement les package.json pour maximiser le cache
+COPY back-office/package*.json back-office/
+COPY common/package*.json common/
+
+# 1.b) On installe les deps du back-office (common sera résolu en file:../common)
+WORKDIR /app/back-office
 RUN npm install
 
-# --- 2) Builder le back-office ---
-FROM deps AS build
-# Place-toi dans le dossier back-office
-WORKDIR /app/packages/back-office
+# 1.c) On copie tout le code (common & back-office)
+WORKDIR /app
+COPY common common
+COPY back-office back-office
 
-# Copie d'abord son package.json pour installer ses deps seules (optionnel si workspaces)
-COPY packages/back-office/package*.json ./
-RUN npm install
-
-# Ensuite on copie le code et le dossier common
-COPY common /app/common
-COPY packages/back-office ./
-
-# Build TS + Vite
+# 1.d) On build
+WORKDIR /app/back-office
 RUN npm run build
 
-# --- 3) Serve via nginx ---
+# 2) Stage de production
 FROM nginx:alpine AS prod
-# On récupère le dist de back-office
-COPY --from=build /app/packages/back-office/dist /usr/share/nginx/html
-COPY packages/back-office/nginx.conf /etc/nginx/conf.d/default.conf
+# on récupère le dist généré
+COPY --from=build /app/back-office/dist /usr/share/nginx/html
+# on place ta conf
+COPY back-office/nginx.conf /etc/nginx/conf.d/default.conf
 
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
