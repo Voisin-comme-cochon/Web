@@ -9,7 +9,6 @@
     }
   ],
   "compilerOptions": {
-    "jsx": "react-jsx",
     "types": [
       "vite/client"
     ],
@@ -20,9 +19,6 @@
     "paths": {
       "@/*": [
         "src/*"
-      ],
-      "@common/*": [
-        "../common/*"
       ]
     }
   }

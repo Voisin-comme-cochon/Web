@@ -1,9 +1,9 @@
 import {AuthTokens} from "@/domain/models/AuthTokens.ts";
-import {AuthError} from "../../../../common/errors/AuthError.ts";
 import {DecodedUser} from "@/domain/models/DecodedUser.ts";
 import {jwtDecode} from "jwt-decode";
 import {login} from "@/infrastructure/repositories/AuthRepository.ts";
 import {ApiError} from "@/shared/errors/ApiError.ts";
+import {AuthError} from "@/shared/errors/AuthError";
 
 export class AuthUc {
     constructor() {
