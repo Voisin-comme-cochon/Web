@@ -1,5 +1,6 @@
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { EventEntity } from './event.entity';
+import { GroupEntity } from './group.entity';
 
 @Entity({ name: 'tags' })
 export class TagEntity {
@@ -15,4 +16,7 @@ export class TagEntity {
     // Clés étrangères
     @OneToMany(() => EventEntity, (event) => event.tag)
     events?: EventEntity[];
+
+    @OneToMany(() => GroupEntity, (group) => group.tag)
+    groups?: GroupEntity[];
 }

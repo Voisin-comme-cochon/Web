@@ -14,7 +14,7 @@ export class NeighborhoodImagesEntity {
 
     @ManyToOne(() => NeighborhoodEntity, (neighborhood) => neighborhood.images)
     @JoinColumn({ name: 'neighborhoodId' })
-    neighborhood!: NeighborhoodEntity;
+    neighborhood?: NeighborhoodEntity;
 
     @Column()
     neighborhoodId!: number;

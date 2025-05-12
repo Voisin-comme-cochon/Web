@@ -1,6 +1,8 @@
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { EventEntity } from './event.entity';
 import { EventRegistrationEntity } from './event-registration.entity';
+import { GroupMessageEntity } from './group-message.entity';
+import { GroupMembershipEntity } from './group-membership.entity';
 
 @Entity({ name: 'users' })
 export class UserEntity {
@@ -46,4 +48,10 @@ export class UserEntity {
 
     @OneToMany(() => EventRegistrationEntity, (registration) => registration.user)
     user_events_registrations?: EventRegistrationEntity[];
+
+    @OneToMany(() => GroupMessageEntity, (messages) => messages.user)
+    user_messages?: GroupMessageEntity[];
+
+    @OneToMany(() => GroupMembershipEntity, (group) => group.user)
+    user_groups?: GroupMembershipEntity[];
 }
