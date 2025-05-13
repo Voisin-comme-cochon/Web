@@ -26,7 +26,6 @@ export class TagsController {
     @ApiNotFoundResponse({ description: 'Tag not found' })
     async getTagById(@Param('id') id: string): Promise<ResponseTagDto> {
         const numberId = parseInt(id, 10);
-        console.log(id);
         const tag = await this.tagsService.getTagById(numberId);
         return TagsAdapter.domainToResponseTag(tag);
     }

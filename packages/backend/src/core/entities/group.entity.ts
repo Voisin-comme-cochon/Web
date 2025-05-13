@@ -18,7 +18,7 @@ export class GroupEntity {
     description!: string;
 
     @Column()
-    tagId!: string;
+    tagId!: number;
 
     // Clés étrangères
     @OneToMany(() => GroupMessageEntity, (message) => message.group)

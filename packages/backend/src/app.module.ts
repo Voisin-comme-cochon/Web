@@ -8,6 +8,7 @@ import { ObjectStorageModule } from './modules/objectStorage/objectStorage.modul
 import { TicketsModule } from './modules/tickets/tickets.module';
 import { TagsModule } from './modules/tags/tags.module';
 import { EventsModule } from './modules/events/events.module';
+import { GroupsModule } from './modules/groups/groups.module';
 
 @Module({
     imports: [
@@ -18,6 +19,7 @@ import { EventsModule } from './modules/events/events.module';
         TicketsModule,
         NeighborhoodModule,
         MailerModule,
+        GroupsModule,
         ObjectStorageModule,
         TypeOrmModule.forRoot({
             type: 'postgres',
