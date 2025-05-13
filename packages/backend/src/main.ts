@@ -27,6 +27,7 @@ const bootstrap = async () => {
         origin: [
             'http://localhost:8080',
             'https://voisincommecochon.fr',
+            'https://back.voisincommecochon.fr',
             'https://38.242.223.232:8080',
             'http://localhost:5173',
         ], // ou '*' pour tous les domaines (pas recommandé en prod)
