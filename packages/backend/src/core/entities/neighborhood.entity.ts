@@ -3,6 +3,7 @@ import { IsISO8601 } from 'class-validator';
 import { NeighborhoodStatusEntity } from './neighborhood-status.entity';
 import { EventEntity } from './event.entity';
 import { NeighborhoodImagesEntity } from './neighborhood-images.entity';
+import { NeighborhoodUserEntity } from './neighborhood-user.entity';
 
 @Entity({ name: 'neighborhoods' })
 export class NeighborhoodEntity {
@@ -43,4 +44,7 @@ export class NeighborhoodEntity {
     // clé étrangères :
     @OneToMany(() => EventEntity, (event) => event.neighborhood, { onDelete: 'CASCADE' })
     neighborhood_events?: EventEntity[];
+
+    @OneToMany(() => NeighborhoodUserEntity, (user) => user.neighborhood)
+    neighborhood_users?: NeighborhoodUserEntity[];
 }
