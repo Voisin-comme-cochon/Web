@@ -20,4 +20,8 @@ export class GroupsService {
         }
         return GroupsAdapter.entityToDomain(group);
     }
+
+    public async countMessageAmount(): Promise<number> {
+        return this.eventRepository.countMessageAmount();
+    }
 }
