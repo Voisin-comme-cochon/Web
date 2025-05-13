@@ -14,21 +14,7 @@ export class NeighborhoodFrontRepository {
         const formData = new FormData();
         formData.append('name', data.name);
         formData.append('description', data.description);
-        // TODO : Add real geo json, fake geo json for now
-        formData.append(
-            'geo',
-            JSON.stringify({
-                type: 'Polygon',
-                coordinates: [
-                    [
-                        [2.294, 48.858],
-                        [2.295, 48.859],
-                        [2.296, 48.858],
-                        [2.294, 48.858],
-                    ],
-                ],
-            })
-        );
+        formData.append('geo', JSON.stringify(data.geo));
 
         if (data.images) {
             data.images.forEach((image) => {
