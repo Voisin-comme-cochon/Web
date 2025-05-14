@@ -3,6 +3,7 @@ import { EventEntity } from './event.entity';
 import { EventRegistrationEntity } from './event-registration.entity';
 import { GroupMessageEntity } from './group-message.entity';
 import { GroupMembershipEntity } from './group-membership.entity';
+import { SalesEntity } from './sales.entity';
 
 @Entity({ name: 'users' })
 export class UserEntity {
@@ -54,4 +55,7 @@ export class UserEntity {
 
     @OneToMany(() => GroupMembershipEntity, (group) => group.user)
     user_groups?: GroupMembershipEntity[];
+
+    @OneToMany(() => SalesEntity, (sales) => sales.owner)
+    sales?: SalesEntity[];
 }
