@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 import { DataSource } from 'typeorm';
 import { AuthModule } from '../auth/auth.module';
-import { UsersModule } from '../users/users.module';
 import { ObjectStorageModule } from '../objectStorage/objectStorage.module';
 import { ObjectStorageService } from '../objectStorage/services/objectStorage.service';
 import { NeighborhoodRepository } from './domain/neighborhood.abstract.repository';
