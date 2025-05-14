@@ -23,9 +23,9 @@ export class GroupsController {
     @ApiOkResponse({ description: 'Amount of messages found' })
     @ApiNotFoundResponse({ description: 'No messages found' })
     @UseGuards(IsSuperAdminGuard)
-    async countMessageAmount(): Promise<{ number: number }> {
+    async countMessageAmount(): Promise<{ data: number }> {
         const number = await this.groupsService.countMessageAmount();
-        return { number };
+        return { data: number };
     }
 
     @Get()
