@@ -1,0 +1,19 @@
+export interface NeighborhoodInvitation {
+    id: number;
+    neighborhoodId: number;
+    createdBy: number;
+    token: string;
+    maxUse?: number;
+    usedCount?: number;
+    expiredAt?: Date;
+    creationDate: Date;
+}
+
+export interface NeighborhoodInvitationCreation {
+    neighborhoodId: number;
+    createdBy: number;
+    maxUse?: number;
+    durationInDays?: number;
+    token?: string;
+    expiredAt?: Date;
+}

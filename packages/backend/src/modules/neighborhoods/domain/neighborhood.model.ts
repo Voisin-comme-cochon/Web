@@ -1,5 +1,6 @@
 import { Geography } from 'typeorm';
 import { NeighborhoodStatusEntity } from '../../../core/entities/neighborhood-status.entity';
+import { User } from '../../users/domain/user.model';
 import { NeighborhoodImage } from './neighborhood-image.model';
 
 export class Neighborhood {
@@ -10,6 +11,7 @@ export class Neighborhood {
     description!: string;
     creationDate!: Date;
     images?: NeighborhoodImage[];
+    neighborhood_users?: User[];
 }
 
 export interface CreateNeighborhoodInput {

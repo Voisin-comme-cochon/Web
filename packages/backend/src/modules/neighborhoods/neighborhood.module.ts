@@ -10,7 +10,7 @@ import { NeighborhoodService } from './services/neighborhood.service';
 import { NeighborhoodRepositoryImplementation } from './repository/neighborhood.repository.implementation';
 
 @Module({
-    imports: [AuthModule, UsersModule, ObjectStorageModule],
+    imports: [AuthModule, ObjectStorageModule],
     controllers: [NeighborhoodController],
     providers: [
         {
