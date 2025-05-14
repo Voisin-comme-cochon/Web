@@ -41,6 +41,6 @@ export class NeighborhoodEntity {
     creationDate!: Date;
 
     // clé étrangères :
-    @OneToMany(() => EventEntity, (event) => event.neighborhood)
+    @OneToMany(() => EventEntity, (event) => event.neighborhood, { onDelete: 'CASCADE' })
     neighborhood_events?: EventEntity[];
 }

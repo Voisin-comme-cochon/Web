@@ -1,8 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsInt, IsNumber } from 'class-validator';
+import { Type } from 'class-transformer';
 import { ResponseNeighborhoodDto } from '../../../neighborhoods/controllers/dto/neighborhood.dto';
 import { SaleStatusEnum } from '../../../../core/entities/saleStatus.enum';
 import { SalesPayementTypesEnum } from '../../../../core/entities/sales-payement-types.enum';
+import { SalesPhotoModel } from '../../domain/sales-photo.model';
 
 export class ResponseSalesDto {
     @ApiProperty({
@@ -54,4 +56,20 @@ export class ResponseSalesDto {
         description: 'The payement type of the sale',
     })
     payementType!: SalesPayementTypesEnum;
+
+    @ApiProperty({
+        example: 'https://example.com/image.jpg',
+        description: 'The images of the sale',
+    })
+    photos!: SalesPhotoModel[];
+}
+
+export class GetSalesByIdQueryParamsDto {
+    @ApiProperty({
+        example: 1,
+        description: 'The neighborhood id of the sale',
+    })
+    @Type(() => Number)
+    @IsInt()
+    saleId!: number;
 }

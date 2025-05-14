@@ -17,11 +17,11 @@ export class GroupMessageEntity {
     groupId!: string;
 
     // Clés étrangères
-    @ManyToOne(() => GroupEntity, (group) => group.messages)
+    @ManyToOne(() => GroupEntity, (group) => group.messages, { onDelete: 'CASCADE' })
     @JoinColumn({ name: 'groupId' })
     group?: GroupEntity;
 
-    @ManyToOne(() => UserEntity, (user) => user.user_messages)
+    @ManyToOne(() => UserEntity, (user) => user.user_messages, { onDelete: 'CASCADE' })
     @JoinColumn({ name: 'userId' })
     user?: UserEntity;
 }

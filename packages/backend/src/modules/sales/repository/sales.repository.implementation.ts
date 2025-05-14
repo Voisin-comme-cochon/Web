@@ -15,6 +15,9 @@ export class SalesRepositoryImplementation implements SalesRepository {
     public getSalesById(id: number): Promise<SalesEntity | null> {
         return this.dataSource.getRepository(SalesEntity).findOne({
             where: { id: id },
+            relations: {
+                photos: true,
+            },
         });
     }
 }

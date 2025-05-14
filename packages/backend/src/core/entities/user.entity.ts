@@ -44,18 +44,18 @@ export class UserEntity {
     prefferedNotifMethod!: string;
 
     // Clé étrangères :
-    @OneToMany(() => EventEntity, (event) => event.creator)
+    @OneToMany(() => EventEntity, (event) => event.creator, { onDelete: 'CASCADE' })
     user_events?: EventEntity[];
 
-    @OneToMany(() => EventRegistrationEntity, (registration) => registration.user)
+    @OneToMany(() => EventRegistrationEntity, (registration) => registration.user, { onDelete: 'CASCADE' })
     user_events_registrations?: EventRegistrationEntity[];
 
-    @OneToMany(() => GroupMessageEntity, (messages) => messages.user)
+    @OneToMany(() => GroupMessageEntity, (messages) => messages.user, { onDelete: 'CASCADE' })
     user_messages?: GroupMessageEntity[];
 
-    @OneToMany(() => GroupMembershipEntity, (group) => group.user)
+    @OneToMany(() => GroupMembershipEntity, (group) => group.user, { onDelete: 'CASCADE' })
     user_groups?: GroupMembershipEntity[];
 
-    @OneToMany(() => SalesEntity, (sales) => sales.owner)
+    @OneToMany(() => SalesEntity, (sales) => sales.owner, { onDelete: 'CASCADE' })
     sales?: SalesEntity[];
 }

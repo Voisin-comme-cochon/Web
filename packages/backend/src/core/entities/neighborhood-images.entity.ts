@@ -12,7 +12,7 @@ export class NeighborhoodImagesEntity {
     @Column()
     isPrimary!: boolean;
 
-    @ManyToOne(() => NeighborhoodEntity, (neighborhood) => neighborhood.images)
+    @ManyToOne(() => NeighborhoodEntity, (neighborhood) => neighborhood.images, { onDelete: 'CASCADE' })
     @JoinColumn({ name: 'neighborhoodId' })
     neighborhood?: NeighborhoodEntity;
 

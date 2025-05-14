@@ -59,18 +59,20 @@ export class EventEntity {
     addressEnd!: Geography;
 
     // Clés étrangères
-    @ManyToOne(() => UserEntity)
+    @ManyToOne(() => UserEntity, { onDelete: 'CASCADE' })
     @JoinColumn({ name: 'createdBy' })
     creator?: UserEntity;
 
-    @ManyToOne(() => NeighborhoodEntity)
+    @ManyToOne(() => NeighborhoodEntity, { onDelete: 'CASCADE' })
     @JoinColumn({ name: 'neighborhoodId' })
     neighborhood?: NeighborhoodEntity;
 
-    @ManyToOne(() => TagEntity)
+    @ManyToOne(() => TagEntity, { onDelete: 'CASCADE' })
     @JoinColumn({ name: 'tagId' })
     tag?: TagEntity;
 
-    @OneToMany(() => EventRegistrationEntity, (registration) => registration.event)
+    @OneToMany(() => EventRegistrationEntity, (registration) => registration.event, {
+        onDelete: 'CASCADE',
+    })
     registrations?: EventRegistrationEntity[];
 }

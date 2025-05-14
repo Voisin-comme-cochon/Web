@@ -36,4 +36,8 @@ export class NeighborhoodsAdapter {
             images: neighborhood.images,
         };
     }
+
+    public static listDomainToDto(neighborhoods: Neighborhood[]): ResponseNeighborhoodDto[] {
+        return neighborhoods.map((neighborhood) => this.domainToDto(neighborhood));
+    }
 }

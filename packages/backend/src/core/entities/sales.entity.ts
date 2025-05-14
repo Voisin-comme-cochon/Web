@@ -30,10 +30,10 @@ export class SalesEntity {
     @Column({ type: 'enum', enum: SalesPayementTypesEnum })
     payementType!: SalesPayementTypesEnum;
 
-    @ManyToOne(() => SalesPhotosEntity, (photos) => photos.sale)
+    @ManyToOne(() => SalesPhotosEntity, (photos) => photos.sale, { onDelete: 'CASCADE' })
     photos?: SalesPhotosEntity[];
 
-    @ManyToOne(() => UserEntity, (user) => user.sales)
+    @ManyToOne(() => UserEntity, (user) => user.sales, { onDelete: 'CASCADE' })
     @JoinColumn({ name: 'userId' })
     owner?: UserEntity;
 }

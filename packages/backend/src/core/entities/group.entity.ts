@@ -21,13 +21,13 @@ export class GroupEntity {
     tagId!: number;
 
     // Clés étrangères
-    @OneToMany(() => GroupMessageEntity, (message) => message.group)
+    @OneToMany(() => GroupMessageEntity, (message) => message.group, { onDelete: 'CASCADE' })
     messages?: GroupMessageEntity[];
 
-    @OneToMany(() => GroupMembershipEntity, (member) => member.group)
+    @OneToMany(() => GroupMembershipEntity, (member) => member.group, { onDelete: 'CASCADE' })
     members?: GroupMembershipEntity[];
 
-    @ManyToOne(() => TagEntity, (tag) => tag.groups)
+    @ManyToOne(() => TagEntity, (tag) => tag.groups, { onDelete: 'CASCADE' })
     @JoinColumn({ name: 'tagId' })
     tag?: TagEntity;
 }

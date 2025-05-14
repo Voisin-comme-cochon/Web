@@ -18,11 +18,11 @@ export class GroupMembershipEntity {
     status!: StatusMembershipGroupEnum;
 
     // Clés étrangères
-    @ManyToOne(() => UserEntity, (user) => user.user_groups)
+    @ManyToOne(() => UserEntity, (user) => user.user_groups, { onDelete: 'CASCADE' })
     @JoinColumn({ name: 'userId' })
     user?: UserEntity;
 
-    @ManyToOne(() => GroupEntity, (group) => group.members)
+    @ManyToOne(() => GroupEntity, (group) => group.members, { onDelete: 'CASCADE' })
     @JoinColumn({ name: 'groupId' })
     group?: GroupEntity;
 }

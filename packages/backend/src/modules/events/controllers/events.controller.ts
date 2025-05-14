@@ -1,5 +1,5 @@
 import { Controller, Get, Query, UseGuards } from '@nestjs/common';
-import { ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { EventsService } from '../services/events.service';
 import { EventsAdapter } from '../adapters/events.adapter';
 import { Paginated, Paging } from '../../../core/pagination/pagination';
@@ -10,10 +10,13 @@ import { NeighborhoodService } from '../../neighborhoods/services/neighborhood.s
 import { CochonError } from '../../../utils/CochonError';
 import { UserAdapter } from '../../users/adapters/user.adapter';
 import { TagsAdapter } from '../../tags/adapters/tags.adapter';
+import { IsSuperAdminGuard } from '../../../middleware/is-super-admin.middleware';
 import { ResponseEventDto } from './dto/events.dto';
 
 @ApiTags('events')
 @Controller('events')
+@ApiBearerAuth()
+@UseGuards(IsLoginGuard)
 export class EventsController {
     constructor(
         private readonly eventsService: EventsService,
@@ -26,7 +29,7 @@ export class EventsController {
     @ApiOperation({ summary: 'Get events' })
     @ApiOkResponse({ description: 'Events found', type: ResponseEventDto })
     @ApiNotFoundResponse({ description: 'Events not found' })
-    @UseGuards(IsLoginGuard)
+    @UseGuards(IsSuperAdminGuard)
     async getEvents(@Query() pagination: Paging): Promise<Paginated<ResponseEventDto>> {
         const [events, count] = await this.eventsService.getEvents(pagination.page, pagination.limit);
         const users = await Promise.all(

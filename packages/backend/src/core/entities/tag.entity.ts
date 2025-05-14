@@ -14,9 +14,9 @@ export class TagEntity {
     color!: string;
 
     // Clés étrangères
-    @OneToMany(() => EventEntity, (event) => event.tag)
+    @OneToMany(() => EventEntity, (event) => event.tag, { onDelete: 'CASCADE' })
     events?: EventEntity[];
 
-    @OneToMany(() => GroupEntity, (group) => group.tag)
+    @OneToMany(() => GroupEntity, (group) => group.tag, { onDelete: 'CASCADE' })
     groups?: GroupEntity[];
 }

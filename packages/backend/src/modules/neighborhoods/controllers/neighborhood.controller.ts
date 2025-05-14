@@ -10,7 +10,7 @@ import {
     UseGuards,
     UseInterceptors,
 } from '@nestjs/common';
-import { ApiConsumes, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiConsumes, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { NeighborhoodService } from '../services/neighborhood.service';
 import { IsLoginGuard } from '../../../middleware/is-login.middleware';
@@ -18,7 +18,7 @@ import { PaginationInterceptor } from '../../../core/pagination/pagination.inter
 import { Paginated, Paging } from '../../../core/pagination/pagination';
 import { NeighborhoodsAdapter } from '../adapters/neighborhoods.adapter';
 import { CochonError } from '../../../utils/CochonError';
-import { ResponseNeighborhoodDto, GetNeighborhoodQueryParamsDto } from './dto/neighborhood.dto';
+import { GetNeighborhoodQueryParamsDto, ResponseNeighborhoodDto } from './dto/neighborhood.dto';
 
 @ApiTags('neighborhoods')
 @Controller('neighborhoods')
@@ -76,6 +76,7 @@ export class NeighborhoodController {
     @ApiOkResponse({ description: 'Neighborhood created', type: ResponseNeighborhoodDto })
     @ApiNotFoundResponse({ description: 'Neighborhood not created' })
     @UseGuards(IsLoginGuard)
+    @ApiBearerAuth()
     @UseInterceptors(FilesInterceptor('images'))
     @ApiConsumes('multipart/form-data')
     async createNeighborhood(
