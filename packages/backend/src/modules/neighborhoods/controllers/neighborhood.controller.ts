@@ -90,7 +90,7 @@ export class NeighborhoodController {
             name,
             description,
             geo,
-            userId: req.user.id,
+            userId: Number(req.user.id),
             files,
         });
     }

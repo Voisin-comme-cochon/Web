@@ -16,7 +16,7 @@ export interface CreateNeighborhoodInput {
     name: string;
     description: string;
     geo: string;
-    userId: string;
+    userId: number;
     files: Express.Multer.File[];
 }
 

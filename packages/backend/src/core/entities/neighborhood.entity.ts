@@ -45,6 +45,9 @@ export class NeighborhoodEntity {
     @OneToMany(() => EventEntity, (event) => event.neighborhood, { onDelete: 'CASCADE' })
     neighborhood_events?: EventEntity[];
 
-    @OneToMany(() => NeighborhoodUserEntity, (user) => user.neighborhood)
+    @OneToMany(() => NeighborhoodUserEntity, (user) => user.neighborhood, {
+        cascade: true,
+        onDelete: 'CASCADE',
+    })
     neighborhood_users?: NeighborhoodUserEntity[];
 }

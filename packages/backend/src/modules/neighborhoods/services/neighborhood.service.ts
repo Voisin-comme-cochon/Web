@@ -7,6 +7,11 @@ import { NeighborhoodImagesEntity } from '../../../core/entities/neighborhood-im
 import { ResponseNeighborhoodDto } from '../controllers/dto/neighborhood.dto';
 import { CochonError } from '../../../utils/CochonError';
 import { BucketType } from '../../objectStorage/domain/bucket-type.enum';
+import {
+    NeighborhoodUserEntity,
+    NeighborhoodUserRole,
+    NeighborhoodUserStatus,
+} from '../../../core/entities/neighborhood-user.entity';
 
 export class NeighborhoodService {
     constructor(
@@ -21,44 +26,67 @@ export class NeighborhoodService {
     ): Promise<[Neighborhood[], number]> {
         return this.neighborhoodRepository.getAllNeighborhoods(params, page, limit);
     }
+
     async getNeighborhoodById(id: number): Promise<Neighborhood | null> {
         return this.neighborhoodRepository.getNeighborhoodById(id);
     }
 
     async createNeighborhood(input: CreateNeighborhoodInput): Promise<ResponseNeighborhoodDto> {
-        const { name, description, geo, files } = input;
+        const { name, description, geo, files, userId } = input;
 
-        let parsedGeo: Geography;
+        const parsedGeo = this.parseGeo(geo);
+        const images = await this.createAndUploadImageEntities(files);
+        const creatorUserEntity = this.createAdminUser(userId);
+
+        const neighborhood = new NeighborhoodEntity();
+        neighborhood.name = name;
+        neighborhood.description = description;
+        neighborhood.geo = parsedGeo;
+        neighborhood.images = images;
+        neighborhood.creationDate = new Date();
+        neighborhood.neighborhood_users = [creatorUserEntity];
+
+        // TODO: Ajouter le traitement pour les usersToInvite
+
+        return this.neighborhoodRepository.createNeighborhood(neighborhood);
+    }
+
+    private parseGeo(geo: string): Geography {
         try {
-            parsedGeo = JSON.parse(geo) as Geography;
+            return JSON.parse(geo) as Geography;
         } catch (error) {
             if (error instanceof SyntaxError) {
                 throw new CochonError('invalid_geo', 'Invalid geo format', 400);
             }
-
             throw new CochonError('geo_parsing_error', 'Error parsing geo', 500);
         }
+    }
 
+    private async createAndUploadImageEntities(files: Express.Multer.File[]): Promise<NeighborhoodImagesEntity[]> {
         const imageEntities: NeighborhoodImagesEntity[] = [];
+
         for (let i = 0; i < files.length; i++) {
             const url = await this.objectStorageService.uploadFile(
                 files[i].buffer,
                 files[i].originalname,
                 BucketType.NEIGHBORHOOD_IMAGES
             );
+
             imageEntities.push({
                 url,
                 isPrimary: i === 0,
             } as NeighborhoodImagesEntity);
         }
 
-        const neighborhood = new NeighborhoodEntity();
-        neighborhood.name = name;
-        neighborhood.description = description;
-        neighborhood.geo = parsedGeo;
-        neighborhood.images = imageEntities;
-        neighborhood.creationDate = new Date();
+        return imageEntities;
+    }
 
-        return this.neighborhoodRepository.createNeighborhood(neighborhood);
+    private createAdminUser(userId: number): NeighborhoodUserEntity {
+        const adminUser = new NeighborhoodUserEntity();
+        adminUser.userId = userId;
+        adminUser.status = NeighborhoodUserStatus.ACCEPTED;
+        adminUser.role = NeighborhoodUserRole.ADMIN;
+
+        return adminUser;
     }
 }
