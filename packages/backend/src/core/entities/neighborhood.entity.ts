@@ -1,9 +1,9 @@
 import { Column, Entity, Geography, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
-import { IsISO8601 } from 'class-validator';
 import { NeighborhoodStatusEntity } from './neighborhood-status.entity';
 import { EventEntity } from './event.entity';
 import { NeighborhoodImagesEntity } from './neighborhood-images.entity';
 import { NeighborhoodUserEntity } from './neighborhood-user.entity';
+import { NeighborhoodInvitationEntity } from './neighborhood-invitation.entity';
 
 @Entity({ name: 'neighborhoods' })
 export class NeighborhoodEntity {
@@ -37,8 +37,7 @@ export class NeighborhoodEntity {
     })
     images!: NeighborhoodImagesEntity[];
 
-    @Column({ default: () => 'CURRENT_TIMESTAMP' })
-    @IsISO8601()
+    @Column({ default: () => 'CURRENT_TIMESTAMP', type: 'timestamptz' })
     creationDate!: Date;
 
     // clé étrangères :
@@ -50,4 +49,10 @@ export class NeighborhoodEntity {
         onDelete: 'CASCADE',
     })
     neighborhood_users?: NeighborhoodUserEntity[];
+
+    @OneToMany(() => NeighborhoodInvitationEntity, (invitation) => invitation.neighborhood, {
+        cascade: true,
+        onDelete: 'CASCADE',
+    })
+    neighborhood_invitations?: NeighborhoodInvitationEntity[];
 }
