@@ -36,6 +36,8 @@ export class NeighborhoodController {
         private readonly neighborhoodInvitationService: NeighborhoodInvitationService
     ) {}
 
+    /* Neighborhoods endpoints */
+
     @Get()
     @UseInterceptors(PaginationInterceptor)
     @ApiOperation({ summary: 'Get all neighborhoods' })
@@ -104,6 +106,8 @@ export class NeighborhoodController {
             inviteEmails: body.inviteEmails,
         });
     }
+
+    /* Neighborhood invitations endpoints */
 
     @Get('invitation/:token')
     @ApiOperation({ summary: 'Get a neighborhood invitation by token' })
