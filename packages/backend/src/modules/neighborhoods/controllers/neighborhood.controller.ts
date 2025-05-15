@@ -20,13 +20,14 @@ import { NeighborhoodsAdapter } from '../adapters/neighborhoods.adapter';
 import { CochonError } from '../../../utils/CochonError';
 import { NeighborhoodInvitationService } from '../services/neighborhood-invitation.service';
 import { NeighborhoodAppService } from '../services/neighborhood-app.service';
+import { IsSuperAdminGuard } from '../../../middleware/is-super-admin.middleware';
 import {
     CreateNeighborhoodInvitationDto,
     GetNeighborhoodInvitationQueryParams,
 } from './dto/neighborhood-invitation.dto';
 import { ResponseNeighborhoodDto, GetNeighborhoodQueryParamsDto, RequestNeighborhoodDto } from './dto/neighborhood.dto';
 
-@ApiTags('neighborhoods')
+@ApiTags('Neighborhoods')
 @Controller('neighborhoods')
 export class NeighborhoodController {
     constructor(
@@ -104,12 +105,30 @@ export class NeighborhoodController {
         });
     }
 
-    @Get(':token')
+    @Get('invitation/:token')
+    @ApiOperation({ summary: 'Get a neighborhood invitation by token' })
+    @ApiOkResponse({
+        description: 'Neighborhood invitation found',
+        type: ResponseNeighborhoodDto,
+    })
+    @ApiNotFoundResponse({
+        description: 'Neighborhood invitation not found',
+    })
+    @UseGuards(IsLoginGuard, IsSuperAdminGuard)
     async getInvitationByToken(@Param() param: GetNeighborhoodInvitationQueryParams) {
         return this.neighborhoodInvitationService.findInvitationByToken(param.token);
     }
 
-    @Post()
+    @Post('invitation')
+    @ApiOperation({ summary: 'Create a neighborhood invitation' })
+    @ApiOkResponse({
+        description: 'Neighborhood invitation created',
+        type: ResponseNeighborhoodDto,
+    })
+    @ApiNotFoundResponse({
+        description: 'Neighborhood invitation not created',
+    })
+    @UseGuards(IsLoginGuard, IsSuperAdminGuard)
     async createInvitation(@Body() body: CreateNeighborhoodInvitationDto, @Request() req: { user: { id: string } }) {
         return this.neighborhoodInvitationService.createInvitation({
             neighborhoodId: body.neighborhoodId,
