@@ -20,6 +20,7 @@ export interface CreateNeighborhoodInput {
     geo: string;
     userId: number;
     files: Express.Multer.File[];
+    inviteEmails?: string[];
 }
 
 export interface GetNeighborhoodQueryParams {

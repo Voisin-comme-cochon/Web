@@ -49,4 +49,15 @@ export class CreateNeighborhoodInvitationDto {
     @IsOptional()
     @Type(() => Number)
     durationInDays?: number;
+
+    @ApiProperty({
+        example: 'user@gmail.com',
+        description: 'The email of the user to invite',
+        required: true,
+        type: String,
+    })
+    @IsNotEmpty()
+    @IsString()
+    @IsOptional()
+    email?: string;
 }

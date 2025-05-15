@@ -16,4 +16,5 @@ export interface NeighborhoodInvitationCreation {
     durationInDays?: number;
     token?: string;
     expiredAt?: Date;
+    email?: string;
 }

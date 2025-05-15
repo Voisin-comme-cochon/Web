@@ -2,7 +2,7 @@ import { DataSource } from 'typeorm';
 import { NeighborhoodInvitationRepository } from '../domain/neighborhood-invitation.abstract.repository';
 import { NeighborhoodInvitationCreation, NeighborhoodInvitation } from '../domain/neighborhood-invitation.model';
 import { NeighborhoodInvitationEntity } from '../../../core/entities/neighborhood-invitation.entity';
-import { NeighborhoodsInvitationAdapter } from '../adapters/neighborhoods-invitation.adapter';
+import { NeighborhoodsInvitationAdapter } from '../adapters/neighborhood-invitation.adapter';
 
 export class NeighborhoodInvitationRepositoryImplementation implements NeighborhoodInvitationRepository {
     constructor(private readonly dataSource: DataSource) {}

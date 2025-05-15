@@ -18,12 +18,22 @@ import { PaginationInterceptor } from '../../../core/pagination/pagination.inter
 import { Paginated, Paging } from '../../../core/pagination/pagination';
 import { NeighborhoodsAdapter } from '../adapters/neighborhoods.adapter';
 import { CochonError } from '../../../utils/CochonError';
-import { GetNeighborhoodQueryParamsDto, ResponseNeighborhoodDto } from './dto/neighborhood.dto';
+import { NeighborhoodInvitationService } from '../services/neighborhood-invitation.service';
+import { NeighborhoodAppService } from '../services/neighborhood-app.service';
+import {
+    CreateNeighborhoodInvitationDto,
+    GetNeighborhoodInvitationQueryParams,
+} from './dto/neighborhood-invitation.dto';
+import { ResponseNeighborhoodDto, GetNeighborhoodQueryParamsDto, RequestNeighborhoodDto } from './dto/neighborhood.dto';
 
 @ApiTags('neighborhoods')
 @Controller('neighborhoods')
 export class NeighborhoodController {
-    constructor(private readonly neighborhoodService: NeighborhoodService) {}
+    constructor(
+        private readonly neighborhoodAppService: NeighborhoodAppService,
+        private readonly neighborhoodService: NeighborhoodService,
+        private readonly neighborhoodInvitationService: NeighborhoodInvitationService
+    ) {}
 
     @Get()
     @UseInterceptors(PaginationInterceptor)
@@ -79,19 +89,34 @@ export class NeighborhoodController {
     @ApiBearerAuth()
     @UseInterceptors(FilesInterceptor('images'))
     @ApiConsumes('multipart/form-data')
-    async createNeighborhood(
-        @Body('name') name: string,
-        @Body('description') description: string,
-        @Body('geo') geo: string,
+    createNeighborhood(
+        @Body() body: RequestNeighborhoodDto,
         @UploadedFiles() files: Express.Multer.File[] = [],
         @Request() req: { user: { id: string } }
     ): Promise<ResponseNeighborhoodDto> {
-        return this.neighborhoodService.createNeighborhood({
-            name,
-            description,
-            geo,
+        return this.neighborhoodAppService.createNeighborhoodAndInvite({
+            name: body.name,
+            description: body.description,
+            geo: body.geo,
             userId: Number(req.user.id),
             files,
+            inviteEmails: body.inviteEmails,
+        });
+    }
+
+    @Get(':token')
+    async getInvitationByToken(@Param() param: GetNeighborhoodInvitationQueryParams) {
+        return this.neighborhoodInvitationService.findInvitationByToken(param.token);
+    }
+
+    @Post()
+    async createInvitation(@Body() body: CreateNeighborhoodInvitationDto, @Request() req: { user: { id: string } }) {
+        return this.neighborhoodInvitationService.createInvitation({
+            neighborhoodId: body.neighborhoodId,
+            maxUse: body.maxUse,
+            durationInDays: body.durationInDays,
+            createdBy: Number(req.user.id),
+            email: body.email,
         });
     }
 }

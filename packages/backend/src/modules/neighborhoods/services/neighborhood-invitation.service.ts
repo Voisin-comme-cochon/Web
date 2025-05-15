@@ -1,15 +1,21 @@
 import { JwtService } from '@nestjs/jwt';
+import dayjs from 'dayjs';
 import { NeighborhoodInvitationRepository } from '../domain/neighborhood-invitation.abstract.repository';
 import { NeighborhoodInvitationCreation } from '../domain/neighborhood-invitation.model';
 import { CochonError } from '../../../utils/CochonError';
 import { isNull } from '../../../utils/tools';
-import { NeighborhoodService } from '../../neighborhoods/services/neighborhood.service';
+import { MailerService } from '../../mailer/services/mailer.service';
+import { Templates } from '../../mailer/domain/templates.enum';
+import { UsersService } from '../../users/services/users.service';
+import { NeighborhoodService } from './neighborhood.service';
 
 export class NeighborhoodInvitationService {
     constructor(
-        private neighborhoodInvitationRepository: NeighborhoodInvitationRepository,
-        private neighborhoodService: NeighborhoodService,
-        private jwtService: JwtService
+        private readonly neighborhoodInvitationRepository: NeighborhoodInvitationRepository,
+        private readonly neighborhoodService: NeighborhoodService,
+        private readonly jwtService: JwtService,
+        private readonly userService: UsersService,
+        private readonly mailerService: MailerService
     ) {}
 
     async createInvitation(invitation: NeighborhoodInvitationCreation) {
@@ -29,10 +35,25 @@ export class NeighborhoodInvitationService {
             invitation.durationInDays ?? 7
         );
 
-        // Generate expiredAt date
         const expiredAt = new Date(Date.now() + (invitation.durationInDays ?? 7) * 24 * 60 * 60 * 1000);
 
-        // TODO : Send email to the user with the invitation link
+        if (invitation.email) {
+            const sender = await this.userService.getUserById(invitation.createdBy);
+
+            await this.mailerService.sendRawEmail({
+                to: [invitation.email],
+                subject: 'Vous avez été invité à rejoindre un quartier !',
+                template: Templates.NEIGHBORHOOD_INVITATION,
+                context: {
+                    neighborhoodName: neighborhood.name,
+                    inviterName: sender.firstName,
+                    neighborhoodDescription: neighborhood.description,
+                    invitationLink: `${process.env.VCC_FRONT_URL}/neighborhood/invite/${token}`,
+                    linkExpirationDate: dayjs(expiredAt).format('DD/MM/YYYY'),
+                    supportEmail: process.env.VCC_SUPPORT_EMAIL,
+                },
+            });
+        }
 
         return this.neighborhoodInvitationRepository.insertInvitation({ ...invitation, token, expiredAt });
     }
