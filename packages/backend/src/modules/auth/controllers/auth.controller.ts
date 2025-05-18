@@ -1,8 +1,7 @@
-import { Body, Controller, Delete, Patch, Post, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
-import { ApiBearerAuth, ApiConsumes, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { Body, Controller, Delete, Patch, Post, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { ApiConsumes, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { AuthService } from '../services/auth.service';
-import { IsLoginGuard } from '../../../middleware/is-login.middleware';
 import { LoginInDto, LogInSignInDtoOutput, RefreshTokenDto, SignInDto } from './dto/auth.dto';
 import { PasswordResetResponseDto, RequestPasswordResetDto, ResetPasswordDto } from './dto/password-reset.dto';
 
@@ -45,8 +44,6 @@ export class AuthController {
     @ApiOperation({ summary: 'Log out' })
     @ApiOkResponse({ description: 'Log out successful' })
     @ApiNotFoundResponse({ description: 'Log out failed' })
-    @ApiBearerAuth()
-    @UseGuards(IsLoginGuard)
     async logout(@Body() body: RefreshTokenDto): Promise<void> {
         await this.authService.logout(body.refreshToken);
     }
@@ -55,8 +52,6 @@ export class AuthController {
     @ApiOperation({ summary: 'Refresh token' })
     @ApiOkResponse({ description: 'Refresh token successful', type: LogInSignInDtoOutput })
     @ApiNotFoundResponse({ description: 'Refresh token failed' })
-    @ApiBearerAuth()
-    @UseGuards(IsLoginGuard)
     async refresh(@Body() body: RefreshTokenDto): Promise<LogInSignInDtoOutput> {
         return await this.authService.refresh(body.refreshToken);
     }

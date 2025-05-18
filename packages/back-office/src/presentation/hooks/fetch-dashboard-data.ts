@@ -1,0 +1,12 @@
+import {useEffect} from "react";
+import {DashboardUseCase} from "@/domain/use-cases/dashboard.uc.ts";
+
+export const useFetchDashboardData = (setCreatedTickets: (n: number) => void) => {
+    const dashboardUseCase = new DashboardUseCase();
+
+    useEffect(() => {
+        dashboardUseCase.getCreatedTicketAmountData()
+            .then(setCreatedTickets)
+            .catch(() => setCreatedTickets(0));
+    }, []);
+}

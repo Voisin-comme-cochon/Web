@@ -1,4 +1,4 @@
-import {usePassword} from "@/presentation/state/usePassword.ts";
+import {usePasswordState} from "@/presentation/state/use-password.state.ts";
 import {Input} from "@/components/ui/input.tsx";
 
 type PasswordInputProps = {
@@ -11,7 +11,7 @@ export default function PasswordInput({value, onChangeCallback, disabled}: Passw
     const {
         showPassword,
         toggleShowPassword,
-    } = usePassword();
+    } = usePasswordState();
 
     return (
         <div className="relative">

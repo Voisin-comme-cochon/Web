@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import {useState} from 'react';
 
-export const usePassword = () => {
+export const usePasswordState = () => {
     const [showPassword, setShowPassword] = useState(false);
     const [password, setPassword] = useState('');
 

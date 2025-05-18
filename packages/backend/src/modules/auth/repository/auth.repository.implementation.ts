@@ -30,12 +30,15 @@ export class AuthRepositoryImplementation implements AuthRepository {
     }
 
     async saveToken(token: string, userId: number): Promise<void> {
-        const insertedToken = this.dataSource.getRepository(UserTokenEntity).create({
-            token: token,
-            userId: userId,
-            expirationDate: new Date(new Date().getTime() + 15 * 60 * 1000),
-        });
+        const repo = this.dataSource.getRepository(UserTokenEntity);
+        const expirationDate = new Date(Date.now() + 15 * 60 * 1000);
 
-        await this.dataSource.getRepository(UserTokenEntity).save(insertedToken);
+        await repo
+            .createQueryBuilder()
+            .insert()
+            .into(UserTokenEntity)
+            .values({ token, userId, expirationDate })
+            .orIgnore() // ignore l'erreur si le token existe déjà
+            .execute();
     }
 }

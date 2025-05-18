@@ -4,9 +4,16 @@ import SideHeader from '@/components/SideHeader/SideHeader';
 import InfoHeader from '@/components/InfoHeader/InfoHeader';
 import CustomGrid from '@/components/CustomGrid/CustomGrid';
 import StatBloc from '@/components/StatBloc/StatBloc';
+import {useFetchDashboardData} from "@/presentation/hooks/fetch-dashboard-data.ts";
+import {useDashboardDataState} from "@/presentation/state/dashboard-data.state.ts";
 
 const Dashboard: React.FC = () => {
+    const {
+        createdTickets,
+        setCreatedTickets
+    } = useDashboardDataState();
 
+    useFetchDashboardData(setCreatedTickets)
     const columns = useMemo( // pour ne pas recréer à chaque render
         () => [
             'ID',
@@ -59,7 +66,9 @@ const Dashboard: React.FC = () => {
                         <StatBloc
                             iconId="confirmation_number"
                             title="Tickets en cours"
-                            value={128}
+                            value={
+                                createdTickets ? createdTickets : 0
+                            }
                             color="#507DBC"
                         />
                         <StatBloc

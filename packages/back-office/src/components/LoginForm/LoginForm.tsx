@@ -9,7 +9,7 @@ import {useForm} from 'react-hook-form';
 import {zodResolver} from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import {Form, FormControl, FormField, FormItem, FormLabel, FormMessage} from '@/components/ui/form';
-import {useAppNavigation} from "@/presentation/state/navigate.ts";
+import {useAppNavigation} from "@/presentation/state/navigate.state.ts";
 import {AuthError} from "@/shared/errors/AuthError.ts";
 
 const formSchema = z.object({
