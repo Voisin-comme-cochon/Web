@@ -1,5 +1,5 @@
-import {AuthTokens} from "@/domain/models/AuthTokens.ts";
-import {DecodedUser} from "@/domain/models/DecodedUser.ts";
+import {AuthTokensModel} from "@/domain/models/auth-tokens.model.ts";
+import {DecodedUserModel} from "@/domain/models/decoded-user.model.ts";
 import {jwtDecode} from "jwt-decode";
 import {login} from "@/infrastructure/repositories/AuthRepository.ts";
 import {ApiError} from "@/shared/errors/ApiError.ts";
@@ -9,7 +9,7 @@ export class AuthUc {
     constructor() {
     }
 
-    public async login(email: string, password: string): Promise<AuthTokens> {
+    public async login(email: string, password: string): Promise<AuthTokensModel> {
         try {
             const tokens = await login(email, password);
             localStorage.setItem('jwt', tokens.access_token);
@@ -31,8 +31,8 @@ export class AuthUc {
         }
     }
 
-    public async decodeToken(token: string): Promise<DecodedUser> {
-        return jwtDecode<DecodedUser>(token);
+    public async decodeToken(token: string): Promise<DecodedUserModel> {
+        return jwtDecode<DecodedUserModel>(token);
     }
 
 }

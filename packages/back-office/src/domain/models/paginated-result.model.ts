@@ -1,4 +1,4 @@
-export interface PaginatedResult<T> {
+export interface PaginatedResultModel<T> {
     data: T[];
     total: number;
     filter: {
