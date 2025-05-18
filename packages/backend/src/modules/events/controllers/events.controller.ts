@@ -1,4 +1,4 @@
-import { Controller, Get, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Query, UseGuards, UseInterceptors } from '@nestjs/common';
 import { ApiBearerAuth, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { EventsService } from '../services/events.service';
 import { EventsAdapter } from '../adapters/events.adapter';
@@ -11,6 +11,7 @@ import { CochonError } from '../../../utils/CochonError';
 import { UserAdapter } from '../../users/adapters/user.adapter';
 import { TagsAdapter } from '../../tags/adapters/tags.adapter';
 import { IsSuperAdminGuard } from '../../../middleware/is-super-admin.middleware';
+import { PaginationInterceptor } from '../../../core/pagination/pagination.interceptor';
 import { ResponseEventDto } from './dto/events.dto';
 
 @ApiTags('events')
@@ -26,6 +27,7 @@ export class EventsController {
     ) {}
 
     @Get()
+    @UseInterceptors(PaginationInterceptor)
     @ApiOperation({ summary: 'Get events' })
     @ApiOkResponse({ description: 'Events found', type: ResponseEventDto })
     @ApiNotFoundResponse({ description: 'Events not found' })

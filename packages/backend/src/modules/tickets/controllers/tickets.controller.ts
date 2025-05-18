@@ -1,10 +1,11 @@
-import { Controller, Get, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Query, UseGuards, UseInterceptors } from '@nestjs/common';
 import { ApiBearerAuth, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { TicketsService } from '../services/tickets.service';
 import { TicketsAdapter } from '../adapters/tickets.adapter';
 import { IsLoginGuard } from '../../../middleware/is-login.middleware';
 import { Paginated, Paging } from '../../../core/pagination/pagination';
 import { IsSuperAdminGuard } from '../../../middleware/is-super-admin.middleware';
+import { PaginationInterceptor } from '../../../core/pagination/pagination.interceptor';
 import { getTicketsQueryDto, ResponseTicketDto } from './dto/tickets.dto';
 
 @ApiTags('tickets')
@@ -15,6 +16,7 @@ export class TicketsController {
     constructor(private readonly ticketsService: TicketsService) {}
 
     @Get()
+    @UseInterceptors(PaginationInterceptor)
     @ApiOperation({ summary: 'Get tickets' })
     @ApiOkResponse({ description: 'Tickets found', type: ResponseTicketDto })
     @UseGuards(IsSuperAdminGuard)

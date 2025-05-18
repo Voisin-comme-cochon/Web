@@ -8,7 +8,7 @@ export class DashboardUseCase {
     public async getCreatedTicketAmountData(): Promise<number> {
         try {
             const tickets = await getTickets(null);
-            return tickets.total;
+            return tickets.metadata.totalCount;
         } catch (error) {
             if (error instanceof ApiError) {
                 if ((error as ApiError).status === 400) {
@@ -22,7 +22,7 @@ export class DashboardUseCase {
     public async getOpenTicketAmountData(): Promise<number> {
         try {
             const tickets = await getTickets('open');
-            return tickets.total;
+            return tickets.metadata.totalCount;
         } catch (error) {
             if (error instanceof ApiError) {
                 if ((error as ApiError).status === 400) {
@@ -36,7 +36,7 @@ export class DashboardUseCase {
     public async getResolvedTicketAmountData(): Promise<number> {
         try {
             const tickets = await getTickets('resolved');
-            return tickets.total;
+            return tickets.metadata.totalCount;
         } catch (error) {
             if (error instanceof ApiError) {
                 if ((error as ApiError).status === 400) {

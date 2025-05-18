@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Param, Query, UseGuards, UseInterceptors } from '@nestjs/common';
 import { ApiBearerAuth, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { SalesService } from '../services/sales.service';
 import { SalesAdapter } from '../adapters/sales.adapter';
@@ -7,6 +7,7 @@ import { NeighborhoodService } from '../../neighborhoods/services/neighborhood.s
 import { CochonError } from '../../../utils/CochonError';
 import { IsLoginGuard } from '../../../middleware/is-login.middleware';
 import { IsSuperAdminGuard } from '../../../middleware/is-super-admin.middleware';
+import { PaginationInterceptor } from '../../../core/pagination/pagination.interceptor';
 import { GetSalesByIdQueryParamsDto, ResponseSalesDto } from './dto/sales.dto';
 
 @ApiTags('sales')
@@ -20,6 +21,7 @@ export class SalesController {
     ) {}
 
     @Get()
+    @UseInterceptors(PaginationInterceptor)
     @ApiOperation({ summary: 'Get all tags' })
     @ApiOkResponse({ description: 'Tags found', type: ResponseSalesDto })
     @ApiNotFoundResponse({ description: 'Tags not found' })

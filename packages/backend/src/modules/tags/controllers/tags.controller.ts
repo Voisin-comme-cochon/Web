@@ -1,8 +1,9 @@
-import { Controller, Get, Param, Query } from '@nestjs/common';
+import { Controller, Get, Param, Query, UseInterceptors } from '@nestjs/common';
 import { ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { TagsService } from '../services/tags.service';
 import { TagsAdapter } from '../adapters/tags.adapter';
 import { Paginated, Paging } from '../../../core/pagination/pagination';
+import { PaginationInterceptor } from '../../../core/pagination/pagination.interceptor';
 import { ResponseTagDto } from './dto/tags.dto';
 
 @ApiTags('tags')
@@ -11,6 +12,7 @@ export class TagsController {
     constructor(private readonly tagsService: TagsService) {}
 
     @Get()
+    @UseInterceptors(PaginationInterceptor)
     @ApiOperation({ summary: 'Get all tags' })
     @ApiOkResponse({ description: 'Tags found', type: ResponseTagDto })
     @ApiNotFoundResponse({ description: 'Tags not found' })

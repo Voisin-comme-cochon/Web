@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Param, Query, UseGuards, UseInterceptors } from '@nestjs/common';
 import { ApiBearerAuth, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { GroupsService } from '../services/groups.service';
 import { GroupsAdapter } from '../adapters/groups.adapter';
@@ -6,6 +6,7 @@ import { Paginated, Paging } from '../../../core/pagination/pagination';
 import { TagsService } from '../../tags/services/tags.service';
 import { IsLoginGuard } from '../../../middleware/is-login.middleware';
 import { IsSuperAdminGuard } from '../../../middleware/is-super-admin.middleware';
+import { PaginationInterceptor } from '../../../core/pagination/pagination.interceptor';
 import { GetObjectByIdDto, ResponseGroupDto } from './dto/groups.dto';
 
 @ApiTags('groups')
@@ -29,6 +30,7 @@ export class GroupsController {
     }
 
     @Get()
+    @UseInterceptors(PaginationInterceptor)
     @ApiOperation({ summary: 'Get all groups' })
     @ApiOkResponse({ description: 'Groups found', type: ResponseGroupDto })
     @ApiNotFoundResponse({ description: 'Groups not found' })
