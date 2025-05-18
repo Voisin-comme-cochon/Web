@@ -33,9 +33,9 @@ export class DashboardUseCase {
         }
     }
 
-    public async getClosedTicketAmountData(): Promise<number> {
+    public async getResolvedTicketAmountData(): Promise<number> {
         try {
-            const tickets = await getTickets('closed');
+            const tickets = await getTickets('resolved');
             return tickets.total;
         } catch (error) {
             if (error instanceof ApiError) {

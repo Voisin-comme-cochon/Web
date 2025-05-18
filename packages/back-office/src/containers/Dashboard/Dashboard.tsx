@@ -10,10 +10,14 @@ import {useDashboardDataState} from "@/presentation/state/dashboard-data.state.t
 const Dashboard: React.FC = () => {
     const {
         createdTickets,
-        setCreatedTickets
+        setCreatedTickets,
+        setOpenTickets,
+        openTickets,
+        setResolvedTickets,
+        resolvedTickets,
     } = useDashboardDataState();
 
-    useFetchDashboardData(setCreatedTickets)
+    useFetchDashboardData(setCreatedTickets, setOpenTickets, setResolvedTickets)
     const columns = useMemo( // pour ne pas recréer à chaque render
         () => [
             'ID',
@@ -65,7 +69,7 @@ const Dashboard: React.FC = () => {
                     <div className="mb-16 grid grid-cols-4 gap-4">
                         <StatBloc
                             iconId="confirmation_number"
-                            title="Tickets en cours"
+                            title="Tickets créés"
                             value={
                                 createdTickets ? createdTickets : 0
                             }
@@ -74,13 +78,13 @@ const Dashboard: React.FC = () => {
                         <StatBloc
                             iconId="pace"
                             title="Tickets en attente"
-                            value={128}
+                            value={openTickets}
                             color="#FF0000"
                         />
                         <StatBloc
                             iconId="check"
-                            title="Tickets cloturés"
-                            value={128}
+                            title="Tickets résolus"
+                            value={resolvedTickets}
                             color="#E9B121"
                         />
                         <StatBloc
