@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsArray, IsEmail, IsEnum, IsInt, IsISO8601, IsOptional, IsString } from 'class-validator';
+import { IsEnum, IsInt, IsISO8601, IsOptional, IsString } from 'class-validator';
 import { Geography } from 'typeorm';
 import { NeighborhoodStatusEntity } from '../../../../core/entities/neighborhood-status.entity';
 import { ResponseNeighborhoodImageDto } from './neighborhood-image.dto';
@@ -75,18 +75,6 @@ export class RequestNeighborhoodDto {
         description: 'The geography informations of the Neighborhood',
     })
     geo!: string;
-
-    @ApiProperty({
-        example: ['user1@example.com', 'user2@example.com'],
-        description: 'List of emails to invite to the Neighborhood',
-        required: false,
-        isArray: true,
-        type: [String],
-    })
-    @IsOptional()
-    @IsArray()
-    @IsEmail({}, { each: true })
-    inviteEmails?: string[];
 }
 
 export class GetNeighborhoodQueryParamsDto {

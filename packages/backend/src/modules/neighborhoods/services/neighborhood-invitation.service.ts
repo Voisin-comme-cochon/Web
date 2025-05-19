@@ -1,12 +1,17 @@
 import { JwtService } from '@nestjs/jwt';
 import dayjs from 'dayjs';
 import { NeighborhoodInvitationRepository } from '../domain/neighborhood-invitation.abstract.repository';
-import { NeighborhoodInvitationCreation } from '../domain/neighborhood-invitation.model';
+import {
+    NeighborhoodInvitationCreation,
+    CreateMultipleInvitationsInput,
+    CreatePublicInvitationInput,
+} from '../domain/neighborhood-invitation.model';
 import { CochonError } from '../../../utils/CochonError';
 import { isNull } from '../../../utils/tools';
 import { MailerService } from '../../mailer/services/mailer.service';
 import { Templates } from '../../mailer/domain/templates.enum';
 import { UsersService } from '../../users/services/users.service';
+import { NeighborhoodUserRole } from '../../../core/entities/neighborhood-user.entity';
 import { NeighborhoodService } from './neighborhood.service';
 
 export class NeighborhoodInvitationService {
@@ -72,5 +77,81 @@ export class NeighborhoodInvitationService {
         return this.jwtService.sign(payload, {
             expiresIn: `${durationInDays}d`,
         });
+    }
+
+    async createMultipleInvitations(input: CreateMultipleInvitationsInput) {
+        const { neighborhoodId, emails, createdBy, durationInDays } = input;
+
+        // Vérification que l'utilisateur est admin du quartier
+        const neighborhood = await this.neighborhoodService.getNeighborhoodById(neighborhoodId);
+        console.log('neighborhood', neighborhood);
+        if (!neighborhood) {
+            throw new CochonError('neighborhood_not_found', 'Neighborhood not found', 404);
+        }
+
+        const isAdmin = neighborhood.neighborhood_users?.some(
+            (user) => user.userId === createdBy && user.role === NeighborhoodUserRole.ADMIN
+        );
+
+        if (!isAdmin) {
+            throw new CochonError(
+                'can_not_create_multiple_invitations',
+                'Only neighborhood admins can create invitations',
+                403
+            );
+        }
+
+        const invitations = [];
+        for (const email of emails) {
+            const invitation = await this.createInvitation({
+                neighborhoodId,
+                createdBy,
+                email,
+                durationInDays,
+            });
+            invitations.push(invitation);
+        }
+
+        return invitations;
+    }
+
+    async createPublicInvitation(input: CreatePublicInvitationInput) {
+        const { neighborhoodId, createdBy, maxUse, durationInDays } = input;
+
+        // Vérification que l'utilisateur est admin du quartier
+        const neighborhood = await this.neighborhoodService.getNeighborhoodById(neighborhoodId);
+        if (!neighborhood) {
+            throw new CochonError('neighborhood_not_found', 'Neighborhood not found', 404);
+        }
+
+        const isAdmin = neighborhood.neighborhood_users?.some(
+            (user) => user.userId === createdBy && user.role === NeighborhoodUserRole.ADMIN
+        );
+
+        if (!isAdmin) {
+            throw new CochonError(
+                'can_not_create_public_invitation',
+                'Only neighborhood admins can create invitations',
+                403
+            );
+        }
+
+        const token = this.generateInvitationToken(createdBy, neighborhoodId, durationInDays ?? 7);
+
+        const expiredAt = new Date(Date.now() + (durationInDays ?? 7) * 24 * 60 * 60 * 1000);
+
+        const invitation = await this.neighborhoodInvitationRepository.insertInvitation({
+            neighborhoodId,
+            createdBy,
+            maxUse,
+            token,
+            expiredAt,
+        });
+
+        return {
+            ...invitation,
+            invitationLink: `${process.env.VCC_FRONT_URL}/neighborhood/invite/${token}`,
+            expiresAt: expiredAt,
+        };
     }
 }

@@ -1,7 +1,7 @@
 import { Geography } from 'typeorm';
 import { NeighborhoodStatusEntity } from '../../../core/entities/neighborhood-status.entity';
-import { User } from '../../users/domain/user.model';
 import { NeighborhoodImage } from './neighborhood-image.model';
+import { NeighborhoodUser } from './neighborhood-user.model';
 
 export class Neighborhood {
     id!: number;
@@ -11,7 +11,7 @@ export class Neighborhood {
     description!: string;
     creationDate!: Date;
     images?: NeighborhoodImage[];
-    neighborhood_users?: User[];
+    neighborhood_users?: NeighborhoodUser[];
 }
 
 export interface CreateNeighborhoodInput {
@@ -20,7 +20,6 @@ export interface CreateNeighborhoodInput {
     geo: string;
     userId: number;
     files: Express.Multer.File[];
-    inviteEmails?: string[];
 }
 
 export interface GetNeighborhoodQueryParams {

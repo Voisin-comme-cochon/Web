@@ -19,11 +19,11 @@ import { Paginated, Paging } from '../../../core/pagination/pagination';
 import { NeighborhoodsAdapter } from '../adapters/neighborhoods.adapter';
 import { CochonError } from '../../../utils/CochonError';
 import { NeighborhoodInvitationService } from '../services/neighborhood-invitation.service';
-import { NeighborhoodAppService } from '../services/neighborhood-app.service';
 import { IsSuperAdminGuard } from '../../../middleware/is-super-admin.middleware';
 import {
-    CreateNeighborhoodInvitationDto,
     GetNeighborhoodInvitationQueryParams,
+    CreateMultipleNeighborhoodInvitationsDto,
+    CreatePublicNeighborhoodInvitationDto,
 } from './dto/neighborhood-invitation.dto';
 import { ResponseNeighborhoodDto, GetNeighborhoodQueryParamsDto, RequestNeighborhoodDto } from './dto/neighborhood.dto';
 
@@ -31,7 +31,6 @@ import { ResponseNeighborhoodDto, GetNeighborhoodQueryParamsDto, RequestNeighbor
 @Controller('neighborhoods')
 export class NeighborhoodController {
     constructor(
-        private readonly neighborhoodAppService: NeighborhoodAppService,
         private readonly neighborhoodService: NeighborhoodService,
         private readonly neighborhoodInvitationService: NeighborhoodInvitationService
     ) {}
@@ -97,13 +96,12 @@ export class NeighborhoodController {
         @UploadedFiles() files: Express.Multer.File[] = [],
         @Request() req: { user: { id: string } }
     ): Promise<ResponseNeighborhoodDto> {
-        return this.neighborhoodAppService.createNeighborhoodAndInvite({
+        return this.neighborhoodService.createNeighborhood({
             name: body.name,
             description: body.description,
             geo: body.geo,
             userId: Number(req.user.id),
             files,
-            inviteEmails: body.inviteEmails,
         });
     }
 
@@ -123,23 +121,47 @@ export class NeighborhoodController {
         return this.neighborhoodInvitationService.findInvitationByToken(param.token);
     }
 
-    @Post('invitation')
-    @ApiOperation({ summary: 'Create a neighborhood invitation' })
+    @Post('invitations')
+    @ApiOperation({ summary: 'Create multiple neighborhood invitations' })
     @ApiOkResponse({
-        description: 'Neighborhood invitation created',
+        description: 'Neighborhood invitations created',
+        type: [ResponseNeighborhoodDto],
+    })
+    @ApiNotFoundResponse({
+        description: 'Neighborhood invitations not created',
+    })
+    @UseGuards(IsLoginGuard)
+    async createMultipleInvitations(
+        @Body() body: CreateMultipleNeighborhoodInvitationsDto,
+        @Request() req: { user: { id: string } }
+    ) {
+        return this.neighborhoodInvitationService.createMultipleInvitations({
+            neighborhoodId: body.neighborhoodId,
+            emails: body.emails,
+            createdBy: Number(req.user.id),
+            durationInDays: body.durationInDays,
+        });
+    }
+
+    @Post('invitations/public')
+    @ApiOperation({ summary: 'Create a public neighborhood invitation' })
+    @ApiOkResponse({
+        description: 'Public neighborhood invitation created',
         type: ResponseNeighborhoodDto,
     })
     @ApiNotFoundResponse({
-        description: 'Neighborhood invitation not created',
+        description: 'Public neighborhood invitation not created',
     })
-    @UseGuards(IsLoginGuard, IsSuperAdminGuard)
-    async createInvitation(@Body() body: CreateNeighborhoodInvitationDto, @Request() req: { user: { id: string } }) {
-        return this.neighborhoodInvitationService.createInvitation({
+    @UseGuards(IsLoginGuard)
+    async createPublicInvitation(
+        @Body() body: CreatePublicNeighborhoodInvitationDto,
+        @Request() req: { user: { id: string } }
+    ) {
+        return this.neighborhoodInvitationService.createPublicInvitation({
             neighborhoodId: body.neighborhoodId,
             maxUse: body.maxUse,
-            durationInDays: body.durationInDays,
             createdBy: Number(req.user.id),
-            email: body.email,
+            durationInDays: body.durationInDays,
         });
     }
 }

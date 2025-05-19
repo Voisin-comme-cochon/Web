@@ -18,3 +18,17 @@ export interface NeighborhoodInvitationCreation {
     expiredAt?: Date;
     email?: string;
 }
+
+export interface CreateMultipleInvitationsInput {
+    neighborhoodId: number;
+    emails: string[];
+    createdBy: number;
+    durationInDays?: number;
+}
+
+export interface CreatePublicInvitationInput {
+    neighborhoodId: number;
+    createdBy: number;
+    maxUse: number;
+    durationInDays?: number;
+}

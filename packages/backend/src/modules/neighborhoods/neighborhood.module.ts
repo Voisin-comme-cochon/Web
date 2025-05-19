@@ -11,7 +11,6 @@ import { ObjectStorageModule } from '../objectStorage/objectStorage.module';
 import { NeighborhoodController } from './controllers/neighborhood.controller';
 import { NeighborhoodService } from './services/neighborhood.service';
 import { NeighborhoodInvitationService } from './services/neighborhood-invitation.service';
-import { NeighborhoodAppService } from './services/neighborhood-app.service';
 import { NeighborhoodRepository } from './domain/neighborhood.abstract.repository';
 import { NeighborhoodRepositoryImplementation } from './repository/neighborhood.repository.implementation';
 import { NeighborhoodInvitationRepository } from './domain/neighborhood-invitation.abstract.repository';
@@ -53,14 +52,6 @@ import { NeighborhoodInvitationRepositoryImplementation } from './repository/nei
                 users: UsersService,
                 mailer: MailerService
             ) => new NeighborhoodInvitationService(invRepo, nbService, jwt, users, mailer),
-        },
-        {
-            provide: NeighborhoodAppService,
-            inject: [NeighborhoodService, NeighborhoodInvitationService],
-            useFactory: (
-                neighborhoodService: NeighborhoodService,
-                neighborhoodInvitationService: NeighborhoodInvitationService
-            ) => new NeighborhoodAppService(neighborhoodService, neighborhoodInvitationService),
         },
     ],
     exports: [NeighborhoodService],

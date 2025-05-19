@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsOptional, IsString, IsArray, IsEmail } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 
@@ -14,7 +14,7 @@ export class GetNeighborhoodInvitationQueryParams {
     token!: string;
 }
 
-export class CreateNeighborhoodInvitationDto {
+export class CreateMultipleNeighborhoodInvitationsDto {
     @ApiProperty({
         example: 1,
         description: 'The id of the Neighborhood',
@@ -27,37 +27,60 @@ export class CreateNeighborhoodInvitationDto {
     neighborhoodId!: number;
 
     @ApiProperty({
-        example: '10',
-        description: 'The max use of the invitation',
+        example: ['user1@example.com', 'user2@example.com'],
+        description: 'List of emails to invite to the Neighborhood',
         required: true,
-        type: Number,
+        isArray: true,
+        type: [String],
     })
     @IsNotEmpty()
-    @IsNumber()
-    @IsOptional()
-    @Type(() => Number)
-    maxUse?: number;
+    @IsArray()
+    @IsEmail({}, { each: true })
+    emails!: string[];
 
     @ApiProperty({
-        example: '10',
-        description: 'The duration in days of the invitation',
-        required: true,
+        example: 7,
+        description: 'The duration in days of the invitations',
+        required: false,
         type: Number,
     })
-    @IsNotEmpty()
-    @IsNumber()
     @IsOptional()
+    @IsNumber()
     @Type(() => Number)
     durationInDays?: number;
+}
 
+export class CreatePublicNeighborhoodInvitationDto {
     @ApiProperty({
-        example: 'user@gmail.com',
-        description: 'The email of the user to invite',
+        example: 1,
+        description: 'The id of the Neighborhood',
         required: true,
-        type: String,
+        type: Number,
     })
     @IsNotEmpty()
-    @IsString()
+    @IsNumber()
+    @Type(() => Number)
+    neighborhoodId!: number;
+
+    @ApiProperty({
+        example: 10,
+        description: 'The maximum number of times this invitation can be used',
+        required: true,
+        type: Number,
+    })
+    @IsNotEmpty()
+    @IsNumber()
+    @Type(() => Number)
+    maxUse!: number;
+
+    @ApiProperty({
+        example: 7,
+        description: 'The duration in days of the invitation',
+        required: false,
+        type: Number,
+    })
     @IsOptional()
-    email?: string;
+    @IsNumber()
+    @Type(() => Number)
+    durationInDays?: number;
 }
