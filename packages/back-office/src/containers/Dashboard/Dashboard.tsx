@@ -28,6 +28,7 @@ const Dashboard: React.FC = () => {
     } = useDashboardDataState();
 
     useFetchDashboardData(setCreatedTickets, setOpenTickets, setResolvedTickets, setCreatedNeighborhood, setUsers, setEvents, setMessages, setSales)
+
     const columns = useMemo( // pour ne pas recréer à chaque render
         () => [
             'ID',
@@ -38,16 +39,27 @@ const Dashboard: React.FC = () => {
             'Statut',
             {
                 name: 'Actions',
-                formatter: cell =>
+                attributes: {
+                    style: 'width: 128px; min-width: 128px; text-align: center;',
+                },
+                formatter: (cell: number) =>
                     h(
-                        'button',
-                        {
-                            className: 'px-2 py-1 rounded bg-blue text-black',
-                            onClick: () => alert(`Détails de l'élément ${cell}`),
-                        },
-                        'Voir'
+                        'div',
+                        {className: 'flex justify-center'}, // Centre le contenu dans la cellule
+                        h(
+                            'button',
+                            {
+                                className:
+                                    'flex items-center gap-1 px-2 py-2 rounded border border-blue text-blue bg-white hover:bg-blue-50 transition-colors',
+                                style: {cursor: 'pointer'},
+                                title: 'Voir',
+                                onClick: () => alert(`Détails de l'élément ${cell}`),
+                            },
+                            h('span', {className: 'material-icons', style: {fontSize: '18px'}}, 'edit'),
+                        )
                     ),
-            },
+            }
+
         ],
         []
     );
