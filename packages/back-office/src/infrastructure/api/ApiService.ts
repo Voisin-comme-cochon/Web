@@ -1,5 +1,5 @@
 import axios from 'axios';
-import {logout, refreshAccessToken} from '../repositories/auth-repository.ts';
+import {refreshAccessToken} from '../repositories/auth.repository.ts';
 
 const ApiService = axios.create({
     baseURL: import.meta.env.VITE_VCC_API_URL || 'http://localhost:3000',
@@ -24,15 +24,10 @@ ApiService.interceptors.response.use(
             !originalRequest._retry // empêcher boucle infinie
         ) {
             originalRequest._retry = true;
+            const tokens = await refreshAccessToken();
+            originalRequest.headers['Authorization'] = `Bearer ${tokens.access_token}`;
+            return ApiService(originalRequest);
 
-            try {
-                const tokens = await refreshAccessToken();
-                originalRequest.headers['Authorization'] = `Bearer ${tokens.access_token}`;
-                return ApiService(originalRequest);
-            } catch {
-                await logout();
-                window.location.href = '/';
-            }
         }
 
         return Promise.reject(error);

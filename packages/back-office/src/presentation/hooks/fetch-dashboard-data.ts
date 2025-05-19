@@ -1,7 +1,7 @@
 import {useEffect} from "react";
 import {DashboardUseCase} from "@/domain/use-cases/dashboard.uc.ts";
 
-export const useFetchDashboardData = (setCreatedTickets: (n: number) => void, setOpenTickets: (n: number) => void, setClosedTickets: (n: number) => void) => {
+export const useFetchDashboardData = (setCreatedTickets: (n: number) => void, setOpenTickets: (n: number) => void, setClosedTickets: (n: number) => void, setCreatedNeighborhood: (n: number) => void) => {
     const dashboardUseCase = new DashboardUseCase();
 
     useEffect(() => {
@@ -16,5 +16,9 @@ export const useFetchDashboardData = (setCreatedTickets: (n: number) => void, se
         dashboardUseCase.getResolvedTicketAmountData()
             .then(setClosedTickets)
             .catch(() => setClosedTickets(0));
-    }, []);
+
+        dashboardUseCase.getCreatedNeighborhoodAmountData()
+            .then(setCreatedNeighborhood)
+            .catch(() => setCreatedNeighborhood(0));
+    });
 }

@@ -15,9 +15,11 @@ const Dashboard: React.FC = () => {
         openTickets,
         setResolvedTickets,
         resolvedTickets,
+        setCreatedNeighborhood,
+        createdNeighborhood,
     } = useDashboardDataState();
 
-    useFetchDashboardData(setCreatedTickets, setOpenTickets, setResolvedTickets)
+    useFetchDashboardData(setCreatedTickets, setOpenTickets, setResolvedTickets, setCreatedNeighborhood)
     const columns = useMemo( // pour ne pas recréer à chaque render
         () => [
             'ID',
@@ -90,7 +92,7 @@ const Dashboard: React.FC = () => {
                         <StatBloc
                             iconId="add_business"
                             title="Quartiers créés"
-                            value={128}
+                            value={createdNeighborhood}
                             color="#ED5C3B"
                         />
 

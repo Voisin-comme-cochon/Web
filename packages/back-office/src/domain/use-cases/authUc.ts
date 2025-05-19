@@ -1,7 +1,7 @@
 import {AuthTokensModel} from "@/domain/models/auth-tokens.model.ts";
 import {DecodedUserModel} from "@/domain/models/decoded-user.model.ts";
 import {jwtDecode} from "jwt-decode";
-import {login} from "@/infrastructure/repositories/auth-repository.ts";
+import {login} from "@/infrastructure/repositories/auth.repository.ts";
 import {ApiError} from "@/shared/errors/ApiError.ts";
 import {AuthError} from "@/shared/errors/AuthError";
 
