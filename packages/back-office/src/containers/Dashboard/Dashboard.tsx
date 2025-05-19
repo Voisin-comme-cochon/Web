@@ -19,9 +19,11 @@ const Dashboard: React.FC = () => {
         createdNeighborhood,
         setUsers,
         users,
+        setEvents,
+        events,
     } = useDashboardDataState();
 
-    useFetchDashboardData(setCreatedTickets, setOpenTickets, setResolvedTickets, setCreatedNeighborhood, setUsers)
+    useFetchDashboardData(setCreatedTickets, setOpenTickets, setResolvedTickets, setCreatedNeighborhood, setUsers, setEvents)
     const columns = useMemo( // pour ne pas recréer à chaque render
         () => [
             'ID',
@@ -106,8 +108,8 @@ const Dashboard: React.FC = () => {
                         />
                         <StatBloc
                             iconId="calendar_today"
-                            title="Évènements cette semaine"
-                            value={128}
+                            title="Évènements créés"
+                            value={events}
                             color="#59ACD0"
                         />
                         <StatBloc

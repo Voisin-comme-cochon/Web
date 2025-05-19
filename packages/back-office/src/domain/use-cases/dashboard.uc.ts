@@ -2,6 +2,7 @@ import {ApiError} from "@/shared/errors/ApiError.ts";
 import {getTickets} from "@/infrastructure/repositories/ticket.repository.ts";
 import {getNeighborhoods} from "@/infrastructure/repositories/neighborhood.repository.ts";
 import {getUsers} from "@/infrastructure/repositories/user.repository.ts";
+import {getEvents} from "@/infrastructure/repositories/event.repository.ts";
 
 export class DashboardUseCase {
     constructor() {
@@ -71,6 +72,20 @@ export class DashboardUseCase {
             if (error instanceof ApiError) {
                 if ((error as ApiError).status === 400) {
                     throw new ApiError(400, 'Erreur lors de la récupération des utilisateurs créés.', error as Error);
+                }
+            }
+            throw new ApiError(500, 'Une erreur inattendue est survenue. Veuillez réessayer plus tard.', error as ApiError);
+        }
+    }
+
+    public async getEventsAmountData(): Promise<number> {
+        try {
+            const events = await getEvents(1, 1);
+            return events.metadata.totalCount;
+        } catch (error) {
+            if (error instanceof ApiError) {
+                if ((error as ApiError).status === 400) {
+                    throw new ApiError(400, 'Erreur lors de la récupération des événements créés.', error as Error);
                 }
             }
             throw new ApiError(500, 'Une erreur inattendue est survenue. Veuillez réessayer plus tard.', error as ApiError);

@@ -6,7 +6,8 @@ export const useFetchDashboardData = (
     setOpenTickets: (n: number) => void,
     setClosedTickets: (n: number) => void,
     setCreatedNeighborhood: (n: number) => void,
-    setUsers: (n: number) => void) => {
+    setUsers: (n: number) => void,
+    setEvents: (n: number) => void) => {
     const dashboardUseCase = new DashboardUseCase();
 
     useEffect(() => {
@@ -29,5 +30,9 @@ export const useFetchDashboardData = (
         dashboardUseCase.getUsersAmountData()
             .then(setUsers)
             .catch(() => setUsers(0));
+
+        dashboardUseCase.getEventsAmountData()
+            .then(setEvents)
+            .catch(() => setEvents(0));
     });
 }

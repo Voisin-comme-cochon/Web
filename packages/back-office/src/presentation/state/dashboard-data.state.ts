@@ -6,6 +6,7 @@ export const useDashboardDataState = () => {
     const [resolvedTickets, setResolvedTickets] = useState(0);
     const [createdNeighborhood, setCreatedNeighborhood] = useState(0);
     const [users, setUsers] = useState(0);
+    const [events, setEvents] = useState(0);
 
     return {
         resolvedTickets,
@@ -18,5 +19,7 @@ export const useDashboardDataState = () => {
         setCreatedNeighborhood,
         users,
         setUsers,
+        events,
+        setEvents,
     }
 }
