@@ -82,9 +82,7 @@ export class NeighborhoodInvitationService {
     async createMultipleInvitations(input: CreateMultipleInvitationsInput) {
         const { neighborhoodId, emails, createdBy, durationInDays } = input;
 
-        // Vérification que l'utilisateur est admin du quartier
         const neighborhood = await this.neighborhoodService.getNeighborhoodById(neighborhoodId);
-        console.log('neighborhood', neighborhood);
         if (!neighborhood) {
             throw new CochonError('neighborhood_not_found', 'Neighborhood not found', 404);
         }
@@ -118,7 +116,6 @@ export class NeighborhoodInvitationService {
     async createPublicInvitation(input: CreatePublicInvitationInput) {
         const { neighborhoodId, createdBy, maxUse, durationInDays } = input;
 
-        // Vérification que l'utilisateur est admin du quartier
         const neighborhood = await this.neighborhoodService.getNeighborhoodById(neighborhoodId);
         if (!neighborhood) {
             throw new CochonError('neighborhood_not_found', 'Neighborhood not found', 404);

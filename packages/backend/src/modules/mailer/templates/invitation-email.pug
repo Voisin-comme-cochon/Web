@@ -41,6 +41,11 @@ html(lang="fr")
                 color: #1a2a41;
                 font-size: 24px;
                 margin-bottom: 20px;
+                text-align: center;
+            }
+
+            .text-center {
+                text-align: center;
             }
 
             p {
@@ -57,7 +62,6 @@ html(lang="fr")
                 border-radius: 4px;
                 font-weight: 600;
                 margin: 20px 0;
-                text-align: center;
             }
 
             .button:hover {
@@ -104,11 +108,11 @@ html(lang="fr")
                 img.logo(src="https://res.cloudinary.com/dqa93fepx/image/upload/v1746350203/logoWebV1Light_qlz38l.webp" alt="VCC Logo")
             .content
                 h1
-                    | Vous êtes invité·e dans le quartier
+                    | Vous êtes invité dans le quartier
                     br
-                    span(style="display:block; text-align:center;") #{neighborhoodName} !
+                    | #{neighborhoodName} !
                 p Bonjour,
-                p #{inviterName} vous a invité·e à rejoindre le quartier #{neighborhoodName} sur Voisin comme Cochon.
+                p #{inviterName} vous a invité à rejoindre le quartier #{neighborhoodName} sur Voisin comme Cochon.
                 if neighborhoodDescription
                     p.description #{neighborhoodDescription}
                 p
