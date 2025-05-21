@@ -1,5 +1,7 @@
 import {useEffect} from "react";
 import {DashboardUseCase} from "@/domain/use-cases/dashboard.uc.ts";
+import {TicketModel} from "@/domain/models/ticket.model.ts";
+import {NeighborhoodModel} from "@/domain/models/neighborhood.model.ts";
 
 export const useFetchDashboardData = (
     setCreatedTickets: (n: number) => void,
@@ -9,7 +11,10 @@ export const useFetchDashboardData = (
     setUsers: (n: number) => void,
     setEvents: (n: number) => void,
     setMessages: (n: number) => void,
-    setSales: (n: number) => void) => {
+    setSales: (n: number) => void,
+    setTickets: (n: TicketModel[]) => void,
+    setNeighborhoods: (n: NeighborhoodModel[]) => void,
+) => {
     const dashboardUseCase = new DashboardUseCase();
 
     useEffect(() => {
@@ -44,5 +49,13 @@ export const useFetchDashboardData = (
         dashboardUseCase.getSalesAmountData()
             .then(setSales)
             .catch(() => setSales(0));
-    });
+
+        dashboardUseCase.getNeighborhoods()
+            .then(setNeighborhoods)
+            .catch(() => setNeighborhoods([]));
+
+        dashboardUseCase.getTickets()
+            .then(setTickets)
+            .catch(() => setTickets([]));
+    }, []);
 }

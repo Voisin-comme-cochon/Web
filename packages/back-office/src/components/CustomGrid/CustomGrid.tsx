@@ -14,11 +14,11 @@ export interface CustomGridProps {
         formatter?: (cell: string | number) => React.JSX.Element;
     }
     >;
-    /** Toutes les options Grid.js sauf `columns` et `data` (on les injecte nous‐mêmes) */
-    options?: Omit<GridConfig, 'columns'>;
+    data: any;
+    options?: Omit<GridConfig, 'columns' | 'data'>;
 }
 
-const CustomGrid: React.FC<CustomGridProps> = ({columns, options}) => {
+const CustomGrid: React.FC<CustomGridProps> = ({columns, data = [], options = {}}) => {
     const containerRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -26,11 +26,10 @@ const CustomGrid: React.FC<CustomGridProps> = ({columns, options}) => {
 
         const config: GridConfig = {
             columns,
-            // Valeurs par défaut
+            data: Array.isArray(data) ? data : [],
             search: true,
             sort: true,
             pagination: {limit: 10},
-            // Ici soit on rajoute ou on remplace celle dessus
             ...options,
         };
 
@@ -40,7 +39,7 @@ const CustomGrid: React.FC<CustomGridProps> = ({columns, options}) => {
         return () => {
             grid.destroy();
         };
-    }, [columns, options]);
+    }, [columns, data, options]);
 
     return <div ref={containerRef}/>;
 };

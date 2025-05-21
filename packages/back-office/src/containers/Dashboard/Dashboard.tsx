@@ -1,23 +1,54 @@
-import {useMemo} from 'react';
+import React, {useMemo} from 'react';
 import {h} from 'gridjs';
 import SideHeader from '@/components/SideHeader/SideHeader';
 import InfoHeader from '@/components/InfoHeader/InfoHeader';
 import CustomGrid from '@/components/CustomGrid/CustomGrid';
 import StatBloc from '@/components/StatBloc/StatBloc';
-import {useFetchDashboardData} from '@/presentation/hooks/fetch-dashboard-data.ts';
-import {useDashboardDataState} from '@/presentation/state/dashboard-data.state.ts';
-import './styles.css';
+import {useFetchDashboardData} from "@/presentation/hooks/fetch-dashboard-data.ts";
+import {useDashboardDataState} from "@/presentation/state/dashboard-data.state.ts";
+import "./styles.css";
 
-const formatDate = (cell) => {
-    const d = new Date(cell);
-    return h('span', {}, d.toLocaleDateString('fr-FR', {year: 'numeric', month: '2-digit', day: '2-digit'}));
-};
+const Dashboard: React.FC = () => {
+    const {
+        createdTickets,
+        setCreatedTickets,
+        setOpenTickets,
+        openTickets,
+        setResolvedTickets,
+        resolvedTickets,
+        setCreatedNeighborhood,
+        createdNeighborhood,
+        setUsers,
+        users,
+        setEvents,
+        events,
+        setMessages,
+        messages,
+        setSales,
+        sales,
+        setNeighborhoods,
+        neighborhoods,
+        setTickets,
+        tickets,
+    } = useDashboardDataState();
 
-const statusIcon = (expected) => (cell) =>
-    cell === expected
-        ? h(
-            'span',
-            {
+    useFetchDashboardData(
+        setCreatedTickets, setOpenTickets, setResolvedTickets, setCreatedNeighborhood,
+        setUsers, setEvents, setMessages, setSales, setTickets, setNeighborhoods
+    );
+
+    const commonDateFormatter = (cell: string | number) => {
+        const date = new Date(cell);
+        return h('span', {}, date.toLocaleDateString('fr-FR', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit'
+        }));
+    };
+
+    const statusFormatter = (expectedValue: string) => (cell: string) =>
+        cell === expectedValue
+            ? h('span', {
                 className: 'material-icons',
                 style: {
                     color: '#E9B121',
@@ -25,96 +56,70 @@ const statusIcon = (expected) => (cell) =>
                     display: 'flex',
                     justifyContent: 'center',
                     alignItems: 'center'
+                }
+            }, 'schedule')
+            : cell;
+
+    const actionFormatter = (cell: string | number) =>
+        h('div', {className: 'flex justify-center'},
+            h('button', {
+                    className: 'flex items-center gap-1 px-2 py-2 rounded border border-blue text-blue bg-white hover:bg-blue-50 transition-colors',
+                    style: {cursor: 'pointer'},
+                    title: 'Voir',
+                    onClick: () => alert(`Détails de l'élément ${cell}`),
                 },
-            },
-            'schedule'
-        )
-        : cell;
+                h('span', {className: 'material-icons', style: {fontSize: '18px'}}, 'edit')
+            )
+        );
 
-const actionCell = (cell) =>
-    h(
-        'div',
-        {className: 'flex justify-center'},
-        h(
-            'button',
-            {
-                className: 'flex items-center gap-1 px-2 py-2 rounded border border-blue text-blue bg-white hover:bg-blue-50 transition-colors',
-                style: {cursor: 'pointer'},
-                title: 'Voir',
-                onClick: () => alert(`Détails de l'élément ${cell}`),
-            },
-            h('span', {className: 'material-icons', style: {fontSize: '18px'}}, 'edit')
-        )
-    );
+    const neighborhoodColumns = useMemo(() => [
+        {name: 'Date', className: 'font-bold text-center text-black', formatter: commonDateFormatter},
+        {name: 'Nom du quartier', className: 'font-bold text-center text-black'},
+        {name: 'Statut', className: 'font-bold text-center text-black', formatter: statusFormatter('waiting')},
+        {
+            name: 'Actions',
+            className: 'font-bold text-center text-black',
+            attributes: {style: 'width: 128px; min-width: 128px;'},
+            formatter: actionFormatter
+        },
+    ], []);
 
-const createColumns = (label, status) => [
-    {name: 'Date', formatter: formatDate, className: 'font-bold text-center text-black'},
-    {name: label, className: 'font-bold text-center text-black'},
-    {name: 'Statut', formatter: statusIcon(status), className: 'font-bold text-center text-black'},
-    {
-        name: 'Actions',
-        formatter: actionCell,
-        className: 'font-bold text-center text-black',
-        attributes: {style: 'width:128px;min-width:128px'},
-    },
-];
+    const ticketsColumns = useMemo(() => [
+        {name: 'Date', className: 'font-bold text-center text-black', formatter: commonDateFormatter},
+        {name: 'Sujet', className: 'font-bold text-center text-black'},
+        {name: 'Statut', className: 'font-bold text-center text-black', formatter: statusFormatter('open')},
+        {
+            name: 'Actions',
+            className: 'font-bold text-center text-black',
+            attributes: {style: 'width: 128px; min-width: 128px;'},
+            formatter: actionFormatter
+        },
+    ], []);
 
-const createOptions = ({endpoint, dateKey}) => ({
-    search: false,
-    pagination: {enabled: true, limit: 5},
-    server: {
-        url: `${import.meta.env.VITE_VCC_API_URL}/${endpoint}`,
-        headers: {Authorization: `Bearer ${localStorage.getItem('jwt')}`},
-        then: (data) =>
-            data.data.map((item) => [item[dateKey], item.name || item.subject, item.status]),
-        total: (data) => data.metadata.totalCount,
-    },
-    className: {thead: 'custom-header'},
-});
+    const options = useMemo(() => ({
+        search: false,
+        pagination: {enabled: true, limit: 5},
+        className: {thead: 'custom-header'},
+    }), []);
 
-const Dashboard = () => {
-    const state = useDashboardDataState();
-    useFetchDashboardData(
-        state.setCreatedTickets,
-        state.setOpenTickets,
-        state.setResolvedTickets,
-        state.setCreatedNeighborhood,
-        state.setUsers,
-        state.setEvents,
-        state.setMessages,
-        state.setSales
-    );
+    // Ajout : mapping des données pour CustomGrid
+    const neighborhoodsData = useMemo(() =>
+            (neighborhoods ?? []).map(n => [
+                n.creationDate,
+                n.name,
+                n.status,
+                n.id // ou autre identifiant/action
+            ])
+        , [neighborhoods]);
 
-    const grids = useMemo(
-        () => [
-            {
-                label: 'Quartier',
-                status: 'waiting',
-                endpoint: 'neighborhoods?status=waiting',
-                dateKey: 'creationDate',
-                columns: createColumns('Nom du quartier', 'waiting'),
-            },
-            {
-                label: 'Ticket',
-                status: 'open',
-                endpoint: 'tickets?status=open',
-                dateKey: 'createdAt',
-                columns: createColumns('Sujet', 'open'),
-            },
-        ],
-        []
-    );
-
-    const stats = [
-        {icon: 'confirmation_number', title: 'Tickets créés', value: state.createdTickets, color: '#507DBC'},
-        {icon: 'pace', title: 'Tickets en attente', value: state.openTickets, color: '#FF0000'},
-        {icon: 'check', title: 'Tickets résolus', value: state.resolvedTickets, color: '#E9B121'},
-        {icon: 'add_business', title: 'Quartiers créés', value: state.createdNeighborhood, color: '#ED5C3B'},
-        {icon: 'group', title: 'Utilisateurs', value: state.users, color: '#E04040'},
-        {icon: 'calendar_today', title: 'Évènements créés', value: state.events, color: '#59ACD0'},
-        {icon: 'chat', title: 'Messages envoyés', value: state.messages, color: '#C19871'},
-        {icon: 'sell', title: 'Matériels vendus', value: state.sales, color: '#67BB34'},
-    ];
+    const ticketsData = useMemo(() =>
+            (tickets ?? []).map(t => [
+                t.createdAt,
+                t.subject,
+                t.status,
+                t.id // ou autre identifiant/action
+            ])
+        , [tickets]);
 
     return (
         <div className="flex min-h-screen w-full">
@@ -123,17 +128,26 @@ const Dashboard = () => {
                 <InfoHeader title="Tableau de bord" description="Bienvenue sur le tableau de bord"/>
                 <div className="p-8">
                     <div className="mb-16 grid grid-cols-4 gap-4">
-                        {stats.map(({icon, title, value, color}) => (
-                            <StatBloc key={title} iconId={icon} title={title} value={value || 0} color={color}/>
-                        ))}
+                        <StatBloc iconId="confirmation_number" title="Tickets créés" value={createdTickets || 0}
+                                  color="#507DBC"/>
+                        <StatBloc iconId="pace" title="Tickets en attente" value={openTickets} color="#FF0000"/>
+                        <StatBloc iconId="check" title="Tickets résolus" value={resolvedTickets} color="#E9B121"/>
+                        <StatBloc iconId="add_business" title="Quartiers créés" value={createdNeighborhood}
+                                  color="#ED5C3B"/>
+                        <StatBloc iconId="group" title="Utilisateurs" value={users} color="#E04040"/>
+                        <StatBloc iconId="calendar_today" title="Évènements créés" value={events} color="#59ACD0"/>
+                        <StatBloc iconId="chat" title="Messages envoyés" value={messages} color="#C19871"/>
+                        <StatBloc iconId="sell" title="Matériels vendus" value={sales} color="#67BB34"/>
                     </div>
-                    <div className="w-full flex gap-4">
-                        {grids.map(({label, columns, endpoint, dateKey}) => (
-                            <div key={endpoint} className="flex-1">
-                                <label className="mb-2 font-bold">{label}s en attente</label>
-                                <CustomGrid columns={columns} options={createOptions({endpoint, dateKey})}/>
-                            </div>
-                        ))}
+                    <div className="w-full flex flex-row space-between gap-4">
+                        <div>
+                            <label className="mb-2 font-bold">Quartiers en attente</label>
+                            <CustomGrid data={neighborhoodsData} columns={neighborhoodColumns} options={options}/>
+                        </div>
+                        <div>
+                            <label className="font-bold">Tickets en attente</label>
+                            <CustomGrid data={ticketsData} columns={ticketsColumns} options={options}/>
+                        </div>
                     </div>
                 </div>
             </main>
