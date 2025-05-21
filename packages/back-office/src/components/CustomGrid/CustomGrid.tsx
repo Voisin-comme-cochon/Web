@@ -14,13 +14,11 @@ export interface CustomGridProps {
         formatter?: (cell: string | number) => React.JSX.Element;
     }
     >;
-    /** Données : chaque ligne est un tableau de cellules (texte, nombre ou JSX.Element) */
-    data: Array<Array<string | number | React.JSX.Element>>;
     /** Toutes les options Grid.js sauf `columns` et `data` (on les injecte nous‐mêmes) */
-    options?: Omit<GridConfig, 'columns' | 'data'>;
+    options?: Omit<GridConfig, 'columns'>;
 }
 
-const CustomGrid: React.FC<CustomGridProps> = ({columns, data, options}) => {
+const CustomGrid: React.FC<CustomGridProps> = ({columns, options}) => {
     const containerRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -28,7 +26,6 @@ const CustomGrid: React.FC<CustomGridProps> = ({columns, data, options}) => {
 
         const config: GridConfig = {
             columns,
-            data,
             // Valeurs par défaut
             search: true,
             sort: true,
@@ -43,7 +40,7 @@ const CustomGrid: React.FC<CustomGridProps> = ({columns, data, options}) => {
         return () => {
             grid.destroy();
         };
-    }, [columns, data, options]);
+    }, [columns, options]);
 
     return <div ref={containerRef}/>;
 };

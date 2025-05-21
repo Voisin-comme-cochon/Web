@@ -30,6 +30,7 @@ export class NeighborhoodsAdapter {
         return {
             id: neighborhood.id,
             name: neighborhood.name,
+            status: neighborhood.status,
             geo: neighborhood.geo,
             description: neighborhood.description,
             creationDate: neighborhood.creationDate,
