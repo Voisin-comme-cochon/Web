@@ -164,4 +164,18 @@ export class DashboardUseCase {
             throw new ApiError(500, 'Une erreur inattendue est survenue. Veuillez réessayer plus tard.', error as ApiError);
         }
     }
+
+    public async getNeighborhoods(status: 'waiting' | 'accepted' | 'refused' | null): Promise<NeighborhoodModel[]> {
+        try {
+            const neighborhoods = await getNeighborhoods(status, 1, 2000);
+            return neighborhoods.data;
+        } catch (error) {
+            if (error instanceof ApiError) {
+                if ((error as ApiError).status === 400) {
+                    throw new ApiError(400, 'Erreur lors de la récupération des quartiers créés.', error as Error);
+                }
+            }
+            throw new ApiError(500, 'Une erreur inattendue est survenue. Veuillez réessayer plus tard.', error as ApiError);
+        }
+    }
 }
