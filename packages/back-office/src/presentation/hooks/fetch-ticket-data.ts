@@ -8,7 +8,7 @@ export const useFetchTicketData = (
     const tabUc = new TabUseCase();
 
     useEffect(() => {
-        tabUc.getTickets()
+        tabUc.getTickets(null)
             .then(setTickets)
             .catch(() => setTickets([]));
     }, []);
