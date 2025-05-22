@@ -1,7 +1,7 @@
 import {useEffect} from "react";
 import {useNavigate} from "react-router-dom";
 import {jwtDecode} from "jwt-decode";
-import {DecodedUser} from "@/domain/models/DecodedUser";
+import {DecodedUserModel} from "@/domain/models/decoded-user.model.ts";
 
 export const useRedirectIfAuthenticated = () => {
     const navigate = useNavigate();
@@ -11,7 +11,7 @@ export const useRedirectIfAuthenticated = () => {
         if (!token) return;
 
         try {
-            const decoded: DecodedUser = jwtDecode(token);
+            const decoded: DecodedUserModel = jwtDecode(token);
             const currentTime = Date.now() / 1000;
 
             if (decoded.exp > currentTime && decoded.isSuperAdmin) {

@@ -1,4 +1,4 @@
-export interface DecodedUser {
+export interface DecodedUserModel {
     id: number;
     isSuperAdmin: boolean;
     iat: number;

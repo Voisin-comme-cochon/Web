@@ -119,6 +119,7 @@ export class AuthService {
     async refresh(refresh_token: string): Promise<LogInSignInDtoOutput> {
         const decoded: UserTokenEntity = this.jwtService.decode(refresh_token);
         if (!decoded.id) {
+            console.log('Invalid token: ', refresh_token, decoded);
             throw new CochonError('invalid-token', 'Invalid token', 400);
         }
 

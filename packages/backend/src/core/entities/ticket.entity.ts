@@ -23,6 +23,6 @@ export class TicketEntity {
     @CreateDateColumn({ type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP' })
     createdAt!: Date;
 
-    @OneToMany(() => TicketMessageEntity, (message) => message.ticket, { cascade: true })
+    @OneToMany(() => TicketMessageEntity, (message) => message.ticket, { onDelete: 'CASCADE', cascade: true })
     messages?: TicketMessageEntity[];
 }

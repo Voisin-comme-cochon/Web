@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { DataSource } from 'typeorm';
 import { JwtModule, JwtService } from '@nestjs/jwt';
 import { UsersModule } from '../users/users.module';
@@ -17,7 +17,7 @@ import { AuthRepository } from './domain/auth.abstract.repository';
         JwtModule.register({
             secret: process.env.VCC_JWT_SECRET,
         }),
-        UsersModule,
+        forwardRef(() => UsersModule),
         MailerModule,
         ObjectStorageModule,
     ],

@@ -15,6 +15,7 @@ export function setupDrawEvents(
         defaultMode: 'draw_polygon',
     });
 
+    // eslint-disable-next-line
     map.addControl(draw as any);
 
     const updateDrawData = () => {

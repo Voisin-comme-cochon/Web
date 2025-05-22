@@ -20,6 +20,13 @@ export class ResponseNeighborhoodDto {
     name!: string;
 
     @ApiProperty({
+        example: 'waiting',
+        description: 'The status of the Neighborhood',
+    })
+    @IsEnum(NeighborhoodStatusEntity)
+    status!: NeighborhoodStatusEntity;
+
+    @ApiProperty({
         example: 'Quartier des Lilas de la ville de Villeurbanne',
         description: 'The description of the Neighborhood',
     })

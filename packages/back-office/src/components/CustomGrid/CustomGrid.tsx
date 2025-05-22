@@ -14,13 +14,12 @@ export interface CustomGridProps {
         formatter?: (cell: string | number) => React.JSX.Element;
     }
     >;
-    /** Données : chaque ligne est un tableau de cellules (texte, nombre ou JSX.Element) */
-    data: Array<Array<string | number | React.JSX.Element>>;
-    /** Toutes les options Grid.js sauf `columns` et `data` (on les injecte nous‐mêmes) */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+    data: any;
     options?: Omit<GridConfig, 'columns' | 'data'>;
 }
 
-const CustomGrid: React.FC<CustomGridProps> = ({columns, data, options}) => {
+const CustomGrid: React.FC<CustomGridProps> = ({columns, data = [], options = {}}) => {
     const containerRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -28,12 +27,10 @@ const CustomGrid: React.FC<CustomGridProps> = ({columns, data, options}) => {
 
         const config: GridConfig = {
             columns,
-            data,
-            // Valeurs par défaut
+            data: Array.isArray(data) ? data : [],
             search: true,
             sort: true,
             pagination: {limit: 10},
-            // Ici soit on rajoute ou on remplace celle dessus
             ...options,
         };
 
