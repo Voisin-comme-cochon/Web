@@ -165,9 +165,9 @@ export class DashboardUseCase {
         }
     }
 
-    public async getNeighborhoods(): Promise<NeighborhoodModel[]> {
+    public async getNeighborhoods(status: 'waiting' | 'accepted' | 'refused' | null): Promise<NeighborhoodModel[]> {
         try {
-            const neighborhoods = await getNeighborhoods('waiting', 1, 2000);
+            const neighborhoods = await getNeighborhoods(status, 1, 2000);
             return neighborhoods.data;
         } catch (error) {
             if (error instanceof ApiError) {
