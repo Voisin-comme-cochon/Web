@@ -1,14 +1,14 @@
 import {useEffect} from "react";
-import {DashboardUseCase} from "@/domain/use-cases/dashboard.uc.ts";
 import {NeighborhoodModel} from "@/domain/models/neighborhood.model.ts";
+import {TabUseCase} from "@/domain/use-cases/tabs.uc.ts";
 
 export const useFetchNeighborhoodData = (
     setNeighborhoods: (n: NeighborhoodModel[]) => void,
 ) => {
-    const dashboardUseCase = new DashboardUseCase();
+    const tabUseCase = new TabUseCase();
 
     useEffect(() => {
-        dashboardUseCase.getNeighborhoods(null)
+        tabUseCase.getNeighborhoods(null)
             .then(setNeighborhoods)
             .catch(() => setNeighborhoods([]));
     }, []);
