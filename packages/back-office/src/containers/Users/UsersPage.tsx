@@ -66,8 +66,8 @@ export default function UsersPage() {
         <div className="flex min-h-screen w-full">
             <SideHeader/>
             <main className="flex flex-col flex-1">
-                <InfoHeader title={"Plugins / Thèmes"}
-                            description={"Acceptez, refusez ou telechargez le fichier pour verifier le code"}/>
+                <InfoHeader title={"Utilisateurs"}
+                            description={"Gérez les rôles de tous les utilisateurs"}/>
                 <div className={"p-8"}>
                     <CustomGrid data={userData} columns={userColumns} options={options}/>
                 </div>
