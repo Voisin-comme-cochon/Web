@@ -13,3 +13,13 @@ export const useFetchNeighborhoodData = (
             .catch(() => setNeighborhoods([]));
     }, []);
 }
+
+export const useFetchAcceptedNeighborhoodDataWithTab = (
+    setNeighborhoods: (n: NeighborhoodModel[]) => void) => {
+    const tabUseCase = new TabUseCase();
+    useEffect(() => {
+        tabUseCase.getNeighborhoods('accepted')
+            .then(setNeighborhoods)
+            .catch(() => setNeighborhoods([]));
+    }, [])
+}
