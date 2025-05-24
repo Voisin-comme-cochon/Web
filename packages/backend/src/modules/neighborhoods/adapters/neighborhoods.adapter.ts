@@ -1,6 +1,7 @@
 import { NeighborhoodEntity } from '../../../core/entities/neighborhood.entity';
 import { Neighborhood } from '../domain/neighborhood.model';
 import { GetNeighborhoodQueryParamsDto, ResponseNeighborhoodDto } from '../controllers/dto/neighborhood.dto';
+import { NeighborhoodUserRole, NeighborhoodUserStatus } from '../../../core/entities/neighborhood-user.entity';
 import { NeighborhoodImagesAdapter } from './neighborhood-images.adapter';
 
 export class NeighborhoodsAdapter {
@@ -13,6 +14,13 @@ export class NeighborhoodsAdapter {
             description: neighborhood.description,
             creationDate: neighborhood.creationDate,
             images: NeighborhoodImagesAdapter.listDatabaseToDomain(neighborhood.images),
+            neighborhood_users: neighborhood.neighborhood_users?.map((user) => ({
+                id: user.id,
+                userId: user.userId,
+                role: user.role as NeighborhoodUserRole,
+                status: user.status as NeighborhoodUserStatus,
+                neighborhoodId: user.neighborhoodId,
+            })),
         };
     }
 

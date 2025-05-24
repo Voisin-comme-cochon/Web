@@ -3,7 +3,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import MapBox from '@/components/MapBox/MapBox';
-import { useAppNavigation } from '@/presentation/state/navigate';
 
 interface NeighborhoodMapFormProps {
     onSubmit: (geo: { type: string; coordinates: number[][][] }) => Promise<void>;
@@ -14,7 +13,6 @@ export function NeighborhoodMapForm({ onSubmit, onBack }: NeighborhoodMapFormPro
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [selectedGeo, setSelectedGeo] = useState<{ type: string; coordinates: number[][][] } | null>(null);
-    const { goHome } = useAppNavigation();
 
     const handleSubmit = async () => {
         if (!selectedGeo) {
@@ -29,7 +27,6 @@ export function NeighborhoodMapForm({ onSubmit, onBack }: NeighborhoodMapFormPro
 
         try {
             await onSubmit(selectedGeo);
-            goHome();
         } catch (err) {
             setError('Une erreur est survenue lors de la création du quartier. Veuillez réessayer.');
             console.error('Neighborhood creation error:', err);

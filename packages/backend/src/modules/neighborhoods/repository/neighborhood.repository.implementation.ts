@@ -38,6 +38,7 @@ export class NeighborhoodRepositoryImplementation implements NeighborhoodReposit
             .getRepository(NeighborhoodEntity)
             .createQueryBuilder('neighborhood')
             .leftJoinAndSelect('neighborhood.images', 'images')
+            .leftJoinAndSelect('neighborhood.neighborhood_users', 'neighborhood_users')
             .where('neighborhood.id = :id', { id })
             .getOne();
 

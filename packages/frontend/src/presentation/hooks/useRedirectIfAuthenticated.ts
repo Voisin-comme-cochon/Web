@@ -13,7 +13,7 @@ export const useRedirectIfAuthenticated = (minimumRole: Roles = Roles.USER) => {
             navigate('/login');
             return;
         }
-        
+
         const decoded = jwtDecode<DecodedUser>(token);
         const currentTime = Date.now() / 1000;
 
