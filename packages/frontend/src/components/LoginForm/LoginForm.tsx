@@ -12,6 +12,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { useToast } from '@/presentation/hooks/useToast.ts';
 
 const formSchema = z.object({
     email: z
@@ -27,6 +28,7 @@ export default function LoginForm() {
     const { goCreateNeighborhood, goResetPassword, goSignin } = useAppNavigation();
     const [error, setError] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
+    const { showSuccess } = useToast();
 
     const form = useForm<FormValues>({
         resolver: zodResolver(formSchema),
@@ -43,6 +45,7 @@ export default function LoginForm() {
         try {
             const authUc = new AuthUc(new AuthRepository(new ApiService()));
             await authUc.login(values.email, values.password);
+            showSuccess('Connexion réussie !', 'Bienvenue dans votre espace personnel !');
             goCreateNeighborhood();
         } catch (err) {
             if (err instanceof AuthError) {
