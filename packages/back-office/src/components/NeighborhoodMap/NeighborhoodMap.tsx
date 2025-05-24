@@ -105,7 +105,6 @@ export const SimpleMapboxShape: React.FC<SimpleMapboxShapeProps> = ({
                 interactiveLayerIds={["db-polygons", "user-polygon"]}
                 onClick={handleMapClick}
             >
-                {/* Quartiers de la DB */}
                 <Source id="db-shapes" type="geojson" data={{
                     type: "FeatureCollection",
                     features: dbFeatures,
@@ -113,12 +112,10 @@ export const SimpleMapboxShape: React.FC<SimpleMapboxShapeProps> = ({
                     <Layer {...dbLayerStyle} />
                 </Source>
 
-                {/* Quartier utilisateur */}
                 <Source id="user-shape" type="geojson" data={userGeojson}>
                     <Layer {...userLayerStyle} />
                 </Source>
 
-                {/* Popup infos */}
                 {selectedFeature && popupCoordinates && (
                     <Popup
                         longitude={popupCoordinates[0]}
