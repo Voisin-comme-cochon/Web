@@ -6,3 +6,8 @@ export async function getNeighborhoods(status: string | null, page: number, limi
     const response = await apiService.get(`neighborhoods?page=${page}&limit=${limit}${status ? `&status=${status}` : ""}`);
     return await response.data;
 }
+
+export async function getNeighborhoodById(id: string | number): Promise<NeighborhoodModel> {
+    const response = await apiService.get(`neighborhoods/${id}`);
+    return await response.data;
+}

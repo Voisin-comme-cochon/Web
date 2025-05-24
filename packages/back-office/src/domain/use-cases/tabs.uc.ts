@@ -6,8 +6,6 @@ import {TicketModel} from "@/domain/models/ticket.model.ts";
 import {getUsers} from "@/infrastructure/repositories/user.repository.ts";
 
 export class TabUseCase {
-    public
-
     constructor() {
     }
 
