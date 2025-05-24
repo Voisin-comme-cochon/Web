@@ -26,7 +26,7 @@ export class NeighborhoodFrontRepository {
         return await this.apiService.postFormData('/neighborhoods', formData);
     }
 
-    async createMultipleInvitations(input: CreateMultipleInvitationsInput): Promise<any> {
+    async createMultipleInvitations(input: CreateMultipleInvitationsInput): Promise<object> {
         return await this.apiService.post('/neighborhoods/invitations', JSON.stringify(input));
     }
 }

@@ -1,4 +1,4 @@
-import { toast } from '@/hooks/use-toast';
+import { toast } from '@/presentation/hooks/use-toast.ts';
 
 export const useToast = () => {
     const showSuccess = (title: string, description?: string) => {
