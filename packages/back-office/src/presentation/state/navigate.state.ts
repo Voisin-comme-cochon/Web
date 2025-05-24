@@ -5,9 +5,11 @@ export const useAppNavigation = () => {
 
     const goLogin = () => navigate('/');
     const goDashboard = () => navigate('/dashboard');
+    const goNeighborhoodDetail = (id: string | number) => navigate('/neighborhood-detail?id=' + id);
 
     return {
         goLogin,
         goDashboard,
+        goNeighborhoodDetail,
     };
 };

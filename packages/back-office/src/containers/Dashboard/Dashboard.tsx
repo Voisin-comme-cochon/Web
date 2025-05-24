@@ -7,6 +7,7 @@ import StatBloc from '@/components/StatBloc/StatBloc';
 import {useFetchDashboardData} from "@/presentation/hooks/fetch-dashboard-data.ts";
 import {useDashboardDataState} from "@/presentation/state/dashboard-data.state.ts";
 import "./styles.css";
+import {useAppNavigation} from "@/presentation/state/navigate.state.ts";
 
 const Dashboard: React.FC = () => {
     const {
@@ -31,7 +32,7 @@ const Dashboard: React.FC = () => {
         setTickets,
         tickets,
     } = useDashboardDataState();
-
+    const {goNeighborhoodDetail} = useAppNavigation();
     useFetchDashboardData(
         setCreatedTickets, setOpenTickets, setResolvedTickets, setCreatedNeighborhood,
         setUsers, setEvents, setMessages, setSales, setTickets, setNeighborhoods
@@ -60,17 +61,30 @@ const Dashboard: React.FC = () => {
             }, 'schedule')
             : cell;
 
-    const actionFormatter = (cell: string | number) =>
+    const actionNeighborhoodFormatter = (cell: string | number) =>
         h('div', {className: 'flex justify-center'},
             h('button', {
                     className: 'flex items-center gap-1 px-2 py-2 rounded border border-blue text-blue bg-white hover:bg-blue-50 transition-colors',
                     style: {cursor: 'pointer'},
                     title: 'Voir',
-                    onClick: () => alert(`Détails de l'élément ${cell}`),
+                    onClick: () => goNeighborhoodDetail(cell),
                 },
                 h('span', {className: 'material-icons', style: {fontSize: '18px'}}, 'edit')
             )
         );
+
+    const actionTicketFormatter = (cell: string | number) =>
+        h('div', {className: 'flex justify-center'},
+            h('button', {
+                    className: 'flex items-center gap-1 px-2 py-2 rounded border border-blue text-blue bg-white hover:bg-blue-50 transition-colors',
+                    style: {cursor: 'pointer'},
+                    title: 'Voir',
+                    onClick: () => alert(cell),
+                },
+                h('span', {className: 'material-icons', style: {fontSize: '18px'}}, 'edit')
+            )
+        );
+
 
     const neighborhoodColumns = useMemo(() => [
         {name: 'Date', className: 'font-bold text-center text-black', formatter: commonDateFormatter},
@@ -80,7 +94,7 @@ const Dashboard: React.FC = () => {
             name: 'Actions',
             className: 'font-bold text-center text-black',
             attributes: {style: 'width: 128px; min-width: 128px;'},
-            formatter: actionFormatter
+            formatter: actionNeighborhoodFormatter
         },
     ], []);
 
@@ -92,7 +106,7 @@ const Dashboard: React.FC = () => {
             name: 'Actions',
             className: 'font-bold text-center text-black',
             attributes: {style: 'width: 128px; min-width: 128px;'},
-            formatter: actionFormatter
+            formatter: actionTicketFormatter
         },
     ], []);
 

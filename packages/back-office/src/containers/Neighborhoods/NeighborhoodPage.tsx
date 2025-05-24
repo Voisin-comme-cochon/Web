@@ -5,13 +5,14 @@ import {useMemo} from "react";
 import {useNeighborhoodDataState} from "@/presentation/state/neighborhood-data.state.ts";
 import {h} from "gridjs";
 import {useFetchNeighborhoodData} from "@/presentation/hooks/fetch-neighborhood-data.ts";
+import {useAppNavigation} from "@/presentation/state/navigate.state.ts";
 
 export default function NeighborhoodPage() {
     const {
         neighborhoods,
         setNeighborhoods
     } = useNeighborhoodDataState();
-
+    const {goNeighborhoodDetail} = useAppNavigation()
     useFetchNeighborhoodData(setNeighborhoods);
 
     const commonDateFormatter = (cell: string | number) => {
@@ -64,7 +65,7 @@ export default function NeighborhoodPage() {
                     className: 'flex items-center gap-1 px-2 py-2 rounded border border-blue text-blue bg-white hover:bg-blue-50 transition-colors',
                     style: {cursor: 'pointer'},
                     title: 'Voir',
-                    onClick: () => alert(`Détails de l'élément ${cell}`),
+                    onClick: () => goNeighborhoodDetail(cell),
                 },
                 h('span', {className: 'material-icons', style: {fontSize: '18px'}}, 'edit')
             )

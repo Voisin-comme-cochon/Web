@@ -6,6 +6,7 @@ import NeighborhoodPage from "@/containers/Neighborhoods/NeighborhoodPage.tsx";
 import UsersPage from "@/containers/Users/UsersPage.tsx";
 import TicketsPage from "@/containers/Tickets/TicketsPage.tsx";
 import PluginsThemesPage from "@/containers/PluginsThemes/PluginsThemesPage.tsx";
+import NeighborhoodDetailsPage from "@/containers/NeighborhoodsDetails/NeighborhoodDetailsPage.tsx";
 
 export default function App() {
     return (
@@ -17,6 +18,7 @@ export default function App() {
                 <Route path="/users" element={<UsersPage/>}/>
                 <Route path="/tickets" element={<TicketsPage/>}/>
                 <Route path="/plugins-themes" element={<PluginsThemesPage/>}/>
+                <Route path="/neighborhood-detail" element={<NeighborhoodDetailsPage/>}/>
             </Routes>
         </Router>
     )
