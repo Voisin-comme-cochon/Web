@@ -31,7 +31,7 @@ export class AuthRepositoryImplementation implements AuthRepository {
 
     async saveToken(token: string, userId: number): Promise<void> {
         const repo = this.dataSource.getRepository(UserTokenEntity);
-        const expirationDate = new Date(Date.now() + 15 * 60 * 1000);
+        const expirationDate = new Date(Date.now() + 15 * 24 * 60 * 60 * 1000);
 
         await repo
             .createQueryBuilder()

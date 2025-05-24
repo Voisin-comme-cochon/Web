@@ -5,7 +5,7 @@ import {GeometryModel} from "@/domain/models/geometry.model.ts";
 export interface NeighborhoodModel {
     id: number;
     name: string;
-    geometry: GeometryModel
+    geo: GeometryModel
     status: NeighborhoodStatusEnum;
     description: string;
     creationDate: Date;
