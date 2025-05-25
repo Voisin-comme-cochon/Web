@@ -30,7 +30,16 @@ export class NeighborhoodService {
     }
 
     async getNeighborhoodById(id: number): Promise<Neighborhood | null> {
-        return this.neighborhoodRepository.getNeighborhoodById(id);
+        const neighborhood = await this.neighborhoodRepository.getNeighborhoodById(id);
+        if (!neighborhood) {
+            return null;
+        }
+        const links = await this.getFileLinkByUrl(neighborhood.images ?? []);
+        const neighborhoodWithLinks = {
+            ...neighborhood,
+            images: links,
+        };
+        return neighborhoodWithLinks;
     }
 
     async createNeighborhood(input: CreateNeighborhoodInput): Promise<ResponseNeighborhoodDto> {
@@ -71,6 +80,18 @@ export class NeighborhoodService {
                 BucketType.NEIGHBORHOOD_IMAGES
             );
             entities.push({ url, isPrimary: i === 0 } as NeighborhoodImagesEntity);
+        }
+        return entities;
+    }
+
+    private async getFileLinkByUrl(filesNames: NeighborhoodImagesEntity[]): Promise<NeighborhoodImagesEntity[]> {
+        const entities: NeighborhoodImagesEntity[] = [];
+        for (let i = 0; i < filesNames.length; i++) {
+            const url = await this.objectStorageService.getFileLink(
+                filesNames[i].url,
+                BucketType.NEIGHBORHOOD_IMAGES
+            );
+            entities.push({ ...filesNames[i], url } as NeighborhoodImagesEntity);
         }
         return entities;
     }
