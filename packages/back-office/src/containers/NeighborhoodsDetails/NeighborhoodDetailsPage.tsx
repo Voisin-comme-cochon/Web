@@ -5,6 +5,7 @@ import {useGetNeighborhoodById} from "@/presentation/hooks/use-get-neighborhood-
 import {NeighborhoodStatusEnum} from "@/domain/models/neighborhood-status.enum.ts";
 import {SimpleMapboxShape} from "@/components/NeighborhoodMap/NeighborhoodMap.tsx";
 import {useGetUsersByNeighborhood} from "@/presentation/hooks/use-get-users-by-neighborhood.ts";
+import {NeighborhoodDetailsUseCase} from "@/domain/use-cases/neighborhood-details.uc.ts";
 
 export default function NeighborhoodDetailsPage() {
     const {
@@ -16,6 +17,11 @@ export default function NeighborhoodDetailsPage() {
         setMembers
     } = useNeighborhoodDetailsState();
 
+    const setNeighborhoodStatus = async (status: NeighborhoodStatusEnum) => {
+        const neighborhoodDetailsUseCase = new NeighborhoodDetailsUseCase();
+        await neighborhoodDetailsUseCase.setNeighborhoodStatusUc(neighborhood?.id ?? '', status);
+        window.location.href = '/neighborhoods';
+    }
     useGetNeighborhoodById(setNeighborhood);
     useGetUsersByNeighborhood(setMembers);
 
@@ -105,18 +111,38 @@ export default function NeighborhoodDetailsPage() {
                 <div className="p-4">
                     <h2 className="text-xl font-bold mb-2">Actions</h2>
                     <div className="flex gap-4 justify-end">
-                        <button
-                            onClick={() => console.log('Quartier refusé')}
-                            className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
-                        >
-                            Refuser
-                        </button>
-                        <button
-                            onClick={() => console.log('Quartier accepté')}
-                            className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600"
-                        >
-                            Accepter
-                        </button>
+                        {
+                            neighborhood.status == NeighborhoodStatusEnum.PENDING ? (
+                                <>
+                                    <button
+                                        onClick={() => setNeighborhoodStatus(NeighborhoodStatusEnum.REJECTED)}
+                                        className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
+                                    >
+                                        Refuser
+                                    </button>
+                                    <button
+                                        onClick={() => setNeighborhoodStatus(NeighborhoodStatusEnum.ACCEPTED)}
+                                        className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600"
+                                    >
+                                        Accepter
+                                    </button>
+                                </>
+                            ) : neighborhood.status == NeighborhoodStatusEnum.ACCEPTED ? (
+                                <button
+                                    onClick={() => setNeighborhoodStatus(NeighborhoodStatusEnum.REJECTED)}
+                                    className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
+                                >
+                                    Bannir
+                                </button>
+                            ) : (
+                                <button
+                                    onClick={() => setNeighborhoodStatus(NeighborhoodStatusEnum.ACCEPTED)}
+                                    className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600"
+                                >
+                                    Accepter
+                                </button>
+                            )
+                        }
                     </div>
                 </div>
 
