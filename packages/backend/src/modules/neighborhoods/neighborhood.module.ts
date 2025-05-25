@@ -63,11 +63,12 @@ import { NeighborhoodUserRepositoryImplementation } from './repository/neighborh
         },
         {
             provide: NeighborhoodUserService,
-            inject: [NeighborhoodUserRepository, NeighborhoodService],
+            inject: [NeighborhoodUserRepository, NeighborhoodService, UsersService],
             useFactory: (
                 neighborhoodUserRepository: NeighborhoodUserRepository,
-                neighborhoodService: NeighborhoodService
-            ) => new NeighborhoodUserService(neighborhoodUserRepository, neighborhoodService),
+                neighborhoodService: NeighborhoodService,
+                usersService: UsersService
+            ) => new NeighborhoodUserService(neighborhoodUserRepository, neighborhoodService, usersService),
         },
     ],
     exports: [NeighborhoodService],

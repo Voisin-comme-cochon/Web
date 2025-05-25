@@ -4,6 +4,7 @@ import LoginPage from '@/containers/Login/LoginPage.tsx';
 import ResetPasswordPage from '@/containers/ResetPassword/reset-password.tsx';
 import SigninPage from '@/containers/Signin/SigninPage.tsx';
 import { CreateNeighborhood } from '@/containers/Neighborhood/CreateNeighborhood.tsx';
+import NeighborhoodInvitation from '@/containers/NeighborhoodInvitation/NeighborhoodInvitation.tsx';
 
 export default function App() {
     return (
@@ -14,6 +15,7 @@ export default function App() {
                 <Route path="/signin" element={<SigninPage />} />
                 <Route path="/reset-password" element={<ResetPasswordPage />} />
                 <Route path="/neighborhoods/create" element={<CreateNeighborhood />} />
+                <Route path="/neighborhoods/invite/:invitationId" element={<NeighborhoodInvitation />} />
             </Routes>
         </Router>
     );
