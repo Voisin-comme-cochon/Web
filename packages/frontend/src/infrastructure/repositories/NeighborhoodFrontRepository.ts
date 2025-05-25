@@ -1,13 +1,11 @@
-import { ApiService } from '@/infrastructure/api/ApiService.ts';
+import ApiService from '@/infrastructure/api/ApiService.ts';
 import { FrontNeighborhood } from '@/domain/models/FrontNeighborhood.ts';
 import type { NeighborhoodFormValues } from '@/containers/Neighborhood/neighborhood.schema';
 import type { CreateMultipleInvitationsInput } from '@/domain/models/NeighborhoodInvitation';
 
 export class NeighborhoodFrontRepository {
-    constructor(private apiService: ApiService) {}
-
     async getAcceptedNeighborhoods(): Promise<FrontNeighborhood[]> {
-        const response = await this.apiService.get('/neighborhoods?status=accepted');
+        const response = await ApiService.get('/neighborhoods?status=accepted');
         return response.data;
     }
 
@@ -23,10 +21,17 @@ export class NeighborhoodFrontRepository {
             });
         }
 
-        return await this.apiService.postFormData('/neighborhoods', formData);
+        const response = await ApiService.post('/neighborhoods', formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        });
+
+        return response.data;
     }
 
     async createMultipleInvitations(input: CreateMultipleInvitationsInput): Promise<object> {
-        return await this.apiService.post('/neighborhoods/invitations', JSON.stringify(input));
+        console.log('Creating multiple invitations:', input);
+        return await ApiService.post('/neighborhoods/invitations', input);
     }
 }

@@ -12,3 +12,13 @@ export class User {
     newsletter!: boolean;
     prefferedNotifMethod!: string;
 }
+
+export interface UserDomainWithRole {
+    user: User;
+    role: NeighbotorhoodUserRole;
+}
+
+export enum NeighbotorhoodUserRole {
+    ADMIN = 'admin',
+    USER = 'user',
+}

@@ -15,6 +15,9 @@ import { NeighborhoodRepository } from './domain/neighborhood.abstract.repositor
 import { NeighborhoodRepositoryImplementation } from './repository/neighborhood.repository.implementation';
 import { NeighborhoodInvitationRepository } from './domain/neighborhood-invitation.abstract.repository';
 import { NeighborhoodInvitationRepositoryImplementation } from './repository/neighborhood-invitation.repository.implementation';
+import { NeighborhoodUserService } from './services/neighborhood-user.service';
+import { NeighborhoodUserRepository } from './domain/neighborhood-user.abstract.repository';
+import { NeighborhoodUserRepositoryImplementation } from './repository/neighborhood-user.repository.implementation';
 
 @Module({
     imports: [
@@ -37,6 +40,11 @@ import { NeighborhoodInvitationRepositoryImplementation } from './repository/nei
             useFactory: (dataSource: DataSource) => new NeighborhoodInvitationRepositoryImplementation(dataSource),
         },
         {
+            provide: NeighborhoodUserRepository,
+            inject: [DataSource],
+            useFactory: (dataSource: DataSource) => new NeighborhoodUserRepositoryImplementation(dataSource),
+        },
+        {
             provide: NeighborhoodService,
             inject: [NeighborhoodRepository, ObjectStorageService],
             useFactory: (neighborhoodRepository: NeighborhoodRepository, objectStorageService: ObjectStorageService) =>
@@ -52,6 +60,14 @@ import { NeighborhoodInvitationRepositoryImplementation } from './repository/nei
                 users: UsersService,
                 mailer: MailerService
             ) => new NeighborhoodInvitationService(invRepo, nbService, jwt, users, mailer),
+        },
+        {
+            provide: NeighborhoodUserService,
+            inject: [NeighborhoodUserRepository, NeighborhoodService],
+            useFactory: (
+                neighborhoodUserRepository: NeighborhoodUserRepository,
+                neighborhoodService: NeighborhoodService
+            ) => new NeighborhoodUserService(neighborhoodUserRepository, neighborhoodService),
         },
     ],
     exports: [NeighborhoodService],

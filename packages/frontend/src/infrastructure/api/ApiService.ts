@@ -1,115 +1,44 @@
-export class ApiError extends Error {
-    status: number;
-    data: unknown;
+import axios from 'axios';
+import { AuthRepository } from '@/infrastructure/repositories/AuthRepository.ts';
 
-    constructor(status: number, message: string, data: unknown = null) {
-        super(message);
-        this.name = 'ApiError';
-        this.status = status;
-        this.data = data;
+const ApiService = axios.create({
+    baseURL: import.meta.env.VITE_VCC_API_URL || 'http://localhost:3000',
+    withCredentials: true,
+});
+
+ApiService.interceptors.request.use((config) => {
+    const token = localStorage.getItem('jwt');
+    if (token && config.headers) {
+        config.headers.Authorization = `Bearer ${token}`;
     }
-}
+    return config;
+});
 
-export class ApiService {
-    async get(endpoint: string) {
-        const baseUrl: string = import.meta.env.VITE_VCC_API_URL;
+ApiService.interceptors.response.use(
+    (response) => response,
+    async (error) => {
+        const originalRequest = error.config;
+        const authRepository = new AuthRepository();
 
-        try {
-            const response = await fetch(`${baseUrl}${endpoint}`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            });
-
-            if (!response.ok) {
-                throw new ApiError(
-                    response.status,
-                    `API error: ${response.statusText}`,
-                    await response.text().catch(() => null)
-                );
+        if (
+            error.response?.status === 403 &&
+            !originalRequest._retry // empêcher boucle infinie
+        ) {
+            console.log('Token expiré, tentative de rafraîchissement...');
+            originalRequest._retry = true;
+            const refreshToken = localStorage.getItem('refresh_token') || '';
+            try {
+                const tokens = await authRepository.refreshAccessToken(refreshToken);
+                originalRequest.headers['Authorization'] = `Bearer ${tokens.access_token}`;
+                return ApiService(originalRequest);
+            } catch {
+                await authRepository.logout();
+                window.location.href = '/';
             }
-            const json = await response.json();
-            return json;
-        } catch (error) {
-            if (error instanceof ApiError) {
-                throw error;
-            }
-
-            if (error instanceof Error) {
-                throw new ApiError(500, `Failed to fetch data: ${error.message}`, null);
-            }
-
-            throw new ApiError(500, 'Unknown error occurred', null);
         }
+
+        return Promise.reject(error);
     }
+);
 
-    async post(endpoint: string, body: string) {
-        const baseUrl: string = import.meta.env.VITE_VCC_API_URL;
-
-        try {
-            const response = await fetch(`${baseUrl}${endpoint}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${localStorage.getItem('jwt')}`,
-                },
-                body: body,
-            });
-
-            if (!response.ok) {
-                throw new ApiError(
-                    response.status,
-                    `API error: ${response.statusText}`,
-                    await response.text().catch(() => null)
-                );
-            }
-
-            return await response.json();
-        } catch (error) {
-            if (error instanceof ApiError) {
-                throw error;
-            }
-
-            if (error instanceof Error) {
-                throw new ApiError(500, `Failed to fetch data: ${error.message}`, null);
-            }
-
-            throw new ApiError(500, 'Unknown error occurred', null);
-        }
-    }
-
-    async postFormData(endpoint: string, formData: FormData) {
-        const baseUrl: string = import.meta.env.VITE_VCC_API_URL;
-
-        try {
-            const response = await fetch(`${baseUrl}${endpoint}`, {
-                method: 'POST',
-                headers: {
-                    Authorization: `Bearer ${localStorage.getItem('jwt')}`,
-                },
-                body: formData,
-            });
-
-            if (!response.ok) {
-                throw new ApiError(
-                    response.status,
-                    `API error: ${response.statusText}`,
-                    await response.text().catch(() => null)
-                );
-            }
-
-            return await response.json();
-        } catch (error) {
-            if (error instanceof ApiError) {
-                throw error;
-            }
-
-            if (error instanceof Error) {
-                throw new ApiError(500, `Failed to fetch data: ${error.message}`, null);
-            }
-
-            throw new ApiError(500, 'Unknown error occurred', null);
-        }
-    }
-}
+export default ApiService;

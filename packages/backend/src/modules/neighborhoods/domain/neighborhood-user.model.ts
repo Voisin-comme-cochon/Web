@@ -1,4 +1,6 @@
 import { NeighborhoodUserRole, NeighborhoodUserStatus } from '../../../core/entities/neighborhood-user.entity';
+import { UserEntity } from '../../../core/entities/user.entity';
+import { NeighbotorhoodUserRole } from '../../users/domain/user.model';
 
 export interface NeighborhoodUser {
     id: number;
@@ -6,4 +8,9 @@ export interface NeighborhoodUser {
     role: NeighborhoodUserRole;
     status: NeighborhoodUserStatus;
     neighborhoodId: number;
+}
+
+export interface UserWithRole {
+    user: UserEntity;
+    role: NeighbotorhoodUserRole;
 }

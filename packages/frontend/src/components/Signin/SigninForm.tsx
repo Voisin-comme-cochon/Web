@@ -14,7 +14,6 @@ import { signupFormSchema, type SignupFormValues } from '@/containers/Signin/sig
 import { useAppNavigation } from '@/presentation/state/navigate';
 import { AuthUc, AuthError } from '@/domain/use-cases/authUc';
 import { AuthRepository } from '@/infrastructure/repositories/AuthRepository';
-import { ApiService } from '@/infrastructure/api/ApiService';
 
 export default function SigninForm() {
     const { goHome, goLogin } = useAppNavigation();
@@ -40,8 +39,8 @@ export default function SigninForm() {
         setIsLoading(true);
 
         try {
-            const authUc = new AuthUc(new AuthRepository(new ApiService()));
-            await authUc.signup({
+            const authUc = new AuthUc(new AuthRepository());
+            await authUc.signin({
                 firstName: values.firstName,
                 lastName: values.lastName,
                 address: values.address,
