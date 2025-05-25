@@ -1,10 +1,10 @@
-import { InviteForm } from '@/components/Neighborhood/InviteForm';
-import { InviteList } from '@/components/Neighborhood/InviteList';
+import { InviteForm } from '@/components/NeighborhoodInvitation/Form/InviteForm.tsx';
+import { InviteList } from '@/components/NeighborhoodInvitation/Form/InviteList.tsx';
 import { useInviteList } from '@/presentation/hooks/useInviteList';
 import { NeighborhoodInvitationUc } from '@/domain/use-cases/neighborhoodInvitationUc';
 import { NeighborhoodFrontRepository } from '@/infrastructure/repositories/NeighborhoodFrontRepository';
 import { useState } from 'react';
-import { InviteActions } from '@/components/Neighborhood/InviteActions';
+import { InviteActions } from '@/components/NeighborhoodInvitation/Form/InviteActions.tsx';
 import { useToast } from '@/presentation/hooks/useToast';
 
 interface InviteNeighborsProps {

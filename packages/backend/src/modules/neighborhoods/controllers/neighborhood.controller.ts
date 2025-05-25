@@ -175,6 +175,7 @@ export class NeighborhoodController {
 
     @Get(':neighborhoodId/users')
     @UseInterceptors(PaginationInterceptor)
+    @UseGuards(IsLoginGuard)
     @ApiOperation({ summary: 'Get users by neighborhood ID' })
     @ApiOkResponse({
         description: 'Users found in the neighborhood',

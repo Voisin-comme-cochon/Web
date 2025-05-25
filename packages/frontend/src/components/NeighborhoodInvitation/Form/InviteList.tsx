@@ -1,4 +1,4 @@
-import { Button } from '@/components/ui/button';
+import { Button } from '@/components/ui/button.tsx';
 import { X, User } from 'lucide-react';
 
 interface InviteListProps {
