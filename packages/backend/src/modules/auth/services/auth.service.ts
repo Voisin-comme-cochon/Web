@@ -172,7 +172,7 @@ export class AuthService {
         const accessToken = this.jwtService.sign(
             { id: user.id, isSuperAdmin: user.isSuperAdmin },
             {
-                expiresIn: '5m',
+                expiresIn: '30s',
             }
         );
 

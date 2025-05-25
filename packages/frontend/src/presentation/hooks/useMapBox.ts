@@ -4,7 +4,6 @@ import { MapRef } from 'react-map-gl/mapbox';
 import { MapBoxGeoJson } from '@/domain/models/MapBoxGeoJson';
 import { GetAcceptedNeighborhoods } from '@/domain/use-cases/getAcceptedNeighborhoods';
 import { NeighborhoodFrontRepository } from '@/infrastructure/repositories/NeighborhoodFrontRepository';
-import { ApiService } from '@/infrastructure/api/ApiService';
 import { setupDrawEvents } from '@/presentation/state/drawManager.ts';
 import { MapBoxParameters } from '@/domain/models/MapBoxParameters.ts';
 import * as mapboxgl from 'mapbox-gl';
@@ -21,7 +20,7 @@ export const useMapBox = ({ canCreate, showDetails, onGeoSelect }: MapBoxParamet
 
     const MAPBOX_TOKEN = import.meta.env.VITE_VCC_MAPBOX_PUBLIC_KEY;
 
-    const getAcceptedNeighborhoodsUc = new GetAcceptedNeighborhoods(new NeighborhoodFrontRepository(new ApiService()));
+    const getAcceptedNeighborhoodsUc = new GetAcceptedNeighborhoods(new NeighborhoodFrontRepository());
 
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-expect-error

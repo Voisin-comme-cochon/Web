@@ -11,7 +11,6 @@ import PasswordRequirements from '@/components/ResetPassword/PasswordRequirement
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert.tsx';
 import { AuthUc, AuthError } from '@/domain/use-cases/authUc.ts';
 import { AuthRepository } from '@/infrastructure/repositories/AuthRepository.ts';
-import { ApiService } from '@/infrastructure/api/ApiService.ts';
 
 const passwordSchema = z
     .object({
@@ -69,7 +68,7 @@ export default function ResetPasswordForm({ onSubmitSuccess, onLoginClick }: Res
         setError(null);
 
         try {
-            const authUc = new AuthUc(new AuthRepository(new ApiService()));
+            const authUc = new AuthUc(new AuthRepository());
             await authUc.resetPassword(token, password);
 
             onSubmitSuccess();

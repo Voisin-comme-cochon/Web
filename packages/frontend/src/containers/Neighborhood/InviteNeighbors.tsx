@@ -3,7 +3,6 @@ import { InviteList } from '@/components/Neighborhood/InviteList';
 import { useInviteList } from '@/presentation/hooks/useInviteList';
 import { NeighborhoodInvitationUc } from '@/domain/use-cases/neighborhoodInvitationUc';
 import { NeighborhoodFrontRepository } from '@/infrastructure/repositories/NeighborhoodFrontRepository';
-import { ApiService } from '@/infrastructure/api/ApiService';
 import { useState } from 'react';
 import { InviteActions } from '@/components/Neighborhood/InviteActions';
 import { useToast } from '@/presentation/hooks/useToast';
@@ -23,7 +22,7 @@ export default function InviteNeighbors({ neighborhoodId, onFinish }: InviteNeig
     const handleSend = async () => {
         setLoading(true);
         try {
-            const uc = new NeighborhoodInvitationUc(new NeighborhoodFrontRepository(new ApiService()));
+            const uc = new NeighborhoodInvitationUc(new NeighborhoodFrontRepository());
             await uc.createMultipleInvitations({ neighborhoodId, emails });
             setSent(true);
             showInfo('Invitations envoyées avec succès !');

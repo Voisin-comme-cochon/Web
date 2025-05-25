@@ -4,7 +4,6 @@ import { Button } from '@/components/ui/button';
 import PasswordInput from '@/components/PasswordInput.tsx';
 import { AuthError, AuthUc } from '@/domain/use-cases/authUc.ts';
 import { AuthRepository } from '@/infrastructure/repositories/AuthRepository.ts';
-import { ApiService } from '@/infrastructure/api/ApiService.ts';
 import { useAppNavigation } from '@/presentation/state/navigate.ts';
 import { useState } from 'react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -43,7 +42,7 @@ export default function LoginForm() {
         setIsLoading(true);
 
         try {
-            const authUc = new AuthUc(new AuthRepository(new ApiService()));
+            const authUc = new AuthUc(new AuthRepository());
             await authUc.login(values.email, values.password);
             showSuccess('Connexion réussie !', 'Bienvenue dans votre espace personnel !');
             goCreateNeighborhood();

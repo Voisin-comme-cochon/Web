@@ -1,4 +1,5 @@
-import { ApiService } from '@/infrastructure/api/ApiService.ts';
+import ApiService from '@/infrastructure/api/ApiService.ts';
+import { ApiError } from 'back-office/src/shared/errors/ApiError.ts';
 
 interface AuthTokens {
     access_token: string;
@@ -17,9 +18,7 @@ export interface SignupData {
 }
 
 export class AuthRepository {
-    constructor(private apiService: ApiService) {}
-
-    async signup(data: SignupData): Promise<AuthTokens> {
+    async signin(data: SignupData): Promise<AuthTokens> {
         const formData = new FormData();
         formData.append('firstName', data.firstName);
         formData.append('lastName', data.lastName);
@@ -36,35 +35,67 @@ export class AuthRepository {
             formData.append('profileImage', data.profileImage);
         }
 
-        return await this.apiService.postFormData('/auth/signin', formData);
+        const response = await ApiService.post('/auth/signin', formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        });
+
+        return response.data;
     }
 
     async login(email: string, password: string): Promise<AuthTokens> {
-        return await this.apiService.post(
-            '/auth/login',
-            JSON.stringify({
-                email,
-                password,
-            })
-        );
+        const response = await ApiService.post('/auth/login', {
+            email,
+            password,
+        });
+
+        if (response.status === 400) {
+            throw new ApiError(400, 'Invalid email or password');
+        }
+
+        return response.data;
     }
 
     async resetPassword(token: string, password: string): Promise<void> {
-        await this.apiService.post(
+        const response = await ApiService.post(
             '/auth/reset-password',
             JSON.stringify({
                 token,
                 password,
             })
         );
+
+        if (response.status === 400) {
+            throw new ApiError(400, 'Invalid or expired token');
+        }
+
+        return response.data;
     }
 
     async requestPasswordReset(email: string): Promise<void> {
-        await this.apiService.post(
+        return await ApiService.post(
             '/auth/forgot-password',
             JSON.stringify({
                 email,
             })
         );
+    }
+
+    async refreshAccessToken(refreshToken: string): Promise<AuthTokens> {
+        const response = await ApiService.patch('/auth/refresh', {
+            refreshToken,
+        });
+
+        if (response.status === 401) {
+            throw new ApiError(401, 'Unauthorized');
+        }
+
+        return response.data;
+    }
+
+    async logout(): Promise<void> {
+        await ApiService.post('/auth/logout');
+        localStorage.removeItem('jwt');
     }
 }

@@ -8,8 +8,6 @@ import { Button } from '@/components/ui/button.tsx';
 import { Input } from '@/components/ui/input.tsx';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert.tsx';
 import { AuthUc, AuthError } from '@/domain/use-cases/authUc.ts';
-import { AuthRepository } from '@/infrastructure/repositories/AuthRepository.ts';
-import { ApiService } from '@/infrastructure/api/ApiService.ts';
 
 const emailSchema = z.object({
     email: z.string().email({ message: 'Veuillez entrer une adresse email valide' }),
@@ -40,9 +38,9 @@ export default function RequestResetForm({ onSubmitSuccess, onLoginClick }: Requ
         setError(null);
 
         try {
-            const authUc = new AuthUc(new AuthRepository(new ApiService()));
+            const authUc = new AuthUc();
             await authUc.requestPasswordReset(values.email);
-            
+
             setEmailSent(true);
             onSubmitSuccess();
         } catch (err) {
@@ -71,7 +69,8 @@ export default function RequestResetForm({ onSubmitSuccess, onLoginClick }: Requ
                         <Alert className="bg-green-50 border-green-200 text-green-800">
                             <AlertTitle className="text-sm font-medium">Email envoyé</AlertTitle>
                             <AlertDescription className="text-xs">
-                                Si un compte existe avec cette adresse email, vous recevrez un email avec les instructions pour réinitialiser votre mot de passe.
+                                Si un compte existe avec cette adresse email, vous recevrez un email avec les
+                                instructions pour réinitialiser votre mot de passe.
                             </AlertDescription>
                         </Alert>
                     )}

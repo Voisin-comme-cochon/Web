@@ -1,5 +1,12 @@
 import { Body, Controller, Delete, Patch, Post, UploadedFile, UseInterceptors } from '@nestjs/common';
-import { ApiConsumes, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+    ApiBadRequestResponse,
+    ApiConsumes,
+    ApiNotFoundResponse,
+    ApiOkResponse,
+    ApiOperation,
+    ApiTags,
+} from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { AuthService } from '../services/auth.service';
 import { LoginInDto, LogInSignInDtoOutput, RefreshTokenDto, SignInDto } from './dto/auth.dto';
@@ -35,7 +42,7 @@ export class AuthController {
     @Post('login')
     @ApiOperation({ summary: 'Log in' })
     @ApiOkResponse({ description: 'Log in successful', type: LogInSignInDtoOutput })
-    @ApiNotFoundResponse({ description: 'Log in failed' })
+    @ApiBadRequestResponse({ description: 'Log in failed' })
     async login(@Body() body: LoginInDto): Promise<LogInSignInDtoOutput> {
         return await this.authService.logIn(body.email, body.password);
     }

@@ -4,7 +4,6 @@ import { NeighborhoodMapForm } from '@/components/Neighborhood/NeighborhoodMapFo
 import type { NeighborhoodFormValues } from './neighborhood.schema';
 import { NeighborhoodUc } from '@/domain/use-cases/neighborhoodUc';
 import { NeighborhoodFrontRepository } from '@/infrastructure/repositories/NeighborhoodFrontRepository';
-import { ApiService } from '@/infrastructure/api/ApiService';
 import Header from '@/components/Header/Header';
 import AuthFooter from '@/components/AuthFooter/AuthFooter';
 import { useRedirectIfAuthenticated } from '@/presentation/hooks/useRedirectIfAuthenticated.ts';
@@ -27,7 +26,7 @@ export function CreateNeighborhood() {
 
     const handleMapSubmit = async (geo: { type: string; coordinates: number[][][] }) => {
         if (!formData) return;
-        const neighborhoodUc = new NeighborhoodUc(new NeighborhoodFrontRepository(new ApiService()));
+        const neighborhoodUc = new NeighborhoodUc(new NeighborhoodFrontRepository());
         const created = await neighborhoodUc.createNeighborhood({
             ...formData,
             geo,
