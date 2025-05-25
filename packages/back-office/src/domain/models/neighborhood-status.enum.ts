@@ -1,5 +1,5 @@
 export enum NeighborhoodStatusEnum {
-    ACCEPTED = 'Accepté',
-    REJECTED = 'Rejeté',
-    PENDING = 'En attente',
+    ACCEPTED = 'accepted',
+    REJECTED = 'refused',
+    PENDING = 'waiting',
 }

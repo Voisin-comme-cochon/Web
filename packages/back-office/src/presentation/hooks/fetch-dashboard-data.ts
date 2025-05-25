@@ -50,7 +50,7 @@ export const useFetchDashboardData = (
             .then(setSales)
             .catch(() => setSales(0));
 
-        dashboardUseCase.getNeighborhoods()
+        dashboardUseCase.getNeighborhoods('waiting')
             .then(setNeighborhoods)
             .catch(() => setNeighborhoods([]));
 
