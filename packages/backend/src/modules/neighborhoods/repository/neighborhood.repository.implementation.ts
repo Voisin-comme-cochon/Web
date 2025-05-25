@@ -4,6 +4,7 @@ import { GetNeighborhoodQueryParams, Neighborhood } from '../domain/neighborhood
 import { NeighborhoodEntity } from '../../../core/entities/neighborhood.entity';
 import { NeighborhoodsAdapter } from '../adapters/neighborhoods.adapter';
 import { isNotNull } from '../../../utils/tools';
+import { NeighborhoodStatusEntity } from '../../../core/entities/neighborhood-status.entity';
 
 export class NeighborhoodRepositoryImplementation implements NeighborhoodRepository {
     constructor(private readonly dataSource: DataSource) {}
@@ -62,5 +63,24 @@ export class NeighborhoodRepositoryImplementation implements NeighborhoodReposit
     async createNeighborhood(neighborhood: NeighborhoodEntity): Promise<Neighborhood> {
         const createdNeighborhood = await this.dataSource.getRepository(NeighborhoodEntity).save(neighborhood);
         return NeighborhoodsAdapter.databaseToDomain(createdNeighborhood);
+    }
+
+    async setNeighborhoodStatus(id: number, status: NeighborhoodStatusEntity): Promise<Neighborhood | null> {
+        await this.dataSource.getRepository(NeighborhoodEntity).update(
+            {
+                id: id,
+            },
+            { status: status }
+        );
+
+        const updatedNeighborhood = await this.dataSource.getRepository(NeighborhoodEntity).findOne({
+            where: { id: id },
+            relations: ['images', 'neighborhood_users'],
+        });
+
+        if (!updatedNeighborhood) {
+            return null;
+        }
+        return NeighborhoodsAdapter.databaseToDomain(updatedNeighborhood);
     }
 }

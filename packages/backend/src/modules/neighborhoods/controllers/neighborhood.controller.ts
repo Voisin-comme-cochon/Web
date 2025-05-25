@@ -3,6 +3,7 @@ import {
     Controller,
     Get,
     Param,
+    Patch,
     Post,
     Query,
     Request,
@@ -24,12 +25,17 @@ import { NeighborhoodUserService } from '../services/neighborhood-user.service';
 import { isNull } from '../../../utils/tools';
 import { UserAdapter } from '../../users/adapters/user.adapter';
 import {
-    GetNeighborhoodInvitationQueryParams,
     CreateMultipleNeighborhoodInvitationsDto,
     CreatePublicNeighborhoodInvitationDto,
     GetByNeiborhoodId,
+    GetNeighborhoodInvitationQueryParams,
 } from './dto/neighborhood-invitation.dto';
-import { ResponseNeighborhoodDto, GetNeighborhoodQueryParamsDto, RequestNeighborhoodDto } from './dto/neighborhood.dto';
+import {
+    GetNeighborhoodQueryParamsDto,
+    RequestNeighborhoodDto,
+    ResponseNeighborhoodDto,
+    SetStatusNeighborhoodDto,
+} from './dto/neighborhood.dto';
 import { ResponseNeighborhoodUserDto } from './dto/neighborhood-user.dto';
 
 @ApiTags('Neighborhoods')
@@ -111,8 +117,28 @@ export class NeighborhoodController {
         });
     }
 
-    /* Neighborhood invitations endpoints */
+    @Patch(':id')
+    @ApiOperation({ summary: 'Set neighborhood status' })
+    @ApiOkResponse({
+        description: 'Neighborhood status updated',
+        type: ResponseNeighborhoodDto,
+    })
+    @ApiNotFoundResponse({
+        description: 'Neighborhood not found',
+    })
+    @UseGuards(IsLoginGuard, IsSuperAdminGuard)
+    @ApiBearerAuth()
+    async setNeighborhoodStatus(
+        @Param('id') id: string,
+        @Query() query: SetStatusNeighborhoodDto
+    ): Promise<ResponseNeighborhoodDto> {
+        const numberId = parseInt(id, 10);
+        const neighborhood = await this.neighborhoodService.setNeighborhoodStatus(numberId, query.status);
 
+        return NeighborhoodsAdapter.domainToDto(neighborhood);
+    }
+
+    /* Neighborhood invitations endpoints */
     @Get('invitations/:token')
     @ApiOperation({ summary: 'Get a neighborhood invitation by token' })
     @ApiOkResponse({

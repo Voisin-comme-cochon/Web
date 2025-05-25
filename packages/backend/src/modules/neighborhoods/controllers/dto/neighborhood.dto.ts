@@ -102,3 +102,12 @@ export class GetNeighborhoodQueryParamsDto {
     @IsString()
     lat?: string;
 }
+
+export class SetStatusNeighborhoodDto {
+    @ApiProperty({
+        example: 'accepted',
+        description: 'The status of the Neighborhood',
+    })
+    @IsEnum(NeighborhoodStatusEntity)
+    status!: NeighborhoodStatusEntity;
+}
