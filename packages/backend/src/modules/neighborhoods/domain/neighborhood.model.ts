@@ -24,4 +24,6 @@ export interface CreateNeighborhoodInput {
 
 export interface GetNeighborhoodQueryParams {
     status?: NeighborhoodStatusEntity;
+    lat?: string;
+    lng?: string;
 }

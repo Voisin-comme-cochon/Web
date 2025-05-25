@@ -31,6 +31,8 @@ export class NeighborhoodsAdapter {
     public static queryParamsDtoToDomain(params: GetNeighborhoodQueryParamsDto): GetNeighborhoodQueryParamsDto {
         return {
             status: params.status,
+            lat: params.lat,
+            lng: params.lng,
         };
     }
 
