@@ -1,13 +1,15 @@
 import { Module } from '@nestjs/common';
 import { DataSource } from 'typeorm';
 import { AuthModule } from '../auth/auth.module';
+import { ObjectStorageModule } from '../objectStorage/objectStorage.module';
+import { ObjectStorageService } from '../objectStorage/services/objectStorage.service';
 import { UsersRepository } from './domain/users.abstract.repository';
 import { UsersController } from './controllers/users.controller';
 import { UsersService } from './services/users.service';
 import { UserRepositoryImplementation } from './repository/user.repository.implementation';
 
 @Module({
-    imports: [AuthModule],
+    imports: [AuthModule, ObjectStorageModule],
     controllers: [UsersController],
     exports: [UsersRepository, UsersService],
     providers: [
@@ -18,8 +20,9 @@ import { UserRepositoryImplementation } from './repository/user.repository.imple
         },
         {
             provide: UsersService,
-            inject: [UsersRepository],
-            useFactory: (userRepository: UsersRepository) => new UsersService(userRepository),
+            inject: [UsersRepository, ObjectStorageService],
+            useFactory: (userRepository: UsersRepository, objectStorageService: ObjectStorageService) =>
+                new UsersService(userRepository, objectStorageService),
         },
     ],
 })

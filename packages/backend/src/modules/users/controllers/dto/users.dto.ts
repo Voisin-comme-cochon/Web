@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsBoolean, IsEmail, IsInt, IsPhoneNumber, IsString } from 'class-validator';
+import { Type } from 'class-transformer';
 
 export class ResponseUserDto {
     @ApiProperty({
@@ -71,4 +72,21 @@ export class ResponseUserDto {
     })
     @IsBoolean()
     prefferedNotifMethod!: string;
+
+    @ApiProperty({
+        example: 'https://example.com/profile-image.jpg',
+        description: 'The profile image URL of the User',
+    })
+    @IsString()
+    profileImageUrl?: string;
+}
+
+export class GetUserByIdDto {
+    @ApiProperty({
+        example: 1,
+        description: 'The id of the User to retrieve',
+    })
+    @IsInt()
+    @Type(() => Number)
+    id!: number;
 }
