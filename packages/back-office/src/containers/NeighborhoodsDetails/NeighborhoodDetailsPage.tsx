@@ -4,17 +4,17 @@ import {useNeighborhoodDetailsState} from "@/presentation/state/neighborhood-det
 import {useGetNeighborhoodById} from "@/presentation/hooks/use-get-neighborhood-by-id.ts";
 import {NeighborhoodStatusEnum} from "@/domain/models/neighborhood-status.enum.ts";
 import {SimpleMapboxShape} from "@/components/NeighborhoodMap/NeighborhoodMap.tsx";
-import {useState} from "react";
 
 export default function NeighborhoodDetailsPage() {
     const {
         neighborhood,
         setNeighborhood,
+        selectedImage,
+        setSelectedImage
     } = useNeighborhoodDetailsState();
 
     useGetNeighborhoodById(setNeighborhood);
 
-    const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
     if (!neighborhood) {
         return (
