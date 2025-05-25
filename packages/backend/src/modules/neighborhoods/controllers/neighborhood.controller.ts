@@ -113,7 +113,7 @@ export class NeighborhoodController {
 
     /* Neighborhood invitations endpoints */
 
-    @Get('invitation/:token')
+    @Get('invitations/:token')
     @ApiOperation({ summary: 'Get a neighborhood invitation by token' })
     @ApiOkResponse({
         description: 'Neighborhood invitation found',
