@@ -45,10 +45,7 @@ export class NeighborhoodService {
 
     async replaceUrlsByLinks(neighborhood: Neighborhood): Promise<Neighborhood> {
         const links = await this.getFileLinkByUrl(neighborhood.images ?? []);
-        return {
-            ...neighborhood,
-            images: links,
-        };
+        return Object.assign(new Neighborhood(), neighborhood, { images: links });
     }
 
     async listReplaceUrlsByLinks(neighborhoods: Neighborhood[]): Promise<Neighborhood[]> {
@@ -103,9 +100,9 @@ export class NeighborhoodService {
 
     private async getFileLinkByUrl(filesNames: NeighborhoodImagesEntity[]): Promise<NeighborhoodImagesEntity[]> {
         const entities: NeighborhoodImagesEntity[] = [];
-        for (let i = 0; i < filesNames.length; i++) {
-            const url = await this.objectStorageService.getFileLink(filesNames[i].url, BucketType.NEIGHBORHOOD_IMAGES);
-            entities.push({ ...filesNames[i], url } as NeighborhoodImagesEntity);
+        for (const fileName of filesNames) {
+            const url = await this.objectStorageService.getFileLink(fileName.url, BucketType.NEIGHBORHOOD_IMAGES);
+            entities.push(Object.assign(new NeighborhoodImagesEntity(), fileName, { url }));
         }
         return entities;
     }
