@@ -14,6 +14,7 @@ import {
     NeighborhoodUserStatus,
 } from '../../../core/entities/neighborhood-user.entity';
 import { isNotNull } from '../../../utils/tools';
+import { NeighborhoodStatusEntity } from '../../../core/entities/neighborhood-status.entity';
 
 @Injectable()
 export class NeighborhoodService {
@@ -72,6 +73,14 @@ export class NeighborhoodService {
         neighborhood.neighborhood_users = [creatorUserEntity];
 
         return this.neighborhoodRepository.createNeighborhood(neighborhood);
+    }
+
+    async setNeighborhoodStatus(id: number, status: NeighborhoodStatusEntity): Promise<Neighborhood> {
+        const neighborhood = await this.neighborhoodRepository.setNeighborhoodStatus(id, status);
+        if (!neighborhood) {
+            throw new CochonError('neighborhood_not_found', 'Neighborhood not found', 404);
+        }
+        return neighborhood;
     }
 
     private parseGeo(geo: string): Geography {

@@ -9,4 +9,5 @@ export interface UserModel {
     isSuperAdmin: boolean;
     newsletter: boolean;
     prefferredNotifMethod: string;
+    profileImageUrl?: string | null;
 }
