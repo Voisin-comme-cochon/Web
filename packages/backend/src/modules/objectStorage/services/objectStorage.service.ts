@@ -95,6 +95,25 @@ export class ObjectStorageService implements OnModuleInit {
         }
     }
 
+    async getFileLink(fileName: string, bucketType: BucketType): Promise<string> {
+        try {
+            const bucketName = this.getBucketName(bucketType);
+
+            const fileExists = await this.minioClient.statObject(bucketName, fileName).catch(() => false);
+
+            if (!fileExists) {
+                throw new CochonError('file_not_found', 'File not found', 404);
+            }
+
+            return this.minioClient.presignedGetObject(bucketName, fileName, 24 * 60 * 60);
+        } catch (error) {
+            if (error instanceof CochonError) {
+                throw error;
+            }
+            throw new CochonError('file_link_failed', 'Failed to get file link', 500);
+        }
+    }
+
     /**
      * Delete a file from Minio
      * @param fileName The name of the file to delete

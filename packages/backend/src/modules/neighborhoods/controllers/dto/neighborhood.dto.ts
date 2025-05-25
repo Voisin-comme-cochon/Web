@@ -85,4 +85,20 @@ export class GetNeighborhoodQueryParamsDto {
     @IsOptional()
     @IsEnum(NeighborhoodStatusEntity)
     status?: NeighborhoodStatusEntity;
+
+    @ApiProperty({
+        example: '1.2',
+        description: "Longitude of the Neighborhood's location",
+    })
+    @IsOptional()
+    @IsString()
+    lng?: string;
+
+    @ApiProperty({
+        example: '3.4',
+        description: "Latitude of the Neighborhood's location",
+    })
+    @IsOptional()
+    @IsString()
+    lat?: string;
 }

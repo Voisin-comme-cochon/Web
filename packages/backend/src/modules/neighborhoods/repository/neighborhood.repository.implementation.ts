@@ -24,6 +24,17 @@ export class NeighborhoodRepositoryImplementation implements NeighborhoodReposit
             });
         }
 
+        if (isNotNull(params.lat) && isNotNull(params.lng)) {
+            // Filtrer les quartiers dont la géométrie contient le point GPS donné (params.lat, params.lng)
+            queryBuilder.andWhere(
+                `ST_Contains(neighborhood.geo::geometry, ST_SetSRID(ST_MakePoint(:lng, :lat), 4326))`,
+                {
+                    lat: params.lat,
+                    lng: params.lng,
+                }
+            );
+        }
+
         const [neighborhoods, count] = await queryBuilder
             .skip((page - 1) * limit)
             .take(limit)
