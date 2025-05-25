@@ -20,19 +20,25 @@ import { NeighborhoodsAdapter } from '../adapters/neighborhoods.adapter';
 import { CochonError } from '../../../utils/CochonError';
 import { NeighborhoodInvitationService } from '../services/neighborhood-invitation.service';
 import { IsSuperAdminGuard } from '../../../middleware/is-super-admin.middleware';
+import { NeighborhoodUserService } from '../services/neighborhood-user.service';
+import { isNull } from '../../../utils/tools';
+import { UserAdapter } from '../../users/adapters/user.adapter';
 import {
     GetNeighborhoodInvitationQueryParams,
     CreateMultipleNeighborhoodInvitationsDto,
     CreatePublicNeighborhoodInvitationDto,
+    GetByNeiborhoodId,
 } from './dto/neighborhood-invitation.dto';
 import { ResponseNeighborhoodDto, GetNeighborhoodQueryParamsDto, RequestNeighborhoodDto } from './dto/neighborhood.dto';
+import { ResponseNeighborhoodUserDto } from './dto/neighborhood-user.dto';
 
 @ApiTags('Neighborhoods')
 @Controller('neighborhoods')
 export class NeighborhoodController {
     constructor(
         private readonly neighborhoodService: NeighborhoodService,
-        private readonly neighborhoodInvitationService: NeighborhoodInvitationService
+        private readonly neighborhoodInvitationService: NeighborhoodInvitationService,
+        private readonly neighborhoodUserService: NeighborhoodUserService
     ) {}
 
     /* Neighborhoods endpoints */
@@ -163,5 +169,43 @@ export class NeighborhoodController {
             createdBy: Number(req.user.id),
             durationInDays: body.durationInDays,
         });
+    }
+
+    /* Neighborhood users endpoints */
+
+    @Get(':neighborhoodId/users')
+    @UseInterceptors(PaginationInterceptor)
+    @ApiOperation({ summary: 'Get users by neighborhood ID' })
+    @ApiOkResponse({
+        description: 'Users found in the neighborhood',
+        type: [ResponseNeighborhoodUserDto],
+        isArray: true,
+    })
+    @ApiNotFoundResponse({
+        description: 'Neighborhood not found or no users in the neighborhood',
+    })
+    async getUsersByNeighborhoodId(
+        @Param() params: GetByNeiborhoodId,
+        @Query() pagination: Paging
+    ): Promise<Paginated<ResponseNeighborhoodUserDto>> {
+        const [usersWithRoles, count] = await this.neighborhoodUserService.getUsersByNeighborhood(
+            params.neighborhoodId,
+            pagination.page,
+            pagination.limit
+        );
+
+        if (isNull(usersWithRoles) || usersWithRoles.length === 0) {
+            throw new CochonError('neighborhood-users-not-found', 'No users found in the neighborhood', 404);
+        }
+
+        const responseUsers = usersWithRoles.map((userWithRole) => {
+            const userDto = UserAdapter.domainToResponseUser(userWithRole.user);
+
+            return Object.assign({}, userDto, {
+                neighborhoodRole: userWithRole.role,
+            });
+        });
+
+        return new Paginated(responseUsers, pagination, count);
     }
 }

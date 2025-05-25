@@ -84,3 +84,16 @@ export class CreatePublicNeighborhoodInvitationDto {
     @Type(() => Number)
     durationInDays?: number;
 }
+
+export class GetByNeiborhoodId {
+    @ApiProperty({
+        example: 1,
+        description: 'The id of the Neighborhood',
+        required: true,
+        type: Number,
+    })
+    @IsNotEmpty()
+    @IsNumber()
+    @Type(() => Number)
+    neighborhoodId!: number;
+}
