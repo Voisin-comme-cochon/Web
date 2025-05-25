@@ -13,6 +13,7 @@ import {
     NeighborhoodUserRole,
     NeighborhoodUserStatus,
 } from '../../../core/entities/neighborhood-user.entity';
+import { isNotNull } from '../../../utils/tools';
 
 @Injectable()
 export class NeighborhoodService {
@@ -26,7 +27,12 @@ export class NeighborhoodService {
         page: number,
         limit: number
     ): Promise<[Neighborhood[], number]> {
-        return this.neighborhoodRepository.getAllNeighborhoods(params, page, limit);
+        const [neighborhoods, count] = await this.neighborhoodRepository.getAllNeighborhoods(params, page, limit);
+        if (isNotNull(params.lat) && isNotNull(params.lng)) {
+            const urlNeighborhoods = await this.listReplaceUrlsByLinks(neighborhoods);
+            return [urlNeighborhoods, count];
+        }
+        return [neighborhoods, count];
     }
 
     async getNeighborhoodById(id: number): Promise<Neighborhood | null> {
@@ -34,12 +40,23 @@ export class NeighborhoodService {
         if (!neighborhood) {
             return null;
         }
+        return await this.replaceUrlsByLinks(neighborhood);
+    }
+
+    async replaceUrlsByLinks(neighborhood: Neighborhood): Promise<Neighborhood> {
         const links = await this.getFileLinkByUrl(neighborhood.images ?? []);
-        const neighborhoodWithLinks = {
+        return {
             ...neighborhood,
             images: links,
         };
-        return neighborhoodWithLinks;
+    }
+
+    async listReplaceUrlsByLinks(neighborhoods: Neighborhood[]): Promise<Neighborhood[]> {
+        return Promise.all(
+            neighborhoods.map((neighborhood: Neighborhood) => {
+                return this.replaceUrlsByLinks(neighborhood);
+            })
+        );
     }
 
     async createNeighborhood(input: CreateNeighborhoodInput): Promise<ResponseNeighborhoodDto> {
@@ -87,10 +104,7 @@ export class NeighborhoodService {
     private async getFileLinkByUrl(filesNames: NeighborhoodImagesEntity[]): Promise<NeighborhoodImagesEntity[]> {
         const entities: NeighborhoodImagesEntity[] = [];
         for (let i = 0; i < filesNames.length; i++) {
-            const url = await this.objectStorageService.getFileLink(
-                filesNames[i].url,
-                BucketType.NEIGHBORHOOD_IMAGES
-            );
+            const url = await this.objectStorageService.getFileLink(filesNames[i].url, BucketType.NEIGHBORHOOD_IMAGES);
             entities.push({ ...filesNames[i], url } as NeighborhoodImagesEntity);
         }
         return entities;
