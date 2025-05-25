@@ -1,0 +1,128 @@
+doctype html
+html(lang="fr")
+    head
+        meta(charset="UTF-8")
+        meta(name="viewport", content="width=device-width, initial-scale=1.0")
+        title Invitation à rejoindre votre quartier
+        style.
+            body {
+                font-family: 'Montserrat', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                margin: 0;
+                padding: 0;
+                background-color: #f2f5f8;
+                color: #1a2a41;
+                line-height: 1.6;
+            }
+
+            .container {
+                max-width: 600px;
+                margin: 0 auto;
+                padding: 20px;
+                background-color: #ffffff;
+                border-radius: 8px;
+                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            }
+
+            .header {
+                text-align: center;
+                padding: 20px 0;
+            }
+
+            .logo {
+                max-width: 250px;
+                height: auto;
+            }
+
+            .content {
+                padding: 20px;
+            }
+
+            h1 {
+                color: #1a2a41;
+                font-size: 24px;
+                margin-bottom: 20px;
+                text-align: center;
+            }
+
+            .text-center {
+                text-align: center;
+            }
+
+            p {
+                margin-bottom: 16px;
+                color: rgba(26, 42, 65, 0.8);
+            }
+
+            .button {
+                display: inline-block;
+                background-color: #e36f4c;
+                color: #ffffff !important;
+                text-decoration: none;
+                padding: 12px 24px;
+                border-radius: 4px;
+                font-weight: 600;
+                margin: 20px 0;
+            }
+
+            .button:hover {
+                background-color: #d15e3b;
+            }
+
+            .reset-link {
+                word-break: break-all;
+                color: #1a2a41;
+                font-size: 12px;
+                background-color: #f2f5f8;
+                padding: 10px;
+                border-radius: 4px;
+                margin: 15px 0;
+            }
+
+            .footer {
+                text-align: center;
+                padding: 20px;
+                color: rgba(26, 42, 65, 0.6);
+                font-size: 12px;
+                border-top: 1px solid #f2f5f8;
+                margin-top: 20px;
+            }
+
+            .highlight {
+                color: #e36f4c;
+                font-weight: 600;
+            }
+
+            @media only screen and (max-width: 600px) {
+                .container {
+                    width: 100%;
+                    border-radius: 0;
+                }
+
+                .content {
+                    padding: 15px;
+                }
+            }
+    body
+        .container
+            .header
+                img.logo(src="https://res.cloudinary.com/dqa93fepx/image/upload/v1746350203/logoWebV1Light_qlz38l.webp" alt="VCC Logo")
+            .content
+                h1
+                    | Vous êtes invité dans le quartier
+                    br
+                    | #{neighborhoodName} !
+                p Bonjour,
+                p #{inviterName} vous a invité à rejoindre le quartier #{neighborhoodName} sur Voisin comme Cochon.
+                if neighborhoodDescription
+                    p.description #{neighborhoodDescription}
+                p
+                    | Pour découvrir votre nouveau quartier et participer aux discussions, cliquez sur le bouton ci-dessous :
+                .text-center
+                    a.button(href=invitationLink) Rejoindre le quartier
+                p Ce lien est valable jusqu'au #{linkExpirationDate}.
+                p Si vous ne parvenez pas à cliquer sur le bouton, copiez-collez l'URL suivante dans votre navigateur :
+                .reset-link #{invitationLink}
+                p Si vous avez des questions, contactez notre équipe de support à #{supportEmail}.
+            .footer
+                p Ce message a été envoyé automatiquement, merci de ne pas y répondre.
+                p &copy; 2025 Voisin comme Cochon. Découvrez la vie de <span class="highlight">quartier</span>.

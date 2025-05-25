@@ -71,10 +71,10 @@ export class RequestNeighborhoodDto {
     description!: string;
 
     @ApiProperty({
-        example: 'object',
+        example: 'string',
         description: 'The geography informations of the Neighborhood',
     })
-    geo!: Geography;
+    geo!: string;
 }
 
 export class GetNeighborhoodQueryParamsDto {

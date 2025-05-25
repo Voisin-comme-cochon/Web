@@ -1,18 +1,19 @@
 import { Module } from '@nestjs/common';
 import { DataSource } from 'typeorm';
-import { UsersModule } from '../users/users.module';
+
 import { AuthModule } from '../auth/auth.module';
+import { UsersModule } from '../users/users.module';
 import { TagsModule } from '../tags/tags.module';
 import { NeighborhoodModule } from '../neighborhoods/neighborhood.module';
+
 import { EventsRepository } from './domain/events.abstract.repository';
-import { EventsController } from './controllers/events.controller';
-import { EventsService } from './services/events.service';
 import { EventsRepositoryImplementation } from './repository/events.repository.implementation';
+import { EventsService } from './services/events.service';
+import { EventsController } from './controllers/events.controller';
 
 @Module({
-    imports: [UsersModule, AuthModule, TagsModule, NeighborhoodModule],
+    imports: [AuthModule, UsersModule, TagsModule, NeighborhoodModule],
     controllers: [EventsController],
-    exports: [EventsRepository, EventsService],
     providers: [
         {
             provide: EventsRepository,
@@ -25,5 +26,6 @@ import { EventsRepositoryImplementation } from './repository/events.repository.i
             useFactory: (eventsRepository: EventsRepository) => new EventsService(eventsRepository),
         },
     ],
+    exports: [EventsRepository, EventsService],
 })
 export class EventsModule {}

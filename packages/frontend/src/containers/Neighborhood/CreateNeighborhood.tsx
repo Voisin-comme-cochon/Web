@@ -8,11 +8,17 @@ import { ApiService } from '@/infrastructure/api/ApiService';
 import Header from '@/components/Header/Header';
 import AuthFooter from '@/components/AuthFooter/AuthFooter';
 import { useRedirectIfAuthenticated } from '@/presentation/hooks/useRedirectIfAuthenticated.ts';
+import { useAppNavigation } from '@/presentation/state/navigate';
+import InviteNeighbors from '@/containers/Neighborhood/InviteNeighbors';
+import { useToast } from '@/presentation/hooks/useToast.ts';
 
 export function CreateNeighborhood() {
     useRedirectIfAuthenticated();
     const [step, setStep] = useState(1);
     const [formData, setFormData] = useState<NeighborhoodFormValues | null>(null);
+    const [createdNeighborhoodId, setCreatedNeighborhoodId] = useState<number | null>(null);
+    const { goHome } = useAppNavigation();
+    const { showError, showSuccess } = useToast();
 
     const handleFormSubmit = async (values: NeighborhoodFormValues) => {
         setFormData(values);
@@ -22,14 +28,30 @@ export function CreateNeighborhood() {
     const handleMapSubmit = async (geo: { type: string; coordinates: number[][][] }) => {
         if (!formData) return;
         const neighborhoodUc = new NeighborhoodUc(new NeighborhoodFrontRepository(new ApiService()));
-        await neighborhoodUc.createNeighborhood({
+        const created = await neighborhoodUc.createNeighborhood({
             ...formData,
             geo,
         });
+
+        if (!created) {
+            showError('Erreur lors de la création du quartier. Veuillez réessayer.');
+            goHome();
+        }
+
+        setCreatedNeighborhoodId(created.id);
+        setStep(3);
     };
 
     const handleBack = () => {
         setStep(1);
+    };
+
+    const handleInvitationFinish = () => {
+        showSuccess(
+            'Quartier créé et invitations envoyées avec succès !',
+            'Vous pouvez maintenant commencer à utiliser votre quartier.'
+        );
+        goHome();
     };
 
     const renderStep = () => {
@@ -44,6 +66,10 @@ export function CreateNeighborhood() {
                 );
             case 2:
                 return <NeighborhoodMapForm onSubmit={handleMapSubmit} onBack={handleBack} />;
+            case 3:
+                return createdNeighborhoodId !== null ? (
+                    <InviteNeighbors neighborhoodId={createdNeighborhoodId} onFinish={handleInvitationFinish} />
+                ) : null;
             default:
                 return null;
         }

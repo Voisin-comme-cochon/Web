@@ -18,12 +18,24 @@ import { PaginationInterceptor } from '../../../core/pagination/pagination.inter
 import { Paginated, Paging } from '../../../core/pagination/pagination';
 import { NeighborhoodsAdapter } from '../adapters/neighborhoods.adapter';
 import { CochonError } from '../../../utils/CochonError';
-import { GetNeighborhoodQueryParamsDto, ResponseNeighborhoodDto } from './dto/neighborhood.dto';
+import { NeighborhoodInvitationService } from '../services/neighborhood-invitation.service';
+import { IsSuperAdminGuard } from '../../../middleware/is-super-admin.middleware';
+import {
+    GetNeighborhoodInvitationQueryParams,
+    CreateMultipleNeighborhoodInvitationsDto,
+    CreatePublicNeighborhoodInvitationDto,
+} from './dto/neighborhood-invitation.dto';
+import { ResponseNeighborhoodDto, GetNeighborhoodQueryParamsDto, RequestNeighborhoodDto } from './dto/neighborhood.dto';
 
-@ApiTags('neighborhoods')
+@ApiTags('Neighborhoods')
 @Controller('neighborhoods')
 export class NeighborhoodController {
-    constructor(private readonly neighborhoodService: NeighborhoodService) {}
+    constructor(
+        private readonly neighborhoodService: NeighborhoodService,
+        private readonly neighborhoodInvitationService: NeighborhoodInvitationService
+    ) {}
+
+    /* Neighborhoods endpoints */
 
     @Get()
     @UseInterceptors(PaginationInterceptor)
@@ -79,19 +91,77 @@ export class NeighborhoodController {
     @ApiBearerAuth()
     @UseInterceptors(FilesInterceptor('images'))
     @ApiConsumes('multipart/form-data')
-    async createNeighborhood(
-        @Body('name') name: string,
-        @Body('description') description: string,
-        @Body('geo') geo: string,
+    createNeighborhood(
+        @Body() body: RequestNeighborhoodDto,
         @UploadedFiles() files: Express.Multer.File[] = [],
         @Request() req: { user: { id: string } }
     ): Promise<ResponseNeighborhoodDto> {
         return this.neighborhoodService.createNeighborhood({
-            name,
-            description,
-            geo,
-            userId: req.user.id,
+            name: body.name,
+            description: body.description,
+            geo: body.geo,
+            userId: Number(req.user.id),
             files,
+        });
+    }
+
+    /* Neighborhood invitations endpoints */
+
+    @Get('invitation/:token')
+    @ApiOperation({ summary: 'Get a neighborhood invitation by token' })
+    @ApiOkResponse({
+        description: 'Neighborhood invitation found',
+        type: ResponseNeighborhoodDto,
+    })
+    @ApiNotFoundResponse({
+        description: 'Neighborhood invitation not found',
+    })
+    @UseGuards(IsLoginGuard, IsSuperAdminGuard)
+    async getInvitationByToken(@Param() param: GetNeighborhoodInvitationQueryParams) {
+        return this.neighborhoodInvitationService.findInvitationByToken(param.token);
+    }
+
+    @Post('invitations')
+    @ApiOperation({ summary: 'Create multiple neighborhood invitations' })
+    @ApiOkResponse({
+        description: 'Neighborhood invitations created',
+        type: [ResponseNeighborhoodDto],
+    })
+    @ApiNotFoundResponse({
+        description: 'Neighborhood invitations not created',
+    })
+    @UseGuards(IsLoginGuard)
+    async createMultipleInvitations(
+        @Body() body: CreateMultipleNeighborhoodInvitationsDto,
+        @Request() req: { user: { id: string } }
+    ) {
+        return this.neighborhoodInvitationService.createMultipleInvitations({
+            neighborhoodId: body.neighborhoodId,
+            emails: body.emails,
+            createdBy: Number(req.user.id),
+            durationInDays: body.durationInDays,
+        });
+    }
+
+    @Post('invitations/public')
+    @ApiOperation({ summary: 'Create a public neighborhood invitation' })
+    @ApiOkResponse({
+        description: 'Public neighborhood invitation created',
+        type: ResponseNeighborhoodDto,
+    })
+    @ApiNotFoundResponse({
+        description: 'Public neighborhood invitation not created',
+    })
+    @UseGuards(IsLoginGuard)
+    async createPublicInvitation(
+        @Body() body: CreatePublicNeighborhoodInvitationDto,
+        @Request() req: { user: { id: string } }
+    ) {
+        return this.neighborhoodInvitationService.createPublicInvitation({
+            neighborhoodId: body.neighborhoodId,
+            maxUse: body.maxUse,
+            createdBy: Number(req.user.id),
+            durationInDays: body.durationInDays,
         });
     }
 }
