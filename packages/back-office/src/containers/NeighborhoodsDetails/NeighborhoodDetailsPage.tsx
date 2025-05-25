@@ -4,17 +4,20 @@ import {useNeighborhoodDetailsState} from "@/presentation/state/neighborhood-det
 import {useGetNeighborhoodById} from "@/presentation/hooks/use-get-neighborhood-by-id.ts";
 import {NeighborhoodStatusEnum} from "@/domain/models/neighborhood-status.enum.ts";
 import {SimpleMapboxShape} from "@/components/NeighborhoodMap/NeighborhoodMap.tsx";
+import {useGetUsersByNeighborhood} from "@/presentation/hooks/use-get-users-by-neighborhood.ts";
 
 export default function NeighborhoodDetailsPage() {
     const {
         neighborhood,
         setNeighborhood,
         selectedImage,
-        setSelectedImage
+        setSelectedImage,
+        members,
+        setMembers
     } = useNeighborhoodDetailsState();
 
     useGetNeighborhoodById(setNeighborhood);
-
+    useGetUsersByNeighborhood(setMembers);
 
     if (!neighborhood) {
         return (
@@ -82,14 +85,21 @@ export default function NeighborhoodDetailsPage() {
                 <div className="p-4">
                     <h2 className="text-xl font-bold mb-2">Membres</h2>
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                        <div className="flex items-center bg-gray-100 p-4 rounded-lg shadow-md">
-                            <img src="" alt="Membre 1" className="w-12 h-12 rounded-full inline-block mr-2"/>
-                            <p>Membre 1</p>
-                        </div>
-                        <div className="flex items-center bg-gray-100 p-4 rounded-lg shadow-md">
-                            <img src="" alt="Membre 2" className="w-12 h-12 rounded-full inline-block mr-2"/>
-                            <p>Membre 2</p>
-                        </div>
+                        {
+                            members && members.length > 0 ? (
+                                members.map((member) => (
+                                    <div className="flex items-center bg-gray-100 p-4 rounded-lg shadow-md">
+                                        <img src={member.profileImageUrl ?? undefined} alt="photo de profil"
+                                             onClick={() => setSelectedImage(member.profileImageUrl ?? '')}
+                                             className="w-12 h-12 rounded-full inline-block mr-2 cursor-pointer"/>
+                                        <p>{member.firstName} {member.lastName}</p>
+                                    </div>
+
+                                ))
+                            ) : (
+                                <p>Aucun membre trouvé pour ce quartier.</p>
+                            )
+                        }
                     </div>
                 </div>
                 <div className="p-4">
