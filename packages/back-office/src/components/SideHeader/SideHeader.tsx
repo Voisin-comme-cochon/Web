@@ -11,11 +11,14 @@ const links = [
 
 export default function SideHeader() {
     return (
-        <aside className="w-1/12 bg-white border-r border-gray-200 flex flex-col items-center py-6 shadow-lg">
-            <img src={logo} alt="logo" className="p-2"/>
-            <nav className="flex h-full flex-col justify-center gap-6">
+        <aside
+            className="w-1/12 bg-white border-r border-gray-200 flex flex-col items-center h-screen sticky top-0 py-6 shadow-lg">
+            <div className="p-2">
+                <img src={logo} alt="logo"/>
+            </div>
+            <nav className="flex flex-1 flex-col justify-center gap-6">
                 {links.map(link => (
-                    <IconText key={link.to} {...link} /> // On passe les props à IconText
+                    <IconText key={link.to} {...link} />
                 ))}
             </nav>
         </aside>
