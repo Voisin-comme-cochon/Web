@@ -16,6 +16,7 @@ export class UserAdapter {
             isSuperAdmin: userEntity.isSuperAdmin,
             newsletter: userEntity.newsletter,
             prefferedNotifMethod: userEntity.prefferedNotifMethod,
+            profileImageUrl: userEntity.profileImageUrl,
         };
     }
 
@@ -51,6 +52,7 @@ export class UserAdapter {
             isSuperAdmin: user.isSuperAdmin,
             newsletter: user.newsletter,
             prefferedNotifMethod: user.prefferedNotifMethod,
+            profileImageUrl: user.profileImageUrl,
         };
     }
 

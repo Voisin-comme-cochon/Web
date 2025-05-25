@@ -113,7 +113,7 @@ export class NeighborhoodController {
 
     /* Neighborhood invitations endpoints */
 
-    @Get('invitation/:token')
+    @Get('invitations/:token')
     @ApiOperation({ summary: 'Get a neighborhood invitation by token' })
     @ApiOkResponse({
         description: 'Neighborhood invitation found',
@@ -175,6 +175,7 @@ export class NeighborhoodController {
 
     @Get(':neighborhoodId/users')
     @UseInterceptors(PaginationInterceptor)
+    @UseGuards(IsLoginGuard)
     @ApiOperation({ summary: 'Get users by neighborhood ID' })
     @ApiOkResponse({
         description: 'Users found in the neighborhood',

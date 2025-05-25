@@ -1,8 +1,9 @@
-import { isNull } from '../../../utils/tools';
+import { isNotNull, isNull } from '../../../utils/tools';
 import { CochonError } from '../../../utils/CochonError';
 import { NeighborhoodUserRepository } from '../domain/neighborhood-user.abstract.repository';
 import { UserAdapter } from '../../users/adapters/user.adapter';
 import { User } from '../../users/domain/user.model';
+import { UsersService } from '../../users/services/users.service';
 import { NeighborhoodService } from './neighborhood.service';
 
 export interface UserDomainWithRole {
@@ -13,7 +14,8 @@ export interface UserDomainWithRole {
 export class NeighborhoodUserService {
     constructor(
         private readonly neighborhoodUserRepository: NeighborhoodUserRepository,
-        private readonly neighborhoodService: NeighborhoodService
+        private readonly neighborhoodService: NeighborhoodService,
+        private readonly userService: UsersService
     ) {}
 
     async getUsersByNeighborhood(
@@ -32,6 +34,15 @@ export class NeighborhoodUserService {
             neighborhoodId,
             page,
             limit
+        );
+
+        // Replace profile image URLs with links
+        await Promise.all(
+            usersWithRoles.map(async (user) => {
+                if (isNotNull(user.user.profileImageUrl)) {
+                    user.user.profileImageUrl = await this.userService.replaceUrlByLink(user.user.profileImageUrl);
+                }
+            })
         );
 
         const userDomainsWithRoles = usersWithRoles.map((userWithRole) => ({
