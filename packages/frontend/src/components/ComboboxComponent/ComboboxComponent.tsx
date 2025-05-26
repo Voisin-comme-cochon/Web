@@ -6,7 +6,13 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Check, ChevronsUpDown } from 'lucide-react';
 import { FrontNeighborhood } from '@/domain/models/FrontNeighborhood.ts';
 
-export default function ComboboxComponent({ neighborhoods = [] }: { neighborhoods?: FrontNeighborhood[] }) {
+export default function ComboboxComponent({
+    neighborhoods = [],
+    setNeighborhoodId,
+}: {
+    neighborhoods?: FrontNeighborhood[];
+    setNeighborhoodId?: (id: number) => void;
+}) {
     const [open, setOpen] = React.useState(false);
     const [value, setValue] = React.useState(neighborhoods[0]?.id?.toString() || '');
 
@@ -30,7 +36,13 @@ export default function ComboboxComponent({ neighborhoods = [] }: { neighborhood
                                     key={neighborhood.id}
                                     value={neighborhood.id.toString()}
                                     onSelect={(currentId) => {
-                                        setValue(currentId === value ? '' : currentId);
+                                        if (currentId === value) {
+                                            setValue('');
+                                            setNeighborhoodId?.(-1);
+                                        } else {
+                                            setValue(currentId);
+                                            setNeighborhoodId?.(Number(currentId));
+                                        }
                                         setOpen(false);
                                     }}
                                 >

@@ -18,9 +18,16 @@ type HeaderProps = {
     isConnected?: boolean;
     setPage?: (page: number) => void;
     page?: number;
+    setNeighborhoodId?: (id: number) => void;
 };
 
-export default function Header({ isLanding = false, isConnected = false, setPage, page }: HeaderProps) {
+export default function Header({
+    isLanding = false,
+    isConnected = false,
+    setPage,
+    page,
+    setNeighborhoodId,
+}: HeaderProps) {
     const { goLogin, goLanding } = useAppNavigation();
     const [user, setUser] = useState<UserModel | null>(null);
     const [neighborhoods, setNeighborhoods] = useState<FrontNeighborhood[] | null>(null);
@@ -32,15 +39,12 @@ export default function Header({ isLanding = false, isConnected = false, setPage
             if (token) {
                 try {
                     const decoded: DecodedUser = jwtDecode(token);
-                    console.log('Decoded user:', decoded);
 
                     const fetchedUser = await uc.getUserById(decoded.id);
                     setUser(fetchedUser);
-                    console.log('Fetched user:', fetchedUser);
 
                     const fetchedNeighborhoods = await uc.getMyNeighborhoods(fetchedUser.id);
                     setNeighborhoods(fetchedNeighborhoods);
-                    console.log('Fetched neighborhoods:', fetchedNeighborhoods);
                 } catch (error) {
                     console.error('Failed to fetch user or neighborhoods:', error);
                 }
@@ -103,7 +107,7 @@ export default function Header({ isLanding = false, isConnected = false, setPage
             <div className="flex items-center gap-4">
                 {isConnected && (
                     <>
-                        <ComboboxComponent neighborhoods={neighborhoods ?? []} />
+                        <ComboboxComponent neighborhoods={neighborhoods ?? []} setNeighborhoodId={setNeighborhoodId} />
                         <AvatarComponent user={user} />
                     </>
                 )}
