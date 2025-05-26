@@ -12,11 +12,11 @@ import PasswordInput from '@/components/PasswordInput';
 import { ImageUploader } from '@/components/ImageUploader/ImageUploader';
 import { signupFormSchema, type SignupFormValues } from '@/containers/Signin/signin.schema';
 import { useAppNavigation } from '@/presentation/state/navigate';
-import { AuthUc, AuthError } from '@/domain/use-cases/authUc';
+import { AuthError, AuthUc } from '@/domain/use-cases/authUc';
 import { AuthRepository } from '@/infrastructure/repositories/AuthRepository';
 
 export default function SigninForm() {
-    const { goHome, goLogin } = useAppNavigation();
+    const { goLanding, goLogin } = useAppNavigation();
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -50,7 +50,7 @@ export default function SigninForm() {
                 description: values.description,
                 profileImage: values.profileImage,
             });
-            goHome();
+            goLanding();
         } catch (err) {
             if (err instanceof AuthError) {
                 setError(err.message);

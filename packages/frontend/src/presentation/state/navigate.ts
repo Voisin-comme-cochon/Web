@@ -7,15 +7,17 @@ export const useAppNavigation = () => {
     const goSignin = () => navigate('/signin');
     const goResetPassword = () => navigate('/reset-password');
     const goCreateNeighborhood = () => navigate('/neighborhoods/create');
-    const goHome = () => navigate('/');
+    const goLanding = () => navigate('/');
     const goInviteNeighbors = () => navigate('/neighborhoods/invite');
+    const goHome = () => navigate('/home');
 
     return {
         goLogin,
         goSignin,
-        goHome,
+        goLanding,
         goResetPassword,
         goCreateNeighborhood,
         goInviteNeighbors,
+        goHome,
     };
 };

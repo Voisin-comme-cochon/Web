@@ -24,7 +24,7 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>;
 
 export default function LoginForm() {
-    const { goCreateNeighborhood, goResetPassword, goSignin } = useAppNavigation();
+    const { goCreateNeighborhood, goResetPassword, goSignin, goHome } = useAppNavigation();
     const [error, setError] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const { showSuccess } = useToast();
@@ -45,7 +45,8 @@ export default function LoginForm() {
             const authUc = new AuthUc(new AuthRepository());
             await authUc.login(values.email, values.password);
             showSuccess('Connexion réussie !', 'Bienvenue dans votre espace personnel !');
-            goCreateNeighborhood();
+            // goCreateNeighborhood(); TODO: Checker si la personne a un quartier pour savoir où le rediriger
+            goHome();
         } catch (err) {
             if (err instanceof AuthError) {
                 setError(err.message);
