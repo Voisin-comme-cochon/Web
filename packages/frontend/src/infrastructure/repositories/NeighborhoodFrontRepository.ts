@@ -9,6 +9,11 @@ export class NeighborhoodFrontRepository {
         return response.data;
     }
 
+    async getMyNeighborhoods(id: string | number): Promise<FrontNeighborhood[]> {
+        const response = await ApiService.get(`/neighborhoods/users/${id}`);
+        return response.data;
+    }
+
     async createNeighborhood(data: NeighborhoodFormValues): Promise<FrontNeighborhood> {
         const formData = new FormData();
         formData.append('name', data.name);

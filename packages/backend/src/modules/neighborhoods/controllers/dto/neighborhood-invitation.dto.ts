@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsNumber, IsOptional, IsString, IsArray, IsEmail } from 'class-validator';
+import { IsArray, IsEmail, IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 
@@ -96,4 +96,17 @@ export class GetByNeiborhoodId {
     @IsNumber()
     @Type(() => Number)
     neighborhoodId!: number;
+}
+
+export class GetNeiborhoodByUserIdDto {
+    @ApiProperty({
+        example: 1,
+        description: 'The id of the user',
+        required: true,
+        type: Number,
+    })
+    @IsNotEmpty()
+    @IsNumber()
+    @Type(() => Number)
+    userId!: number;
 }

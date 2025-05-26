@@ -31,7 +31,7 @@ export class UsersController {
     @ApiOperation({ summary: 'Get user by ID' })
     @ApiOkResponse({ description: 'User found', type: ResponseUserDto })
     @ApiNotFoundResponse({ description: 'User not found' })
-    @UseGuards(IsLoginGuard, IsSuperAdminGuard)
+    @UseGuards(IsLoginGuard)
     async getUserById(@Param() params: GetUserByIdDto): Promise<ResponseUserDto> {
         const user = await this.usersService.getUserById(params.id);
         return UserAdapter.domainToResponseUser(user);

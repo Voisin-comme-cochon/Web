@@ -5,7 +5,7 @@ import ResetPasswordPage from '@/containers/ResetPassword/reset-password.tsx';
 import SigninPage from '@/containers/Signin/SigninPage.tsx';
 import { CreateNeighborhood } from '@/containers/Neighborhood/CreateNeighborhood.tsx';
 import NeighborhoodInvitation from '@/containers/NeighborhoodInvitation/NeighborhoodInvitation.tsx';
-import HomePage from '@/containers/Home/Home.tsx';
+import HomePage from '@/containers/Home/HomePage.tsx';
 
 export default function App() {
     return (

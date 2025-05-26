@@ -4,6 +4,7 @@ import { NeighborhoodUserRepository } from '../domain/neighborhood-user.abstract
 import { UserAdapter } from '../../users/adapters/user.adapter';
 import { User } from '../../users/domain/user.model';
 import { UsersService } from '../../users/services/users.service';
+import { Neighborhood } from '../domain/neighborhood.model';
 import { NeighborhoodService } from './neighborhood.service';
 
 export interface UserDomainWithRole {
@@ -51,5 +52,10 @@ export class NeighborhoodUserService {
         }));
 
         return [userDomainsWithRoles, count];
+    }
+
+    async getNeighborhoodsByUserId(userId: number): Promise<Neighborhood[]> {
+        const neighborhoods = await this.neighborhoodUserRepository.getNeighborhoodsById(userId);
+        return neighborhoods;
     }
 }
