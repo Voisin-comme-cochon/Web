@@ -5,7 +5,7 @@ export interface NeighborhoodInvitation {
     token: string;
     maxUse?: number;
     usedCount?: number;
-    expiredAt?: Date;
+    expiredAt: Date;
     creationDate: Date;
 }
 

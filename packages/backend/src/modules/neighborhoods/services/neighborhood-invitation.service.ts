@@ -1,4 +1,4 @@
-import { JwtService } from '@nestjs/jwt';
+import { JsonWebTokenError, JwtService } from '@nestjs/jwt';
 import dayjs from 'dayjs';
 import { NeighborhoodInvitationRepository } from '../domain/neighborhood-invitation.abstract.repository';
 import {
@@ -150,5 +150,48 @@ export class NeighborhoodInvitationService {
             invitationLink: `${process.env.VCC_FRONT_URL}/neighborhoods/invite/${token}`,
             expiresAt: expiredAt,
         };
+    }
+
+    async verifyInvitationToken(token: string, userId: string) {
+        this.verifyJWTToken(token);
+
+        const invitation = await this.findInvitationByToken(token);
+
+        if (isNull(invitation)) {
+            throw new CochonError('invitation_not_found', 'Invitation not found', 404);
+        }
+
+        if (invitation.expiredAt < new Date()) {
+            throw new CochonError('invitation_expired', 'Invitation has expired', 410);
+        }
+
+        if (invitation.usedCount && invitation.maxUse && invitation.usedCount >= invitation.maxUse) {
+            throw new CochonError('invitation_max_use_reached', 'Invitation max use reached', 410);
+        }
+
+        const neighborhood = await this.neighborhoodService.getNeighborhoodById(invitation.neighborhoodId);
+
+        if (isNull(neighborhood)) {
+            throw new CochonError('neighborhood_not_found', 'Neighborhood not found', 404);
+        }
+
+        const isMember = neighborhood.neighborhood_users?.some((user) => user.userId === Number(userId));
+
+        if (isMember) {
+            throw new CochonError('already_member', 'You are already a member of this neighborhood', 409);
+        }
+
+        return neighborhood;
+    }
+
+    private verifyJWTToken(token: string): void {
+        try {
+            this.jwtService.verify(token);
+        } catch (error) {
+            if (error instanceof JsonWebTokenError) {
+                throw new CochonError('invalid_token', 'Invalid invitation token', 400);
+            }
+            throw error;
+        }
     }
 }

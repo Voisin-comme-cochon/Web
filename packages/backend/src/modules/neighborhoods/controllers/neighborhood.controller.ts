@@ -198,6 +198,26 @@ export class NeighborhoodController {
         });
     }
 
+    @Get('invitation/verify/:token')
+    @ApiOperation({ summary: 'Verify the invitation token and return neighborhood data' })
+    @ApiOkResponse({
+        description: 'Neighborhood invitation verified',
+        type: ResponseNeighborhoodDto,
+    })
+    @ApiNotFoundResponse({
+        description: 'Neighborhood invitation not found or invalid token',
+    })
+    @UseGuards(IsLoginGuard)
+    @ApiBearerAuth()
+    async verifyInvitationToken(
+        @Param('token') token: string,
+        @Request() req: { user: { id: string } }
+    ): Promise<ResponseNeighborhoodDto> {
+        const neighborhood = await this.neighborhoodInvitationService.verifyInvitationToken(token, req.user.id);
+
+        return NeighborhoodsAdapter.domainToDto(neighborhood);
+    }
+
     /* Neighborhood users endpoints */
 
     @Get(':neighborhoodId/users')
