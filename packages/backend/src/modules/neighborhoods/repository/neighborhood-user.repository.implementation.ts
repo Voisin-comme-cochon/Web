@@ -2,6 +2,8 @@ import { DataSource } from 'typeorm';
 import { NeighborhoodUserEntity } from '../../../core/entities/neighborhood-user.entity';
 import { UserEntity } from '../../../core/entities/user.entity';
 import { NeighborhoodUserRepository } from '../domain/neighborhood-user.abstract.repository';
+import { Neighborhood } from '../domain/neighborhood.model';
+import { NeighborhoodsAdapter } from '../adapters/neighborhoods.adapter';
 
 export interface UserWithRole {
     user: UserEntity;
@@ -28,5 +30,24 @@ export class NeighborhoodUserRepositoryImplementation implements NeighborhoodUse
         }));
 
         return [usersWithRoles, count];
+    }
+
+    async getNeighborhoodsById(id: number): Promise<Neighborhood[]> {
+        const neighborhoods = await this.dataSource
+            .getRepository(NeighborhoodUserEntity)
+            .createQueryBuilder('neighborhoodUser')
+            .leftJoinAndSelect('neighborhoodUser.neighborhood', 'neighborhood')
+            .leftJoinAndSelect('neighborhood.images', 'images')
+            .leftJoinAndSelect('neighborhood.neighborhood_users', 'neighborhood_users')
+            .leftJoinAndSelect('neighborhood_users.user', 'user')
+            .where('neighborhoodUser.userId = :userId AND neighborhood.status = :status', {
+                userId: id,
+                status: 'accepted',
+            })
+            .getMany();
+
+        const neighborhoodsEntity = neighborhoods.map((neighborhoodUser) => neighborhoodUser.neighborhood);
+        console.log('neighborhoods', neighborhoodsEntity);
+        return NeighborhoodsAdapter.listDatabaseToDomain(neighborhoodsEntity);
     }
 }

@@ -16,7 +16,7 @@ export function CreateNeighborhood() {
     const [step, setStep] = useState(1);
     const [formData, setFormData] = useState<NeighborhoodFormValues | null>(null);
     const [createdNeighborhoodId, setCreatedNeighborhoodId] = useState<number | null>(null);
-    const { goHome } = useAppNavigation();
+    const { goLanding } = useAppNavigation();
     const { showError, showSuccess } = useToast();
 
     const handleFormSubmit = async (values: NeighborhoodFormValues) => {
@@ -34,7 +34,7 @@ export function CreateNeighborhood() {
 
         if (!created) {
             showError('Erreur lors de la création du quartier. Veuillez réessayer.');
-            goHome();
+            goLanding();
         }
 
         setCreatedNeighborhoodId(created.id);
@@ -50,7 +50,7 @@ export function CreateNeighborhood() {
             'Quartier créé et invitations envoyées avec succès !',
             'Vous pouvez maintenant commencer à utiliser votre quartier.'
         );
-        goHome();
+        goLanding();
     };
 
     const renderStep = () => {

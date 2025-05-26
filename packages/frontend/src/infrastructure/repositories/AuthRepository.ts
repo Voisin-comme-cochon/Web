@@ -1,5 +1,6 @@
 import ApiService from '@/infrastructure/api/ApiService.ts';
 import { ApiError } from 'back-office/src/shared/errors/ApiError.ts';
+import { AuthTokensModel } from 'back-office/src/domain/models/auth-tokens.model.ts';
 
 interface AuthTokens {
     access_token: string;
@@ -93,9 +94,46 @@ export class AuthRepository {
 
         return response.data;
     }
+}
 
-    async logout(): Promise<void> {
-        await ApiService.post('/auth/logout');
-        localStorage.removeItem('jwt');
-    }
+export async function logout() {
+    const response = await fetch(`${import.meta.env.VITE_VCC_API_URL}/auth/logout`, {
+        method: 'DELETE',
+        credentials: 'include',
+        headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('jwt') || ''}`,
+        },
+        body: JSON.stringify({
+            refreshToken: localStorage.getItem('refresh_token') || '',
+        }),
+    });
+
+    if (!response.ok) throw new Error('Logout failed');
+
+    localStorage.removeItem('jwt');
+    localStorage.removeItem('refresh_token');
+}
+
+export async function refreshAccessToken(): Promise<AuthTokensModel> {
+    const response = await fetch(`${import.meta.env.VITE_VCC_API_URL}/auth/refresh`, {
+        method: 'PATCH',
+        credentials: 'include',
+        headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('jwt') || ''}`,
+        },
+        body: JSON.stringify({
+            refreshToken: localStorage.getItem('refresh_token') || '',
+        }),
+    });
+
+    console.log('Refresh token response:', response);
+
+    if (!response.ok) throw new Error('Refresh token failed');
+
+    const data: AuthTokensModel = await response.json();
+    localStorage.setItem('jwt', data.access_token);
+    localStorage.setItem('refresh_token', data.refresh_token);
+    return data;
 }

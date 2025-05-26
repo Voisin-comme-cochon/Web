@@ -28,6 +28,7 @@ import {
     CreateMultipleNeighborhoodInvitationsDto,
     CreatePublicNeighborhoodInvitationDto,
     GetByNeiborhoodId,
+    GetNeiborhoodByUserIdDto,
     GetNeighborhoodInvitationQueryParams,
 } from './dto/neighborhood-invitation.dto';
 import {
@@ -234,5 +235,20 @@ export class NeighborhoodController {
         });
 
         return new Paginated(responseUsers, pagination, count);
+    }
+
+    @Get('users/:userId')
+    @UseGuards(IsLoginGuard)
+    @ApiOperation({ summary: 'Get neighborhoods by user ID' })
+    @ApiOkResponse({
+        description: 'Neighborhoods found for the user',
+        type: [ResponseNeighborhoodDto],
+        isArray: true,
+    })
+    @ApiNotFoundResponse({
+        description: 'User not found or no neighborhoods found for the user',
+    })
+    async getNeighborhoodsByUserId(@Param() params: GetNeiborhoodByUserIdDto): Promise<ResponseNeighborhoodDto[]> {
+        return await this.neighborhoodUserService.getNeighborhoodsByUserId(params.userId);
     }
 }
