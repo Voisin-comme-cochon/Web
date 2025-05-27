@@ -24,7 +24,7 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>;
 
 export default function LoginForm() {
-    const { goCreateNeighborhood, goResetPassword, goSignin, goHome } = useAppNavigation();
+    const { goResetPassword, goSignin, goHome } = useAppNavigation();
     const [error, setError] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const { showSuccess } = useToast();

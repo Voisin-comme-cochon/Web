@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button.tsx';
 import { Input } from '@/components/ui/input.tsx';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert.tsx';
 import { AuthUc, AuthError } from '@/domain/use-cases/authUc.ts';
+import { AuthRepository } from '@/infrastructure/repositories/AuthRepository.ts';
 
 const emailSchema = z.object({
     email: z.string().email({ message: 'Veuillez entrer une adresse email valide' }),
@@ -38,7 +39,7 @@ export default function RequestResetForm({ onSubmitSuccess, onLoginClick }: Requ
         setError(null);
 
         try {
-            const authUc = new AuthUc();
+            const authUc = new AuthUc(new AuthRepository());
             await authUc.requestPasswordReset(values.email);
 
             setEmailSent(true);
