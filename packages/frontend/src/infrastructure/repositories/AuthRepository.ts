@@ -1,6 +1,6 @@
 import ApiService from '@/infrastructure/api/ApiService.ts';
-import { ApiError } from 'back-office/src/shared/errors/ApiError.ts';
-import { AuthTokensModel } from 'back-office/src/domain/models/auth-tokens.model.ts';
+import { ApiError } from '@/shared/errors/ApiError';
+import { AuthTokensModel } from '@/domain/models/auth-tokens.model.ts';
 
 interface AuthTokens {
     access_token: string;
