@@ -11,4 +11,12 @@ export class EventsRepositoryImplementation implements EventsRepository {
             take: limit,
         });
     }
+
+    public getEventsByNeighborhoodId(id: number, limit: number, offset: number): Promise<[EventEntity[], number]> {
+        return this.dataSource.getRepository(EventEntity).findAndCount({
+            where: { neighborhoodId: id },
+            skip: offset,
+            take: limit,
+        });
+    }
 }

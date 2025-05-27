@@ -1,4 +1,4 @@
-import { Controller, Get, Query, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Controller, Get, Param, Query, UseGuards, UseInterceptors } from '@nestjs/common';
 import { ApiBearerAuth, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { EventsService } from '../services/events.service';
 import { EventsAdapter } from '../adapters/events.adapter';
@@ -12,7 +12,7 @@ import { UserAdapter } from '../../users/adapters/user.adapter';
 import { TagsAdapter } from '../../tags/adapters/tags.adapter';
 import { IsSuperAdminGuard } from '../../../middleware/is-super-admin.middleware';
 import { PaginationInterceptor } from '../../../core/pagination/pagination.interceptor';
-import { ResponseEventDto } from './dto/events.dto';
+import { GetEventsByNeighborhoodIdDto, ResponseEventDto } from './dto/events.dto';
 
 @ApiTags('events')
 @Controller('events')
@@ -34,6 +34,53 @@ export class EventsController {
     @UseGuards(IsSuperAdminGuard)
     async getEvents(@Query() pagination: Paging): Promise<Paginated<ResponseEventDto>> {
         const [events, count] = await this.eventsService.getEvents(pagination.page, pagination.limit);
+        const users = await Promise.all(
+            events.map(async (event) => {
+                return await this.usersService.getUserById(event.createdBy);
+            })
+        );
+        const responseUser = UserAdapter.listDomainToResponseUser(users);
+        const tags = await Promise.all(
+            events.map(async (event) => {
+                return await this.tagsService.getTagById(event.tagId);
+            })
+        );
+        const responseTags = TagsAdapter.listDomainToResponseTag(tags);
+
+        const neighborhoods = await Promise.all(
+            events.map(async (event) => {
+                const neighborhood = await this.neighborhoodService.getNeighborhoodById(event.neighborhoodId);
+                if (!neighborhood) {
+                    throw new CochonError('neighborhood-not-found', 'Neighborhood not found', 404);
+                }
+                return neighborhood;
+            })
+        );
+        const responseUsers = EventsAdapter.listDomainToResponseEvent(
+            events,
+            responseTags,
+            neighborhoods,
+            responseUser
+        );
+        return new Paginated(responseUsers, pagination, count);
+    }
+
+    @Get('/neighborhoods/:id')
+    @ApiOperation({ summary: 'Get events by neighborhood ID' })
+    @ApiOkResponse({ description: 'Events found', type: ResponseEventDto })
+    @ApiNotFoundResponse({ description: 'Events not found' })
+    async getEventsByNeighborhoodId(
+        @Query() pagination: Paging,
+        @Param() query: GetEventsByNeighborhoodIdDto
+    ): Promise<Paginated<ResponseEventDto>> {
+        const [events, count] = await this.eventsService.getEventsByNeighnorhoodId(
+            query.id,
+            pagination.page,
+            pagination.limit
+        );
+        if (count === 0) {
+            throw new CochonError('events_not_found', 'No events found for this neighborhood', 404);
+        }
         const users = await Promise.all(
             events.map(async (event) => {
                 return await this.usersService.getUserById(event.createdBy);

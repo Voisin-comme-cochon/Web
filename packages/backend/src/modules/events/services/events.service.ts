@@ -11,4 +11,11 @@ export class EventsService {
         const domainEvents = EventsAdapter.listEntityToDomain(events);
         return [domainEvents, count];
     }
+
+    public async getEventsByNeighnorhoodId(id: number, page: number, limit: number): Promise<[Event[], number]> {
+        const offset = page * limit - limit;
+        const [events, count] = await this.eventRepository.getEventsByNeighborhoodId(id, limit, offset);
+        const domainEvents = EventsAdapter.listEntityToDomain(events);
+        return [domainEvents, count];
+    }
 }

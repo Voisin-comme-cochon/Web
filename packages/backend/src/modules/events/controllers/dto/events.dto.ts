@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsInt, IsISO8601, IsNumber, IsString } from 'class-validator';
 import { Geography } from 'typeorm';
+import { Type } from 'class-transformer';
 import { TagEntity } from '../../../../core/entities/tag.entity';
 import { ResponseUserDto } from '../../../users/controllers/dto/users.dto';
 import { ResponseNeighborhoodDto } from '../../../neighborhoods/controllers/dto/neighborhood.dto';
@@ -96,4 +97,16 @@ export class ResponseEventDto {
         description: 'The end address of the event',
     })
     addressEnd!: Geography;
+}
+
+export class GetEventsByNeighborhoodIdDto {
+    @ApiProperty({
+        example: 1,
+        description: 'The id of the neighborhood',
+        required: true,
+        type: Number,
+    })
+    @Type(() => Number)
+    @IsInt()
+    id!: number;
 }
