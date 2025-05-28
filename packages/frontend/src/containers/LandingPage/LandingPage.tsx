@@ -27,7 +27,7 @@ export default function LandingPage() {
                     </div>
                     <img src={neighborhood} className="max-w-full h-auto" alt={"Illustration d'un quartier"} />
                 </div>
-                <Button onClick={goCreateNeighborhood} variant={'floatingOrange'}>
+                <Button onClick={() => goCreateNeighborhood} variant={'floatingOrange'}>
                     CRÉER MON QUARTIER
                 </Button>
             </div>

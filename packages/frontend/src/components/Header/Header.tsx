@@ -2,16 +2,10 @@ import logo from '@/assets/images/logoWebV1Light.webp';
 import { Button } from '@/components/ui/button';
 import { useAppNavigation } from '@/presentation/state/navigate';
 import { scrollToId } from '@/presentation/state/scrollToId';
-import { useEffect, useState } from 'react';
-import { jwtDecode } from 'jwt-decode';
 import AvatarComponent from '@/components/AvatarComponent/AvatarComponent';
 import ComboboxComponent from '@/components/ComboboxComponent/ComboboxComponent';
-import { HomeUc } from '@/domain/use-cases/homeUc';
-import { UserModel } from '@/domain/models/user.model';
-import { UserFrontRepository } from '@/infrastructure/repositories/UserFrontRepository';
-import { DecodedUser } from '@/domain/models/DecodedUser';
-import { FrontNeighborhood } from '@/domain/models/FrontNeighborhood';
-import { NeighborhoodFrontRepository } from '@/infrastructure/repositories/NeighborhoodFrontRepository';
+import { FrontNeighborhood } from '@/domain/models/FrontNeighborhood.ts';
+import { UserModel } from '@/domain/models/user.model.ts';
 
 type HeaderProps = {
     isLanding?: boolean;
@@ -19,6 +13,8 @@ type HeaderProps = {
     setPage?: (page: number) => void;
     page?: number;
     setNeighborhoodId?: (id: number) => void;
+    user?: UserModel | null;
+    neighborhoods?: FrontNeighborhood[] | null;
 };
 
 export default function Header({
@@ -27,40 +23,21 @@ export default function Header({
     setPage,
     page,
     setNeighborhoodId,
+    user,
+    neighborhoods,
 }: HeaderProps) {
     const { goLogin, goLanding } = useAppNavigation();
-    const [user, setUser] = useState<UserModel | null>(null);
-    const [neighborhoods, setNeighborhoods] = useState<FrontNeighborhood[] | null>(null);
-    const uc = new HomeUc(new UserFrontRepository(), new NeighborhoodFrontRepository());
-
-    useEffect(() => {
-        const fetchConnectedData = async () => {
-            const token = localStorage.getItem('jwt');
-            if (token) {
-                try {
-                    const decoded: DecodedUser = jwtDecode(token);
-
-                    const fetchedUser = await uc.getUserById(decoded.id);
-                    setUser(fetchedUser);
-
-                    const fetchedNeighborhoods = await uc.getMyNeighborhoods(fetchedUser.id);
-                    setNeighborhoods(fetchedNeighborhoods);
-                } catch (error) {
-                    console.error('Failed to fetch user or neighborhoods:', error);
-                }
-            } else {
-                console.log('No JWT token found in localStorage.');
-            }
-        };
-
-        fetchConnectedData();
-    }, []);
 
     return (
         <header className="flex items-center justify-between w-full p-4 bg-white h-[64px]">
             {(isLanding || isConnected) && (
                 <div className="flex items-center">
-                    <img src={logo} alt="logo" className="max-w-[150px] h-auto cursor-pointer" onClick={goLanding} />
+                    <img
+                        src={logo}
+                        alt="logo"
+                        className="max-w-[150px] h-auto cursor-pointer"
+                        onClick={() => goLanding}
+                    />
                     {isLanding && (
                         <div className="flex ml-16 gap-8">
                             <button
@@ -105,14 +82,14 @@ export default function Header({
             )}
 
             <div className="flex items-center gap-4">
-                {isConnected && (
+                {isConnected && user && (
                     <>
                         <ComboboxComponent neighborhoods={neighborhoods ?? []} setNeighborhoodId={setNeighborhoodId} />
                         <AvatarComponent user={user} />
                     </>
                 )}
                 {isLanding && (
-                    <Button variant="orange" onClick={goLogin}>
+                    <Button variant="orange" onClick={() => goLogin}>
                         SE CONNECTER
                     </Button>
                 )}
