@@ -29,7 +29,7 @@ export default function Header({
     const { goLogin, goLanding } = useAppNavigation();
 
     return (
-        <header className="flex items-center justify-between w-full p-4 bg-white h-[64px]">
+        <header className="flex items-center justify-between w-full p-4 bg-white h-[64px] ">
             {(isLanding || isConnected) && (
                 <div className="flex items-center">
                     <img

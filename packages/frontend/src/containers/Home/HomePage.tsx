@@ -12,13 +12,6 @@ import { DecodedUser } from '@/domain/models/DecodedUser.ts';
 import { jwtDecode } from 'jwt-decode';
 import { FrontNeighborhood } from '@/domain/models/FrontNeighborhood.ts';
 
-const pages: { [key: number]: JSX.Element } = {
-    1: <MyNeighborhoodPage />,
-    2: <NeighborhoodEventsPage />,
-    3: <NeighborhoodJournalPage />,
-    4: <NeighborhoodMaterialsPage />,
-};
-
 export default function HomePage() {
     const [page, setPage] = useState<number>(1);
     const [neighborhoodId, setNeighborhoodId] = useState<number>(-1);
@@ -70,6 +63,13 @@ export default function HomePage() {
             </>
         );
     }
+    const pages: { [key: number]: JSX.Element } = {
+        1: <MyNeighborhoodPage user={user} />,
+        2: <NeighborhoodEventsPage />,
+        3: <NeighborhoodJournalPage />,
+        4: <NeighborhoodMaterialsPage />,
+    };
+
     return (
         <>
             <Header
@@ -80,7 +80,7 @@ export default function HomePage() {
                 user={user}
                 neighborhoods={neighborhoods}
             />
-            {pages[page] || <MyNeighborhoodPage />}
+            {pages[page] || <MyNeighborhoodPage user={user} />}
         </>
     );
 }
