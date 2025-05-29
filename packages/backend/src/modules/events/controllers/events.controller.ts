@@ -35,18 +35,20 @@ export class EventsController {
     @UseGuards(IsSuperAdminGuard)
     async getEvents(@Query() pagination: Paging): Promise<Paginated<ResponseEventDto>> {
         const [events, count] = await this.eventsService.getEvents(pagination.page, pagination.limit);
-        const users = await Promise.all(
+        const creators = await Promise.all(
             events.map(async (event) => {
                 return await this.usersService.getUserById(event.createdBy);
             })
         );
-        const responseUser = UserAdapter.listDomainToResponseUser(users);
-        const tags = await Promise.all(
+        const responseCreators = UserAdapter.listDomainToResponseUser(creators);
+
+        const eventsTags = await Promise.all(
             events.map(async (event) => {
                 return await this.tagsService.getTagById(event.tagId);
             })
         );
-        const responseTags = TagsAdapter.listDomainToResponseTag(tags);
+
+        const responseTags = TagsAdapter.listDomainToResponseTag(eventsTags);
 
         const neighborhoods = await Promise.all(
             events.map(async (event) => {
@@ -57,11 +59,20 @@ export class EventsController {
                 return neighborhood;
             })
         );
+
+        const registeredUsers = await Promise.all(
+            events.map(async (event) => {
+                const [users, count] = await this.eventsService.getUsersByEventId(event.id, 1, 1);
+                return count;
+            })
+        );
+
         const responseUsers = EventsAdapter.listDomainToResponseEvent(
             events,
             responseTags,
             neighborhoods,
-            responseUser
+            responseCreators,
+            registeredUsers
         );
         return new Paginated(responseUsers, pagination, count);
     }
@@ -104,11 +115,19 @@ export class EventsController {
                 return neighborhood;
             })
         );
+
+        const registeredUsers = await Promise.all(
+            events.map(async (event) => {
+                const [users, count] = await this.eventsService.getUsersByEventId(event.id, 1, 1);
+                return count;
+            })
+        );
         const responseUsers = EventsAdapter.listDomainToResponseEvent(
             events,
             responseTags,
             neighborhoods,
-            responseUser
+            responseUser,
+            registeredUsers
         );
         return new Paginated(responseUsers, pagination, count);
     }

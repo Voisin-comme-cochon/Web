@@ -47,7 +47,6 @@ export class NeighborhoodUserRepositoryImplementation implements NeighborhoodUse
             .getMany();
 
         const neighborhoodsEntity = neighborhoods.map((neighborhoodUser) => neighborhoodUser.neighborhood);
-        console.log('neighborhoods', neighborhoodsEntity);
         return NeighborhoodsAdapter.listDatabaseToDomain(neighborhoodsEntity);
     }
 }

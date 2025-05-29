@@ -18,4 +18,5 @@ export interface EventModel {
     photo: string;
     addressStart: GeometryModel | null;
     addressEnd: GeometryModel | null;
+    registeredUsers: number;
 }

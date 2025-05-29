@@ -52,7 +52,8 @@ export class EventsAdapter {
         event: Event,
         tag: ResponseTagDto,
         neighborhood: ResponseNeighborhoodDto,
-        user: ResponseUserDto
+        user: ResponseUserDto,
+        registeredUsers: number
     ): ResponseEventDto {
         return {
             id: event.id,
@@ -69,6 +70,7 @@ export class EventsAdapter {
             photo: event.photo,
             addressStart: event.addressStart,
             addressEnd: event.addressEnd,
+            registeredUsers: registeredUsers,
         };
     }
 
@@ -76,10 +78,11 @@ export class EventsAdapter {
         events: Event[],
         tags: ResponseTagDto[],
         neighborhoods: ResponseNeighborhoodDto[],
-        users: ResponseUserDto[]
+        users: ResponseUserDto[],
+        registeredUsers: number[]
     ): ResponseEventDto[] {
         return events.map((event, index) =>
-            this.domainToResponseEvent(event, tags[index], neighborhoods[index], users[index])
+            this.domainToResponseEvent(event, tags[index], neighborhoods[index], users[index], registeredUsers[index])
         );
     }
 }

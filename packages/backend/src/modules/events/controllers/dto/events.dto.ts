@@ -80,6 +80,13 @@ export class ResponseEventDto {
     max!: number;
 
     @ApiProperty({
+        example: '0',
+        description: 'The number of participants of the event',
+    })
+    @IsNumber()
+    registeredUsers!: number;
+
+    @ApiProperty({
         example: 'link',
         description: 'The link of the picture of the event',
     })
