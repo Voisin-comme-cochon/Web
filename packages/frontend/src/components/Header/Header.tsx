@@ -32,12 +32,7 @@ export default function Header({
         <header className="flex items-center justify-between w-full p-4 bg-white h-[64px] ">
             {(isLanding || isConnected) && (
                 <div className="flex items-center">
-                    <img
-                        src={logo}
-                        alt="logo"
-                        className="max-w-[150px] h-auto cursor-pointer"
-                        onClick={() => goLanding}
-                    />
+                    <img src={logo} alt="logo" className="max-w-[150px] h-auto cursor-pointer" onClick={goLanding} />
                     {isLanding && (
                         <div className="flex ml-16 gap-8">
                             <button
@@ -89,7 +84,7 @@ export default function Header({
                     </>
                 )}
                 {isLanding && (
-                    <Button variant="orange" onClick={() => goLogin}>
+                    <Button variant="orange" onClick={goLogin}>
                         SE CONNECTER
                     </Button>
                 )}

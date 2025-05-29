@@ -277,7 +277,7 @@ export default function SigninForm() {
                 <CardFooter className="flex justify-center">
                     <p className="text-sm text-foreground/70">
                         Vous avez déjà un compte ?
-                        <Button variant={'link'} onClick={() => goLogin()} className="text-orange hover:underline">
+                        <Button variant={'link'} onClick={goLogin()} className="text-orange hover:underline">
                             Se connecter
                         </Button>
                     </p>
