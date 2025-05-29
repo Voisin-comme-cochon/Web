@@ -1,12 +1,29 @@
 import { UserModel } from '@/domain/models/user.model.ts';
+import { EventModel } from '@/domain/models/event.model.ts';
+import { useEffect, useState } from 'react';
+import { HomeUc } from '@/domain/use-cases/homeUc.ts';
+import PreviewEvent from '@/components/PreviewEvent/PreviewEvent.tsx';
+import NotCreatedEvent from '@/components/PreviewEvent/NotCreatedEvent.tsx';
 
 export default function MyNeighborhoodPage({
     user,
     neighborhoodId,
+    uc,
 }: {
     user: UserModel | null;
     neighborhoodId: number;
+    uc: HomeUc;
 }) {
+    const [events, setEvents] = useState<EventModel[]>([]);
+
+    useEffect(() => {
+        const fetchEvents = async () => {
+            const events = await uc.getNeighborhoodEvents(neighborhoodId, 3, 1);
+            setEvents(events);
+        };
+        fetchEvents();
+    }, []);
+
     if (!user || neighborhoodId === -1) {
         return (
             <>
@@ -43,9 +60,13 @@ export default function MyNeighborhoodPage({
                     <p>Prochains évènements</p>
                     <span className="material-symbols-outlined text-base">chevron_right</span>
                 </div>
-
-                <p>Bonjour</p>
-                <p>Bonjour</p>
+                <div className="grid grid-cols-3 gap-4 mt-4">
+                    {events.length > 0 ? (
+                        events.map((event: EventModel) => <PreviewEvent key={event.id} event={event} user={user} />)
+                    ) : (
+                        <NotCreatedEvent />
+                    )}
+                </div>
             </div>
         </div>
     );

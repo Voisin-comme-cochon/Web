@@ -90,9 +90,7 @@ export class EventsController {
             pagination.page,
             pagination.limit
         );
-        if (count === 0) {
-            throw new CochonError('events_not_found', 'No events found for this neighborhood', 404);
-        }
+
         const users = await Promise.all(
             events.map(async (event) => {
                 return await this.usersService.getUserById(event.createdBy);

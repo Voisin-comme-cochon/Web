@@ -11,13 +11,14 @@ import { NeighborhoodFrontRepository } from '@/infrastructure/repositories/Neigh
 import { DecodedUser } from '@/domain/models/DecodedUser.ts';
 import { jwtDecode } from 'jwt-decode';
 import { FrontNeighborhood } from '@/domain/models/FrontNeighborhood.ts';
+import { EventRepository } from '@/infrastructure/repositories/EventRepository.ts';
 
 export default function HomePage() {
     const [page, setPage] = useState<number>(1);
     const [neighborhoodId, setNeighborhoodId] = useState<number>(-1);
     const [user, setUser] = useState<UserModel | null>(null);
     const [neighborhoods, setNeighborhoods] = useState<FrontNeighborhood[] | null>(null);
-    const uc = new HomeUc(new UserFrontRepository(), new NeighborhoodFrontRepository());
+    const uc = new HomeUc(new UserFrontRepository(), new NeighborhoodFrontRepository(), new EventRepository());
 
     useEffect(() => {
         const fetchConnectedData = async () => {
@@ -60,7 +61,7 @@ export default function HomePage() {
         );
     }
     const pages: { [key: number]: JSX.Element } = {
-        1: <MyNeighborhoodPage user={user} neighborhoodId={neighborhoodId} />,
+        1: <MyNeighborhoodPage user={user} neighborhoodId={neighborhoodId} uc={uc} />,
         2: <NeighborhoodEventsPage />,
         3: <NeighborhoodJournalPage />,
         4: <NeighborhoodMaterialsPage />,
@@ -76,7 +77,7 @@ export default function HomePage() {
                 user={user}
                 neighborhoods={neighborhoods}
             />
-            {pages[page] || <MyNeighborhoodPage user={user} neighborhoodId={neighborhoodId} />}
+            {pages[page] || <MyNeighborhoodPage user={user} neighborhoodId={neighborhoodId} uc={uc} />}
         </>
     );
 }
