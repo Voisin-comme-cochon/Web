@@ -2,11 +2,13 @@ import ApiService from '@/infrastructure/api/ApiService.ts';
 import { FrontNeighborhood } from '@/domain/models/FrontNeighborhood.ts';
 import type { NeighborhoodFormValues } from '@/containers/Neighborhood/neighborhood.schema';
 import type { CreateMultipleInvitationsInput } from '@/domain/models/NeighborhoodInvitation';
+import { PaginatedResultModel } from '@/domain/models/paginated-result.model.ts';
 
 export class NeighborhoodFrontRepository {
     async getAcceptedNeighborhoods(): Promise<FrontNeighborhood[]> {
         const response = await ApiService.get('/neighborhoods?status=accepted');
-        return response.data;
+        const paging: PaginatedResultModel<FrontNeighborhood> = response.data;
+        return paging.data;
     }
 
     async getMyNeighborhoods(id: string | number): Promise<FrontNeighborhood[]> {
