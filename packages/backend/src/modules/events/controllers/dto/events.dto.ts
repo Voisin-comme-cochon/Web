@@ -110,3 +110,15 @@ export class GetEventsByNeighborhoodIdDto {
     @IsInt()
     id!: number;
 }
+
+export class GetUserByEventIdDto {
+    @ApiProperty({
+        example: 1,
+        description: 'The id of the event',
+        required: true,
+        type: Number,
+    })
+    @Type(() => Number)
+    @IsInt()
+    id!: number;
+}

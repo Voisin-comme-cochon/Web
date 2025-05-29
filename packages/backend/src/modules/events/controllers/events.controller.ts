@@ -12,7 +12,8 @@ import { UserAdapter } from '../../users/adapters/user.adapter';
 import { TagsAdapter } from '../../tags/adapters/tags.adapter';
 import { IsSuperAdminGuard } from '../../../middleware/is-super-admin.middleware';
 import { PaginationInterceptor } from '../../../core/pagination/pagination.interceptor';
-import { GetEventsByNeighborhoodIdDto, ResponseEventDto } from './dto/events.dto';
+import { ResponseUserDto } from '../../users/controllers/dto/users.dto';
+import { GetEventsByNeighborhoodIdDto, GetUserByEventIdDto, ResponseEventDto } from './dto/events.dto';
 
 @ApiTags('events')
 @Controller('events')
@@ -109,6 +110,20 @@ export class EventsController {
             neighborhoods,
             responseUser
         );
+        return new Paginated(responseUsers, pagination, count);
+    }
+
+    @Get('/:id/users')
+    @UseInterceptors(PaginationInterceptor)
+    @ApiOperation({ summary: 'Get users registered for the event' })
+    @ApiOkResponse({ description: 'Users found', type: UserAdapter })
+    @ApiNotFoundResponse({ description: 'Event not found' })
+    async getUsersByEventId(
+        @Query() pagination: Paging,
+        @Param() params: GetUserByEventIdDto
+    ): Promise<Paginated<ResponseUserDto>> {
+        const [users, count] = await this.eventsService.getUsersByEventId(params.id, pagination.page, pagination.limit);
+        const responseUsers = UserAdapter.listDomainToResponseUser(users);
         return new Paginated(responseUsers, pagination, count);
     }
 }

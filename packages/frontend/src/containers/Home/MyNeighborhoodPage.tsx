@@ -1,7 +1,13 @@
 import { UserModel } from '@/domain/models/user.model.ts';
 
-export default function MyNeighborhoodPage({ user }: { user: UserModel | null }) {
-    if (!user) {
+export default function MyNeighborhoodPage({
+    user,
+    neighborhoodId,
+}: {
+    user: UserModel | null;
+    neighborhoodId: number;
+}) {
+    if (!user || neighborhoodId === -1) {
         return (
             <>
                 <p>Chargement...</p>

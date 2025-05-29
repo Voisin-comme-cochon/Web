@@ -1,8 +1,7 @@
+import { GeometryModel } from '@/domain/models/geometry.model.ts';
+
 export interface MapBoxGeoJson {
-    geometry: {
-        type: string;
-        coordinates: number[][][] | number[];
-    };
+    geometry: GeometryModel;
     properties: {
         id: number;
         name: string;

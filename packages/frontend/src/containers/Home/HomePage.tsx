@@ -42,10 +42,6 @@ export default function HomePage() {
         fetchConnectedData();
     }, []);
 
-    useEffect(() => {
-        console.log('Current neighborhood ID:', neighborhoodId);
-    }, [neighborhoodId]);
-
     if (neighborhoodId === -1) {
         return (
             <>
@@ -64,7 +60,7 @@ export default function HomePage() {
         );
     }
     const pages: { [key: number]: JSX.Element } = {
-        1: <MyNeighborhoodPage user={user} />,
+        1: <MyNeighborhoodPage user={user} neighborhoodId={neighborhoodId} />,
         2: <NeighborhoodEventsPage />,
         3: <NeighborhoodJournalPage />,
         4: <NeighborhoodMaterialsPage />,
@@ -80,7 +76,7 @@ export default function HomePage() {
                 user={user}
                 neighborhoods={neighborhoods}
             />
-            {pages[page] || <MyNeighborhoodPage user={user} />}
+            {pages[page] || <MyNeighborhoodPage user={user} neighborhoodId={neighborhoodId} />}
         </>
     );
 }
