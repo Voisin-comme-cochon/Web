@@ -1,4 +1,4 @@
-import { DataSource } from 'typeorm';
+import { DataSource, MoreThan } from 'typeorm';
 import { AuthRepository } from '../domain/auth.abstract.repository';
 import { UserTokenEntity } from '../../../core/entities/user-tokens.entity';
 
@@ -12,12 +12,12 @@ export class AuthRepositoryImplementation implements AuthRepository {
     }
 
     async getToken(token: string): Promise<UserTokenEntity | null> {
-        return this.dataSource
-            .getRepository(UserTokenEntity)
-            .createQueryBuilder('user_tokens')
-            .where('user_tokens.token = :token', { token: token })
-            .andWhere('user_tokens.expirationDate > NOW()')
-            .getOne();
+        return this.dataSource.getRepository(UserTokenEntity).findOne({
+            where: {
+                token: token,
+                expirationDate: MoreThan(new Date()),
+            },
+        });
     }
 
     getTokensByUserId(userId: number): Promise<UserTokenEntity[]> {
@@ -38,7 +38,7 @@ export class AuthRepositoryImplementation implements AuthRepository {
             .insert()
             .into(UserTokenEntity)
             .values({ token, userId, expirationDate })
-            .orIgnore() // ignore l'erreur si le token existe déjà
+            .orIgnore()
             .execute();
     }
 }
