@@ -129,3 +129,87 @@ export class GetUserByEventIdDto {
     @IsInt()
     id!: number;
 }
+
+export class CreateEventDto {
+    @ApiProperty({
+        example: 1,
+        description: 'The id of the neighborhood',
+        required: true,
+        type: Number,
+    })
+    @Type(() => Number)
+    @IsInt()
+    neighborhoodId!: number;
+
+    @ApiProperty({
+        example: 'Event 1',
+        description: 'The name of the event',
+        required: true,
+    })
+    @IsString()
+    name!: string;
+
+    @ApiProperty({
+        example: 'description',
+        description: 'The description of the event',
+        required: true,
+    })
+    @IsString()
+    description!: string;
+
+    @ApiProperty({
+        example: '19/12/2025 10:00:00',
+        description: 'The start date of the event',
+        required: true,
+    })
+    @IsISO8601()
+    dateStart!: Date;
+
+    @ApiProperty({
+        example: '19/12/2025 10:00:00',
+        description: 'The end date of the event',
+        required: true,
+    })
+    @IsISO8601()
+    dateEnd!: Date;
+
+    @ApiProperty({
+        example: 0,
+        description: 'The minimum number of participants of the event',
+        required: true,
+    })
+    @Type(() => Number)
+    @IsNumber()
+    min!: number;
+
+    @ApiProperty({
+        example: 1,
+        description: 'The maximum number of participants of the event',
+        required: true,
+    })
+    @Type(() => Number)
+    @IsNumber()
+    max!: number;
+
+    @ApiProperty({
+        example: 1,
+        description: 'The id of the tag',
+        required: true,
+        type: Number,
+    })
+    @Type(() => Number)
+    @IsInt()
+    tagId!: number;
+
+    @ApiProperty({
+        example: 'geometry',
+        description: 'The adress start of the event',
+    })
+    addressStart?: string;
+
+    @ApiProperty({
+        example: 'geometry',
+        description: 'The adress end of the event',
+    })
+    addressEnd?: string;
+}

@@ -31,46 +31,6 @@ export class ObjectStorageService implements OnModuleInit {
         }
     }
 
-    private configureBuckets(): void {
-        if (!this.buckets.has(BucketType.PROFILE_IMAGES)) {
-            this.buckets.set(
-                BucketType.PROFILE_IMAGES,
-                process.env.VCC_MINIO_PROFILE_BUCKET ?? BucketType.PROFILE_IMAGES
-            );
-        }
-        if (!this.buckets.has(BucketType.NEIGHBORHOOD_IMAGES)) {
-            this.buckets.set(
-                BucketType.NEIGHBORHOOD_IMAGES,
-                process.env.VCC_MINIO_NEIGHBORHOOD_BUCKET ?? BucketType.NEIGHBORHOOD_IMAGES
-            );
-        }
-    }
-
-    private async initBuckets(): Promise<void> {
-        for (const [, bucketName] of this.buckets) {
-            await this.initBucket(bucketName);
-        }
-    }
-
-    private async initBucket(bucketName: string): Promise<void> {
-        const bucketExists = await this.minioClient.bucketExists(bucketName);
-        if (!bucketExists) {
-            await this.minioClient.makeBucket(bucketName, this.region);
-            const policy = {
-                Version: '2012-10-17',
-                Statement: [
-                    {
-                        Effect: 'Allow',
-                        Principal: { AWS: ['*'] },
-                        Action: ['s3:GetObject'],
-                        Resource: [`arn:aws:s3:::${bucketName}/*`],
-                    },
-                ],
-            };
-            await this.minioClient.setBucketPolicy(bucketName, JSON.stringify(policy));
-        }
-    }
-
     /**
      * Upload a file to Minio
      * @param file The file buffer
@@ -135,6 +95,49 @@ export class ObjectStorageService implements OnModuleInit {
                 throw error;
             }
             throw new CochonError('file_delete_failed', 'Failed to delete file', 500);
+        }
+    }
+
+    private configureBuckets(): void {
+        if (!this.buckets.has(BucketType.PROFILE_IMAGES)) {
+            this.buckets.set(
+                BucketType.PROFILE_IMAGES,
+                process.env.VCC_MINIO_PROFILE_BUCKET ?? BucketType.PROFILE_IMAGES
+            );
+        }
+        if (!this.buckets.has(BucketType.NEIGHBORHOOD_IMAGES)) {
+            this.buckets.set(
+                BucketType.NEIGHBORHOOD_IMAGES,
+                process.env.VCC_MINIO_NEIGHBORHOOD_BUCKET ?? BucketType.NEIGHBORHOOD_IMAGES
+            );
+        }
+        if (!this.buckets.has(BucketType.EVENT_IMAGES)) {
+            this.buckets.set(BucketType.EVENT_IMAGES, process.env.VCC_MINIO_EVENT_BUCKET ?? BucketType.EVENT_IMAGES);
+        }
+    }
+
+    private async initBuckets(): Promise<void> {
+        for (const [, bucketName] of this.buckets) {
+            await this.initBucket(bucketName);
+        }
+    }
+
+    private async initBucket(bucketName: string): Promise<void> {
+        const bucketExists = await this.minioClient.bucketExists(bucketName);
+        if (!bucketExists) {
+            await this.minioClient.makeBucket(bucketName, this.region);
+            const policy = {
+                Version: '2012-10-17',
+                Statement: [
+                    {
+                        Effect: 'Allow',
+                        Principal: { AWS: ['*'] },
+                        Action: ['s3:GetObject'],
+                        Resource: [`arn:aws:s3:::${bucketName}/*`],
+                    },
+                ],
+            };
+            await this.minioClient.setBucketPolicy(bucketName, JSON.stringify(policy));
         }
     }
 

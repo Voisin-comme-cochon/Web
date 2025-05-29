@@ -16,3 +16,18 @@ export class Event {
     addressStart!: Geography;
     addressEnd!: Geography;
 }
+
+export interface CreateEventInput {
+    createdBy: number;
+    neighborhoodId: number;
+    name: string;
+    description: string;
+    dateStart: Date;
+    dateEnd: Date;
+    tagId: number;
+    min: number;
+    max: number;
+    photo: Express.Multer.File;
+    addressStart: string | null;
+    addressEnd: string | null;
+}

@@ -38,4 +38,8 @@ export class EventsRepositoryImplementation implements EventsRepository {
                 return [users, count];
             });
     }
+
+    public createEvent(event: EventEntity): Promise<EventEntity> {
+        return this.dataSource.getRepository(EventEntity).save(event);
+    }
 }

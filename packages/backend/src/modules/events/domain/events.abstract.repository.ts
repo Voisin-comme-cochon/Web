@@ -7,4 +7,6 @@ export abstract class EventsRepository {
     abstract getEventsByNeighborhoodId(id: number, limit: number, offset: number): Promise<[EventEntity[], number]>;
 
     abstract getUsersByEventId(id: number, limit: number, offset: number): Promise<[User[], number]>;
+
+    abstract createEvent(event: EventEntity): Promise<EventEntity>;
 }
