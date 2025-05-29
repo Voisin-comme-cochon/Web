@@ -1,4 +1,5 @@
 import { UserWithRole } from '../repository/neighborhood-user.repository.implementation';
+import { NeighborhoodUserEntity } from '../../../core/entities/neighborhood-user.entity';
 import { Neighborhood } from './neighborhood.model';
 
 export abstract class NeighborhoodUserRepository {
@@ -9,4 +10,6 @@ export abstract class NeighborhoodUserRepository {
     ): Promise<[UserWithRole[], number]>;
 
     abstract getNeighborhoodsById(id: number): Promise<Neighborhood[]>;
+
+    abstract addUserToNeighborhood(neighborhoodUser: NeighborhoodUserEntity): Promise<NeighborhoodUserEntity>;
 }

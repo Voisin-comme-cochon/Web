@@ -47,7 +47,11 @@ export class NeighborhoodUserRepositoryImplementation implements NeighborhoodUse
             .getMany();
 
         const neighborhoodsEntity = neighborhoods.map((neighborhoodUser) => neighborhoodUser.neighborhood);
-        console.log('neighborhoods', neighborhoodsEntity);
         return NeighborhoodsAdapter.listDatabaseToDomain(neighborhoodsEntity);
+    }
+
+    async addUserToNeighborhood(neighborhoodUser: NeighborhoodUserEntity): Promise<NeighborhoodUserEntity> {
+        const repository = this.dataSource.getRepository(NeighborhoodUserEntity);
+        return repository.save(neighborhoodUser);
     }
 }

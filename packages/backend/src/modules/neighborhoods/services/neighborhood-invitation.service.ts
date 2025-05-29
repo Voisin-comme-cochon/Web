@@ -12,12 +12,15 @@ import { MailerService } from '../../mailer/services/mailer.service';
 import { Templates } from '../../mailer/domain/templates.enum';
 import { UsersService } from '../../users/services/users.service';
 import { NeighborhoodUserRole } from '../../../core/entities/neighborhood-user.entity';
+import { Neighborhood } from '../domain/neighborhood.model';
 import { NeighborhoodService } from './neighborhood.service';
+import { NeighborhoodUserService } from './neighborhood-user.service';
 
 export class NeighborhoodInvitationService {
     constructor(
         private readonly neighborhoodInvitationRepository: NeighborhoodInvitationRepository,
         private readonly neighborhoodService: NeighborhoodService,
+        private readonly neighborhoodUserService: NeighborhoodUserService,
         private readonly jwtService: JwtService,
         private readonly userService: UsersService,
         private readonly mailerService: MailerService
@@ -152,7 +155,39 @@ export class NeighborhoodInvitationService {
         };
     }
 
-    async verifyInvitationToken(token: string, userId: string) {
+    async verifyInvitationToken(token: string, userId: number): Promise<Neighborhood> {
+        await this.commonVerifyInvitation(token, userId);
+
+        const invitation = await this.findInvitationByToken(token);
+        const neighborhood = await this.neighborhoodService.getNeighborhoodById(invitation.neighborhoodId);
+
+        if (isNull(neighborhood)) {
+            throw new CochonError('neighborhood_not_found', 'Neighborhood not found', 404);
+        }
+
+        return neighborhood;
+    }
+
+    async acceptInvitation(token: string, userId: number): Promise<boolean> {
+        await this.commonVerifyInvitation(token, userId);
+
+        const invitation = await this.findInvitationByToken(token);
+        const neighborhood = await this.neighborhoodService.getNeighborhoodById(invitation.neighborhoodId);
+
+        if (isNull(neighborhood)) {
+            throw new CochonError('neighborhood_not_found', 'Neighborhood not found', 404);
+        }
+
+        await this.neighborhoodUserService.addUserToNeighborhood(neighborhood.id, userId, NeighborhoodUserRole.USER);
+
+        if (invitation.maxUse) {
+            await this.neighborhoodInvitationRepository.incrementInvitationUsage(token);
+        }
+
+        return true;
+    }
+
+    private async commonVerifyInvitation(token: string, userId: number): Promise<void> {
         this.verifyJWTToken(token);
 
         const invitation = await this.findInvitationByToken(token);
@@ -170,18 +205,15 @@ export class NeighborhoodInvitationService {
         }
 
         const neighborhood = await this.neighborhoodService.getNeighborhoodById(invitation.neighborhoodId);
-
         if (isNull(neighborhood)) {
             throw new CochonError('neighborhood_not_found', 'Neighborhood not found', 404);
         }
 
-        const isMember = neighborhood.neighborhood_users?.some((user) => user.userId === Number(userId));
+        const isUserAlreadyMember = neighborhood.neighborhood_users?.some((user) => user.userId === userId);
 
-        if (isMember) {
-            throw new CochonError('already_member', 'You are already a member of this neighborhood', 409);
+        if (isUserAlreadyMember) {
+            throw new CochonError('user_already_member', 'User is already a member of the neighborhood', 400);
         }
-
-        return neighborhood;
     }
 
     private verifyJWTToken(token: string): void {
