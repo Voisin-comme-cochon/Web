@@ -22,7 +22,7 @@ export default function MyNeighborhoodPage({
             setEvents(events);
         };
         fetchEvents();
-    }, []);
+    }, [neighborhoodId]);
 
     if (!user || neighborhoodId === -1) {
         return (
