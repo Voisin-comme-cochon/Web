@@ -9,10 +9,12 @@ export default function MyNeighborhoodPage({
     user,
     neighborhoodId,
     uc,
+    setPage,
 }: {
     user: UserModel | null;
     neighborhoodId: number;
     uc: HomeUc;
+    setPage: (page: number) => void;
 }) {
     const [events, setEvents] = useState<EventModel[]>([]);
 
@@ -56,7 +58,7 @@ export default function MyNeighborhoodPage({
                 </div>
             </div>
             <div className={'px-32 relative -mt-24'}>
-                <div className={'flex items-center gap-2'}>
+                <div className={'flex items-center gap-2 cursor-pointer'} onClick={() => setPage(2)}>
                     <p>Prochains évènements</p>
                     <span className="material-symbols-outlined text-base">chevron_right</span>
                 </div>
