@@ -12,7 +12,11 @@ import { MailerService } from '../../mailer/services/mailer.service';
 import { Templates } from '../../mailer/domain/templates.enum';
 import { UsersService } from '../../users/services/users.service';
 import { NeighborhoodUserRole } from '../../../core/entities/neighborhood-user.entity';
-import { Neighborhood } from '../domain/neighborhood.model';
+import { NeighborhoodsAdapter } from '../adapters/neighborhoods.adapter';
+import {
+    NeighborhoodMemberDto,
+    ResponseNeighborhoodWithMembersDto,
+} from '../controllers/dto/neighborhood-invitation.dto';
 import { NeighborhoodService } from './neighborhood.service';
 import { NeighborhoodUserService } from './neighborhood-user.service';
 
@@ -155,7 +159,7 @@ export class NeighborhoodInvitationService {
         };
     }
 
-    async verifyInvitationToken(token: string, userId: number): Promise<Neighborhood> {
+    async verifyInvitationTokenWithMembers(token: string, userId: number): Promise<ResponseNeighborhoodWithMembersDto> {
         await this.commonVerifyInvitation(token, userId);
 
         const invitation = await this.findInvitationByToken(token);
@@ -165,7 +169,30 @@ export class NeighborhoodInvitationService {
             throw new CochonError('neighborhood_not_found', 'Neighborhood not found', 404);
         }
 
-        return neighborhood;
+        const usersWithRoles = await this.neighborhoodUserService.getAllMembersByNeighborhood(
+            invitation.neighborhoodId
+        );
+
+        const neighborhoodDto = NeighborhoodsAdapter.domainToDto(neighborhood);
+        const members: NeighborhoodMemberDto[] = usersWithRoles.map((userWithRole) => ({
+            id: userWithRole.user.id,
+            firstName: userWithRole.user.firstName,
+            lastName: userWithRole.user.lastName,
+            profileImageUrl: userWithRole.user.profileImageUrl,
+            neighborhoodRole: userWithRole.role,
+        }));
+
+        const response = new ResponseNeighborhoodWithMembersDto();
+        response.id = neighborhoodDto.id;
+        response.name = neighborhoodDto.name;
+        response.status = neighborhoodDto.status;
+        response.description = neighborhoodDto.description;
+        response.creationDate = neighborhoodDto.creationDate;
+        response.geo = neighborhoodDto.geo;
+        response.images = neighborhoodDto.images;
+        response.members = members;
+
+        return response;
     }
 
     async acceptInvitation(token: string, userId: number): Promise<boolean> {

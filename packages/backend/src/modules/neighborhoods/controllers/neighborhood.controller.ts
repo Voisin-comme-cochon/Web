@@ -38,6 +38,7 @@ import {
     GetByNeiborhoodId,
     GetNeiborhoodByUserIdDto,
     GetNeighborhoodInvitationQueryParams,
+    ResponseNeighborhoodWithMembersDto,
 } from './dto/neighborhood-invitation.dto';
 import {
     GetNeighborhoodQueryParamsDto,
@@ -207,9 +208,10 @@ export class NeighborhoodController {
     }
 
     @Get('invitations/verify/:token')
-    @ApiOperation({ summary: 'Verify the invitation token and return neighborhood data' })
+    @ApiOperation({ summary: 'Verify the invitation token and return neighborhood data with members' })
     @ApiOkResponse({
         description: 'Neighborhood invitation verified',
+        type: ResponseNeighborhoodWithMembersDto,
     })
     @ApiNotFoundResponse({
         description: 'Neighborhood invitation not found or invalid token',
@@ -222,13 +224,11 @@ export class NeighborhoodController {
     async verifyInvitationToken(
         @Param('token') token: string,
         @Request() req: { user: { id: string } }
-    ): Promise<ResponseNeighborhoodDto> {
-        const neighborhood = await this.neighborhoodInvitationService.verifyInvitationToken(
+    ): Promise<ResponseNeighborhoodWithMembersDto> {
+        return await this.neighborhoodInvitationService.verifyInvitationTokenWithMembers(
             token,
             parseInt(req.user.id, 10)
         );
-
-        return NeighborhoodsAdapter.domainToDto(neighborhood);
     }
 
     @Post('invitations/accept/:token')

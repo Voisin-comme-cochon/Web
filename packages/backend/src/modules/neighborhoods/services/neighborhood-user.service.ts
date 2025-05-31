@@ -38,7 +38,6 @@ export class NeighborhoodUserService {
             limit
         );
 
-        // Replace profile image URLs with links
         await Promise.all(
             usersWithRoles.map(async (user) => {
                 if (isNotNull(user.user.profileImageUrl)) {
@@ -56,8 +55,7 @@ export class NeighborhoodUserService {
     }
 
     async getNeighborhoodsByUserId(userId: number): Promise<Neighborhood[]> {
-        const neighborhoods = await this.neighborhoodUserRepository.getNeighborhoodsById(userId);
-        return neighborhoods;
+        return await this.neighborhoodUserRepository.getNeighborhoodsById(userId);
     }
 
     async addUserToNeighborhood(neighborhoodId: number, userId: number, role: string): Promise<NeighborhoodUserEntity> {
@@ -79,5 +77,29 @@ export class NeighborhoodUserService {
         neighborhoodUser.role = role;
 
         return this.neighborhoodUserRepository.addUserToNeighborhood(neighborhoodUser);
+    }
+
+    async getAllMembersByNeighborhood(neighborhoodId: number): Promise<UserDomainWithRole[]> {
+        const neighborhood = await this.neighborhoodService.getNeighborhoodById(neighborhoodId);
+        if (isNull(neighborhood)) {
+            throw new CochonError('neighborhood_not_found', 'Neighborhood not found', 404, {
+                neighborhoodId,
+            });
+        }
+
+        const [usersWithRoles] = await this.neighborhoodUserRepository.getUsersByNeighborhood(neighborhoodId, 1, 1000);
+
+        await Promise.all(
+            usersWithRoles.map(async (user) => {
+                if (isNotNull(user.user.profileImageUrl)) {
+                    user.user.profileImageUrl = await this.userService.replaceUrlByLink(user.user.profileImageUrl);
+                }
+            })
+        );
+
+        return usersWithRoles.map((userWithRole) => ({
+            user: UserAdapter.entityToDomain(userWithRole.user),
+            role: userWithRole.role,
+        }));
     }
 }
