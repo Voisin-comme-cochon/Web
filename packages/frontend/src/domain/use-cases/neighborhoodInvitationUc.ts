@@ -11,4 +11,8 @@ export class NeighborhoodInvitationUc {
     async verifyInvitation(token: string) {
         return await this.neighborhoodRepository.verifyInvitation(token);
     }
+
+    async acceptInvitation(token: string) {
+        return await this.neighborhoodRepository.acceptInvitation(token);
+    }
 }

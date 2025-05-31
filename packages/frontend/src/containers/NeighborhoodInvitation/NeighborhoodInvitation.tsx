@@ -14,6 +14,7 @@ import { NeighborhoodFrontRepository } from '@/infrastructure/repositories/Neigh
 import { useParams } from 'react-router-dom';
 import { AxiosError } from 'axios';
 import { FrontNeighborhood } from '@/domain/models/FrontNeighborhood.ts';
+import { useToast } from '@/presentation/hooks/useToast.ts';
 
 export type InviteTab = 'about' | 'location' | 'members';
 
@@ -29,10 +30,10 @@ export default function NeighborhoodInvitePage() {
     const [isJoining, setIsJoining] = useState(false);
     const [hasJoined, setHasJoined] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const { showSuccess, showError } = useToast();
 
     useEffect(() => {
         const verifyInvitation = async () => {
-            // Vérifier que le token existe
             if (!token) {
                 setInviteStatus('invalid');
                 return;
@@ -42,14 +43,11 @@ export default function NeighborhoodInvitePage() {
             setError(null);
 
             try {
-                // Initialiser le use case avec le repository
                 const repository = new NeighborhoodFrontRepository();
                 const invitationUc = new NeighborhoodInvitationUc(repository);
 
-                // Vérifier l'invitation
                 const response = await invitationUc.verifyInvitation(token);
 
-                // Adapter selon la structure de votre réponse API
                 if (response.status === 200 && response.data) {
                     setInvite(response.data);
                     setInviteStatus('valid');
@@ -61,7 +59,7 @@ export default function NeighborhoodInvitePage() {
             } catch (err) {
                 if (err instanceof AxiosError) {
                     console.error("Erreur lors de la vérification de l'invitation:", err);
-                    if (err.response?.status === 404) {
+                    if (err.response?.status === 404 || err.response?.data?.code === 'invalid_token') {
                         setInviteStatus('invalid');
                     } else if (err.response?.status === 410 || err.response?.data?.status === 'expired') {
                         setInviteStatus('expired');
@@ -82,12 +80,20 @@ export default function NeighborhoodInvitePage() {
     }, [token]);
 
     const handleJoinNeighborhood = async () => {
-        if (!invite) return;
+        if (!invite || !token) return;
 
         setIsJoining(true);
         try {
-            // TODO: Implémenter la logique d'adhésion au quartier
-            await new Promise((resolve) => setTimeout(resolve, 1500));
+            const repository = new NeighborhoodFrontRepository();
+            const invitationUc = new NeighborhoodInvitationUc(repository);
+
+            const response = await invitationUc.acceptInvitation(token);
+            if (response.status !== 201 || !response.data.success) {
+                showError("Erreur lors de l'adhésion au quartier", 'Veuillez réessayer plus tard.');
+                return;
+            }
+
+            showSuccess('Vous avez rejoint le quartier avec succès !');
             setHasJoined(true);
         } catch (error) {
             console.error("Erreur lors de l'adhésion au quartier:", error);

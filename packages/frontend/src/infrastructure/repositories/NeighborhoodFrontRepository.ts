@@ -36,12 +36,14 @@ export class NeighborhoodFrontRepository {
     }
 
     async createMultipleInvitations(input: CreateMultipleInvitationsInput): Promise<object> {
-        console.log('Creating multiple invitations:', input);
         return await ApiService.post('/neighborhoods/invitations', input);
     }
 
     async verifyInvitation(token: string) {
-        console.log('Verifying invitation with token:', token);
-        return ApiService.get(`/neighborhoods/invitations/verify/${token}`);
+        return ApiService.get<FrontNeighborhood>(`/neighborhoods/invitations/verify/${token}`);
+    }
+
+    async acceptInvitation(token: string) {
+        return ApiService.post<{ success: boolean }>(`/neighborhoods/invitations/accept/${token}`);
     }
 }

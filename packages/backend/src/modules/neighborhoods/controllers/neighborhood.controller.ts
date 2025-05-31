@@ -235,10 +235,12 @@ export class NeighborhoodController {
     @ApiOperation({ summary: 'Accept a neighborhood invitation' })
     @ApiOkResponse({
         description: 'Neighborhood invitation accepted',
-        type: ResponseNeighborhoodDto,
     })
     @ApiNotFoundResponse({
         description: 'Neighborhood invitation not found or already accepted',
+    })
+    @ApiGoneResponse({
+        description: 'Neighborhood invitation token has expired',
     })
     @UseGuards(IsLoginGuard)
     @ApiBearerAuth()
