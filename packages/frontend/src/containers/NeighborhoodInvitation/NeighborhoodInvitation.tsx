@@ -8,6 +8,8 @@ import { ImageCarousel } from '@/components/NeighborhoodInvitation/Invite/ImageC
 import { InvalidInvite } from '@/components/NeighborhoodInvitation/Invite/InvalidInvite';
 import { ExpiredInvite } from '@/components/NeighborhoodInvitation/Invite/ExpiredInvite';
 import { AlreadyMember } from '@/components/NeighborhoodInvitation/Invite/AlreadyMember';
+import { MembersList } from '@/components/NeighborhoodInvitation/Invite/MembersList';
+import MapBox from '@/components/MapBox/MapBox';
 import { useAppNavigation } from '@/presentation/state/navigate.ts';
 import { NeighborhoodInvitationUc } from '@/domain/use-cases/neighborhoodInvitationUc.ts';
 import { NeighborhoodFrontRepository } from '@/infrastructure/repositories/NeighborhoodFrontRepository.ts';
@@ -15,7 +17,6 @@ import { useParams } from 'react-router-dom';
 import { AxiosError } from 'axios';
 import { FrontNeighborhood } from '@/domain/models/FrontNeighborhood.ts';
 import { useToast } from '@/presentation/hooks/useToast.ts';
-import { MembersList } from '@/components/NeighborhoodInvitation/Invite/MembersList';
 
 export type InviteTab = 'about' | 'location' | 'members';
 
@@ -235,7 +236,17 @@ export default function NeighborhoodInvitePage() {
                                     </TabsContent>
 
                                     <TabsContent value="location" className="mt-0">
-                                        <p>TODO : Mettre la map</p>
+                                        <div className="space-y-4">
+                                            <div className="h-96 w-full">
+                                                <MapBox
+                                                    canCreate={false}
+                                                    showDetails={false}
+                                                    onGeoSelect={() => {}}
+                                                    specificNeighborhood={invite.geo ? [invite.geo] : []}
+                                                    centerOnNeighborhood={true}
+                                                />
+                                            </div>
+                                        </div>
                                     </TabsContent>
 
                                     <TabsContent value="members" className="mt-0">

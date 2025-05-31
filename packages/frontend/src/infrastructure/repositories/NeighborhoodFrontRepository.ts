@@ -4,7 +4,7 @@ import type { NeighborhoodFormValues } from '@/containers/Neighborhood/neighborh
 import type { CreateMultipleInvitationsInput } from '@/domain/models/NeighborhoodInvitation';
 
 export class NeighborhoodFrontRepository {
-    async getAcceptedNeighborhoods(): Promise<FrontNeighborhood[]> {
+    async getAcceptedNeighborhoods(): Promise<{ data: FrontNeighborhood[] }> {
         const response = await ApiService.get('/neighborhoods?status=accepted');
         return response.data;
     }

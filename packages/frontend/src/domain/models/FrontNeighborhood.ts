@@ -1,10 +1,9 @@
+import { MapBoxGeoJson } from '@/domain/models/MapBoxGeoJson.ts';
+
 export interface FrontNeighborhood {
     id: number;
     name: string;
-    geo: {
-        type: string;
-        coordinates: number[][][];
-    };
+    geo: MapBoxGeoJson;
     status: string;
     description: string;
     creationDate: string;

@@ -29,9 +29,7 @@ export function MembersList({ members }: MembersListProps) {
                             {member.firstName + ' ' + member.lastName}
                         </p>
                         {member.neighborhoodRole && (
-                            <p className="text-xs text-[#1a2a41]/60 truncate w-full">
-                                {member.neighborhoodRole.charAt(0).toUpperCase() + member.neighborhoodRole.slice(1)}
-                            </p>
+                            <p className="text-xs text-[#1a2a41]/60 truncate w-full">{member.neighborhoodRole}</p>
                         )}
                     </div>
                 ))}

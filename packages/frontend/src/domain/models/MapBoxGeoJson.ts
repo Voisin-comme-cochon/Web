@@ -1,8 +1,6 @@
 export interface MapBoxGeoJson {
-    geometry: {
-        type: string;
-        coordinates: number[][][] | number[];
-    };
+    type: string;
+    coordinates: number[][][];
     properties: {
         id: number;
         name: string;

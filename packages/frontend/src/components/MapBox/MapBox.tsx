@@ -5,22 +5,32 @@ import { MapBoxParameters } from '@/domain/models/MapBoxParameters.ts';
 import { useMapBox } from '@/presentation/hooks/useMapBox.ts';
 import SearchBoxWrapper from '@/components/MapBox/SearchBoxWrapper.tsx';
 
-export default function MapBox({ canCreate, showDetails, onGeoSelect }: MapBoxParameters) {
+export default function MapBox({
+    canCreate,
+    showDetails,
+    onGeoSelect,
+    specificNeighborhood,
+    centerOnNeighborhood,
+}: MapBoxParameters) {
     const { mapRef, viewState, setViewState, featuresFromDB, onMapLoad, handleRetrieve, MAPBOX_TOKEN } = useMapBox({
         canCreate,
         showDetails,
         onGeoSelect,
+        specificNeighborhood,
+        centerOnNeighborhood,
     });
 
     return (
         <div className="w-11/12 h-4/6 rounded-2xl overflow-hidden shadow-lg relative">
-            <div style={{ position: 'absolute', top: 10, left: 10, zIndex: 1, width: 300 }}>
-                <SearchBoxWrapper
-                    accessToken={MAPBOX_TOKEN}
-                    onRetrieve={handleRetrieve}
-                    placeholder="Rechercher une adresse..."
-                />
-            </div>
+            {!specificNeighborhood && (
+                <div style={{ position: 'absolute', top: 10, left: 10, zIndex: 1, width: 300 }}>
+                    <SearchBoxWrapper
+                        accessToken={MAPBOX_TOKEN}
+                        onRetrieve={handleRetrieve}
+                        placeholder="Rechercher une adresse..."
+                    />
+                </div>
+            )}
 
             <Map
                 {...viewState}
@@ -29,7 +39,7 @@ export default function MapBox({ canCreate, showDetails, onGeoSelect }: MapBoxPa
                 onMove={(evt) => setViewState(evt.viewState)}
                 onLoad={onMapLoad}
                 mapStyle="mapbox://styles/mapbox/streets-v9"
-                interactiveLayerIds={showDetails ? ['readonly-layer'] : []}
+                interactiveLayerIds={showDetails || specificNeighborhood ? ['readonly-layer'] : []}
             >
                 {featuresFromDB && featuresFromDB.length > 0 && (
                     <Source
@@ -37,9 +47,17 @@ export default function MapBox({ canCreate, showDetails, onGeoSelect }: MapBoxPa
                         type="geojson"
                         data={{
                             type: 'FeatureCollection',
-                            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                            // @ts-ignore
-                            features: featuresFromDB,
+                            features: featuresFromDB.map((feature) => ({
+                                type: 'Feature',
+                                geometry: {
+                                    type: 'Polygon',
+                                    coordinates: feature.coordinates || feature.coordinates,
+                                },
+                                properties: feature.properties || {
+                                    name: 'Quartier',
+                                    description: 'Description du quartier',
+                                },
+                            })),
                         }}
                     >
                         <Layer
@@ -48,6 +66,14 @@ export default function MapBox({ canCreate, showDetails, onGeoSelect }: MapBoxPa
                             paint={{
                                 'fill-color': '#ED5C3B',
                                 'fill-opacity': 0.4,
+                            }}
+                        />
+                        <Layer
+                            id="readonly-layer-stroke"
+                            type="line"
+                            paint={{
+                                'line-color': '#ED5C3B',
+                                'line-width': 2,
                             }}
                         />
                     </Source>
