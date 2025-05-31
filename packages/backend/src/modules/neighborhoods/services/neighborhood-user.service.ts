@@ -6,6 +6,7 @@ import { User } from '../../users/domain/user.model';
 import { UsersService } from '../../users/services/users.service';
 import { Neighborhood } from '../domain/neighborhood.model';
 import { NeighborhoodUserEntity } from '../../../core/entities/neighborhood-user.entity';
+import { NeighborhoodUserAdapter } from '../adapters/neighborhood-user.adapter';
 import { NeighborhoodService } from './neighborhood.service';
 
 export interface UserDomainWithRole {
@@ -97,9 +98,15 @@ export class NeighborhoodUserService {
             })
         );
 
-        return usersWithRoles.map((userWithRole) => ({
-            user: UserAdapter.entityToDomain(userWithRole.user),
-            role: userWithRole.role,
-        }));
+        return usersWithRoles
+            .sort((a, b) => {
+                if (a.role === 'admin' && b.role !== 'admin') return -1;
+                if (a.role !== 'admin' && b.role === 'admin') return 1;
+                return 0;
+            })
+            .map((userWithRole) => ({
+                user: UserAdapter.entityToDomain(userWithRole.user),
+                role: NeighborhoodUserAdapter.toReadableRole(userWithRole.role),
+            }));
     }
 }
