@@ -5,138 +5,157 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ImageCarousel } from '@/components/NeighborhoodInvitation/Invite/ImageCarousel';
+import { InvalidInvite } from '@/components/NeighborhoodInvitation/Invite/InvalidInvite';
+import { ExpiredInvite } from '@/components/NeighborhoodInvitation/Invite/ExpiredInvite';
+import { AlreadyMember } from '@/components/NeighborhoodInvitation/Invite/AlreadyMember';
 import { MembersList } from '@/components/NeighborhoodInvitation/Invite/MembersList';
+import MapBox from '@/components/MapBox/MapBox';
 import { useAppNavigation } from '@/presentation/state/navigate.ts';
-
-export type NeighborhoodInvite = {
-    id: string;
-    neighborhoodId: string;
-    neighborhoodName: string;
-    inviterName: string;
-    description: string;
-    location: {
-        address: string;
-        coordinates?: {
-            lat: number;
-            lng: number;
-        };
-    };
-    images: string[];
-    members: {
-        id: string;
-        name: string;
-        avatar: string;
-        role?: string;
-    }[];
-    createdAt: string;
-    expiresAt: string;
-};
+import { NeighborhoodInvitationUc } from '@/domain/use-cases/neighborhoodInvitationUc.ts';
+import { NeighborhoodFrontRepository } from '@/infrastructure/repositories/NeighborhoodFrontRepository.ts';
+import { useParams } from 'react-router-dom';
+import { AxiosError } from 'axios';
+import { FrontNeighborhood } from '@/domain/models/FrontNeighborhood.ts';
+import { useToast } from '@/presentation/hooks/useToast.ts';
 
 export type InviteTab = 'about' | 'location' | 'members';
 
-// Mock data - à remplacer par un appel API
-const mockInviteData: NeighborhoodInvite = {
-    id: 'invite-1',
-    neighborhoodId: 'neighborhood-62',
-    neighborhoodName: 'Quartier des Lilas',
-    inviterName: 'Marie Dupont',
-    description: `Notre quartier est un véritable havre de paix au cœur de la ville. Nous formons une communauté bienveillante où l'entraide et la convivialité sont au centre de nos préoccupations.
-
-Ici, nous organisons régulièrement des événements pour nous retrouver : barbecues dans le parc, marchés de producteurs locaux, ateliers de jardinage partagé, et bien d'autres activités qui renforcent les liens entre voisins.
-
-Notre quartier dispose de nombreux espaces verts, d'une école primaire réputée, de commerces de proximité et d'un excellent réseau de transports en commun. C'est l'endroit idéal pour vivre en harmonie avec ses voisins tout en profitant des avantages de la vie urbaine.`,
-    location: {
-        address: 'Rue des Lilas, 75020 Paris',
-        coordinates: {
-            lat: 48.8566,
-            lng: 2.3522,
-        },
-    },
-    images: [
-        'https://images.unsplash.com/photo-1739989934229-fd878cc0a20e?q=80&w=3270&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDF8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-        '/placeholder.svg?height=300&width=450',
-        '/placeholder.svg?height=300&width=450',
-    ],
-    members: [
-        {
-            id: '1',
-            name: 'Marie Dupont',
-            avatar: '/placeholder.svg?height=48&width=48',
-            role: 'Organisatrice',
-        },
-        {
-            id: '2',
-            name: 'Thomas Martin',
-            avatar: '/placeholder.svg?height=48&width=48',
-            role: 'Membre',
-        },
-        {
-            id: '3',
-            name: 'Sophie Bernard',
-            avatar: '/placeholder.svg?height=48&width=48',
-            role: 'Membre',
-        },
-        {
-            id: '4',
-            name: 'Lucas Petit',
-            avatar: '/placeholder.svg?height=48&width=48',
-            role: 'Membre',
-        },
-        {
-            id: '5',
-            name: 'Émilie Rousseau',
-            avatar: '/placeholder.svg?height=48&width=48',
-            role: 'Membre',
-        },
-        {
-            id: '6',
-            name: 'Antoine Lefevre',
-            avatar: '/placeholder.svg?height=48&width=48',
-            role: 'Membre',
-        },
-    ],
-    createdAt: '2023-08-15T10:30:00Z',
-    expiresAt: '2023-08-22T10:30:00Z',
-};
+type InviteStatus = 'loading' | 'valid' | 'invalid' | 'expired' | 'already_member' | 'error';
 
 export default function NeighborhoodInvitePage() {
     const { goHome } = useAppNavigation();
-    const [invite, setInvite] = useState<NeighborhoodInvite | null>(null);
+    const { token } = useParams<{ token: string }>();
+
+    const [invite, setInvite] = useState<FrontNeighborhood | null>(null);
+    const [inviteStatus, setInviteStatus] = useState<InviteStatus>('loading');
     const [activeTab, setActiveTab] = useState<InviteTab>('about');
     const [isJoining, setIsJoining] = useState(false);
     const [hasJoined, setHasJoined] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    const { showSuccess, showError } = useToast();
 
     useEffect(() => {
-        // TODO: Remplacer par un appel API pour récupérer l'invitation
-        const token = 'azerty';
-        if (token) {
-            setInvite(mockInviteData);
-        }
-    }, []);
+        const verifyInvitation = async () => {
+            if (!token) {
+                setInviteStatus('invalid');
+                return;
+            }
+
+            setInviteStatus('loading');
+            setError(null);
+
+            try {
+                const repository = new NeighborhoodFrontRepository();
+                const invitationUc = new NeighborhoodInvitationUc(repository);
+
+                const response = await invitationUc.verifyInvitation(token);
+
+                if (response.status === 200 && response.data) {
+                    setInvite(response.data);
+                    setInviteStatus('valid');
+                } else if (response.status === 410) {
+                    setInviteStatus('expired');
+                } else {
+                    setInviteStatus('invalid');
+                }
+            } catch (err) {
+                if (err instanceof AxiosError) {
+                    console.error("Erreur lors de la vérification de l'invitation:", err);
+                    if (err.response?.status === 404 || err.response?.data?.code === 'invalid_token') {
+                        setInviteStatus('invalid');
+                    } else if (err.response?.status === 410 || err.response?.data?.status === 'expired') {
+                        setInviteStatus('expired');
+                    } else if (err.response?.status === 400 && err.response?.data?.code === 'user_already_member') {
+                        setInviteStatus('already_member');
+                    } else {
+                        setInviteStatus('error');
+                        setError(err.message || "Une erreur est survenue lors de la vérification de l'invitation");
+                    }
+                } else {
+                    setInviteStatus('error');
+                    setError('Une erreur inattendue est survenue');
+                }
+            }
+        };
+
+        verifyInvitation();
+    }, [token]);
 
     const handleJoinNeighborhood = async () => {
-        setIsJoining(true);
+        if (!invite || !token) return;
 
+        setIsJoining(true);
         try {
-            // Simuler l'appel API pour rejoindre le quartier
-            await new Promise((resolve) => setTimeout(resolve, 1500));
+            const repository = new NeighborhoodFrontRepository();
+            const invitationUc = new NeighborhoodInvitationUc(repository);
+
+            const response = await invitationUc.acceptInvitation(token);
+            if (response.status !== 201 || !response.data.success) {
+                showError("Erreur lors de l'adhésion au quartier", 'Veuillez réessayer plus tard.');
+                return;
+            }
+
+            showSuccess('Vous avez rejoint le quartier avec succès !');
             setHasJoined(true);
         } catch (error) {
             console.error("Erreur lors de l'adhésion au quartier:", error);
+            setError("Erreur lors de l'adhésion au quartier");
         } finally {
             setIsJoining(false);
         }
     };
 
-    if (!invite) {
+    if (inviteStatus === 'loading') {
         return (
             <div className="min-h-screen flex items-center justify-center bg-[#f2f5f8]">
                 <div className="text-center">
-                    <h1 className="text-2xl font-bold text-[#1a2a41] mb-2">Chargement de l'invitation...</h1>
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#e36f4c] mx-auto mb-4"></div>
+                    <h1 className="text-2xl font-bold text-[#1a2a41] mb-2">Vérification de l'invitation...</h1>
                     <p className="text-[#1a2a41]/70">Veuillez patienter</p>
                 </div>
             </div>
         );
+    }
+
+    if (inviteStatus === 'invalid') {
+        return <InvalidInvite />;
+    }
+
+    if (inviteStatus === 'already_member') {
+        return <AlreadyMember />;
+    }
+
+    if (inviteStatus === 'expired') {
+        return <ExpiredInvite />;
+    }
+
+    if (inviteStatus === 'error') {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-[#f2f5f8]">
+                <Card className="w-full max-w-md">
+                    <CardContent className="p-6 text-center">
+                        <div className="text-red-500 text-6xl mb-4">⚠️</div>
+                        <h1 className="text-2xl font-bold text-[#1a2a41] mb-2">Erreur</h1>
+                        <p className="text-[#1a2a41]/70 mb-6">
+                            {error || "Une erreur est survenue lors du chargement de l'invitation"}
+                        </p>
+                        <Button
+                            onClick={() => window.location.reload()}
+                            className="bg-[#e36f4c] hover:bg-[#d15e3b] text-white mr-2"
+                        >
+                            Réessayer
+                        </Button>
+                        <Button asChild variant="outline">
+                            <a href="/">Retour à l'accueil</a>
+                        </Button>
+                    </CardContent>
+                </Card>
+            </div>
+        );
+    }
+
+    if (!invite) {
+        return <InvalidInvite />;
     }
 
     return (
@@ -144,7 +163,7 @@ export default function NeighborhoodInvitePage() {
             <main className="container mx-auto px-4 py-8 max-w-4xl">
                 <div className="text-center mb-8">
                     <h2 className="text-3xl md:text-3xl font-bold text-[#1a2a41] mb-2">
-                        <span className="text-[#e36f4c]">{invite.inviterName}</span> vous invite dans son quartier !
+                        <span className="text-[#e36f4c]">Vous avez été invité dans un quartier !</span>
                     </h2>
                 </div>
 
@@ -154,7 +173,7 @@ export default function NeighborhoodInvitePage() {
                             <CheckCircle className="h-20 w-20 text-green-500 mx-auto mb-6" />
                             <h3 className="text-2xl font-bold text-[#1a2a41] mb-4">Félicitations !</h3>
                             <p className="text-lg text-[#1a2a41]/70 mb-8">
-                                Vous avez rejoint le quartier <strong>{invite.neighborhoodName}</strong> avec succès.
+                                Vous avez rejoint le quartier <strong>{invite.name}</strong> avec succès.
                             </p>
                             <Button
                                 onClick={() => goHome()}
@@ -167,11 +186,13 @@ export default function NeighborhoodInvitePage() {
                 ) : (
                     <Card className="max-w-4xl mx-auto">
                         <CardContent className="p-8">
-                            <h3 className="text-3xl font-bold text-[#e36f4c] mb-8 text-center">
-                                {invite.neighborhoodName}
-                            </h3>
+                            <h3 className="text-3xl font-bold text-[#e36f4c] mb-8 text-center">{invite.name}</h3>
 
-                            <ImageCarousel images={invite.images} alt={invite.neighborhoodName} className="mb-8" />
+                            <ImageCarousel
+                                images={invite.images ? invite.images.map((image) => image.url) : []}
+                                alt={invite.name}
+                                className="mb-8"
+                            />
 
                             <Tabs
                                 value={activeTab}
@@ -215,7 +236,17 @@ export default function NeighborhoodInvitePage() {
                                     </TabsContent>
 
                                     <TabsContent value="location" className="mt-0">
-                                        <p>TODO : Mettre la map</p>
+                                        <div className="space-y-4">
+                                            <div className="h-96 w-full">
+                                                <MapBox
+                                                    canCreate={false}
+                                                    showDetails={false}
+                                                    onGeoSelect={() => {}}
+                                                    specificNeighborhood={invite.geo ? [invite.geo] : []}
+                                                    centerOnNeighborhood={true}
+                                                />
+                                            </div>
+                                        </div>
                                     </TabsContent>
 
                                     <TabsContent value="members" className="mt-0">

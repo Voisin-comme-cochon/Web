@@ -31,7 +31,6 @@ export default function Header({
     const { goLogin, goLanding } = useAppNavigation();
     const [user, setUser] = useState<UserModel | null>(null);
     const [neighborhoods, setNeighborhoods] = useState<FrontNeighborhood[] | null>(null);
-    const uc = new HomeUc(new UserFrontRepository(), new NeighborhoodFrontRepository());
 
     useEffect(() => {
         const fetchConnectedData = async () => {
@@ -39,6 +38,7 @@ export default function Header({
             if (token) {
                 try {
                     const decoded: DecodedUser = jwtDecode(token);
+                    const uc = new HomeUc(new UserFrontRepository(), new NeighborhoodFrontRepository());
 
                     const fetchedUser = await uc.getUserById(decoded.id);
                     setUser(fetchedUser);

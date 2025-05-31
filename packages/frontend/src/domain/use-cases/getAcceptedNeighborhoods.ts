@@ -7,19 +7,18 @@ export class GetAcceptedNeighborhoods {
 
     async execute(): Promise<MapBoxGeoJson[]> {
         const neighborhoods = await this.neighborhoodRepository.getAcceptedNeighborhoods();
-        return neighborhoods.map(
-            (neighborhood: FrontNeighborhood): MapBoxGeoJson =>
-                ({
-                    geometry: {
-                        type: neighborhood.geo.type,
-                        coordinates: neighborhood.geo.coordinates,
-                    },
-                    properties: {
-                        id: neighborhood.id,
-                        name: neighborhood.name,
-                        description: neighborhood.description,
-                    },
-                }) as MapBoxGeoJson
+        return neighborhoods.data.map(
+            (neighborhood: FrontNeighborhood): MapBoxGeoJson => ({
+                type: neighborhood.geo.type,
+                coordinates: neighborhood.geo.coordinates,
+                properties: {
+                    id: neighborhood.id,
+                    name: neighborhood.name,
+                    description: neighborhood.description,
+                    color: '#000000',
+                    creationDate: new Date(neighborhood.creationDate),
+                },
+            })
         );
     }
 }

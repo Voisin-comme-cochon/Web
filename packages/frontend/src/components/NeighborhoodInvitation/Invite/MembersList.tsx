@@ -1,20 +1,13 @@
 import { Users } from 'lucide-react';
-
-interface Member {
-    id: string;
-    name: string;
-    avatar: string;
-    role?: string;
-}
+import { FrontNeighborhood } from '@/domain/models/FrontNeighborhood.ts';
 
 interface MembersListProps {
-    members: Member[];
-    className?: string;
+    members: FrontNeighborhood['members'];
 }
 
-export function MembersList({ members, className }: MembersListProps) {
+export function MembersList({ members }: MembersListProps) {
     return (
-        <div className={className}>
+        <div>
             <div className="flex items-center gap-2 mb-4">
                 <Users className="h-5 w-5 text-[#e36f4c]" />
                 <h3 className="font-medium text-[#1a2a41]">
@@ -27,13 +20,17 @@ export function MembersList({ members, className }: MembersListProps) {
                     <div key={member.id} className="flex flex-col items-center text-center p-3 rounded-lg bg-[#f2f5f8]">
                         <div className="w-12 h-12 rounded-full overflow-hidden mb-2">
                             <img
-                                src={member.avatar || '/placeholder.svg?height=48&width=48'}
-                                alt={member.name}
+                                src={member.profileImageUrl || '/placeholder.svg?height=48&width=48'}
+                                alt={member.firstName + ' ' + member.lastName}
                                 className="w-full h-full object-cover"
                             />
                         </div>
-                        <p className="text-sm font-medium text-[#1a2a41] truncate w-full">{member.name}</p>
-                        {member.role && <p className="text-xs text-[#1a2a41]/60 truncate w-full">{member.role}</p>}
+                        <p className="text-sm font-medium text-[#1a2a41] truncate w-full">
+                            {member.firstName + ' ' + member.lastName}
+                        </p>
+                        {member.neighborhoodRole && (
+                            <p className="text-xs text-[#1a2a41]/60 truncate w-full">{member.neighborhoodRole}</p>
+                        )}
                     </div>
                 ))}
             </div>

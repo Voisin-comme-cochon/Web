@@ -4,7 +4,7 @@ import type { NeighborhoodFormValues } from '@/containers/Neighborhood/neighborh
 import type { CreateMultipleInvitationsInput } from '@/domain/models/NeighborhoodInvitation';
 
 export class NeighborhoodFrontRepository {
-    async getAcceptedNeighborhoods(): Promise<FrontNeighborhood[]> {
+    async getAcceptedNeighborhoods(): Promise<{ data: FrontNeighborhood[] }> {
         const response = await ApiService.get('/neighborhoods?status=accepted');
         return response.data;
     }
@@ -36,7 +36,14 @@ export class NeighborhoodFrontRepository {
     }
 
     async createMultipleInvitations(input: CreateMultipleInvitationsInput): Promise<object> {
-        console.log('Creating multiple invitations:', input);
         return await ApiService.post('/neighborhoods/invitations', input);
+    }
+
+    async verifyInvitation(token: string) {
+        return ApiService.get<FrontNeighborhood>(`/neighborhoods/invitations/verify/${token}`);
+    }
+
+    async acceptInvitation(token: string) {
+        return ApiService.post<{ success: boolean }>(`/neighborhoods/invitations/accept/${token}`);
     }
 }
