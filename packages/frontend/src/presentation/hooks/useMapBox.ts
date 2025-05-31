@@ -59,15 +59,19 @@ export const useMapBox = ({
         }
     }, [centerOnNeighborhood, specificNeighborhood]);
 
-    const handleRetrieve = (res: { features: string | mapboxgl.GeoJSONFeature[] }) => {
+    // eslint-disable-next-line
+    const handleRetrieve = (res: any) => {
         if (res?.features?.length > 0) {
-            const coords = res.features[0].geometry.coordinates;
-            setViewState((prev) => ({
-                ...prev,
-                latitude: coords[1],
-                longitude: coords[0],
-                zoom: 12,
-            }));
+            const feature = res.features[0];
+            if (feature?.geometry?.coordinates) {
+                const coords = feature.geometry.coordinates;
+                setViewState((prev) => ({
+                    ...prev,
+                    latitude: coords[1],
+                    longitude: coords[0],
+                    zoom: 12,
+                }));
+            }
         }
     };
 
