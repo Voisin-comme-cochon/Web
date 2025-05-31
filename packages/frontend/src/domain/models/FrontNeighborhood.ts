@@ -8,4 +8,10 @@ export interface FrontNeighborhood {
     status: string;
     description: string;
     creationDate: string;
+    images?: {
+        id: number;
+        url: string;
+        isPrimary: boolean;
+        neighborhoodId: string;
+    }[];
 }

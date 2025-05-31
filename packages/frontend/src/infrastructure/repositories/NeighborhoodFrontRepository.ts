@@ -39,4 +39,9 @@ export class NeighborhoodFrontRepository {
         console.log('Creating multiple invitations:', input);
         return await ApiService.post('/neighborhoods/invitations', input);
     }
+
+    async verifyInvitation(token: string) {
+        console.log('Verifying invitation with token:', token);
+        return ApiService.get(`/neighborhoods/invitations/verify/${token}`);
+    }
 }

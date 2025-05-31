@@ -17,7 +17,7 @@ export default function App() {
                 <Route path="/signin" element={<SigninPage />} />
                 <Route path="/reset-password" element={<ResetPasswordPage />} />
                 <Route path="/neighborhoods/create" element={<CreateNeighborhood />} />
-                <Route path="/neighborhoods/invite/:invitationId" element={<NeighborhoodInvitation />} />
+                <Route path="/neighborhoods/invite/:token" element={<NeighborhoodInvitation />} />
             </Routes>
         </Router>
     );

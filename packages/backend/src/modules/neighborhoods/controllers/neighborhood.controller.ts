@@ -11,7 +11,15 @@ import {
     UseGuards,
     UseInterceptors,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiConsumes, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+    ApiBearerAuth,
+    ApiConsumes,
+    ApiGoneResponse,
+    ApiNotFoundResponse,
+    ApiOkResponse,
+    ApiOperation,
+    ApiTags,
+} from '@nestjs/swagger';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { NeighborhoodService } from '../services/neighborhood.service';
 import { IsLoginGuard } from '../../../middleware/is-login.middleware';
@@ -202,10 +210,12 @@ export class NeighborhoodController {
     @ApiOperation({ summary: 'Verify the invitation token and return neighborhood data' })
     @ApiOkResponse({
         description: 'Neighborhood invitation verified',
-        type: ResponseNeighborhoodDto,
     })
     @ApiNotFoundResponse({
         description: 'Neighborhood invitation not found or invalid token',
+    })
+    @ApiGoneResponse({
+        description: 'Neighborhood invitation token has expired',
     })
     @UseGuards(IsLoginGuard)
     @ApiBearerAuth()

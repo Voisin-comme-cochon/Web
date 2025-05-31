@@ -7,4 +7,8 @@ export class NeighborhoodInvitationUc {
     async createMultipleInvitations(input: CreateMultipleInvitationsInput) {
         return await this.neighborhoodRepository.createMultipleInvitations(input);
     }
+
+    async verifyInvitation(token: string) {
+        return await this.neighborhoodRepository.verifyInvitation(token);
+    }
 }
