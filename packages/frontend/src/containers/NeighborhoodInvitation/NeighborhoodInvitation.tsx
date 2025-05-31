@@ -15,6 +15,7 @@ import { useParams } from 'react-router-dom';
 import { AxiosError } from 'axios';
 import { FrontNeighborhood } from '@/domain/models/FrontNeighborhood.ts';
 import { useToast } from '@/presentation/hooks/useToast.ts';
+import { MembersList } from '@/components/NeighborhoodInvitation/Invite/MembersList';
 
 export type InviteTab = 'about' | 'location' | 'members';
 
@@ -238,8 +239,7 @@ export default function NeighborhoodInvitePage() {
                                     </TabsContent>
 
                                     <TabsContent value="members" className="mt-0">
-                                        {/*TODO: Inject members list here*/}
-                                        {/*<MembersList members={invite.members} />*/}
+                                        <MembersList members={invite.members} />
                                     </TabsContent>
                                 </div>
                             </Tabs>

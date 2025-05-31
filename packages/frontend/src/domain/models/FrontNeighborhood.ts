@@ -14,4 +14,11 @@ export interface FrontNeighborhood {
         isPrimary: boolean;
         neighborhoodId: string;
     }[];
+    members: {
+        id: number;
+        firstName: string;
+        lastName: string;
+        profileImageUrl: string;
+        neighborhoodRole: string;
+    }[];
 }
