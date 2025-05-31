@@ -59,7 +59,7 @@ export const useMapBox = ({
         }
     }, [centerOnNeighborhood, specificNeighborhood]);
 
-    const handleRetrieve = (res: { features: string | any[] }) => {
+    const handleRetrieve = (res: { features: string | mapboxgl.GeoJSONFeature[] }) => {
         if (res?.features?.length > 0) {
             const coords = res.features[0].geometry.coordinates;
             setViewState((prev) => ({
