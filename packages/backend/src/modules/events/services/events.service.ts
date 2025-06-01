@@ -18,14 +18,16 @@ export class EventsService {
         const offset = page * limit - limit;
         const [events, count] = await this.eventRepository.getEvents(limit, offset);
         const domainEvents = EventsAdapter.listEntityToDomain(events);
-        return [domainEvents, count];
+        const eventsWithLinks = await this.replacePhotosByLinks(domainEvents);
+        return [eventsWithLinks, count];
     }
 
     public async getEventsByNeighnorhoodId(id: number, page: number, limit: number): Promise<[Event[], number]> {
         const offset = page * limit - limit;
         const [events, count] = await this.eventRepository.getEventsByNeighborhoodId(id, limit, offset);
         const domainEvents = EventsAdapter.listEntityToDomain(events);
-        return [domainEvents, count];
+        const eventsWithLinks = await this.replacePhotosByLinks(domainEvents);
+        return [eventsWithLinks, count];
     }
 
     public async getUsersByEventId(id: number, page: number, limit: number): Promise<[User[], number]> {
@@ -49,7 +51,13 @@ export class EventsService {
             max,
             photo,
         } = event;
+
+        if (new Date(dateStart) < new Date() || new Date(dateEnd) < new Date()) {
+            throw new CochonError('invalid_date', 'The start and end dates must be in the future', 400);
+        }
+
         const photoUrl = await this.createAndUploadEventImageEntities(photo);
+
         const prevLink = await this.objectStorageService.getFileLink(photoUrl, BucketType.EVENT_IMAGES);
 
         const eventEntity = new EventEntity();
@@ -63,7 +71,8 @@ export class EventsService {
         eventEntity.tagId = tagId;
         eventEntity.min = min;
         eventEntity.max = max;
-        eventEntity.photo = prevLink;
+        eventEntity.photo = photoUrl;
+
         if (addressStart) {
             eventEntity.addressStart = this.parseGeo(addressStart);
         }
@@ -72,7 +81,19 @@ export class EventsService {
         }
 
         const createdEvent = await this.eventRepository.createEvent(eventEntity);
+        createdEvent.photo = prevLink;
         return EventsAdapter.entityToDomain(createdEvent);
+    }
+
+    private async replacePhotoByLink(event: Event): Promise<Event> {
+        if (event.photo) {
+            event.photo = await this.objectStorageService.getFileLink(event.photo, BucketType.EVENT_IMAGES);
+        }
+        return event;
+    }
+
+    private async replacePhotosByLinks(events: Event[]): Promise<Event[]> {
+        return Promise.all(events.map((event) => this.replacePhotoByLink(event)));
     }
 
     private async createAndUploadEventImageEntities(file: Express.Multer.File): Promise<string> {

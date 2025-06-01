@@ -65,7 +65,7 @@ export class ObjectStorageService implements OnModuleInit {
                 throw new CochonError('file_not_found', 'File not found', 404);
             }
 
-            return this.minioClient.presignedGetObject(bucketName, fileName, 24 * 60 * 60);
+            return await this.minioClient.presignedGetObject(bucketName, fileName, 24 * 60 * 60);
         } catch (error) {
             if (error instanceof CochonError) {
                 throw error;
