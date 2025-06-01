@@ -100,7 +100,7 @@ Notre quartier dispose de nombreux espaces verts, d'une école primaire réputé
 };
 
 export default function NeighborhoodInvitePage() {
-    const { goHome } = useAppNavigation();
+    const { goMyNeighborhood } = useAppNavigation();
     const [invite, setInvite] = useState<NeighborhoodInvite | null>(null);
     const [activeTab, setActiveTab] = useState<InviteTab>('about');
     const [isJoining, setIsJoining] = useState(false);
@@ -157,7 +157,7 @@ export default function NeighborhoodInvitePage() {
                                 Vous avez rejoint le quartier <strong>{invite.neighborhoodName}</strong> avec succès.
                             </p>
                             <Button
-                                onClick={goHome()}
+                                onClick={goMyNeighborhood()}
                                 className="bg-[#e36f4c] hover:bg-[#d15e3b] text-white px-8 py-3 text-lg"
                             >
                                 Accéder à mon quartier

@@ -1,41 +1,66 @@
-import { UserModel } from '@/domain/models/user.model.ts';
 import { EventModel } from '@/domain/models/event.model.ts';
 import { useEffect, useState } from 'react';
-import { HomeUc } from '@/domain/use-cases/homeUc.ts';
 import PreviewEvent from '@/components/PreviewEvent/PreviewEvent.tsx';
 import NotCreatedEvent from '@/components/PreviewEvent/NotCreatedEvent.tsx';
+import { useAppNavigation } from '@/presentation/state/navigate.ts';
+import { DecodedUser } from '@/domain/models/DecodedUser.ts';
+import { jwtDecode } from 'jwt-decode';
+import { UserModel } from '@/domain/models/user.model.ts';
+import { UserFrontRepository } from '@/infrastructure/repositories/UserFrontRepository.ts';
+import { NeighborhoodFrontRepository } from '@/infrastructure/repositories/NeighborhoodFrontRepository.ts';
+import { EventRepository } from '@/infrastructure/repositories/EventRepository.ts';
+import { HomeUc } from '@/domain/use-cases/homeUc.ts';
+import DashboardHeader from '@/components/Header/DashboardHeader.tsx';
 
-export default function MyNeighborhoodPage({
-    user,
-    neighborhoodId,
-    uc,
-    setPage,
-}: {
-    user: UserModel | null;
-    neighborhoodId: number;
-    uc: HomeUc;
-    setPage: (page: number) => void;
-}) {
+export default function MyNeighborhoodPage() {
     const [events, setEvents] = useState<EventModel[]>([]);
+    const { goNeighborhoodEvents } = useAppNavigation();
+    const [user, setUser] = useState<UserModel | null>(null);
+    const neighborhoodId = localStorage.getItem('neighborhoodId');
+    const uc = new HomeUc(new UserFrontRepository(), new NeighborhoodFrontRepository(), new EventRepository());
+
+    useEffect(() => {
+        const fetchConnectedData = async () => {
+            const token = localStorage.getItem('jwt');
+            if (token) {
+                try {
+                    const decoded: DecodedUser = jwtDecode(token);
+
+                    const fetchedUser = await uc.getUserById(decoded.id);
+                    setUser(fetchedUser);
+                } catch (error) {
+                    console.error('Failed to fetch user :', error);
+                }
+            } else {
+                console.log('No JWT token found in localStorage.');
+            }
+        };
+
+        fetchConnectedData();
+    }, []);
 
     useEffect(() => {
         const fetchEvents = async () => {
-            const events = await uc.getNeighborhoodEvents(neighborhoodId, 3, 1);
+            const events = await uc.getNeighborhoodEvents(Number(neighborhoodId), 3, 1);
             setEvents(events);
         };
         fetchEvents();
-    }, [neighborhoodId]);
+    }, [neighborhoodId, uc]);
 
-    if (!user || neighborhoodId === -1) {
+    if (!user || !neighborhoodId) {
         return (
             <>
-                <p>Chargement...</p>
+                <DashboardHeader />
+                <div className="flex items-center justify-center h-[calc(100vh-64px)] flex-col">
+                    <p className="text-lg">Veuillez sélectionner un quartier pour continuer.</p>
+                </div>
             </>
         );
     }
 
     return (
         <div>
+            <DashboardHeader />
             <div className="px-32 pt-8 w-full bg-white flex flex-row border-t-8 border-black gap-4 h-[234px]">
                 {user.profileImageUrl ? (
                     <div className="w-14 h-14 bg-gray-200 rounded-full flex items-center justify-center">
@@ -58,7 +83,7 @@ export default function MyNeighborhoodPage({
                 </div>
             </div>
             <div className={'px-32 relative -mt-24'}>
-                <div className={'flex items-center gap-2 cursor-pointer'} onClick={() => setPage(2)}>
+                <div className={'flex items-center gap-2 cursor-pointer'} onClick={() => goNeighborhoodEvents}>
                     <p>Prochains évènements</p>
                     <span className="material-symbols-outlined text-base">chevron_right</span>
                 </div>

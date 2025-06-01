@@ -1,17 +1,17 @@
-import Header from '@/components/Header/Header.tsx';
 import neighborhood from '../../assets/images/landing_page_neighborhood.webp';
 import './landing-page.css';
 import { Button } from '@/components/ui/button.tsx';
 import InfoSection from '@/components/InfoSection/InfoSection.tsx';
 import MapBox from '@/components/MapBox/MapBox.tsx';
 import { useAppNavigation } from '@/presentation/state/navigate';
+import LandingHeader from '@/components/Header/LandingHeader.tsx';
 
 export default function LandingPage() {
     const { goCreateNeighborhood } = useAppNavigation();
 
     return (
         <div className="flex items-center justify-center flex-col w-full bg-background overflow-x-hidden">
-            <Header isLanding />
+            <LandingHeader />
             <div className="h-[calc(100vh-64px)] w-full flex justify-center flex-col relative">
                 <div className="w-full flex items-center justify-center flex-row">
                     <div className={'w-1/2'}>

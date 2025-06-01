@@ -5,8 +5,8 @@ import { useAppNavigation } from '@/presentation/state/navigate.ts';
 import ResetPasswordForm from '@/components/ResetPassword/ResetPasswordForm.tsx';
 import RequestResetForm from '@/components/ResetPassword/RequestResetForm.tsx';
 import ResetPasswordSuccess from '@/components/ResetPassword/ResetPasswordSuccess.tsx';
-import Header from '@/components/Header/Header.tsx';
 import AuthFooter from '@/components/AuthFooter/AuthFooter.tsx';
+import MinimalHeader from '@/components/Header/MinimalHeader.tsx';
 
 export default function ResetPasswordPage() {
     const [resetSuccess, setResetSuccess] = useState(false);
@@ -25,7 +25,7 @@ export default function ResetPasswordPage() {
 
     return (
         <div className="min-h-screen flex flex-col bg-background font-sans">
-            <Header />
+            <MinimalHeader />
 
             <main className="flex-1 flex items-center justify-center p-4 md:p-6">
                 <Card className="w-full max-w-md border-none shadow-lg">

@@ -1,9 +1,14 @@
 import { EventModel } from '@/domain/models/event.model.ts';
 import { UserModel } from '@/domain/models/user.model.ts';
+import { useAppNavigation } from '@/presentation/state/navigate.ts';
 
 export default function PreviewEvent({ event, user }: { event: EventModel; user: UserModel }) {
+    const { goEventDetail } = useAppNavigation();
     return (
-        <div className="relative rounded-2xl max-w-80 h-60 w-full overflow-hidden shadow-lg bg-gray-100">
+        <div
+            className="relative rounded-2xl max-w-80 h-60 w-full overflow-hidden shadow-lg bg-gray-100 cursor-pointer"
+            onClick={() => goEventDetail(event.id)}
+        >
             <img src={event.photo} alt={event.name} className="w-full h-40 object-cover" />
             <div className="absolute bottom-0 left-0 w-full bg-white rounded-b-2xl flex flex-col gap-2 p-4 z-10">
                 <div className="flex flex-row justify-between items-center">
