@@ -1,6 +1,9 @@
 import DashboardHeader from '@/components/Header/DashboardHeader.tsx';
+import { withHeaderData } from '@/containers/Wrapper/Wrapper.tsx';
+import { UserModel } from '@/domain/models/user.model.ts';
+import { HomeUc } from '@/domain/use-cases/homeUc.ts';
 
-export default function NeighborhoodJournalPage() {
+function NeighborhoodJournalPage({ user, uc }: { user: UserModel; uc: HomeUc }) {
     return (
         <>
             <DashboardHeader />
@@ -8,3 +11,6 @@ export default function NeighborhoodJournalPage() {
         </>
     );
 }
+
+const NeighborhoodJournalPageWithHeader = withHeaderData(NeighborhoodJournalPage);
+export default NeighborhoodJournalPageWithHeader;
