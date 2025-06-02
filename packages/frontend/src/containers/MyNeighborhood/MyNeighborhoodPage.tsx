@@ -61,7 +61,7 @@ export default function MyNeighborhoodPage() {
     return (
         <div>
             <DashboardHeader />
-            <div className="px-32 pt-8 w-full bg-white flex flex-row border-t-8 border-black gap-4 h-[234px]">
+            <div className="px-32 pt-8 w-full bg-white flex flex-row gap-4 h-[234px]">
                 {user.profileImageUrl ? (
                     <div className="w-14 h-14 bg-gray-200 rounded-full flex items-center justify-center">
                         <img

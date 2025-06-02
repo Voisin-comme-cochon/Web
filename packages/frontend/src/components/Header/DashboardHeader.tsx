@@ -43,9 +43,12 @@ export default function DashboardHeader() {
     }, []);
 
     return (
-        <header className="flex items-center justify-between w-full p-4 bg-white h-[64px]">
-            <img src={logo} alt="logo" className="max-w-[150px] h-auto cursor-pointer" onClick={goMyNeighborhood} />
-            <div className="flex flex-1 justify-center gap-8">
+        <header className="relative flex items-center w-full px-4 bg-white h-[64px] border-b-2 border-gray-200">
+            <div className="flex items-center justify-start min-w-[150px]">
+                <img src={logo} alt="logo" className="max-w-[150px] h-auto cursor-pointer" onClick={goMyNeighborhood} />
+            </div>
+
+            <div className="absolute left-1/2 transform -translate-x-1/2 flex gap-8">
                 {[
                     {
                         id: 1,
@@ -84,7 +87,9 @@ export default function DashboardHeader() {
                         }}
                     >
                         <span
-                            className={`material-symbols-outlined ${path.includes(page) ? 'text-black' : 'text-gray-400'}`}
+                            className={`material-symbols-outlined ${
+                                path.includes(page) ? 'text-black' : 'text-gray-400'
+                            }`}
                         >
                             {icon}
                         </span>
@@ -92,7 +97,8 @@ export default function DashboardHeader() {
                     </div>
                 ))}
             </div>
-            <div className="flex items-center gap-4">
+
+            <div className="flex items-center justify-end min-w-[200px] gap-4 ml-auto">
                 <ComboboxComponent neighborhoods={neighborhoods} />
                 {user && <AvatarComponent user={user} />}
             </div>
