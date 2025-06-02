@@ -6,7 +6,7 @@ import { withHeaderData } from '@/containers/Wrapper/Wrapper.tsx';
 import MyEventsPage from '@/containers/NeighborhoodEvents/MyEventsPage.tsx';
 import PlanningPage from '@/containers/NeighborhoodEvents/PlanningPage.tsx';
 
-function NeighborhoodEventsPage({ user, uc }: { user: UserModel; uc: HomeUc }) {
+function NeighborhoodEventsPage({ user, uc, neighborhoodId }: { user: UserModel; uc: HomeUc; neighborhoodId: string }) {
     const [activeTab, setActiveTab] = useState<'planning' | 'events'>('events');
 
     useEffect(() => {
@@ -29,7 +29,7 @@ function NeighborhoodEventsPage({ user, uc }: { user: UserModel; uc: HomeUc }) {
     const inactiveButtonClass = 'bg-gray-100 text-gray-600 hover:bg-gray-200';
 
     return (
-        <>
+        <div>
             <DashboardHeader />
             <div className="flex items-center justify-center p-4 md:p-6 space-x-4">
                 <button
@@ -49,8 +49,8 @@ function NeighborhoodEventsPage({ user, uc }: { user: UserModel; uc: HomeUc }) {
             </div>
 
             {activeTab === 'events' && <MyEventsPage />}
-            {activeTab === 'planning' && <PlanningPage />}
-        </>
+            {activeTab === 'planning' && <PlanningPage uc={uc} neighborhoodId={neighborhoodId} />}
+        </div>
     );
 }
 
