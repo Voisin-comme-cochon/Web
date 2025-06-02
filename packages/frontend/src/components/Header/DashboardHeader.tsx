@@ -19,7 +19,7 @@ export default function DashboardHeader() {
     const [page, setPage] = useState<string>('');
 
     useEffect(() => {
-        setPage(window.location.href.split('/').pop() || '');
+        setPage(window.location.href.split('/')[3] || '');
     }, []);
 
     useEffect(() => {
@@ -52,28 +52,28 @@ export default function DashboardHeader() {
                         icon: 'apartment',
                         label: 'Mon quartier',
                         action: goMyNeighborhood,
-                        path: 'my-neighborhood',
+                        path: ['my-neighborhood'],
                     },
                     {
                         id: 2,
                         icon: 'calendar_today',
                         label: 'Événements',
                         action: goNeighborhoodEvents,
-                        path: 'neighborhood-events',
+                        path: ['neighborhood-events', 'events'],
                     },
                     {
                         id: 3,
                         icon: 'newsmode',
                         label: 'Journal',
                         action: goNeighborhoodJournal,
-                        path: 'neighborhood-journal',
+                        path: ['neighborhood-journal'],
                     },
                     {
                         id: 4,
                         icon: 'emoji_objects',
                         label: 'Matériel',
                         action: goNeighborhoodMat,
-                        path: 'neighborhood-materials',
+                        path: ['neighborhood-materials'],
                     },
                 ].map(({ id, icon, label, action, path }) => (
                     <div
@@ -83,10 +83,12 @@ export default function DashboardHeader() {
                             action();
                         }}
                     >
-                        <span className={`material-symbols-outlined ${page === path ? 'text-black' : 'text-gray-400'}`}>
+                        <span
+                            className={`material-symbols-outlined ${path.includes(page) ? 'text-black' : 'text-gray-400'}`}
+                        >
                             {icon}
                         </span>
-                        <p className={`text-xs ${page === path ? 'text-black' : 'text-gray-400'}`}>{label}</p>
+                        <p className={`text-xs ${path.includes(page) ? 'text-black' : 'text-gray-400'}`}>{label}</p>
                     </div>
                 ))}
             </div>
