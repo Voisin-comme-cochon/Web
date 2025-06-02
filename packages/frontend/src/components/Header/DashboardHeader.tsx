@@ -19,7 +19,9 @@ export default function DashboardHeader() {
     const [page, setPage] = useState<string>('');
 
     useEffect(() => {
-        setPage(window.location.href.split('/')[3] || '');
+        const page = window.location.href.split('/')[3] || '';
+        const cleanedPage = page.split('?')[0];
+        setPage(cleanedPage);
     }, []);
 
     useEffect(() => {
@@ -83,6 +85,7 @@ export default function DashboardHeader() {
                         key={id}
                         className="flex flex-col items-center gap-1 cursor-pointer"
                         onClick={() => {
+                            console.log(path, page);
                             action();
                         }}
                     >
