@@ -5,7 +5,7 @@ import type { CreateMultipleInvitationsInput } from '@/domain/models/Neighborhoo
 import { PaginatedResultModel } from '@/domain/models/paginated-result.model.ts';
 
 export class NeighborhoodFrontRepository {
-    async getAcceptedNeighborhoods(): Promise<{ data: FrontNeighborhood[] }> {
+    async getAcceptedNeighborhoods(): Promise<FrontNeighborhood[]> {
         const response = await ApiService.get('/neighborhoods?status=accepted');
         const paging: PaginatedResultModel<FrontNeighborhood> = response.data;
         return paging.data;

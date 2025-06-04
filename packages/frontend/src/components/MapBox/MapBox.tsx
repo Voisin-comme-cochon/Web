@@ -51,7 +51,7 @@ export default function MapBox({
                                 type: 'Feature',
                                 geometry: {
                                     type: 'Polygon',
-                                    coordinates: feature.coordinates || feature.coordinates,
+                                    coordinates: feature.geometry.coordinates || feature.geometry.coordinates,
                                 },
                                 properties: feature.properties || {
                                     name: 'Quartier',
