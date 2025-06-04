@@ -39,7 +39,28 @@ export class EventsRepositoryImplementation implements EventsRepository {
             });
     }
 
+    public getUsersByEventIdNoLimit(id: number): Promise<User[]> {
+        return this.dataSource
+            .getRepository(EventRegistrationEntity)
+            .find({
+                where: { eventId: id },
+                relations: ['user'],
+            })
+            .then((registrations) => {
+                return registrations
+                    .map((registration) => registration.user)
+                    .filter((user): user is User => user !== undefined);
+            });
+    }
+
     public createEvent(event: EventEntity): Promise<EventEntity> {
         return this.dataSource.getRepository(EventEntity).save(event);
+    }
+
+    public getEventById(id: number): Promise<EventEntity | null> {
+        return this.dataSource.getRepository(EventEntity).findOne({
+            where: { id },
+            relations: ['creator', 'neighborhood', 'tag'],
+        });
     }
 }

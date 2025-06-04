@@ -44,4 +44,15 @@ export class HomeUc {
             throw new Error('Une erreur est survenue lors de la récupération des événements du quartier');
         }
     }
+
+    async getEventById(eventId: number): Promise<EventModel> {
+        try {
+            return await this.eventRepository.getEventById(eventId);
+        } catch (error) {
+            if (error instanceof Error) {
+                throw new Error(error.message);
+            }
+            throw new Error("Une erreur est survenue lors de la récupération de l'événement");
+        }
+    }
 }

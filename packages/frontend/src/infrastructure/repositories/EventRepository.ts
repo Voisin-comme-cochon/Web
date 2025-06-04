@@ -8,4 +8,9 @@ export class EventRepository {
         const paging: PaginatedResultModel<EventModel> = response.data;
         return paging.data;
     }
+
+    async getEventById(id: number): Promise<EventModel> {
+        const response = await ApiService.get(`/events/${id}`);
+        return response.data;
+    }
 }

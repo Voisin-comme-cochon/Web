@@ -9,4 +9,8 @@ export abstract class EventsRepository {
     abstract getUsersByEventId(id: number, limit: number, offset: number): Promise<[User[], number]>;
 
     abstract createEvent(event: EventEntity): Promise<EventEntity>;
+
+    abstract getEventById(id: number): Promise<EventEntity | null>;
+
+    abstract getUsersByEventIdNoLimit(id: number): Promise<User[]>;
 }

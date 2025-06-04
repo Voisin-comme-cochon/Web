@@ -25,7 +25,13 @@ import { TagsAdapter } from '../../tags/adapters/tags.adapter';
 import { IsSuperAdminGuard } from '../../../middleware/is-super-admin.middleware';
 import { PaginationInterceptor } from '../../../core/pagination/pagination.interceptor';
 import { ResponseUserDto } from '../../users/controllers/dto/users.dto';
-import { CreateEventDto, GetEventsByNeighborhoodIdDto, GetUserByEventIdDto, ResponseEventDto } from './dto/events.dto';
+import {
+    CreateEventDto,
+    GetEventsByNeighborhoodIdDto,
+    GetUserByEventIdDto,
+    ResponseEventDto,
+    ResponseEventWithUsersDto,
+} from './dto/events.dto';
 
 @ApiTags('events')
 @Controller('events')
@@ -204,6 +210,36 @@ export class EventsController {
             neighborhood,
             responseCreator,
             countUsers
+        );
+    }
+
+    @Get('/:id')
+    @ApiOperation({ summary: 'Get event by ID' })
+    @ApiOkResponse({ description: 'Event found', type: ResponseEventWithUsersDto })
+    @ApiNotFoundResponse({ description: 'Event not found' })
+    async getEventById(@Param('id') id: string): Promise<ResponseEventWithUsersDto> {
+        const event = await this.eventsService.getEventById(parseInt(id, 10));
+
+        const creator = await this.usersService.getUserById(event.createdBy);
+        const responseCreator = UserAdapter.domainToResponseUser(creator);
+
+        const tag = await this.tagsService.getTagById(event.tagId);
+        const responseTag = TagsAdapter.domainToResponseTag(tag);
+
+        const neighborhood = await this.neighborhoodService.getNeighborhoodById(event.neighborhoodId);
+        if (!neighborhood) {
+            throw new CochonError('neighborhood-not-found', 'Neighborhood not found', 404);
+        }
+
+        const users = await this.eventsService.getUsersByEventIdNoLimit(event.id);
+        const responseUsers = UserAdapter.listDomainToResponseUser(users);
+
+        return EventsAdapter.domainToResponseEventWithUsers(
+            event,
+            responseTag,
+            neighborhood,
+            responseCreator,
+            responseUsers
         );
     }
 }

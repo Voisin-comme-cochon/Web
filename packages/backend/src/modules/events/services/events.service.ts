@@ -36,6 +36,20 @@ export class EventsService {
         return [users, count];
     }
 
+    public async getUsersByEventIdNoLimit(id: number): Promise<User[]> {
+        const users = await this.eventRepository.getUsersByEventIdNoLimit(id);
+        return users;
+    }
+
+    public async getEventById(id: number): Promise<Event> {
+        const event = await this.eventRepository.getEventById(id);
+        if (!event) {
+            throw new CochonError('event_not_found', 'Event not found', 404);
+        }
+        const domainEvent = EventsAdapter.entityToDomain(event);
+        return this.replacePhotoByLink(domainEvent);
+    }
+
     public async createEvent(event: CreateEventInput): Promise<Event> {
         const {
             name,

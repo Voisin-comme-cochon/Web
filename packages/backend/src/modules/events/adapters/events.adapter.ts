@@ -1,5 +1,5 @@
 import { Event } from '../domain/events.model';
-import { ResponseEventDto } from '../controllers/dto/events.dto';
+import { ResponseEventDto, ResponseEventWithUsersDto } from '../controllers/dto/events.dto';
 import { EventEntity } from '../../../core/entities/event.entity';
 import { ResponseUserDto } from '../../users/controllers/dto/users.dto';
 import { ResponseNeighborhoodDto } from '../../neighborhoods/controllers/dto/neighborhood.dto';
@@ -55,6 +55,32 @@ export class EventsAdapter {
         user: ResponseUserDto,
         registeredUsers: number
     ): ResponseEventDto {
+        return {
+            id: event.id,
+            creator: user,
+            neighborhood: neighborhood,
+            name: event.name,
+            description: event.description,
+            createdAt: event.createdAt,
+            dateStart: event.dateStart,
+            dateEnd: event.dateEnd,
+            tag: tag,
+            min: event.min,
+            max: event.max,
+            photo: event.photo,
+            addressStart: event.addressStart,
+            addressEnd: event.addressEnd,
+            registeredUsers: registeredUsers,
+        };
+    }
+
+    static domainToResponseEventWithUsers(
+        event: Event,
+        tag: ResponseTagDto,
+        neighborhood: ResponseNeighborhoodDto,
+        user: ResponseUserDto,
+        registeredUsers: ResponseUserDto[]
+    ): ResponseEventWithUsersDto {
         return {
             id: event.id,
             creator: user,
