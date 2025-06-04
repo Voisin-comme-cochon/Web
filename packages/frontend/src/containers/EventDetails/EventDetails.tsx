@@ -9,7 +9,7 @@ export default function EventDetails() {
             <DashboardHeader />
             <h1>Détails de l'événement</h1>
             <p>ID de l'événement : {eventId}</p>
-            {/* Ajoutez ici le contenu détaillé de l&#39;événement */}
+            {/* Ajoutez ici le contenu détaillé de l'événement */}
         </div>
     );
 }
