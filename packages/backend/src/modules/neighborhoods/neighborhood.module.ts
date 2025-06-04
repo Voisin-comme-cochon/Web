@@ -52,14 +52,22 @@ import { NeighborhoodUserRepositoryImplementation } from './repository/neighborh
         },
         {
             provide: NeighborhoodInvitationService,
-            inject: [NeighborhoodInvitationRepository, NeighborhoodService, JwtService, UsersService, MailerService],
+            inject: [
+                NeighborhoodInvitationRepository,
+                NeighborhoodService,
+                NeighborhoodUserService,
+                JwtService,
+                UsersService,
+                MailerService,
+            ],
             useFactory: (
                 invRepo: NeighborhoodInvitationRepository,
                 nbService: NeighborhoodService,
+                nbUserService: NeighborhoodUserService,
                 jwt: JwtService,
                 users: UsersService,
                 mailer: MailerService
-            ) => new NeighborhoodInvitationService(invRepo, nbService, jwt, users, mailer),
+            ) => new NeighborhoodInvitationService(invRepo, nbService, nbUserService, jwt, users, mailer),
         },
         {
             provide: NeighborhoodUserService,

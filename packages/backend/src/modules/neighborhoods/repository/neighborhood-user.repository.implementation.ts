@@ -49,4 +49,9 @@ export class NeighborhoodUserRepositoryImplementation implements NeighborhoodUse
         const neighborhoodsEntity = neighborhoods.map((neighborhoodUser) => neighborhoodUser.neighborhood);
         return NeighborhoodsAdapter.listDatabaseToDomain(neighborhoodsEntity);
     }
+
+    async addUserToNeighborhood(neighborhoodUser: NeighborhoodUserEntity): Promise<NeighborhoodUserEntity> {
+        const repository = this.dataSource.getRepository(NeighborhoodUserEntity);
+        return repository.save(neighborhoodUser);
+    }
 }

@@ -11,7 +11,15 @@ import {
     UseGuards,
     UseInterceptors,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiConsumes, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+    ApiBearerAuth,
+    ApiConsumes,
+    ApiGoneResponse,
+    ApiNotFoundResponse,
+    ApiOkResponse,
+    ApiOperation,
+    ApiTags,
+} from '@nestjs/swagger';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { NeighborhoodService } from '../services/neighborhood.service';
 import { IsLoginGuard } from '../../../middleware/is-login.middleware';
@@ -30,6 +38,7 @@ import {
     GetByNeiborhoodId,
     GetNeiborhoodByUserIdDto,
     GetNeighborhoodInvitationQueryParams,
+    ResponseNeighborhoodWithMembersDto,
 } from './dto/neighborhood-invitation.dto';
 import {
     GetNeighborhoodQueryParamsDto,
@@ -198,8 +207,55 @@ export class NeighborhoodController {
         });
     }
 
-    /* Neighborhood users endpoints */
+    @Get('invitations/verify/:token')
+    @ApiOperation({ summary: 'Verify the invitation token and return neighborhood data with members' })
+    @ApiOkResponse({
+        description: 'Neighborhood invitation verified',
+        type: ResponseNeighborhoodWithMembersDto,
+    })
+    @ApiNotFoundResponse({
+        description: 'Neighborhood invitation not found or invalid token',
+    })
+    @ApiGoneResponse({
+        description: 'Neighborhood invitation token has expired',
+    })
+    @UseGuards(IsLoginGuard)
+    @ApiBearerAuth()
+    async verifyInvitationToken(
+        @Param('token') token: string,
+        @Request() req: { user: { id: string } }
+    ): Promise<ResponseNeighborhoodWithMembersDto> {
+        return await this.neighborhoodInvitationService.verifyInvitationTokenWithMembers(
+            token,
+            parseInt(req.user.id, 10)
+        );
+    }
 
+    @Post('invitations/accept/:token')
+    @ApiOperation({ summary: 'Accept a neighborhood invitation' })
+    @ApiOkResponse({
+        description: 'Neighborhood invitation accepted',
+    })
+    @ApiNotFoundResponse({
+        description: 'Neighborhood invitation not found or already accepted',
+    })
+    @ApiGoneResponse({
+        description: 'Neighborhood invitation token has expired',
+    })
+    @UseGuards(IsLoginGuard)
+    @ApiBearerAuth()
+    async acceptInvitation(
+        @Param('token') token: string,
+        @Request() req: { user: { id: string } }
+    ): Promise<{ success: boolean }> {
+        const success = await this.neighborhoodInvitationService.acceptInvitation(token, parseInt(req.user.id));
+
+        return {
+            success,
+        };
+    }
+
+    /* Neighborhood users endpoints */
     @Get(':neighborhoodId/users')
     @UseInterceptors(PaginationInterceptor)
     @UseGuards(IsLoginGuard)

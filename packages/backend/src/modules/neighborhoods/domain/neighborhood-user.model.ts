@@ -7,3 +7,5 @@ export interface NeighborhoodUser {
     status: NeighborhoodUserStatus;
     neighborhoodId: number;
 }
+
+export type createNeighborhoodUser = Omit<NeighborhoodUser, 'id'>;

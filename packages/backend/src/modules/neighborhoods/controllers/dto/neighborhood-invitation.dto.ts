@@ -1,6 +1,7 @@
 import { IsArray, IsEmail, IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
+import { ResponseNeighborhoodDto } from './neighborhood.dto';
 
 export class GetNeighborhoodInvitationQueryParams {
     @ApiProperty({
@@ -109,4 +110,46 @@ export class GetNeiborhoodByUserIdDto {
     @IsNumber()
     @Type(() => Number)
     userId!: number;
+}
+
+export class NeighborhoodMemberDto {
+    @ApiProperty({
+        example: 1,
+        description: "L'id de l'utilisateur",
+    })
+    id!: number;
+
+    @ApiProperty({
+        example: 'Jean',
+        description: "Le prénom de l'utilisateur",
+    })
+    firstName!: string;
+
+    @ApiProperty({
+        example: 'Dupont',
+        description: "Le nom de famille de l'utilisateur",
+    })
+    lastName!: string;
+
+    @ApiProperty({
+        example: 'https://example.com/profile.jpg',
+        description: "L'URL de l'image de profil",
+        required: false,
+    })
+    profileImageUrl?: string;
+
+    @ApiProperty({
+        description: "Le rôle de l'utilisateur dans le quartier",
+        example: 'admin',
+        enum: ['admin', 'user'],
+    })
+    neighborhoodRole!: string;
+}
+
+export class ResponseNeighborhoodWithMembersDto extends ResponseNeighborhoodDto {
+    @ApiProperty({
+        type: [NeighborhoodMemberDto],
+        description: 'La liste des membres du quartier',
+    })
+    members!: NeighborhoodMemberDto[];
 }
