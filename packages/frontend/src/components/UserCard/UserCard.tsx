@@ -7,7 +7,7 @@ export default function UserCard({ user, isCreator, uc }: { user: UserModel; isC
     const [profileImageUrl, setProfileImageUrl] = useState<string | null>(null);
     useEffect(() => {
         const checkProfileImage = async () => {
-            if (user) {
+            if (user && user.profileImageUrl) {
                 try {
                     const resUser = await uc.getUserById(user.id);
                     setProfileImageUrl(resUser.profileImageUrl ?? null);

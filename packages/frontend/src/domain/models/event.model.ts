@@ -1,7 +1,7 @@
 import { FrontNeighborhood } from '@/domain/models/FrontNeighborhood.ts';
 import { UserModel } from '@/domain/models/user.model.ts';
 import { TagModel } from 'back-office/src/domain/models/tag.model.ts';
-import { GeometryModel } from '@/domain/models/geometry.model.ts';
+import { EventGeometryModel } from '@/domain/models/event.geometry.model.ts';
 
 export interface EventModel {
     id: number;
@@ -16,8 +16,8 @@ export interface EventModel {
     min: number;
     max: number;
     photo: string;
-    addressStart: GeometryModel | null;
-    addressEnd: GeometryModel | null;
+    addressStart: EventGeometryModel | null;
+    addressEnd: EventGeometryModel | null;
     registeredUsers: number;
 }
 
@@ -34,7 +34,7 @@ export interface EventModelWithUser {
     min: number;
     max: number;
     photo: string;
-    addressStart: GeometryModel | null;
-    addressEnd: GeometryModel | null;
+    addressStart: EventGeometryModel | null;
+    addressEnd: EventGeometryModel | null;
     registeredUsers: UserModel[];
 }
