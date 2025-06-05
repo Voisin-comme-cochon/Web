@@ -20,3 +20,21 @@ export interface EventModel {
     addressEnd: GeometryModel | null;
     registeredUsers: number;
 }
+
+export interface EventModelWithUser {
+    id: number;
+    creator: UserModel;
+    neighborhood: FrontNeighborhood;
+    name: string;
+    description: string;
+    createdAt: Date;
+    dateStart: Date;
+    dateEnd: Date;
+    tag: TagModel;
+    min: number;
+    max: number;
+    photo: string;
+    addressStart: GeometryModel | null;
+    addressEnd: GeometryModel | null;
+    registeredUsers: UserModel[];
+}

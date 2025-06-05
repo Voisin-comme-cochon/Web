@@ -2,7 +2,7 @@ import { UserModel } from '@/domain/models/user.model.ts';
 import { UserFrontRepository } from '@/infrastructure/repositories/UserFrontRepository.ts';
 import { NeighborhoodFrontRepository } from '@/infrastructure/repositories/NeighborhoodFrontRepository.ts';
 import { FrontNeighborhood } from '@/domain/models/FrontNeighborhood.ts';
-import { EventModel } from '@/domain/models/event.model.ts';
+import { EventModel, EventModelWithUser } from '@/domain/models/event.model.ts';
 import { EventRepository } from '@/infrastructure/repositories/EventRepository.ts';
 
 export class HomeUc {
@@ -45,7 +45,7 @@ export class HomeUc {
         }
     }
 
-    async getEventById(eventId: number): Promise<EventModel> {
+    async getEventById(eventId: number): Promise<EventModelWithUser> {
         try {
             return await this.eventRepository.getEventById(eventId);
         } catch (error) {

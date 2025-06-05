@@ -1,5 +1,5 @@
 import { EventModel } from '@/domain/models/event.model.ts';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import PreviewEvent from '@/components/PreviewEvent/PreviewEvent.tsx';
 import NotCreatedEvent from '@/components/PreviewEvent/NotCreatedEvent.tsx';
 import { useAppNavigation } from '@/presentation/state/navigate.ts';
@@ -17,15 +17,16 @@ export default function MyNeighborhoodPage() {
     const { goNeighborhoodEvents } = useAppNavigation();
     const [user, setUser] = useState<UserModel | null>(null);
     const neighborhoodId = localStorage.getItem('neighborhoodId');
-    const uc = new HomeUc(new UserFrontRepository(), new NeighborhoodFrontRepository(), new EventRepository());
-
+    const uc = useMemo(
+        () => new HomeUc(new UserFrontRepository(), new NeighborhoodFrontRepository(), new EventRepository()),
+        []
+    );
     useEffect(() => {
         const fetchConnectedData = async () => {
             const token = localStorage.getItem('jwt');
             if (token) {
                 try {
                     const decoded: DecodedUser = jwtDecode(token);
-
                     const fetchedUser = await uc.getUserById(decoded.id);
                     setUser(fetchedUser);
                 } catch (error) {
