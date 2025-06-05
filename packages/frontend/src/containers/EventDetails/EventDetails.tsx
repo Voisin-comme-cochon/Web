@@ -5,6 +5,7 @@ import { withHeaderData } from '@/containers/Wrapper/Wrapper.tsx';
 import { HomeUc } from '@/domain/use-cases/homeUc.ts';
 import './style.css';
 import DashboardHeader from '@/components/Header/DashboardHeader.tsx';
+import UserCard from '@/components/UserCard/UserCard.tsx';
 
 type changeCategory = 'description' | 'inscrits' | 'lieu';
 
@@ -78,13 +79,20 @@ function EventDetails({ uc }: { uc: HomeUc }) {
                                 </div>
                             )}
                             {selectedCategory === 'inscrits' && (
-                                <div>
-                                    <p>Nombre d'inscrits : {event?.registeredUsers.length}</p>
-                                    <ul>
+                                <div className={'registered-list'}>
+                                    <p className={'registered-amount'}>
+                                        {event?.registeredUsers.length} / {event.max}
+                                    </p>
+                                    <div className={'registered-grid'}>
                                         {event?.registeredUsers.map((participant) => (
-                                            <li key={participant.id}>{participant.firstName}</li>
+                                            <UserCard
+                                                uc={uc}
+                                                key={participant.id}
+                                                user={participant}
+                                                isCreator={participant.id === event.creator.id}
+                                            />
                                         ))}
-                                    </ul>
+                                    </div>
                                 </div>
                             )}
                             {selectedCategory === 'lieu' && (
