@@ -8,6 +8,7 @@ import DashboardHeader from '@/components/Header/DashboardHeader.tsx';
 import UserCard from '@/components/UserCard/UserCard.tsx';
 import EventMapBox from '@/components/MapBox/EventMapBox.tsx';
 import { MapBoxRepository } from '@/infrastructure/repositories/MapBoxRepository.ts';
+import { Button } from '@/components/ui/button.tsx';
 
 type ChangeCategory = 'description' | 'inscrits' | 'lieu';
 
@@ -66,7 +67,6 @@ function EventDetails({ uc }: { uc: HomeUc }) {
         fetchAddress();
     }, [event]);
 
-    // Affiche un loader tant que l'évènement n'est pas chargé
     if (!event) {
         return <div className="flex items-center justify-center h-screen">Chargement de l’évènement…</div>;
     }
@@ -153,7 +153,11 @@ function EventDetails({ uc }: { uc: HomeUc }) {
                         </div>
                     </div>
 
-                    <div className="popup-action">{/* Action buttons si nécessaire */}</div>
+                    <div className="popup-action">
+                        <Button variant={'orange'} className={'w-full'}>
+                            Rejoindre
+                        </Button>
+                    </div>
                 </div>
             </div>
         </>

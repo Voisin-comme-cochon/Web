@@ -53,6 +53,13 @@ export class EventsRepositoryImplementation implements EventsRepository {
             });
     }
 
+    public registerUserForEvent(id: number, userId: number): void {
+        void this.dataSource.getRepository(EventRegistrationEntity).save({
+            eventId: id,
+            userId: userId,
+        });
+    }
+
     public createEvent(event: EventEntity): Promise<EventEntity> {
         return this.dataSource.getRepository(EventEntity).save(event);
     }

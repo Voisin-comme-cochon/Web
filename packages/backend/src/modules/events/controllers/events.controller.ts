@@ -27,8 +27,8 @@ import { PaginationInterceptor } from '../../../core/pagination/pagination.inter
 import { ResponseUserDto } from '../../users/controllers/dto/users.dto';
 import {
     CreateEventDto,
+    GetEventIdDto,
     GetEventsByNeighborhoodIdDto,
-    GetUserByEventIdDto,
     ResponseEventDto,
     ResponseEventWithUsersDto,
 } from './dto/events.dto';
@@ -155,11 +155,26 @@ export class EventsController {
     @ApiNotFoundResponse({ description: 'Event not found' })
     async getUsersByEventId(
         @Query() pagination: Paging,
-        @Param() params: GetUserByEventIdDto
+        @Param() params: GetEventIdDto
     ): Promise<Paginated<ResponseUserDto>> {
         const [users, count] = await this.eventsService.getUsersByEventId(params.id, pagination.page, pagination.limit);
         const responseUsers = UserAdapter.listDomainToResponseUser(users);
         return new Paginated(responseUsers, pagination, count);
+    }
+
+    @Post(':id/register')
+    @ApiOperation({ summary: 'Register user for the event' })
+    @ApiOkResponse({ description: 'User registered successfully' })
+    @ApiNotFoundResponse({ description: 'Event not found' })
+    async registerUserForEvent(
+        @Param() params: GetEventIdDto,
+        @Request()
+        req: {
+            user: { id: string };
+        }
+    ): Promise<void> {
+        const userId = parseInt(req.user.id, 10);
+        await this.eventsService.registerUserForEvent(params.id, userId);
     }
 
     @Post()

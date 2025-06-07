@@ -50,6 +50,32 @@ export class EventsService {
         return this.replacePhotoByLink(domainEvent);
     }
 
+    public async registerUserForEvent(id: number, userId: number): Promise<void> {
+        const event = await this.eventRepository.getEventById(id);
+        if (!event) {
+            throw new CochonError('event_not_found', 'Event not found', 404);
+        }
+
+        if (event.dateStart < new Date()) {
+            throw new CochonError(
+                'event_already_started',
+                'Cannot register for an event that has already started',
+                400
+            );
+        }
+
+        const registeredAmount = await this.eventRepository.getUsersByEventIdNoLimit(id);
+        if (registeredAmount.length >= event.max) {
+            throw new CochonError('event_full', 'Event is already full', 400);
+        }
+
+        if (registeredAmount.some((user) => user.id === userId)) {
+            throw new CochonError('user_already_registered', 'User is already registered for this event', 400);
+        }
+
+        this.eventRepository.registerUserForEvent(id, userId);
+    }
+
     public async createEvent(event: CreateEventInput): Promise<Event> {
         const {
             name,

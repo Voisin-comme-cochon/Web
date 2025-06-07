@@ -218,7 +218,7 @@ export class GetEventsByNeighborhoodIdDto {
     id!: number;
 }
 
-export class GetUserByEventIdDto {
+export class GetEventIdDto {
     @ApiProperty({
         example: 1,
         description: 'The id of the event',
