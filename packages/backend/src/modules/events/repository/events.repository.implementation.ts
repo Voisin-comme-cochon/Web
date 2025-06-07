@@ -60,6 +60,13 @@ export class EventsRepositoryImplementation implements EventsRepository {
         });
     }
 
+    public unregisterUserFromEvent(id: number, userId: number): void {
+        void this.dataSource.getRepository(EventRegistrationEntity).delete({
+            eventId: id,
+            userId: userId,
+        });
+    }
+
     public createEvent(event: EventEntity): Promise<EventEntity> {
         return this.dataSource.getRepository(EventEntity).save(event);
     }

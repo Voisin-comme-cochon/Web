@@ -76,6 +76,20 @@ export class EventsService {
         this.eventRepository.registerUserForEvent(id, userId);
     }
 
+    public async unregisterUserFromEvent(id: number, userId: number): Promise<void> {
+        const event = await this.eventRepository.getEventById(id);
+        if (!event) {
+            throw new CochonError('event_not_found', 'Event not found', 404);
+        }
+
+        const registeredUsers = await this.eventRepository.getUsersByEventIdNoLimit(id);
+        if (!registeredUsers.some((user) => user.id === userId)) {
+            throw new CochonError('user_not_registered', 'User is not registered for this event', 400);
+        }
+
+        this.eventRepository.unregisterUserFromEvent(id, userId);
+    }
+
     public async createEvent(event: CreateEventInput): Promise<Event> {
         const {
             name,

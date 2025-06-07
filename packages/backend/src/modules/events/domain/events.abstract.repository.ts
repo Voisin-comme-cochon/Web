@@ -15,4 +15,6 @@ export abstract class EventsRepository {
     abstract getUsersByEventIdNoLimit(id: number): Promise<User[]>;
 
     abstract registerUserForEvent(id: number, userId: number): void;
+
+    abstract unregisterUserFromEvent(id: number, userId: number): void;
 }

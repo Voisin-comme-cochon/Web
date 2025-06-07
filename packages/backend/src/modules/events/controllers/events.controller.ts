@@ -1,6 +1,7 @@
 import {
     Body,
     Controller,
+    Delete,
     Get,
     Param,
     Post,
@@ -175,6 +176,21 @@ export class EventsController {
     ): Promise<void> {
         const userId = parseInt(req.user.id, 10);
         await this.eventsService.registerUserForEvent(params.id, userId);
+    }
+
+    @Delete(':id/register')
+    @ApiOperation({ summary: 'Unregister user from the event' })
+    @ApiOkResponse({ description: 'User unregistered successfully' })
+    @ApiNotFoundResponse({ description: 'Event not found' })
+    async unregisterUserFromEvent(
+        @Param() params: GetEventIdDto,
+        @Request()
+        req: {
+            user: { id: string };
+        }
+    ): Promise<void> {
+        const userId = parseInt(req.user.id, 10);
+        await this.eventsService.unregisterUserFromEvent(params.id, userId);
     }
 
     @Post()
