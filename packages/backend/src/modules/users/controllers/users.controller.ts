@@ -13,7 +13,9 @@ import { GetUserByIdDto, ResponseUserDto } from './dto/users.dto';
 @ApiBearerAuth()
 @UseGuards(IsLoginGuard)
 export class UsersController {
-    constructor(private readonly usersService: UsersService) {}
+    constructor(
+        private readonly usersService: UsersService,
+    ) {}
 
     @Get()
     @UseInterceptors(PaginationInterceptor)
@@ -36,4 +38,5 @@ export class UsersController {
         const user = await this.usersService.getUserById(params.id);
         return UserAdapter.domainToResponseUser(user);
     }
+
 }

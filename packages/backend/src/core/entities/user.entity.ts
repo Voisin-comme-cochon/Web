@@ -6,6 +6,7 @@ import { GroupMembershipEntity } from './group-membership.entity';
 import { SalesEntity } from './sales.entity';
 import { NeighborhoodUserEntity } from './neighborhood-user.entity';
 import { NeighborhoodInvitationEntity } from './neighborhood-invitation.entity';
+import { UserTagEntity } from './user-tag.entity';
 
 @Entity({ name: 'users' })
 export class UserEntity {
@@ -66,4 +67,7 @@ export class UserEntity {
 
     @OneToMany(() => NeighborhoodInvitationEntity, (invitation) => invitation.creator)
     created_invitations?: NeighborhoodInvitationEntity[];
+
+    @OneToMany(() => UserTagEntity, (userTag) => userTag.user, { onDelete: 'CASCADE' })
+    user_tags?: UserTagEntity[];
 }

@@ -1,12 +1,14 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, OmitType, PickType } from '@nestjs/swagger';
 import { IsHexColor, IsInt } from 'class-validator';
+import { Type } from 'class-transformer';
 
-export class ResponseTagDto {
+export class TagDto {
     @ApiProperty({
         example: 1,
         description: 'The id of the tag',
     })
     @IsInt()
+    @Type(() => Number)
     id!: number;
 
     @ApiProperty({
@@ -20,4 +22,15 @@ export class ResponseTagDto {
     })
     @IsHexColor()
     color!: string;
+
+    @ApiProperty({
+        example: 1,
+        description: 'The neighborhood id associated with the tag',
+    })
+    @IsInt()
+    neighborhoodId!: number;
 }
+
+export class UpsertTagDto extends OmitType(TagDto, ['id']) {}
+
+export class GetByIdDto extends PickType(TagDto, ['id']) {}

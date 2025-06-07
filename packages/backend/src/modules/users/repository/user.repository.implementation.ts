@@ -1,5 +1,7 @@
 import { DataSource } from 'typeorm';
 import { UserEntity } from '../../../core/entities/user.entity';
+import { NeighborhoodEntity } from '../../../core/entities/neighborhood.entity';
+import { NeighborhoodUserEntity } from '../../../core/entities/neighborhood-user.entity';
 import { UsersRepository } from '../domain/users.abstract.repository';
 
 export class UserRepositoryImplementation implements UsersRepository {
@@ -42,5 +44,14 @@ export class UserRepositoryImplementation implements UsersRepository {
 
     public async updateUserPassword(userId: number, password: string): Promise<void> {
         await this.dataSource.getRepository(UserEntity).update({ id: userId }, { password: password });
+    }
+
+    public async getUserNeighborhoods(userId: number): Promise<NeighborhoodEntity[]> {
+        const neighborhoodUsers = await this.dataSource.getRepository(NeighborhoodUserEntity).find({
+            where: { userId },
+            relations: ['neighborhood'],
+        });
+
+        return neighborhoodUsers.map(nu => nu.neighborhood);
     }
 }

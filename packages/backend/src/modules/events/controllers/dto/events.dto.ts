@@ -2,7 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsInt, IsISO8601, IsNumber, IsString } from 'class-validator';
 import { Geography } from 'typeorm';
 import { Type } from 'class-transformer';
-import { TagEntity } from '../../../../core/entities/tag.entity';
+import { TagDto } from '../../../tags/controllers/dto/tags.dto';
 import { ResponseUserDto } from '../../../users/controllers/dto/users.dto';
 import { ResponseNeighborhoodDto } from '../../../neighborhoods/controllers/dto/neighborhood.dto';
 
@@ -63,7 +63,7 @@ export class ResponseEventDto {
     @ApiProperty({
         description: 'The tag of the event',
     })
-    tag!: TagEntity;
+    tag!: TagDto;
 
     @ApiProperty({
         example: '0',

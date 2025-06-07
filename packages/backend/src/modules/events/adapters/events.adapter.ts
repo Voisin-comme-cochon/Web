@@ -3,7 +3,7 @@ import { ResponseEventDto, ResponseEventWithUsersDto } from '../controllers/dto/
 import { EventEntity } from '../../../core/entities/event.entity';
 import { ResponseUserDto } from '../../users/controllers/dto/users.dto';
 import { ResponseNeighborhoodDto } from '../../neighborhoods/controllers/dto/neighborhood.dto';
-import { ResponseTagDto } from '../../tags/controllers/dto/tags.dto';
+import { TagDto } from '../../tags/controllers/dto/tags.dto';
 
 export class EventsAdapter {
     static entityToDomain(eventEntity: EventEntity): Event {
@@ -50,7 +50,7 @@ export class EventsAdapter {
 
     static domainToResponseEvent(
         event: Event,
-        tag: ResponseTagDto,
+        tag: TagDto,
         neighborhood: ResponseNeighborhoodDto,
         user: ResponseUserDto,
         registeredUsers: number
@@ -102,7 +102,7 @@ export class EventsAdapter {
 
     static listDomainToResponseEvent(
         events: Event[],
-        tags: ResponseTagDto[],
+        tags: TagDto[],
         neighborhoods: ResponseNeighborhoodDto[],
         users: ResponseUserDto[],
         registeredUsers: number[]
