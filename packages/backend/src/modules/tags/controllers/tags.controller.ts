@@ -1,4 +1,16 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Query, UseGuards, UseInterceptors } from '@nestjs/common';
+import {
+    Body,
+    Controller,
+    Delete,
+    Get,
+    Param,
+    Patch,
+    Post,
+    Put,
+    Query,
+    UseGuards,
+    UseInterceptors,
+} from '@nestjs/common';
 import {
     ApiNotFoundResponse,
     ApiOkResponse,
@@ -14,7 +26,7 @@ import { Paginated, Paging } from '../../../core/pagination/pagination';
 import { PaginationInterceptor } from '../../../core/pagination/pagination.interceptor';
 import { IsLoginGuard } from '../../../middleware/is-login.middleware';
 import { IsSuperAdminGuard } from '../../../middleware/is-super-admin.middleware';
-import { GetByIdDto, TagDto, UpsertTagDto } from './dto/tags.dto';
+import { AssignTagDto, GetByIdDto, TagDto, UpsertTagDto } from './dto/tags.dto';
 
 @ApiTags('tags')
 @ApiBearerAuth()
@@ -71,6 +83,23 @@ export class TagsController {
     @ApiNotFoundResponse({ description: 'Tag not found' })
     async deleteTag(@Param() param: GetByIdDto): Promise<{ success: boolean }> {
         await this.tagsService.deleteTag(param.id);
+        return {
+            success: true,
+        };
+    }
+
+    @Patch('/users/:id')
+    @UseGuards(IsLoginGuard)
+    @ApiOperation({ summary: 'Update user tags' })
+    @ApiOkResponse({ description: 'User tags updated successfully' })
+    @ApiNotFoundResponse({ description: 'User not found' })
+    async updateUserTags(
+        @Param() param: GetByIdDto,
+        @Body() updateTagDto: AssignTagDto
+    ): Promise<{
+        success: boolean;
+    }> {
+        await this.tagsService.updateUserTags(param.id, updateTagDto.tagIds);
         return {
             success: true,
         };

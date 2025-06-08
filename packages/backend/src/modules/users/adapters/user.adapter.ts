@@ -18,7 +18,8 @@ export class UserAdapter {
             prefferedNotifMethod: userEntity.prefferedNotifMethod,
             profileImageUrl: userEntity.profileImageUrl,
             tags: userEntity.tags
-                ? userEntity.tags.filter((userTag) => userTag.tag !== undefined).map((userTag) => userTag.tag!)
+                ? // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                  userEntity.tags.filter((userTag) => userTag.tag !== undefined).map((userTag) => userTag.tag!)
                 : [],
         };
     }

@@ -10,4 +10,6 @@ export abstract class TagsRepository {
     abstract updateTag(id: number, tag: UpsertTag): Promise<Tag | null>;
 
     abstract deleteTag(id: number): Promise<boolean>;
+
+    abstract assignTagsToUser(userId: number, tagIds: number[]): Promise<void>;
 }

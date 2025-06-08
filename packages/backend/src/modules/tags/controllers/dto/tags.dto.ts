@@ -24,6 +24,19 @@ export class TagDto {
     color!: string;
 }
 
+export class AssignTagDto {
+    @ApiProperty({
+        example: [1, 2, 3],
+        description: 'The ids of the tags to assign',
+        isArray: true,
+        type: [Number],
+        required: true,
+    })
+    @IsInt({ each: true })
+    @Type(() => Number)
+    tagIds!: number[];
+}
+
 export class UpsertTagDto extends OmitType(TagDto, ['id']) {}
 
 export class GetByIdDto extends PickType(TagDto, ['id']) {}

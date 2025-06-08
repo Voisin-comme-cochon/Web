@@ -1,8 +1,10 @@
-import { DataSource } from 'typeorm';
+import { DataSource, In } from 'typeorm';
 import { TagsRepository } from '../domain/tags.abstract.repository';
 import { TagEntity } from '../../../core/entities/tag.entity';
 import { Tag, UpsertTag } from '../domain/tags.model';
 import { TagsAdapter } from '../adapters/tags.adapter';
+import { UserEntity } from '../../../core/entities/user.entity';
+import { UserTagEntity } from '../../../core/entities/user-tag.entity';
 
 export class TagsRepositoryImplementation implements TagsRepository {
     constructor(private readonly dataSource: DataSource) {}
@@ -23,7 +25,6 @@ export class TagsRepositoryImplementation implements TagsRepository {
         return entity ? TagsAdapter.entityToDomain(entity) : null;
     }
 
-
     public async createTag(tag: UpsertTag): Promise<Tag> {
         const repository = this.dataSource.getRepository(TagEntity);
         const newTag = repository.create(tag);
@@ -41,5 +42,29 @@ export class TagsRepositoryImplementation implements TagsRepository {
         const repository = this.dataSource.getRepository(TagEntity);
         const result = await repository.delete(id);
         return (result.affected ?? 0) > 0;
+    }
+
+    public async assignTagsToUser(userId: number, tagIds: number[]): Promise<void> {
+        const userTagRepository = this.dataSource.getRepository(UserTagEntity);
+
+        const userRepository = this.dataSource.getRepository(UserEntity);
+        const user = await userRepository.findOne({ where: { id: userId } });
+        if (!user) {
+            throw new Error(`User with ID ${userId} not found`);
+        }
+
+        const tags = await this.dataSource.getRepository(TagEntity).findBy({ id: In(tagIds) });
+        if (tags.length !== tagIds.length) {
+            throw new Error('One or more tags not found');
+        }
+
+        await userTagRepository.delete({ userId });
+
+        const userTags = tagIds.map((tagId) => ({
+            userId,
+            tagId,
+        }));
+
+        await userTagRepository.save(userTags);
     }
 }
