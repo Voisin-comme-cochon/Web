@@ -8,7 +8,6 @@ export class TagsAdapter {
             id: tagEntity.id,
             name: tagEntity.name,
             color: tagEntity.color,
-            neighborhoodId: tagEntity.neighborhoodId,
         };
     }
 
@@ -21,7 +20,6 @@ export class TagsAdapter {
             id: tag.id,
             name: tag.name,
             color: tag.color,
-            neighborhoodId: tag.neighborhoodId,
         };
     }
 
@@ -29,7 +27,6 @@ export class TagsAdapter {
         return {
             name: createTagDto.name,
             color: createTagDto.color,
-            neighborhoodId: createTagDto.neighborhoodId,
         };
     }
 
@@ -38,7 +35,6 @@ export class TagsAdapter {
             id: tag.id,
             name: tag.name,
             color: tag.color,
-            neighborhoodId: tag.neighborhoodId,
         };
     }
 

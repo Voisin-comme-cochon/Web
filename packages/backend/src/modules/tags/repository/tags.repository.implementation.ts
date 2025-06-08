@@ -23,12 +23,6 @@ export class TagsRepositoryImplementation implements TagsRepository {
         return entity ? TagsAdapter.entityToDomain(entity) : null;
     }
 
-    public async getTagsByNeighborhoodId(neighborhoodId: number): Promise<Tag[]> {
-        const entities = await this.dataSource.getRepository(TagEntity).find({
-            where: { neighborhoodId: neighborhoodId },
-        });
-        return TagsAdapter.listEntityToDomain(entities);
-    }
 
     public async createTag(tag: UpsertTag): Promise<Tag> {
         const repository = this.dataSource.getRepository(TagEntity);

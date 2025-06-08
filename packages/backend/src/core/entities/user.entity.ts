@@ -68,6 +68,6 @@ export class UserEntity {
     @OneToMany(() => NeighborhoodInvitationEntity, (invitation) => invitation.creator)
     created_invitations?: NeighborhoodInvitationEntity[];
 
-    @OneToMany(() => UserTagEntity, (userTag) => userTag.user, { onDelete: 'CASCADE' })
-    user_tags?: UserTagEntity[];
+    @OneToMany(() => UserTagEntity, (userTag) => userTag.user)
+    tags?: UserTagEntity[];
 }

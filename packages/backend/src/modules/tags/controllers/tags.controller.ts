@@ -7,15 +7,13 @@ import {
     ApiCreatedResponse,
     ApiBadRequestResponse,
     ApiBearerAuth,
-    ApiConflictResponse,
 } from '@nestjs/swagger';
 import { TagsService } from '../services/tags.service';
-import { UserTagsService } from '../services/user-tags.service';
 import { TagsAdapter } from '../adapters/tags.adapter';
 import { Paginated, Paging } from '../../../core/pagination/pagination';
 import { PaginationInterceptor } from '../../../core/pagination/pagination.interceptor';
 import { IsLoginGuard } from '../../../middleware/is-login.middleware';
-import { AssignTagToUserDto, RemoveTagFromUserDto, UserTagResponseDto } from './dto/user-tag.dto';
+import { IsSuperAdminGuard } from '../../../middleware/is-super-admin.middleware';
 import { GetByIdDto, TagDto, UpsertTagDto } from './dto/tags.dto';
 
 @ApiTags('tags')
@@ -23,10 +21,7 @@ import { GetByIdDto, TagDto, UpsertTagDto } from './dto/tags.dto';
 @UseGuards(IsLoginGuard)
 @Controller('tags')
 export class TagsController {
-    constructor(
-        private readonly tagsService: TagsService,
-        private readonly userTagsService: UserTagsService
-    ) {}
+    constructor(private readonly tagsService: TagsService) {}
 
     @Get()
     @UseInterceptors(PaginationInterceptor)
@@ -48,17 +43,8 @@ export class TagsController {
         return TagsAdapter.domainToResponseTag(tag);
     }
 
-    @Get('/neighborhood/:neighborhoodId')
-    @ApiOperation({ summary: 'Get tags by neighborhood id' })
-    @ApiOkResponse({ description: 'Tags found', type: [TagDto] })
-    @ApiNotFoundResponse({ description: 'Tags not found' })
-    async getTagsByNeighborhoodId(@Param('neighborhoodId') neighborhoodId: string): Promise<TagDto[]> {
-        const numberId = parseInt(neighborhoodId, 10);
-        const tags = await this.tagsService.getTagsByNeighborhoodId(numberId);
-        return TagsAdapter.listDomainToResponseTag(tags);
-    }
-
     @Post()
+    @UseGuards(IsSuperAdminGuard)
     @ApiOperation({ summary: 'Create a new tag' })
     @ApiCreatedResponse({ description: 'Tag created successfully', type: TagDto })
     @ApiBadRequestResponse({ description: 'Invalid input data' })
@@ -68,6 +54,7 @@ export class TagsController {
     }
 
     @Put('/:id')
+    @UseGuards(IsSuperAdminGuard)
     @ApiOperation({ summary: 'Update a tag' })
     @ApiOkResponse({ description: 'Tag updated successfully', type: TagDto })
     @ApiNotFoundResponse({ description: 'Tag not found' })
@@ -78,6 +65,7 @@ export class TagsController {
     }
 
     @Delete('/:id')
+    @UseGuards(IsSuperAdminGuard)
     @ApiOperation({ summary: 'Delete a tag' })
     @ApiOkResponse({ description: 'Tag deleted successfully' })
     @ApiNotFoundResponse({ description: 'Tag not found' })
@@ -86,44 +74,5 @@ export class TagsController {
         return {
             success: true,
         };
-    }
-
-    @Post('/users/:id')
-    @ApiOperation({ summary: 'Assign tags to a user' })
-    @ApiCreatedResponse({ description: 'Tags assigned successfully', type: [UserTagResponseDto] })
-    @ApiBadRequestResponse({ description: 'Invalid input data or user/tag not in same neighborhood' })
-    @ApiConflictResponse({ description: 'User already has one of these tags' })
-    @ApiNotFoundResponse({ description: 'User or tag not found' })
-    async assignTagsToUser(
-        @Param('id') userId: string,
-        @Body() assignTagDto: AssignTagToUserDto
-    ): Promise<UserTagResponseDto[]> {
-        const numberId = parseInt(userId, 10);
-        const userTags = await this.userTagsService.assignTagsToUser(numberId, assignTagDto.tagIdIn);
-        return userTags.map((userTag) => ({
-            id: userTag.id,
-            userId: userTag.userId,
-            tagId: userTag.tagId,
-            assignedAt: userTag.assignedAt,
-        }));
-    }
-
-    @Delete('/users/:id')
-    @ApiOperation({ summary: 'Remove tags from a user' })
-    @ApiOkResponse({ description: 'Tags removed successfully' })
-    @ApiNotFoundResponse({ description: 'User or tag association not found' })
-    async removeTagsFromUser(@Param('id') userId: string, @Body() removeTagDto: RemoveTagFromUserDto): Promise<void> {
-        const numberId = parseInt(userId, 10);
-        await this.userTagsService.removeTagsFromUser(numberId, removeTagDto.tagIdIn);
-    }
-
-    @Get('/users/:id')
-    @ApiOperation({ summary: 'Get all tags assigned to a user' })
-    @ApiOkResponse({ description: 'User tags found', type: [TagDto] })
-    @ApiNotFoundResponse({ description: 'User not found' })
-    async getUserTags(@Param('id') userId: string): Promise<TagDto[]> {
-        const numberId = parseInt(userId, 10);
-        const tags = await this.userTagsService.getUserTags(numberId);
-        return TagsAdapter.listDomainToResponseTag(tags);
     }
 }

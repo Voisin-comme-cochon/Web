@@ -5,8 +5,6 @@ export abstract class TagsRepository {
 
     abstract getTagById(id: number): Promise<Tag | null>;
 
-    abstract getTagsByNeighborhoodId(neighborhoodId: number): Promise<Tag[]>;
-
     abstract createTag(tag: UpsertTag): Promise<Tag>;
 
     abstract updateTag(id: number, tag: UpsertTag): Promise<Tag | null>;

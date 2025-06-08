@@ -22,13 +22,6 @@ export class TagDto {
     })
     @IsHexColor()
     color!: string;
-
-    @ApiProperty({
-        example: 1,
-        description: 'The neighborhood id associated with the tag',
-    })
-    @IsInt()
-    neighborhoodId!: number;
 }
 
 export class UpsertTagDto extends OmitType(TagDto, ['id']) {}
