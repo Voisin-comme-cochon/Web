@@ -7,6 +7,8 @@ import { MailerModule } from '../mailer/mailer.module';
 import { MailerService } from '../mailer/services/mailer.service';
 import { ObjectStorageModule } from '../objectStorage/objectStorage.module';
 import { ObjectStorageService } from '../objectStorage/services/objectStorage.service';
+import { TagsRepository } from '../tags/domain/tags.abstract.repository';
+import { TagsModule } from '../tags/tags.module';
 import { AuthController } from './controllers/auth.controller';
 import { AuthService } from './services/auth.service';
 import { AuthRepositoryImplementation } from './repository/auth.repository.implementation';
@@ -20,6 +22,7 @@ import { AuthRepository } from './domain/auth.abstract.repository';
         forwardRef(() => UsersModule),
         MailerModule,
         ObjectStorageModule,
+        forwardRef(() => TagsModule),
     ],
     controllers: [AuthController],
     providers: [
@@ -30,14 +33,23 @@ import { AuthRepository } from './domain/auth.abstract.repository';
         },
         {
             provide: AuthService,
-            inject: [AuthRepository, UsersRepository, JwtService, MailerService, ObjectStorageService],
+            inject: [AuthRepository, UsersRepository, JwtService, MailerService, ObjectStorageService, TagsRepository],
             useFactory: (
                 authRepository: AuthRepository,
                 usersRepository: UsersRepository,
                 jwtService: JwtService,
                 mailerService: MailerService,
-                objectStorageService: ObjectStorageService
-            ) => new AuthService(usersRepository, authRepository, jwtService, mailerService, objectStorageService),
+                objectStorageService: ObjectStorageService,
+                tagRepository: TagsRepository
+            ) =>
+                new AuthService(
+                    usersRepository,
+                    authRepository,
+                    jwtService,
+                    mailerService,
+                    objectStorageService,
+                    tagRepository
+                ),
         },
     ],
     exports: [AuthService, JwtModule],

@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { DataSource } from 'typeorm';
 import { AuthModule } from '../auth/auth.module';
 import { TagsRepository } from './domain/tags.abstract.repository';
@@ -7,7 +7,7 @@ import { TagsService } from './services/tags.service';
 import { TagsRepositoryImplementation } from './repository/tags.repository.implementation';
 
 @Module({
-    imports: [AuthModule],
+    imports: [forwardRef(() => AuthModule)],
     controllers: [TagsController],
     exports: [TagsRepository, TagsService],
     providers: [

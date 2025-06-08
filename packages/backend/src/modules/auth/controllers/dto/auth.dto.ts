@@ -39,6 +39,14 @@ export class SignInDto {
     @Type(() => String)
     @MinLength(8)
     password!: string;
+
+    @ApiProperty({
+        example: '1,2,3',
+        description: 'List of tag IDs',
+    })
+    @IsOptional()
+    @IsString()
+    tagIds?: string;
 }
 
 export class RefreshTokenDto {

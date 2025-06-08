@@ -30,7 +30,7 @@ export class UsersService {
 
     public async getUserById(id: number): Promise<User> {
         const user = await this.userRepository.getUserById(id);
-        if (!user) {
+        if (isNull(user)) {
             throw new CochonError('user-not-found', 'User not found', 404);
         }
 
@@ -38,7 +38,7 @@ export class UsersService {
             user.profileImageUrl = await this.replaceUrlByLink(user.profileImageUrl);
         }
 
-        return UserAdapter.entityToDomain(user);
+        return user;
     }
 
     async replaceUrlByLink(url: string): Promise<string> {

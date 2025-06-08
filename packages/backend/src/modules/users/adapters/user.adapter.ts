@@ -17,6 +17,9 @@ export class UserAdapter {
             newsletter: userEntity.newsletter,
             prefferedNotifMethod: userEntity.prefferedNotifMethod,
             profileImageUrl: userEntity.profileImageUrl,
+            tags: userEntity.tags
+                ? userEntity.tags.filter((userTag) => userTag.tag !== undefined).map((userTag) => userTag.tag!)
+                : [],
         };
     }
 
@@ -53,6 +56,7 @@ export class UserAdapter {
             newsletter: user.newsletter,
             prefferedNotifMethod: user.prefferedNotifMethod,
             profileImageUrl: user.profileImageUrl,
+            tags: user.tags,
         };
     }
 
