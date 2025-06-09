@@ -5,6 +5,8 @@ import PreviewEvent from '@/components/PreviewEvent/PreviewEvent.tsx';
 import { EventModel } from '@/domain/models/event.model.ts';
 import MultiSelectTagComponent from '@/components/SelectComponent/MultiSelectTagComponent.tsx';
 import { TagModel } from '@/domain/models/tag.model.ts';
+import { Button } from '@/components/ui/button.tsx';
+import { useAppNavigation } from '@/presentation/state/navigate.ts';
 
 export default function MyEventsPage({
     uc,
@@ -19,6 +21,7 @@ export default function MyEventsPage({
     const [tagFilter, setTagFilter] = useState<string[]>([]);
     const [tags, setTags] = useState<TagModel[]>([]);
     const [filteredEvents, setFilteredEvents] = useState<EventModel[]>([]);
+    const { goCreateEvent } = useAppNavigation();
 
     const onTagSelect = (tagIds: string[]) => {
         setTagFilter(tagIds);
@@ -60,6 +63,9 @@ export default function MyEventsPage({
         <div className="px-32 mb-8 w-full">
             <div className={'flex flex-row justify-between items-center mb-1'}>
                 <MultiSelectTagComponent tags={tags} onSelect={onTagSelect} />
+                <Button variant={'orange'} onClick={goCreateEvent}>
+                    Créer un évènement
+                </Button>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 {filteredEvents.map((event) => (

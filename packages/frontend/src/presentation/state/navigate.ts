@@ -14,7 +14,7 @@ export const useAppNavigation = () => {
     const goNeighborhoodEvents = () => navigate('/neighborhood-events');
     const goNeighborhoodJournal = () => navigate('/neighborhood-journal');
     const goNeighborhoodMat = () => navigate('/neighborhood-materials');
-
+    const goCreateEvent = () => navigate('/events/create');
     return {
         goLogin,
         goSignin,
@@ -27,5 +27,6 @@ export const useAppNavigation = () => {
         goNeighborhoodEvents,
         goNeighborhoodJournal,
         goNeighborhoodMat,
+        goCreateEvent,
     };
 };
