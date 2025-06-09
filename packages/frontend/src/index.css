@@ -75,7 +75,6 @@
 
 * {
     color: var(--primary-foreground);
-    border: 0;
     box-sizing: border-box;
 }
 

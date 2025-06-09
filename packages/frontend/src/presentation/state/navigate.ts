@@ -9,7 +9,11 @@ export const useAppNavigation = () => {
     const goCreateNeighborhood = () => navigate('/neighborhoods/create');
     const goLanding = () => navigate('/');
     const goInviteNeighbors = () => navigate('/neighborhoods/invite');
-    const goHome = () => navigate('/home');
+    const goEventDetail = (eventId: number) => navigate(`/events/${eventId}`);
+    const goMyNeighborhood = () => navigate('/my-neighborhood');
+    const goNeighborhoodEvents = () => navigate('/neighborhood-events');
+    const goNeighborhoodJournal = () => navigate('/neighborhood-journal');
+    const goNeighborhoodMat = () => navigate('/neighborhood-materials');
 
     return {
         goLogin,
@@ -18,6 +22,10 @@ export const useAppNavigation = () => {
         goResetPassword,
         goCreateNeighborhood,
         goInviteNeighbors,
-        goHome,
+        goEventDetail,
+        goMyNeighborhood,
+        goNeighborhoodEvents,
+        goNeighborhoodJournal,
+        goNeighborhoodMat,
     };
 };

@@ -6,13 +6,15 @@ import { UsersModule } from '../users/users.module';
 import { TagsModule } from '../tags/tags.module';
 import { NeighborhoodModule } from '../neighborhoods/neighborhood.module';
 
+import { ObjectStorageService } from '../objectStorage/services/objectStorage.service';
+import { ObjectStorageModule } from '../objectStorage/objectStorage.module';
 import { EventsRepository } from './domain/events.abstract.repository';
 import { EventsRepositoryImplementation } from './repository/events.repository.implementation';
 import { EventsService } from './services/events.service';
 import { EventsController } from './controllers/events.controller';
 
 @Module({
-    imports: [AuthModule, UsersModule, TagsModule, NeighborhoodModule],
+    imports: [AuthModule, UsersModule, TagsModule, NeighborhoodModule, ObjectStorageModule],
     controllers: [EventsController],
     providers: [
         {
@@ -22,8 +24,9 @@ import { EventsController } from './controllers/events.controller';
         },
         {
             provide: EventsService,
-            inject: [EventsRepository],
-            useFactory: (eventsRepository: EventsRepository) => new EventsService(eventsRepository),
+            inject: [EventsRepository, ObjectStorageService],
+            useFactory: (eventsRepository: EventsRepository, objectStorageService: ObjectStorageService) =>
+                new EventsService(eventsRepository, objectStorageService),
         },
     ],
     exports: [EventsRepository, EventsService],

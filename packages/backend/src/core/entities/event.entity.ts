@@ -44,7 +44,7 @@ export class EventEntity {
 
     @Column({
         type: 'geography',
-        spatialFeatureType: 'Polygon',
+        spatialFeatureType: 'Point',
         srid: 4326,
         nullable: true,
     })
@@ -52,7 +52,7 @@ export class EventEntity {
 
     @Column({
         type: 'geography',
-        spatialFeatureType: 'Polygon',
+        spatialFeatureType: 'Point',
         srid: 4326,
         nullable: true,
     })

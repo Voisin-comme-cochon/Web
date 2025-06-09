@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { MapPin, Users, Info, CheckCircle } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { CheckCircle, Info, MapPin, Users } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -23,7 +23,8 @@ export type InviteTab = 'about' | 'location' | 'members';
 type InviteStatus = 'loading' | 'valid' | 'invalid' | 'expired' | 'already_member' | 'error';
 
 export default function NeighborhoodInvitePage() {
-    const { goHome } = useAppNavigation();
+
+    const { goMyNeighborhood } = useAppNavigation();
     const { token } = useParams<{ token: string }>();
 
     const [invite, setInvite] = useState<FrontNeighborhood | null>(null);
@@ -176,7 +177,7 @@ export default function NeighborhoodInvitePage() {
                                 Vous avez rejoint le quartier <strong>{invite.name}</strong> avec succès.
                             </p>
                             <Button
-                                onClick={() => goHome()}
+                                onClick={goMyNeighborhood()}
                                 className="bg-[#e36f4c] hover:bg-[#d15e3b] text-white px-8 py-3 text-lg"
                             >
                                 Accéder à mon quartier

@@ -5,18 +5,26 @@ import ResetPasswordPage from '@/containers/ResetPassword/reset-password.tsx';
 import SigninPage from '@/containers/Signin/SigninPage.tsx';
 import { CreateNeighborhood } from '@/containers/Neighborhood/CreateNeighborhood.tsx';
 import NeighborhoodInvitation from '@/containers/NeighborhoodInvitation/NeighborhoodInvitation.tsx';
-import HomePage from '@/containers/Home/HomePage.tsx';
+import EventDetails from '@/containers/EventDetails/EventDetails.tsx';
+import MyNeighborhoodPage from '@/containers/MyNeighborhood/MyNeighborhoodPage.tsx';
+import NeighborhoodEventsPage from '@/containers/NeighborhoodEvents/NeighborhoodEventsPage.tsx';
+import NeighborhoodJournalPage from '@/containers/NeighborhoodJournal/NeighborhoodJournalPage.tsx';
+import NeighborhoodMaterialsPage from '@/containers/NeighborhoodMaterials/NeighborhoodMaterialsPage.tsx';
 
 export default function App() {
     return (
         <Router>
             <Routes>
                 <Route path="/" element={<LandingPage />} />
-                <Route path="/home" element={<HomePage />} />
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/signin" element={<SigninPage />} />
                 <Route path="/reset-password" element={<ResetPasswordPage />} />
                 <Route path="/neighborhoods/create" element={<CreateNeighborhood />} />
+                <Route path={'/events/:eventId'} element={<EventDetails />} />
+                <Route path="/my-neighborhood" element={<MyNeighborhoodPage />} />
+                <Route path="/neighborhood-events" element={<NeighborhoodEventsPage />} />
+                <Route path="/neighborhood-journal" element={<NeighborhoodJournalPage />} />
+                <Route path="/neighborhood-materials" element={<NeighborhoodMaterialsPage />} />
                 <Route path="/neighborhoods/invite/:token" element={<NeighborhoodInvitation />} />
             </Routes>
         </Router>

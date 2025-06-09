@@ -4,12 +4,12 @@ import { NeighborhoodMapForm } from '@/components/Neighborhood/NeighborhoodMapFo
 import type { NeighborhoodFormValues } from './neighborhood.schema';
 import { NeighborhoodUc } from '@/domain/use-cases/neighborhoodUc';
 import { NeighborhoodFrontRepository } from '@/infrastructure/repositories/NeighborhoodFrontRepository';
-import Header from '@/components/Header/Header';
 import AuthFooter from '@/components/AuthFooter/AuthFooter';
 import { useRedirectIfAuthenticated } from '@/presentation/hooks/useRedirectIfAuthenticated.ts';
 import { useAppNavigation } from '@/presentation/state/navigate';
 import InviteNeighbors from '@/containers/Neighborhood/InviteNeighbors';
 import { useToast } from '@/presentation/hooks/useToast.ts';
+import MinimalHeader from '@/components/Header/MinimalHeader.tsx';
 
 export function CreateNeighborhood() {
     useRedirectIfAuthenticated();
@@ -76,7 +76,7 @@ export function CreateNeighborhood() {
 
     return (
         <>
-            <Header />
+            <MinimalHeader />
             <div className="container mx-auto py-8">{renderStep()}</div>
             <AuthFooter />
         </>

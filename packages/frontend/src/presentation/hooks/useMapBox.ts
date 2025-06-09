@@ -47,8 +47,8 @@ export const useMapBox = ({
     useEffect(() => {
         if (centerOnNeighborhood && specificNeighborhood && specificNeighborhood.length > 0) {
             const geo = specificNeighborhood[0];
-            if (geo?.coordinates) {
-                const center = getPolygonCenter(geo.coordinates);
+            if (geo?.geometry.coordinates) {
+                const center = getPolygonCenter(geo.geometry.coordinates);
                 setViewState((prev) => ({
                     ...prev,
                     latitude: center.latitude,
