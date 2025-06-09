@@ -14,6 +14,29 @@ import { signupFormSchema, type SignupFormValues } from '@/containers/Signin/sig
 import { useAppNavigation } from '@/presentation/state/navigate';
 import { AuthError, AuthUc } from '@/domain/use-cases/authUc';
 import { AuthRepository } from '@/infrastructure/repositories/AuthRepository';
+import {
+    MultiSelector,
+    MultiSelectorTrigger,
+    MultiSelectorInput,
+    MultiSelectorContent,
+    MultiSelectorList,
+    MultiSelectorItem,
+} from '@/components/ui/multi-select';
+
+const AVAILABLE_TAGS = [
+    'Développement Web',
+    'Design UI/UX',
+    'Marketing Digital',
+    'Data Science',
+    'DevOps',
+    'Mobile',
+    'Intelligence Artificielle',
+    'Cybersécurité',
+    'Cloud Computing',
+    'Blockchain',
+    'E-commerce',
+    'Gestion de Projet',
+];
 
 export default function SigninForm() {
     const { goLanding, goLogin } = useAppNavigation();
@@ -31,6 +54,7 @@ export default function SigninForm() {
             password: '',
             description: '',
             profileImage: '',
+            tags: [],
         },
     });
 
@@ -49,6 +73,7 @@ export default function SigninForm() {
                 password: values.password,
                 description: values.description,
                 profileImage: values.profileImage,
+                tags: values.tags, // Ajout des tags
             });
             goLanding();
         } catch (err) {
@@ -219,6 +244,51 @@ export default function SigninForm() {
 
                             <FormField
                                 control={form.control}
+                                name="tags"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Centres d'intérêt</FormLabel>
+                                        <FormControl>
+                                            <MultiSelector
+                                                values={field.value}
+                                                onValuesChange={(values) => {
+                                                    field.onChange(values);
+                                                    setError(null);
+                                                }}
+                                                className="w-full"
+                                            >
+                                                <MultiSelectorTrigger>
+                                                    <MultiSelectorInput
+                                                        placeholder="Sélectionnez vos centres d'intérêt..."
+                                                        disabled={isLoading}
+                                                    />
+                                                </MultiSelectorTrigger>
+                                                <MultiSelectorContent>
+                                                    <MultiSelectorList>
+                                                        {AVAILABLE_TAGS.map((tag) => (
+                                                            <MultiSelectorItem
+                                                                key={tag}
+                                                                value={tag}
+                                                                disabled={isLoading}
+                                                            >
+                                                                {tag}
+                                                            </MultiSelectorItem>
+                                                        ))}
+                                                    </MultiSelectorList>
+                                                </MultiSelectorContent>
+                                            </MultiSelector>
+                                        </FormControl>
+                                        <p className="text-xs text-foreground/60">
+                                            Sélectionnez au moins un centre d'intérêt pour personnaliser votre
+                                            expérience
+                                        </p>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+
+                            <FormField
+                                control={form.control}
                                 name="description"
                                 render={({ field }) => (
                                     <FormItem>
@@ -277,7 +347,7 @@ export default function SigninForm() {
                 <CardFooter className="flex justify-center">
                     <p className="text-sm text-foreground/70">
                         Vous avez déjà un compte ?
-                        <Button variant={'link'} onClick={goLogin()} className="text-orange hover:underline">
+                        <Button variant={'link'} onClick={goLogin} className="text-orange hover:underline">
                             Se connecter
                         </Button>
                     </p>
