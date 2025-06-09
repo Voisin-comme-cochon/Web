@@ -8,6 +8,8 @@ import { NeighborhoodModule } from '../neighborhoods/neighborhood.module';
 
 import { ObjectStorageService } from '../objectStorage/services/objectStorage.service';
 import { ObjectStorageModule } from '../objectStorage/objectStorage.module';
+import { NeighborhoodService } from '../neighborhoods/services/neighborhood.service';
+import { TagsService } from '../tags/services/tags.service';
 import { EventsRepository } from './domain/events.abstract.repository';
 import { EventsRepositoryImplementation } from './repository/events.repository.implementation';
 import { EventsService } from './services/events.service';
@@ -24,9 +26,13 @@ import { EventsController } from './controllers/events.controller';
         },
         {
             provide: EventsService,
-            inject: [EventsRepository, ObjectStorageService],
-            useFactory: (eventsRepository: EventsRepository, objectStorageService: ObjectStorageService) =>
-                new EventsService(eventsRepository, objectStorageService),
+            inject: [EventsRepository, ObjectStorageService, NeighborhoodService, TagsService],
+            useFactory: (
+                eventsRepository: EventsRepository,
+                objectStorageService: ObjectStorageService,
+                neighborhoodService: NeighborhoodService,
+                tagsService: TagsService
+            ) => new EventsService(eventsRepository, objectStorageService, neighborhoodService, tagsService),
         },
     ],
     exports: [EventsRepository, EventsService],

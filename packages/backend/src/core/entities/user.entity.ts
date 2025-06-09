@@ -78,10 +78,10 @@ export class UserEntity {
     @OneToMany(() => SalesEntity, (sales) => sales.owner, { onDelete: 'CASCADE' })
     sales?: SalesEntity[];
 
-    @OneToMany(() => NeighborhoodUserEntity, (user) => user.user)
+    @OneToMany(() => NeighborhoodUserEntity, (user) => user.user, { onDelete: 'CASCADE' })
     neighborhood_users?: NeighborhoodUserEntity[];
 
-    @OneToMany(() => NeighborhoodInvitationEntity, (invitation) => invitation.creator)
+    @OneToMany(() => NeighborhoodInvitationEntity, (invitation) => invitation.creator, { onDelete: 'CASCADE' })
     created_invitations?: NeighborhoodInvitationEntity[];
 
     @OneToMany(() => UserTagEntity, (userTag) => userTag.user)
