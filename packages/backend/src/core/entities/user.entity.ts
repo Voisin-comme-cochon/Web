@@ -26,6 +26,12 @@ export class UserEntity {
     email!: string;
 
     @Column()
+    latitude!: number;
+
+    @Column()
+    longitude!: number;
+
+    @Column()
     address!: string;
 
     @Column()

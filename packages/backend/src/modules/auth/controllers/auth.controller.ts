@@ -33,6 +33,8 @@ export class AuthController {
             phone: body.phone,
             email: body.email,
             address: body.address,
+            latitude: body.latitude,
+            longitude: body.longitude,
             password: body.password,
             description: body.description,
             profileImage: profileImage,

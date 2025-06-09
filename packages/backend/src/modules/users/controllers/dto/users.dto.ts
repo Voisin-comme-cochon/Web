@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsBoolean, IsEmail, IsInt, IsPhoneNumber, IsString, IsArray, IsOptional } from 'class-validator';
+import { IsBoolean, IsEmail, IsInt, IsPhoneNumber, IsString, IsArray, IsOptional, IsNumber } from 'class-validator';
 import { Type } from 'class-transformer';
 import { Tag } from '../../../tags/domain/tags.model';
 
@@ -45,6 +45,14 @@ export class ResponseUserDto {
     })
     @IsString()
     address!: string;
+
+    @ApiProperty({ example: 48.8566, description: 'Latitude of the user location' })
+    @IsNumber()
+    latitude!: number;
+
+    @ApiProperty({ example: 2.3522, description: 'Longitude of the user location' })
+    @IsNumber()
+    longitude!: number;
 
     @ApiProperty({
         example: 'description',

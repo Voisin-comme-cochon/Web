@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsOptional, IsString, MinLength } from 'class-validator';
+import { IsEmail, IsNumber, IsOptional, IsString, MinLength } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class SignInDto {
@@ -22,6 +22,16 @@ export class SignInDto {
     @ApiProperty({ example: '123 Main St', description: 'Address of the user' })
     @IsString()
     address!: string;
+
+    @ApiProperty({ example: 48.8566, description: 'Latitude of the user location' })
+    @IsNumber()
+    @Type(() => Number)
+    latitude!: number;
+
+    @ApiProperty({ example: 2.3522, description: 'Longitude of the user location' })
+    @IsNumber()
+    @Type(() => Number)
+    longitude!: number;
 
     @ApiProperty({ example: 'A short description about the user', description: 'Description of the user' })
     @IsString()

@@ -31,7 +31,7 @@ export class NeighborhoodUserEntity {
     @Column()
     neighborhoodId!: number;
 
-    @ManyToOne(() => UserEntity, (user) => user.neighborhood_users)
+    @ManyToOne(() => UserEntity, (user) => user.neighborhood_users, { onDelete: 'CASCADE' })
     @JoinColumn({ name: 'userId' })
     user!: UserEntity;
 

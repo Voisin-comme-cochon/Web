@@ -74,6 +74,8 @@ export class AuthService {
         userEntity.phone = data.phone;
         userEntity.email = data.email;
         userEntity.address = data.address;
+        userEntity.latitude = data.latitude;
+        userEntity.longitude = data.longitude;
         userEntity.password = hashedPassword;
         userEntity.description = data.description;
         userEntity.profileImageUrl = profileImageUrl;

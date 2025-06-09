@@ -10,6 +10,8 @@ export class AuthModel {
     phone!: string;
     email!: string;
     address!: string;
+    latitude!: number;
+    longitude!: number;
     password!: string;
     tagIds!: string;
     description?: string;
