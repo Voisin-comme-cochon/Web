@@ -84,6 +84,20 @@ export class EventsController {
         );
     }
 
+    @Delete(':id')
+    @ApiOperation({ summary: 'Delete an event by ID' })
+    @ApiOkResponse({ description: 'Event deleted successfully' })
+    @ApiNotFoundResponse({ description: 'Event not found' })
+    async deleteEventById(
+        @Param() params: GetEventIdDto,
+        @Request()
+        req: {
+            user: { id: number };
+        }
+    ): Promise<void> {
+        await this.eventsService.deleteEvent(params.id, req.user.id);
+    }
+
     @Get()
     @UseInterceptors(PaginationInterceptor)
     @ApiOperation({ summary: 'Get events' })

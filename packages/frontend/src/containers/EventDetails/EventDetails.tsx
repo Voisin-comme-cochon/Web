@@ -22,6 +22,11 @@ function EventDetails({ user, uc }: { user: UserModel; uc: HomeUc }) {
     const { eventId } = useParams<{ eventId: string }>();
     const [selectedCategory, setSelectedCategory] = useState<ChangeCategory>('description');
     const { showError, showSuccess } = useToast();
+    const [popUpVisible, setPopupVisible] = useState<boolean>(false);
+
+    const handlePopUp = () => {
+        setPopupVisible(!popUpVisible);
+    };
 
     useEffect(() => {
         const checkRegistration = async () => {
@@ -39,6 +44,22 @@ function EventDetails({ user, uc }: { user: UserModel; uc: HomeUc }) {
 
     const handleCategoryChange = (category: ChangeCategory) => {
         setSelectedCategory(category);
+    };
+
+    const handleDeleteEvent = async () => {
+        if (!eventId) return;
+        try {
+            const idNum = parseInt(eventId, 10);
+            await uc.deleteEvent(idNum);
+            showSuccess('Évènement supprimé avec succès !');
+            window.history.back();
+        } catch (error) {
+            if (error instanceof Error) {
+                showError(error.message);
+                return;
+            }
+            console.error('Failed to delete event:', error);
+        }
     };
 
     useEffect(() => {
@@ -214,8 +235,12 @@ function EventDetails({ user, uc }: { user: UserModel; uc: HomeUc }) {
                             {selectedCategory === 'lieu' &&
                                 (addressStart ? (
                                     <div>
-                                        <p>{addressStart}</p>
-                                        <p>{addressEnd ? ` → ${addressEnd}` : ''}</p>
+                                        <p>
+                                            {addressEnd ? ` Du : ` : ''}
+                                            {addressStart}
+                                        </p>
+                                        <p>{addressEnd ? `Au : ${addressEnd}` : ''}</p>
+                                        <p>--</p>
                                         <EventMapBox
                                             start={event.addressStart?.coordinates ?? null}
                                             end={event.addressEnd?.coordinates}
@@ -229,13 +254,42 @@ function EventDetails({ user, uc }: { user: UserModel; uc: HomeUc }) {
 
                     <div className="popup-action">
                         {isRegistered ? (
-                            <Button variant={'destructive'} className={'w-full'} onClick={unRegisterEvent}>
+                            <Button className={'w-full bg-red-600 hover:bg-red-700'} onClick={unRegisterEvent}>
                                 Se désinscrire
                             </Button>
                         ) : (
                             <Button variant={'orange'} className={'w-full'} onClick={registerEvent}>
                                 S'inscrire
                             </Button>
+                        )}
+                        {user.id === event.creator.id && (
+                            <Button className={'w-1/12 text-white bg-red-600 hover:bg-red-700'} onClick={handlePopUp}>
+                                <span className="material-symbols-outlined">delete</span>
+                            </Button>
+                        )}
+
+                        {popUpVisible && (
+                            <div className={'popup-background'}>
+                                <div className="popup-confirmation">
+                                    <span className="material-symbols-outlined popup-close" onClick={handlePopUp}>
+                                        close
+                                    </span>
+                                    <div className={'popup-body'}>
+                                        <p className={''}>Êtes-vous sûr de vouloir supprimer cet évènement ?</p>
+                                    </div>
+                                    <div className="popup-action">
+                                        <Button className={'w-1/2 bg-gray-400 hover:bg-gray-500'} onClick={handlePopUp}>
+                                            Non
+                                        </Button>
+                                        <Button
+                                            className={'w-1/2 bg-red-600 hover:bg-red-700'}
+                                            onClick={handleDeleteEvent}
+                                        >
+                                            Oui
+                                        </Button>
+                                    </div>
+                                </div>
+                            </div>
                         )}
                     </div>
                 </div>

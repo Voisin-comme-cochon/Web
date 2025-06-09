@@ -22,6 +22,23 @@ export class EventsService {
         return [eventsWithLinks, count];
     }
 
+    public async deleteEvent(id: number, userId: number): Promise<void> {
+        const event = await this.eventRepository.getEventById(id);
+        if (!event) {
+            throw new CochonError('event_not_found', 'Event not found', 404);
+        }
+
+        if (event.createdBy !== userId) {
+            throw new CochonError('forbidden_delete', 'You cant delete this event', 403);
+        }
+
+        if (event.photo) {
+            await this.objectStorageService.deleteFile(event.photo, BucketType.EVENT_IMAGES);
+        }
+
+        await this.eventRepository.deleteEvent(id);
+    }
+
     public async getEventsByNeighnorhoodId(id: number, page: number, limit: number): Promise<[Event[], number]> {
         const offset = page * limit - limit;
         const [events, count] = await this.eventRepository.getEventsByNeighborhoodId(id, limit, offset);
@@ -158,7 +175,11 @@ export class EventsService {
     }
 
     private async replacePhotosByLinks(events: Event[]): Promise<Event[]> {
-        return Promise.all(events.map((event) => this.replacePhotoByLink(event)));
+        return Promise.all(
+            events.map((event) => {
+                return this.replacePhotoByLink(event);
+            })
+        );
     }
 
     private async createAndUploadEventImageEntities(file: Express.Multer.File): Promise<string> {

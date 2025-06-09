@@ -25,6 +25,14 @@ export class HomeUc {
         }
     }
 
+    async deleteEvent(eventId: number): Promise<void> {
+        try {
+            await this.eventRepository.deleteEvent(eventId);
+        } catch (error) {
+            throw new Error((error as ApiGlobalError).response.data.message);
+        }
+    }
+
     async getUserById(id: string | number): Promise<UserModel> {
         try {
             return await this.userFrontRepository.getUserById(id);
