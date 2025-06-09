@@ -25,10 +25,20 @@ export class UserEntity {
     @Column({ unique: true })
     email!: string;
 
-    @Column()
+    @Column({
+        type: 'decimal',
+        precision: 9,
+        scale: 6,
+        default: 0,
+    })
     latitude!: number;
 
-    @Column()
+    @Column({
+        type: 'decimal',
+        precision: 9,
+        scale: 6,
+        default: 0,
+    })
     longitude!: number;
 
     @Column()

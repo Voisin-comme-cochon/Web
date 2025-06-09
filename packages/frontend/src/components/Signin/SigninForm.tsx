@@ -27,8 +27,17 @@ import { TagRepository } from '@/infrastructure/repositories/TagRepository.ts';
 import { TagModel } from '@/domain/models/tag.model.ts';
 import { AddressAutocomplete } from '@/components/AddressSuggestion/AddressSuggestion.tsx';
 
+interface AddressData {
+    address: string;
+    city: string;
+    postcode: string;
+    coordinates: [number, number];
+    label: string;
+}
+
 export default function SigninForm() {
     const { goLanding, goLogin } = useAppNavigation();
+    const [selectedAddress, setSelectedAddress] = useState<AddressData | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [availableTags, setAvailableTags] = useState<TagModel[]>([]);
@@ -72,7 +81,9 @@ export default function SigninForm() {
             await authUc.signin({
                 firstName: values.firstName,
                 lastName: values.lastName,
-                address: values.address,
+                address: selectedAddress?.label || values.address,
+                latitude: selectedAddress?.coordinates[1] || 0,
+                longitude: selectedAddress?.coordinates[0] || 0,
                 email: values.email,
                 phone: values.phone,
                 password: values.password,
@@ -248,7 +259,7 @@ export default function SigninForm() {
                                                 onAddressSelect={(addressData) => {
                                                     // Optionnel : traitement supplémentaire des données d'adresse
                                                     console.log('Adresse sélectionnée:', addressData);
-                                                    // Vous pouvez stocker les coordonnées ou autres données si nécessaire
+                                                    setSelectedAddress(addressData);
                                                 }}
                                             />
                                         </FormControl>

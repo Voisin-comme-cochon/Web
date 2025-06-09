@@ -24,13 +24,13 @@ export class SignInDto {
     address!: string;
 
     @ApiProperty({ example: 48.8566, description: 'Latitude of the user location' })
-    @IsNumber()
     @Type(() => Number)
+    @IsNumber({ maxDecimalPlaces: 6 })
     latitude!: number;
 
     @ApiProperty({ example: 2.3522, description: 'Longitude of the user location' })
-    @IsNumber()
     @Type(() => Number)
+    @IsNumber({ maxDecimalPlaces: 6 })
     longitude!: number;
 
     @ApiProperty({ example: 'A short description about the user', description: 'Description of the user' })
