@@ -59,8 +59,6 @@ export default function MyEventsPage({
     return (
         <div className="px-32 mb-8 w-full">
             <div className={'flex flex-row justify-between items-center mb-1'}>
-                <h1 className="text-2xl font-semibold mb-4">Événements à venir</h1>
-
                 <MultiSelectTagComponent tags={tags} onSelect={onTagSelect} />
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
