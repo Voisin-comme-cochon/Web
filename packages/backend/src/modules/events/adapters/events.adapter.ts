@@ -76,7 +76,7 @@ export class EventsAdapter {
 
     static domainToResponseEventWithUsers(
         event: Event,
-        tag: ResponseTagDto,
+        tag: TagDto,
         neighborhood: ResponseNeighborhoodDto,
         user: ResponseUserDto,
         registeredUsers: ResponseUserDto[]
