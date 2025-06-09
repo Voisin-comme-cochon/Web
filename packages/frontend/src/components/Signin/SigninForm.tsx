@@ -257,8 +257,6 @@ export default function SigninForm() {
                                                 placeholder="123 rue de la République, 75001 Paris"
                                                 disabled={isLoading}
                                                 onAddressSelect={(addressData) => {
-                                                    // Optionnel : traitement supplémentaire des données d'adresse
-                                                    console.log('Adresse sélectionnée:', addressData);
                                                     setSelectedAddress(addressData);
                                                 }}
                                             />

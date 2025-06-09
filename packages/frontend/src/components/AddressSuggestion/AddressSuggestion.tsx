@@ -1,7 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
 import { Input } from '@/components/ui/input';
-import { Command, CommandEmpty, CommandGroup, CommandItem, CommandList } from '@/components/ui/command';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { MapPin } from 'lucide-react';
 
 interface AddressSuggestion {
@@ -30,7 +28,10 @@ export function AddressAutocomplete({
     const [suggestions, setSuggestions] = useState<AddressSuggestion[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [isOpen, setIsOpen] = useState(false);
+    const [highlightedIndex, setHighlightedIndex] = useState(-1);
     const debounceRef = useRef<NodeJS.Timeout>();
+    const inputRef = useRef<HTMLInputElement>(null);
+    const containerRef = useRef<HTMLDivElement>(null);
 
     const searchAddress = async (query: string): Promise<AddressSuggestion[]> => {
         if (query.length < 3) return [];
@@ -86,12 +87,56 @@ export function AddressAutocomplete({
         onChange(suggestion.label);
         setSuggestions([]);
         setIsOpen(false);
+        setHighlightedIndex(-1);
+
+        // Maintenir le focus sur l'input
+        setTimeout(() => {
+            inputRef.current?.focus();
+        }, 0);
 
         // Callback pour traitement additionnel si nécessaire
         if (onAddressSelect) {
             onAddressSelect(suggestion);
         }
     };
+
+    const handleKeyDown = (e: React.KeyboardEvent) => {
+        if (!isOpen || suggestions.length === 0) return;
+
+        switch (e.key) {
+            case 'ArrowDown':
+                e.preventDefault();
+                setHighlightedIndex((prev) => (prev < suggestions.length - 1 ? prev + 1 : 0));
+                break;
+            case 'ArrowUp':
+                e.preventDefault();
+                setHighlightedIndex((prev) => (prev > 0 ? prev - 1 : suggestions.length - 1));
+                break;
+            case 'Enter':
+                e.preventDefault();
+                if (highlightedIndex >= 0 && suggestions[highlightedIndex]) {
+                    handleSuggestionSelect(suggestions[highlightedIndex]);
+                }
+                break;
+            case 'Escape':
+                setIsOpen(false);
+                setHighlightedIndex(-1);
+                break;
+        }
+    };
+
+    // Gérer les clics en dehors
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+                setIsOpen(false);
+                setHighlightedIndex(-1);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
 
     // Cleanup debounce on unmount
     useEffect(() => {
@@ -103,52 +148,58 @@ export function AddressAutocomplete({
     }, []);
 
     return (
-        <Popover open={isOpen} onOpenChange={setIsOpen}>
-            <PopoverTrigger asChild>
-                <div className="relative">
-                    <Input
-                        value={value}
-                        onChange={(e) => handleInputChange(e.target.value)}
-                        placeholder={placeholder}
-                        disabled={disabled}
-                        className="pr-10"
-                    />
-                    <MapPin className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <div ref={containerRef} className="relative w-full">
+            <div className="relative">
+                <Input
+                    ref={inputRef}
+                    value={value}
+                    onChange={(e) => handleInputChange(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                    onFocus={() => {
+                        if (suggestions.length > 0) {
+                            setIsOpen(true);
+                        }
+                    }}
+                    placeholder={placeholder}
+                    disabled={disabled}
+                    className="pr-10"
+                    autoComplete="off"
+                />
+                <MapPin className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            </div>
+
+            {isOpen && (
+                <div className="absolute z-50 w-full mt-1 bg-white border border-border rounded-md shadow-lg max-h-60 overflow-auto">
+                    {isLoading && <div className="px-3 py-2 text-sm text-muted-foreground">Recherche en cours...</div>}
+
+                    {!isLoading && suggestions.length === 0 && value.length >= 3 && (
+                        <div className="px-3 py-2 text-sm text-muted-foreground">Aucune adresse trouvée</div>
+                    )}
+
+                    {suggestions.map((suggestion, index) => (
+                        <div
+                            key={index}
+                            className={`px-3 py-2 cursor-pointer hover:bg-gray-100 flex items-start gap-2 ${
+                                index === highlightedIndex ? 'bg-gray-100' : ''
+                            }`}
+                            onMouseDown={(e) => {
+                                // Prévenir la perte de focus
+                                e.preventDefault();
+                            }}
+                            onClick={() => handleSuggestionSelect(suggestion)}
+                            onMouseEnter={() => setHighlightedIndex(index)}
+                        >
+                            <MapPin className="h-4 w-4 mt-0.5 text-muted-foreground flex-shrink-0" />
+                            <div className="flex flex-col min-w-0">
+                                <span className="font-medium text-sm truncate">{suggestion.address}</span>
+                                <span className="text-xs text-muted-foreground">
+                                    {suggestion.postcode} {suggestion.city}
+                                </span>
+                            </div>
+                        </div>
+                    ))}
                 </div>
-            </PopoverTrigger>
-
-            <PopoverContent className="w-full p-0" align="start">
-                <Command>
-                    <CommandList>
-                        {isLoading && <CommandEmpty>Recherche en cours...</CommandEmpty>}
-
-                        {!isLoading && suggestions.length === 0 && value.length >= 3 && (
-                            <CommandEmpty>Aucune adresse trouvée</CommandEmpty>
-                        )}
-
-                        {suggestions.length > 0 && (
-                            <CommandGroup>
-                                {suggestions.map((suggestion, index) => (
-                                    <CommandItem
-                                        key={index}
-                                        value={suggestion.label}
-                                        onSelect={() => handleSuggestionSelect(suggestion)}
-                                        className="cursor-pointer"
-                                    >
-                                        <MapPin className="mr-2 h-4 w-4" />
-                                        <div className="flex flex-col">
-                                            <span className="font-medium">{suggestion.address}</span>
-                                            <span className="text-sm text-muted-foreground">
-                                                {suggestion.postcode} {suggestion.city}
-                                            </span>
-                                        </div>
-                                    </CommandItem>
-                                ))}
-                            </CommandGroup>
-                        )}
-                    </CommandList>
-                </Command>
-            </PopoverContent>
-        </Popover>
+            )}
+        </div>
     );
 }
