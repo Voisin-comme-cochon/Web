@@ -3,3 +3,5 @@ export class Tag {
     name!: string;
     color!: string;
 }
+
+export type UpsertTag = Omit<Tag, 'id'>;

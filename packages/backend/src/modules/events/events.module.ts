@@ -10,6 +10,8 @@ import { ObjectStorageService } from '../objectStorage/services/objectStorage.se
 import { ObjectStorageModule } from '../objectStorage/objectStorage.module';
 import { MailerModule } from '../mailer/mailer.module';
 import { MailerService } from '../mailer/services/mailer.service';
+import { NeighborhoodService } from '../neighborhoods/services/neighborhood.service';
+import { TagsService } from '../tags/services/tags.service';
 import { EventsRepository } from './domain/events.abstract.repository';
 import { EventsRepositoryImplementation } from './repository/events.repository.implementation';
 import { EventsService } from './services/events.service';
@@ -26,12 +28,14 @@ import { EventsController } from './controllers/events.controller';
         },
         {
             provide: EventsService,
-            inject: [EventsRepository, ObjectStorageService, MailerService],
+            inject: [EventsRepository, ObjectStorageService, MailerService, NeighborhoodService, TagsService],
             useFactory: (
                 eventsRepository: EventsRepository,
                 objectStorageService: ObjectStorageService,
-                mailerService: MailerService
-            ) => new EventsService(eventsRepository, objectStorageService, mailerService),
+                mailerService: MailerService,
+                neighborhoodService: NeighborhoodService,
+                tagsService: TagsService
+            ) => new EventsService(eventsRepository, objectStorageService, neighborhoodService, tagsService, mailerService),
         },
     ],
     exports: [EventsRepository, EventsService],

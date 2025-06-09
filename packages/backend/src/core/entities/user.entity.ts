@@ -6,6 +6,7 @@ import { GroupMembershipEntity } from './group-membership.entity';
 import { SalesEntity } from './sales.entity';
 import { NeighborhoodUserEntity } from './neighborhood-user.entity';
 import { NeighborhoodInvitationEntity } from './neighborhood-invitation.entity';
+import { UserTagEntity } from './user-tag.entity';
 
 @Entity({ name: 'users' })
 export class UserEntity {
@@ -23,6 +24,22 @@ export class UserEntity {
 
     @Column({ unique: true })
     email!: string;
+
+    @Column({
+        type: 'decimal',
+        precision: 9,
+        scale: 6,
+        default: 0,
+    })
+    latitude!: number;
+
+    @Column({
+        type: 'decimal',
+        precision: 9,
+        scale: 6,
+        default: 0,
+    })
+    longitude!: number;
 
     @Column()
     address!: string;
@@ -61,9 +78,12 @@ export class UserEntity {
     @OneToMany(() => SalesEntity, (sales) => sales.owner, { onDelete: 'CASCADE' })
     sales?: SalesEntity[];
 
-    @OneToMany(() => NeighborhoodUserEntity, (user) => user.user)
+    @OneToMany(() => NeighborhoodUserEntity, (user) => user.user, { onDelete: 'CASCADE' })
     neighborhood_users?: NeighborhoodUserEntity[];
 
-    @OneToMany(() => NeighborhoodInvitationEntity, (invitation) => invitation.creator)
+    @OneToMany(() => NeighborhoodInvitationEntity, (invitation) => invitation.creator, { onDelete: 'CASCADE' })
     created_invitations?: NeighborhoodInvitationEntity[];
+
+    @OneToMany(() => UserTagEntity, (userTag) => userTag.user)
+    tags?: UserTagEntity[];
 }

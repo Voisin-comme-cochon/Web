@@ -11,12 +11,18 @@ export class UserAdapter {
             phone: userEntity.phone,
             email: userEntity.email,
             address: userEntity.address,
+            latitude: userEntity.latitude,
+            longitude: userEntity.longitude,
             password: userEntity.password,
             description: userEntity.description,
             isSuperAdmin: userEntity.isSuperAdmin,
             newsletter: userEntity.newsletter,
             prefferedNotifMethod: userEntity.prefferedNotifMethod,
             profileImageUrl: userEntity.profileImageUrl,
+            tags: userEntity.tags
+                ? // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                  userEntity.tags.filter((userTag) => userTag.tag !== undefined).map((userTag) => userTag.tag!)
+                : [],
         };
     }
 
@@ -32,6 +38,8 @@ export class UserAdapter {
             phone: user.phone,
             email: user.email,
             address: user.address,
+            latitude: user.latitude,
+            longitude: user.longitude,
             password: user.password,
             description: user.description,
             isSuperAdmin: user.isSuperAdmin,
@@ -48,11 +56,14 @@ export class UserAdapter {
             phone: user.phone,
             email: user.email,
             address: user.address,
+            latitude: user.latitude,
+            longitude: user.longitude,
             description: user.description,
             isSuperAdmin: user.isSuperAdmin,
             newsletter: user.newsletter,
             prefferedNotifMethod: user.prefferedNotifMethod,
             profileImageUrl: user.profileImageUrl,
+            tags: user.tags,
         };
     }
 

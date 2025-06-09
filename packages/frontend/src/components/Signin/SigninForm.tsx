@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
@@ -14,11 +14,48 @@ import { signupFormSchema, type SignupFormValues } from '@/containers/Signin/sig
 import { useAppNavigation } from '@/presentation/state/navigate';
 import { AuthError, AuthUc } from '@/domain/use-cases/authUc';
 import { AuthRepository } from '@/infrastructure/repositories/AuthRepository';
+import {
+    MultiSelector,
+    MultiSelectorTrigger,
+    MultiSelectorInput,
+    MultiSelectorContent,
+    MultiSelectorList,
+    MultiSelectorItem,
+} from '@/components/ui/multi-select';
+import { TagUc } from '@/domain/use-cases/tagUc.ts';
+import { TagRepository } from '@/infrastructure/repositories/TagRepository.ts';
+import { TagModel } from '@/domain/models/tag.model.ts';
+import { AddressAutocomplete } from '@/components/AddressSuggestion/AddressSuggestion.tsx';
+
+interface AddressData {
+    address: string;
+    city: string;
+    postcode: string;
+    coordinates: [number, number];
+    label: string;
+}
 
 export default function SigninForm() {
     const { goLanding, goLogin } = useAppNavigation();
+    const [selectedAddress, setSelectedAddress] = useState<AddressData | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [availableTags, setAvailableTags] = useState<TagModel[]>([]);
+
+    useEffect(() => {
+        const fetchTags = async () => {
+            const tagUc = new TagUc(new TagRepository());
+            try {
+                const tags = await tagUc.getTags();
+                setAvailableTags(tags);
+            } catch (err) {
+                console.error('Error fetching tags:', err);
+                setError("Impossible de charger les centres d'intérêt disponibles.");
+            }
+        };
+
+        fetchTags();
+    }, []);
 
     const form = useForm<SignupFormValues>({
         resolver: zodResolver(signupFormSchema),
@@ -31,6 +68,7 @@ export default function SigninForm() {
             password: '',
             description: '',
             profileImage: '',
+            tags: [],
         },
     });
 
@@ -43,12 +81,20 @@ export default function SigninForm() {
             await authUc.signin({
                 firstName: values.firstName,
                 lastName: values.lastName,
-                address: values.address,
+                address: selectedAddress?.label || values.address,
+                latitude: selectedAddress?.coordinates[1] || 0,
+                longitude: selectedAddress?.coordinates[0] || 0,
                 email: values.email,
                 phone: values.phone,
                 password: values.password,
                 description: values.description,
                 profileImage: values.profileImage,
+                tags: values.tags
+                    .map((tag) => {
+                        const foundTag = availableTags.find((t) => t.name === tag);
+                        return foundTag ? foundTag.id : null;
+                    })
+                    .filter((id) => id !== null) as number[],
             });
             goLanding();
         } catch (err) {
@@ -202,16 +248,64 @@ export default function SigninForm() {
                                     <FormItem>
                                         <FormLabel>Adresse</FormLabel>
                                         <FormControl>
-                                            <Input
-                                                placeholder="123 rue de la République"
-                                                disabled={isLoading}
-                                                {...field}
-                                                onChange={(e) => {
-                                                    field.onChange(e);
+                                            <AddressAutocomplete
+                                                value={field.value}
+                                                onChange={(value) => {
+                                                    field.onChange(value);
                                                     setError(null);
+                                                }}
+                                                placeholder="123 rue de la République, 75001 Paris"
+                                                disabled={isLoading}
+                                                onAddressSelect={(addressData) => {
+                                                    setSelectedAddress(addressData);
                                                 }}
                                             />
                                         </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+
+                            <FormField
+                                control={form.control}
+                                name="tags"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Centres d'intérêt</FormLabel>
+                                        <FormControl>
+                                            <MultiSelector
+                                                values={field.value}
+                                                onValuesChange={(values) => {
+                                                    field.onChange(values);
+                                                    setError(null);
+                                                }}
+                                                className="w-full"
+                                            >
+                                                <MultiSelectorTrigger>
+                                                    <MultiSelectorInput
+                                                        placeholder="Sélectionnez vos centres d'intérêt..."
+                                                        disabled={isLoading}
+                                                    />
+                                                </MultiSelectorTrigger>
+                                                <MultiSelectorContent>
+                                                    <MultiSelectorList>
+                                                        {availableTags.map((tag) => (
+                                                            <MultiSelectorItem
+                                                                key={tag.id}
+                                                                value={tag.name}
+                                                                disabled={isLoading}
+                                                            >
+                                                                {tag.name}
+                                                            </MultiSelectorItem>
+                                                        ))}
+                                                    </MultiSelectorList>
+                                                </MultiSelectorContent>
+                                            </MultiSelector>
+                                        </FormControl>
+                                        <p className="text-xs text-foreground/60">
+                                            Sélectionnez au moins un centre d'intérêt pour personnaliser votre
+                                            expérience
+                                        </p>
                                         <FormMessage />
                                     </FormItem>
                                 )}
@@ -277,7 +371,7 @@ export default function SigninForm() {
                 <CardFooter className="flex justify-center">
                     <p className="text-sm text-foreground/70">
                         Vous avez déjà un compte ?
-                        <Button variant={'link'} onClick={goLogin()} className="text-orange hover:underline">
+                        <Button variant={'link'} onClick={goLogin} className="text-orange hover:underline">
                             Se connecter
                         </Button>
                     </p>

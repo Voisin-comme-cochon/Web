@@ -1,6 +1,5 @@
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
-import { User } from '../../users/domain/user.model';
 import { AuthAdapter } from '../adapters/auth.adapter';
 import { UsersRepository } from '../../users/domain/users.abstract.repository';
 import { AuthRepository } from '../domain/auth.abstract.repository';
@@ -11,6 +10,11 @@ import { MailerService } from '../../mailer/services/mailer.service';
 import { Templates } from '../../mailer/domain/templates.enum';
 import { ObjectStorageService } from '../../objectStorage/services/objectStorage.service';
 import { BucketType } from '../../objectStorage/domain/bucket-type.enum';
+import { TagsRepository } from '../../tags/domain/tags.abstract.repository';
+import { UserEntity } from '../../../core/entities/user.entity';
+import { UserTagEntity } from '../../../core/entities/user-tag.entity';
+import { isNull } from '../../../utils/tools';
+import { CreateAuthModel } from '../domain/auth.model';
 
 interface DecodedToken {
     id: number;
@@ -27,34 +31,36 @@ export class AuthService {
         private authRepository: AuthRepository,
         private jwtService: JwtService,
         private mailerService: MailerService,
-        private objectStorageService: ObjectStorageService
+        private objectStorageService: ObjectStorageService,
+        private tagRepository: TagsRepository
     ) {}
 
-    public async signIn(
-        firstName: string,
-        lastName: string,
-        phone: string,
-        email: string,
-        address: string,
-        password: string,
-        description?: string,
-        profileImage?: Express.Multer.File
-    ): Promise<LogInSignInDtoOutput> {
-        const isUserExist = await this.userRepository.findByEmail(email);
-        const isPhoneExist = await this.userRepository.findByPhone(phone);
+    public async signIn(data: CreateAuthModel): Promise<LogInSignInDtoOutput> {
+        const isUserExist = await this.userRepository.findByEmail(data.email);
+        const isPhoneExist = await this.userRepository.findByPhone(data.phone);
         if (isUserExist || isPhoneExist) {
             throw new CochonError('account-already-exist', 'Account already exist', 409);
         }
+
+        const tagIdsArray = data.tagIds.split(',').map(Number);
+        if (tagIdsArray.length > 0) {
+            for (const tagId of tagIdsArray) {
+                const tag = await this.tagRepository.getTagById(tagId);
+                if (isNull(tag)) {
+                    throw new CochonError('tag-not-found', `Tag with id ${tagId} not found`, 400);
+                }
+            }
+        }
+
         const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(password, salt);
+        const hashedPassword = await bcrypt.hash(data.password, salt);
 
         let profileImageUrl: string | undefined;
-
-        if (profileImage) {
+        if (data.profileImage) {
             try {
                 profileImageUrl = await this.objectStorageService.uploadFile(
-                    profileImage.buffer,
-                    profileImage.originalname,
+                    data.profileImage.buffer,
+                    data.profileImage.originalname,
                     BucketType.PROFILE_IMAGES
                 );
             } catch (error) {
@@ -62,21 +68,30 @@ export class AuthService {
             }
         }
 
-        const prevUser: User = {
-            id: 0,
-            firstName: firstName,
-            lastName: lastName,
-            phone: phone,
-            email: email,
-            address: address,
-            password: hashedPassword,
-            description: description,
-            profileImageUrl: profileImageUrl,
-            isSuperAdmin: false,
-            newsletter: false,
-            prefferedNotifMethod: 'email',
-        };
-        const user = await this.userRepository.createUser(prevUser);
+        const userEntity = new UserEntity();
+        userEntity.firstName = data.firstName;
+        userEntity.lastName = data.lastName;
+        userEntity.phone = data.phone;
+        userEntity.email = data.email;
+        userEntity.address = data.address;
+        userEntity.latitude = data.latitude;
+        userEntity.longitude = data.longitude;
+        userEntity.password = hashedPassword;
+        userEntity.description = data.description;
+        userEntity.profileImageUrl = profileImageUrl;
+        userEntity.isSuperAdmin = false;
+        userEntity.newsletter = false;
+        userEntity.prefferedNotifMethod = 'email';
+
+        if (tagIdsArray.length > 0) {
+            userEntity.tags = tagIdsArray.map((tagId) => {
+                const userTag = new UserTagEntity();
+                userTag.tagId = tagId;
+                return userTag;
+            });
+        }
+
+        const user = await this.userRepository.createUser(userEntity);
         const accessToken = this.jwtService.sign(
             { id: user.id, isSuperAdmin: user.isSuperAdmin },
             {

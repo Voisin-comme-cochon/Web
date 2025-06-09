@@ -3,6 +3,8 @@ import { EventsRepository } from '../domain/events.abstract.repository';
 import { EventEntity } from '../../../core/entities/event.entity';
 import { EventRegistrationEntity } from '../../../core/entities/event-registration.entity';
 import { User } from '../../users/domain/user.model';
+import { UserEntity } from '../../../core/entities/user.entity';
+import { UserAdapter } from '../../users/adapters/user.adapter';
 
 export class EventsRepositoryImplementation implements EventsRepository {
     constructor(private readonly dataSource: DataSource) {}
@@ -23,35 +25,28 @@ export class EventsRepositoryImplementation implements EventsRepository {
         });
     }
 
-    public getUsersByEventId(id: number, limit: number, offset: number): Promise<[User[], number]> {
-        return this.dataSource
-            .getRepository(EventRegistrationEntity)
-            .findAndCount({
-                where: { eventId: id },
-                relations: ['user'],
-                skip: offset,
-                take: limit,
-            })
-            .then(([registrations, count]) => {
-                const users = registrations
-                    .map((registration) => registration.user)
-                    .filter((user): user is User => user !== undefined);
-                return [users, count];
-            });
+    public async getUsersByEventId(id: number, limit: number, offset: number): Promise<[User[], number]> {
+        const [registrations, count] = await this.dataSource.getRepository(EventRegistrationEntity).findAndCount({
+            where: { eventId: id },
+            relations: ['user'],
+            skip: offset,
+            take: limit,
+        });
+        const users = registrations
+            .map((registration) => registration.user)
+            .filter((user): user is UserEntity => user !== undefined);
+        return [UserAdapter.listEntityToDomain(users), count];
     }
 
-    public getUsersByEventIdNoLimit(id: number): Promise<User[]> {
-        return this.dataSource
-            .getRepository(EventRegistrationEntity)
-            .find({
-                where: { eventId: id },
-                relations: ['user'],
-            })
-            .then((registrations) => {
-                return registrations
-                    .map((registration) => registration.user)
-                    .filter((user): user is User => user !== undefined);
-            });
+    public async getUsersByEventIdNoLimit(id: number): Promise<User[]> {
+        const registrations = await this.dataSource.getRepository(EventRegistrationEntity).find({
+            where: { eventId: id },
+            relations: ['user'],
+        });
+        const users = registrations
+            .map((registration) => registration.user)
+            .filter((user): user is UserEntity => user !== undefined);
+        return UserAdapter.listEntityToDomain(users);
     }
 
     public registerUserForEvent(id: number, userId: number): void {
