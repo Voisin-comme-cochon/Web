@@ -11,6 +11,7 @@ import { EventRepository } from '@/infrastructure/repositories/EventRepository.t
 import { jwtDecode } from 'jwt-decode';
 import { DecodedUser } from '@/domain/models/DecodedUser.ts';
 import { useAppNavigation } from '@/presentation/state/navigate.ts';
+import { TagRepository } from '@/infrastructure/repositories/TagRepository.ts';
 
 export default function DashboardHeader() {
     const [user, setUser] = useState<UserModel | null>(null);
@@ -25,7 +26,12 @@ export default function DashboardHeader() {
     }, []);
 
     useEffect(() => {
-        const uc = new HomeUc(new UserFrontRepository(), new NeighborhoodFrontRepository(), new EventRepository());
+        const uc = new HomeUc(
+            new UserFrontRepository(),
+            new NeighborhoodFrontRepository(),
+            new EventRepository(),
+            new TagRepository()
+        );
         const fetchData = async () => {
             const token = localStorage.getItem('jwt');
             if (token) {

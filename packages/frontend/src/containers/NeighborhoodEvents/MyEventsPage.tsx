@@ -3,6 +3,8 @@ import { HomeUc } from '@/domain/use-cases/homeUc.ts';
 import { UserModel } from '@/domain/models/user.model.ts';
 import PreviewEvent from '@/components/PreviewEvent/PreviewEvent.tsx';
 import { EventModel } from '@/domain/models/event.model.ts';
+import MultiSelectTagComponent from '@/components/SelectComponent/MultiSelectTagComponent.tsx';
+import { TagModel } from '@/domain/models/tag.model.ts';
 
 export default function MyEventsPage({
     uc,
@@ -14,6 +16,30 @@ export default function MyEventsPage({
     user: UserModel;
 }) {
     const [events, setEvents] = useState<EventModel[]>([]);
+    const [tagFilter, setTagFilter] = useState<string[]>([]);
+    const [tags, setTags] = useState<TagModel[]>([]);
+    const [filteredEvents, setFilteredEvents] = useState<EventModel[]>([]);
+
+    const onTagSelect = (tagIds: string[]) => {
+        setTagFilter(tagIds);
+    };
+
+    useEffect(() => {
+        const fetchTags = async () => {
+            const tags = await uc.getTags();
+            setTags(tags);
+        };
+        fetchTags();
+    }, []);
+
+    useEffect(() => {
+        if (tagFilter.length === 0) {
+            setFilteredEvents(events);
+        } else {
+            const filtered = events.filter((event) => tagFilter.includes(event.tag.name));
+            setFilteredEvents(filtered);
+        }
+    }, [tagFilter, events]);
 
     useEffect(() => {
         if (!neighborhoodId || !uc) return;
@@ -30,19 +56,15 @@ export default function MyEventsPage({
         fetchEvents();
     }, [neighborhoodId, uc]);
 
-    if (!events || events.length === 0) {
-        return (
-            <div className="flex items-center justify-center h-screen">
-                <p className="text-lg">Aucun événement prévu.</p>
-            </div>
-        );
-    }
-
     return (
         <div className="px-32 mb-8 w-full">
-            <h1 className="text-2xl font-semibold mb-4">Événements à venir</h1>
+            <div className={'flex flex-row justify-between items-center mb-1'}>
+                <h1 className="text-2xl font-semibold mb-4">Événements à venir</h1>
+
+                <MultiSelectTagComponent tags={tags} onSelect={onTagSelect} />
+            </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                {events.map((event) => (
+                {filteredEvents.map((event) => (
                     <PreviewEvent key={event.id} event={event} user={user} />
                 ))}
             </div>

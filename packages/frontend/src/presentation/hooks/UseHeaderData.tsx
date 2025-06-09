@@ -6,12 +6,19 @@ import { NeighborhoodFrontRepository } from '@/infrastructure/repositories/Neigh
 import { EventRepository } from '@/infrastructure/repositories/EventRepository.ts';
 import { DecodedUser } from '@/domain/models/DecodedUser.ts';
 import { jwtDecode } from 'jwt-decode';
+import { TagRepository } from '@/infrastructure/repositories/TagRepository.ts';
 
 export function useHeaderData() {
     const [user, setUser] = useState<UserModel | null>(null);
     const neighborhoodId = localStorage.getItem('neighborhoodId');
     const uc = useMemo(
-        () => new HomeUc(new UserFrontRepository(), new NeighborhoodFrontRepository(), new EventRepository()),
+        () =>
+            new HomeUc(
+                new UserFrontRepository(),
+                new NeighborhoodFrontRepository(),
+                new EventRepository(),
+                new TagRepository()
+            ),
         []
     );
 

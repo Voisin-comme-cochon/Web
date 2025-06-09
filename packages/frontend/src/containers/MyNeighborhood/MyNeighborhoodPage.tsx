@@ -11,6 +11,7 @@ import { NeighborhoodFrontRepository } from '@/infrastructure/repositories/Neigh
 import { EventRepository } from '@/infrastructure/repositories/EventRepository.ts';
 import { HomeUc } from '@/domain/use-cases/homeUc.ts';
 import DashboardHeader from '@/components/Header/DashboardHeader.tsx';
+import { TagRepository } from '@/infrastructure/repositories/TagRepository.ts';
 
 export default function MyNeighborhoodPage() {
     const [events, setEvents] = useState<EventModel[]>([]);
@@ -18,7 +19,13 @@ export default function MyNeighborhoodPage() {
     const [user, setUser] = useState<UserModel | null>(null);
     const neighborhoodId = localStorage.getItem('neighborhoodId');
     const uc = useMemo(
-        () => new HomeUc(new UserFrontRepository(), new NeighborhoodFrontRepository(), new EventRepository()),
+        () =>
+            new HomeUc(
+                new UserFrontRepository(),
+                new NeighborhoodFrontRepository(),
+                new EventRepository(),
+                new TagRepository()
+            ),
         []
     );
     useEffect(() => {

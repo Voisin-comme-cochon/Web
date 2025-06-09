@@ -5,12 +5,15 @@ import { FrontNeighborhood } from '@/domain/models/FrontNeighborhood.ts';
 import { EventModel, EventModelWithUser } from '@/domain/models/event.model.ts';
 import { EventRepository } from '@/infrastructure/repositories/EventRepository.ts';
 import { ApiGlobalError } from '@/shared/errors/apiGlobalError.ts';
+import { TagModel } from '@/domain/models/tag.model.ts';
+import { TagRepository } from '@/infrastructure/repositories/TagRepository.ts';
 
 export class HomeUc {
     constructor(
         private userFrontRepository: UserFrontRepository,
         private neighborhoodRepository: NeighborhoodFrontRepository,
-        private eventRepository: EventRepository
+        private eventRepository: EventRepository,
+        private tagRepository: TagRepository
     ) {}
 
     async isUserRegistered(eventId: number, userId: number): Promise<boolean> {
@@ -74,6 +77,14 @@ export class HomeUc {
                 throw new Error(error.message);
             }
             throw new Error("Une erreur est survenue lors de la récupération de l'événement");
+        }
+    }
+
+    async getTags(): Promise<TagModel[]> {
+        try {
+            return await this.tagRepository.getTags();
+        } catch (error) {
+            throw new Error((error as ApiGlobalError).response.data.message);
         }
     }
 
