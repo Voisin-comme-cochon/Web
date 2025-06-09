@@ -21,7 +21,7 @@ function EventDetails({ user, uc }: { user: UserModel; uc: HomeUc }) {
     const [isRegistered, setIsRegistered] = useState<boolean>(false);
     const { eventId } = useParams<{ eventId: string }>();
     const [selectedCategory, setSelectedCategory] = useState<ChangeCategory>('description');
-    const { showError } = useToast();
+    const { showError, showSuccess } = useToast();
 
     useEffect(() => {
         const checkRegistration = async () => {
@@ -89,6 +89,7 @@ function EventDetails({ user, uc }: { user: UserModel; uc: HomeUc }) {
             const idNum = parseInt(eventId, 10);
             await uc.registerToEvent(idNum);
             setIsRegistered(true);
+            showSuccess('Inscription réussie !');
         } catch (error) {
             if (error instanceof Error) {
                 showError(error.message);
@@ -104,6 +105,7 @@ function EventDetails({ user, uc }: { user: UserModel; uc: HomeUc }) {
             const idNum = parseInt(eventId, 10);
             await uc.unRegisterFromEvent(idNum);
             setIsRegistered(false);
+            showSuccess('Désinscription réussie !');
         } catch (error) {
             console.error('Failed to register for event:', error);
         }
