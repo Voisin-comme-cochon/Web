@@ -1,3 +1,5 @@
+import { Tag } from '../../tags/domain/tags.model';
+
 export class User {
     id!: number;
     firstName!: string;
@@ -11,4 +13,5 @@ export class User {
     isSuperAdmin!: boolean;
     newsletter!: boolean;
     prefferedNotifMethod!: string;
+    tags: Tag[] = [];
 }

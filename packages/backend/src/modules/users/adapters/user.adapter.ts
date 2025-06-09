@@ -17,6 +17,10 @@ export class UserAdapter {
             newsletter: userEntity.newsletter,
             prefferedNotifMethod: userEntity.prefferedNotifMethod,
             profileImageUrl: userEntity.profileImageUrl,
+            tags: userEntity.tags
+                ? // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                  userEntity.tags.filter((userTag) => userTag.tag !== undefined).map((userTag) => userTag.tag!)
+                : [],
         };
     }
 
@@ -53,6 +57,7 @@ export class UserAdapter {
             newsletter: user.newsletter,
             prefferedNotifMethod: user.prefferedNotifMethod,
             profileImageUrl: user.profileImageUrl,
+            tags: user.tags,
         };
     }
 

@@ -25,6 +25,7 @@ export const signupFormSchema = z.object({
         .union([z.string(), z.instanceof(File), z.null()])
         .optional()
         .nullable(),
+    tags: z.array(z.string()).min(1, { message: 'Au moins un tag est requis' }),
 });
 
 export type SignupFormValues = z.infer<typeof signupFormSchema>;

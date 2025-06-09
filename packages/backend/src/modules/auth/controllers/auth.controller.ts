@@ -35,7 +35,8 @@ export class AuthController {
             body.address,
             body.password,
             body.description,
-            profileImage
+            profileImage,
+            body.tagIds
         );
     }
 

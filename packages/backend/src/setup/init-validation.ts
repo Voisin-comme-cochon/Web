@@ -9,8 +9,14 @@ export const initValidation = (app: INestApplication) => {
     app.useGlobalPipes(
         new ValidationPipe({
             enableDebugMessages: true,
-            exceptionFactory: () => {
-                const validationError = new CochonError('validation-errors', 'A validation error occurs', 400);
+            exceptionFactory: (errors) => {
+                const validationError = new CochonError('validation-errors', 'A validation error occurs', 400, {
+                    details: errors.map((error) => ({
+                        property: error.property,
+                        constraints: error.constraints,
+                        value: error.value as string,
+                    })),
+                });
                 console.error('validation-errors', validationError);
                 throw validationError;
             },
