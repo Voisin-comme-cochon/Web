@@ -4,8 +4,9 @@ import { HomeUc } from '@/domain/use-cases/homeUc.ts';
 import { withHeaderData } from '@/containers/Wrapper/Wrapper.tsx';
 import MyEventsPage from '@/containers/NeighborhoodEvents/MyEventsPage.tsx';
 import PlanningPage from '@/containers/NeighborhoodEvents/PlanningPage.tsx';
+import { UserModel } from '@/domain/models/user.model.ts';
 
-function NeighborhoodEventsPage({ uc, neighborhoodId }: { uc: HomeUc; neighborhoodId: string }) {
+function NeighborhoodEventsPage({ uc, neighborhoodId, user }: { uc: HomeUc; neighborhoodId: string; user: UserModel }) {
     const [activeTab, setActiveTab] = useState<'planning' | 'events'>('events');
 
     useEffect(() => {
@@ -47,7 +48,7 @@ function NeighborhoodEventsPage({ uc, neighborhoodId }: { uc: HomeUc; neighborho
                 </button>
             </div>
 
-            {activeTab === 'events' && <MyEventsPage />}
+            {activeTab === 'events' && <MyEventsPage uc={uc} neighborhoodId={neighborhoodId} user={user} />}
             {activeTab === 'planning' && <PlanningPage uc={uc} neighborhoodId={neighborhoodId} />}
         </div>
     );
