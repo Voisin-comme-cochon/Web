@@ -1,21 +1,29 @@
-# Étape 1 : build avec Node
-FROM node:20.11 AS builder
+FROM node:20.11-alpine AS builder
 
 WORKDIR /app
 
 COPY package*.json ./
 
-RUN npm install
+RUN npm ci --silent
 
 COPY . .
 
 RUN npm run build
 
-# Étape 2 : image de production
-FROM node:20.11
+FROM node:20.11-alpine AS production
 
 WORKDIR /app
-COPY --from=builder /app /app
-RUN npm install --omit=dev
 
-CMD ["npm", "run", "start:prod"]
+COPY package*.json ./
+
+RUN npm ci --only=production --silent && npm cache clean --force
+
+COPY --from=builder /app/dist ./dist
+
+RUN addgroup -g 1001 -S nodejs && adduser -S nestjs -u 1001
+
+USER nestjs
+
+EXPOSE 3000
+
+CMD ["node", "dist/main"]
