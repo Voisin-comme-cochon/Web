@@ -62,7 +62,6 @@ export class UserRepositoryImplementation implements UsersRepository {
     }
 
     public async createUser(user: UserEntity): Promise<UserEntity> {
-        console.log('user', user);
         const savedUser = await this.dataSource.getRepository(UserEntity).save(user);
 
         if (user.tags && user.tags.length > 0) {

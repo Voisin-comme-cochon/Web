@@ -16,6 +16,7 @@ export interface SignupData {
     password: string;
     description?: string;
     profileImage?: File | string | null;
+    tags: number[];
 }
 
 export class AuthRepository {
@@ -27,6 +28,7 @@ export class AuthRepository {
         formData.append('email', data.email);
         formData.append('address', data.address);
         formData.append('password', data.password);
+        formData.append('tagIds', data.tags.join(','));
 
         if (data.description) {
             formData.append('description', data.description);

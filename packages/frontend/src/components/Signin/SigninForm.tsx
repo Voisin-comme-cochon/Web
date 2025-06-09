@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
@@ -22,26 +22,30 @@ import {
     MultiSelectorList,
     MultiSelectorItem,
 } from '@/components/ui/multi-select';
-
-const AVAILABLE_TAGS = [
-    'Développement Web',
-    'Design UI/UX',
-    'Marketing Digital',
-    'Data Science',
-    'DevOps',
-    'Mobile',
-    'Intelligence Artificielle',
-    'Cybersécurité',
-    'Cloud Computing',
-    'Blockchain',
-    'E-commerce',
-    'Gestion de Projet',
-];
+import { TagUc } from '@/domain/use-cases/tagUc.ts';
+import { TagRepository } from '@/infrastructure/repositories/TagRepository.ts';
+import { TagModel } from '@/domain/models/tag.model.ts';
 
 export default function SigninForm() {
     const { goLanding, goLogin } = useAppNavigation();
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [availableTags, setAvailableTags] = useState<TagModel[]>([]);
+
+    useEffect(() => {
+        const fetchTags = async () => {
+            const tagUc = new TagUc(new TagRepository());
+            try {
+                const tags = await tagUc.getTags();
+                setAvailableTags(tags);
+            } catch (err) {
+                console.error('Error fetching tags:', err);
+                setError("Impossible de charger les centres d'intérêt disponibles.");
+            }
+        };
+
+        fetchTags();
+    }, []);
 
     const form = useForm<SignupFormValues>({
         resolver: zodResolver(signupFormSchema),
@@ -73,7 +77,12 @@ export default function SigninForm() {
                 password: values.password,
                 description: values.description,
                 profileImage: values.profileImage,
-                tags: values.tags, // Ajout des tags
+                tags: values.tags
+                    .map((tag) => {
+                        const foundTag = availableTags.find((t) => t.name === tag);
+                        return foundTag ? foundTag.id : null;
+                    })
+                    .filter((id) => id !== null) as number[],
             });
             goLanding();
         } catch (err) {
@@ -265,13 +274,13 @@ export default function SigninForm() {
                                                 </MultiSelectorTrigger>
                                                 <MultiSelectorContent>
                                                     <MultiSelectorList>
-                                                        {AVAILABLE_TAGS.map((tag) => (
+                                                        {availableTags.map((tag) => (
                                                             <MultiSelectorItem
-                                                                key={tag}
-                                                                value={tag}
+                                                                key={tag.id}
+                                                                value={tag.name}
                                                                 disabled={isLoading}
                                                             >
-                                                                {tag}
+                                                                {tag.name}
                                                             </MultiSelectorItem>
                                                         ))}
                                                     </MultiSelectorList>

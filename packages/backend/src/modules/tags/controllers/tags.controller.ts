@@ -30,7 +30,6 @@ import { AssignTagDto, GetByIdDto, TagDto, UpsertTagDto } from './dto/tags.dto';
 
 @ApiTags('tags')
 @ApiBearerAuth()
-@UseGuards(IsLoginGuard)
 @Controller('tags')
 export class TagsController {
     constructor(private readonly tagsService: TagsService) {}
@@ -56,7 +55,7 @@ export class TagsController {
     }
 
     @Post()
-    @UseGuards(IsSuperAdminGuard)
+    @UseGuards(IsLoginGuard, IsSuperAdminGuard)
     @ApiOperation({ summary: 'Create a new tag' })
     @ApiCreatedResponse({ description: 'Tag created successfully', type: TagDto })
     @ApiBadRequestResponse({ description: 'Invalid input data' })
@@ -66,7 +65,7 @@ export class TagsController {
     }
 
     @Put('/:id')
-    @UseGuards(IsSuperAdminGuard)
+    @UseGuards(IsLoginGuard, IsSuperAdminGuard)
     @ApiOperation({ summary: 'Update a tag' })
     @ApiOkResponse({ description: 'Tag updated successfully', type: TagDto })
     @ApiNotFoundResponse({ description: 'Tag not found' })
@@ -77,7 +76,7 @@ export class TagsController {
     }
 
     @Delete('/:id')
-    @UseGuards(IsSuperAdminGuard)
+    @UseGuards(IsLoginGuard, IsSuperAdminGuard)
     @ApiOperation({ summary: 'Delete a tag' })
     @ApiOkResponse({ description: 'Tag deleted successfully' })
     @ApiNotFoundResponse({ description: 'Tag not found' })
