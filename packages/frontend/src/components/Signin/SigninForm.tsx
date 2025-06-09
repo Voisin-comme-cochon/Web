@@ -25,6 +25,7 @@ import {
 import { TagUc } from '@/domain/use-cases/tagUc.ts';
 import { TagRepository } from '@/infrastructure/repositories/TagRepository.ts';
 import { TagModel } from '@/domain/models/tag.model.ts';
+import { AddressAutocomplete } from '@/components/AddressSuggestion/AddressSuggestion.tsx';
 
 export default function SigninForm() {
     const { goLanding, goLogin } = useAppNavigation();
@@ -236,13 +237,18 @@ export default function SigninForm() {
                                     <FormItem>
                                         <FormLabel>Adresse</FormLabel>
                                         <FormControl>
-                                            <Input
-                                                placeholder="123 rue de la République"
-                                                disabled={isLoading}
-                                                {...field}
-                                                onChange={(e) => {
-                                                    field.onChange(e);
+                                            <AddressAutocomplete
+                                                value={field.value}
+                                                onChange={(value) => {
+                                                    field.onChange(value);
                                                     setError(null);
+                                                }}
+                                                placeholder="123 rue de la République, 75001 Paris"
+                                                disabled={isLoading}
+                                                onAddressSelect={(addressData) => {
+                                                    // Optionnel : traitement supplémentaire des données d'adresse
+                                                    console.log('Adresse sélectionnée:', addressData);
+                                                    // Vous pouvez stocker les coordonnées ou autres données si nécessaire
                                                 }}
                                             />
                                         </FormControl>

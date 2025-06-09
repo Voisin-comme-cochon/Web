@@ -44,9 +44,9 @@ export class SignInDto {
         example: '1,2,3',
         description: 'List of tag IDs',
     })
-    @IsOptional()
     @IsString()
-    tagIds?: string;
+    @MinLength(1)
+    tagIds!: string;
 }
 
 export class RefreshTokenDto {
