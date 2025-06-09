@@ -22,6 +22,7 @@ import { Trash, X } from 'lucide-react';
 import type { EventModelWithUser } from '@/domain/models/event.model.ts';
 import type { UserModel } from '@/domain/models/user.model.ts';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card.tsx';
+import TagComponent from '@/components/TagComponent/TagComponent.tsx';
 
 type ChangeCategory = 'description' | 'inscrits' | 'lieu';
 
@@ -128,14 +129,17 @@ const EventDetails: FC<{ user: UserModel; uc: HomeUc }> = ({ user, uc }) => {
 
             <Card className="max-w-3xl mx-auto mt-8">
                 <CardHeader className="flex flex-row justify-between items-center">
-                    <CardTitle className="text-2xl">{event.name}</CardTitle>
+                    <div className={'flex gap-4 items-center'}>
+                        <CardTitle className="text-2xl">{event.name}</CardTitle>
+                        <TagComponent tag={event.tag} />
+                    </div>
                     <Button variant="ghost" onClick={() => window.history.back()}>
                         <X />
                     </Button>
                 </CardHeader>
 
                 {new Date(event.dateStart).toLocaleDateString() === new Date(event.dateEnd).toLocaleDateString() ? (
-                    <p className="px-6">
+                    <p className="px-6 mb-2">
                         Le {new Date(event.dateStart).toLocaleDateString()} de{' '}
                         {new Date(event.dateStart).toLocaleTimeString([], {
                             hour: '2-digit',
