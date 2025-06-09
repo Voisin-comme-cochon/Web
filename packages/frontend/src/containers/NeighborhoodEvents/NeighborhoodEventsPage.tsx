@@ -1,12 +1,11 @@
 import { useEffect, useState } from 'react';
 import DashboardHeader from '@/components/Header/DashboardHeader.tsx';
-import { UserModel } from '@/domain/models/user.model.ts';
 import { HomeUc } from '@/domain/use-cases/homeUc.ts';
 import { withHeaderData } from '@/containers/Wrapper/Wrapper.tsx';
 import MyEventsPage from '@/containers/NeighborhoodEvents/MyEventsPage.tsx';
 import PlanningPage from '@/containers/NeighborhoodEvents/PlanningPage.tsx';
 
-function NeighborhoodEventsPage({ user, uc, neighborhoodId }: { user: UserModel; uc: HomeUc; neighborhoodId: string }) {
+function NeighborhoodEventsPage({ uc, neighborhoodId }: { uc: HomeUc; neighborhoodId: string }) {
     const [activeTab, setActiveTab] = useState<'planning' | 'events'>('events');
 
     useEffect(() => {

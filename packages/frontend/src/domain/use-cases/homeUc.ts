@@ -84,4 +84,12 @@ export class HomeUc {
             throw new Error((error as ApiGlobalError).response.data.message);
         }
     }
+
+    async getEventsByUserId(): Promise<EventModel[]> {
+        try {
+            return await this.eventRepository.getEventsByUserId();
+        } catch (error) {
+            throw new Error((error as ApiGlobalError).response.data.message);
+        }
+    }
 }

@@ -46,6 +46,44 @@ export class EventsController {
         private readonly neighborhoodService: NeighborhoodService
     ) {}
 
+    @Get('registered')
+    @ApiOperation({ summary: 'Get events by user ID' })
+    @ApiOkResponse({ description: 'Events found', type: ResponseEventDto })
+    @ApiNotFoundResponse({ description: 'Events not found' })
+    async getEventsByUserId(
+        @Request()
+        req: {
+            user: { id: number };
+        }
+    ): Promise<ResponseEventDto[]> {
+        const events = await this.eventsService.getEventsByUserId(req.user.id);
+
+        return await Promise.all(
+            events.map(async (event) => {
+                const creator = await this.usersService.getUserById(event.createdBy);
+                const responseCreator = UserAdapter.domainToResponseUser(creator);
+
+                const tag = await this.tagsService.getTagById(event.tagId);
+                const responseTag = TagsAdapter.domainToResponseTag(tag);
+
+                const neighborhood = await this.neighborhoodService.getNeighborhoodById(event.neighborhoodId);
+                if (!neighborhood) {
+                    throw new CochonError('neighborhood-not-found', 'Neighborhood not found', 404);
+                }
+
+                const [users, countUsers] = await this.eventsService.getUsersByEventId(event.id, 1, 1);
+
+                return EventsAdapter.domainToResponseEvent(
+                    event,
+                    responseTag,
+                    neighborhood,
+                    responseCreator,
+                    countUsers
+                );
+            })
+        );
+    }
+
     @Get()
     @UseInterceptors(PaginationInterceptor)
     @ApiOperation({ summary: 'Get events' })

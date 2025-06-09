@@ -77,4 +77,18 @@ export class EventsRepositoryImplementation implements EventsRepository {
             relations: ['creator', 'neighborhood', 'tag'],
         });
     }
+
+    public getEventsByUserId(userId: number): Promise<EventEntity[]> {
+        return this.dataSource
+            .getRepository(EventRegistrationEntity)
+            .createQueryBuilder('registration')
+            .leftJoinAndSelect('registration.event', 'event')
+            .where('registration.userId = :userId', { userId })
+            .getMany()
+            .then((registrations) =>
+                registrations
+                    .map((registration) => registration.event)
+                    .filter((event): event is EventEntity => event !== undefined)
+            );
+    }
 }

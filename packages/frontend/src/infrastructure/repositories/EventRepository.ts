@@ -21,4 +21,9 @@ export class EventRepository {
     async unregisterFromEvent(eventId: number): Promise<void> {
         await ApiService.delete(`/events/${eventId}/register`);
     }
+
+    async getEventsByUserId(): Promise<EventModel[]> {
+        const response = await ApiService.get(`/events/registered`);
+        return response.data;
+    }
 }

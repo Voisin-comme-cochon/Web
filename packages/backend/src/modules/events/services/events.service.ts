@@ -135,8 +135,19 @@ export class EventsService {
         }
 
         const createdEvent = await this.eventRepository.createEvent(eventEntity);
-        createdEvent.photo = prevLink;
-        return EventsAdapter.entityToDomain(createdEvent);
+        this.eventRepository.registerUserForEvent(createdEvent.id, createdEvent.createdBy);
+        const newEvent = await this.eventRepository.getEventById(createdEvent.id);
+        if (!newEvent) {
+            throw new CochonError('event_creation_error', 'Event creation failed, event not found', 500);
+        }
+        newEvent.photo = prevLink;
+        return EventsAdapter.entityToDomain(newEvent);
+    }
+
+    public getEventsByUserId(userId: number): Promise<Event[]> {
+        return this.eventRepository.getEventsByUserId(userId).then((events) => {
+            return this.replacePhotosByLinks(EventsAdapter.listEntityToDomain(events));
+        });
     }
 
     private async replacePhotoByLink(event: Event): Promise<Event> {

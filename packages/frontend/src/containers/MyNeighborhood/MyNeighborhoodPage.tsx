@@ -84,7 +84,7 @@ export default function MyNeighborhoodPage() {
                 </div>
             </div>
             <div className={'px-32 relative -mt-24'}>
-                <div className={'flex items-center gap-2 cursor-pointer'} onClick={() => goNeighborhoodEvents}>
+                <div className={'flex items-center gap-2 cursor-pointer'} onClick={goNeighborhoodEvents}>
                     <p>Prochains évènements</p>
                     <span className="material-symbols-outlined text-base">chevron_right</span>
                 </div>

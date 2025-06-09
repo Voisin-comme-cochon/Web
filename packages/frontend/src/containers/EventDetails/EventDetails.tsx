@@ -11,7 +11,6 @@ import { MapBoxRepository } from '@/infrastructure/repositories/MapBoxRepository
 import { Button } from '@/components/ui/button.tsx';
 import { UserModel } from '@/domain/models/user.model.ts';
 import { useToast } from '@/presentation/hooks/useToast.ts';
-import { useAppNavigation } from '@/presentation/state/navigate.ts';
 
 type ChangeCategory = 'description' | 'inscrits' | 'lieu';
 
@@ -23,7 +22,6 @@ function EventDetails({ user, uc }: { user: UserModel; uc: HomeUc }) {
     const { eventId } = useParams<{ eventId: string }>();
     const [selectedCategory, setSelectedCategory] = useState<ChangeCategory>('description');
     const { showError, showSuccess } = useToast();
-    const { goMyNeighborhood } = useAppNavigation();
 
     useEffect(() => {
         const checkRegistration = async () => {
@@ -124,7 +122,12 @@ function EventDetails({ user, uc }: { user: UserModel; uc: HomeUc }) {
                 <div className="popup">
                     <div className="popup-header">
                         <p className="popup-title">{event.name}</p>
-                        <span className="material-symbols-outlined popup-close" onClick={goMyNeighborhood}>
+                        <span
+                            className="material-symbols-outlined popup-close"
+                            onClick={() => {
+                                window.history.back();
+                            }}
+                        >
                             close
                         </span>
                     </div>
