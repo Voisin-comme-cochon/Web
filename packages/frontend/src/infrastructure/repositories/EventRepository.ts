@@ -13,4 +13,12 @@ export class EventRepository {
         const response = await ApiService.get(`/events/${id}`);
         return response.data;
     }
+
+    async registerToEvent(eventId: number): Promise<void> {
+        await ApiService.post(`/events/${eventId}/register`);
+    }
+
+    async unregisterFromEvent(eventId: number): Promise<void> {
+        await ApiService.delete(`/events/${eventId}/register`);
+    }
 }

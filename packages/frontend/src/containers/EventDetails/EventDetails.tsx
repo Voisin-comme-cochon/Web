@@ -9,21 +9,38 @@ import UserCard from '@/components/UserCard/UserCard.tsx';
 import EventMapBox from '@/components/MapBox/EventMapBox.tsx';
 import { MapBoxRepository } from '@/infrastructure/repositories/MapBoxRepository.ts';
 import { Button } from '@/components/ui/button.tsx';
+import { UserModel } from '@/domain/models/user.model.ts';
+import { useToast } from '@/presentation/hooks/useToast.ts';
 
 type ChangeCategory = 'description' | 'inscrits' | 'lieu';
 
-function EventDetails({ uc }: { uc: HomeUc }) {
+function EventDetails({ user, uc }: { user: UserModel; uc: HomeUc }) {
     const [event, setEvent] = useState<EventModelWithUser | null>(null);
     const [addressStart, setAddressStart] = useState<string | null>(null);
     const [addressEnd, setAddressEnd] = useState<string | null>(null);
+    const [isRegistered, setIsRegistered] = useState<boolean>(false);
     const { eventId } = useParams<{ eventId: string }>();
     const [selectedCategory, setSelectedCategory] = useState<ChangeCategory>('description');
+    const { showError } = useToast();
+
+    useEffect(() => {
+        const checkRegistration = async () => {
+            if (!eventId) return;
+            try {
+                const idNum = parseInt(eventId, 10);
+                const registered = await uc.isUserRegistered(idNum, user.id);
+                setIsRegistered(registered);
+            } catch (error) {
+                console.error('Failed to check registration:', error);
+            }
+        };
+        checkRegistration();
+    }, [eventId, uc]);
 
     const handleCategoryChange = (category: ChangeCategory) => {
         setSelectedCategory(category);
     };
 
-    // 1) Récupère l'évènement au chargement (ou quand eventId change)
     useEffect(() => {
         const fetchEvent = async () => {
             if (!eventId) return;
@@ -36,9 +53,8 @@ function EventDetails({ uc }: { uc: HomeUc }) {
             }
         };
         fetchEvent();
-    }, [eventId, uc]);
+    }, [eventId, uc, isRegistered]);
 
-    // 2) Une fois que "event" est récupéré (non null), on appelle MapBox pour obtenir les adresses
     useEffect(() => {
         if (!event) return;
 
@@ -66,6 +82,32 @@ function EventDetails({ uc }: { uc: HomeUc }) {
 
         fetchAddress();
     }, [event]);
+
+    const registerEvent = async () => {
+        if (!eventId) return;
+        try {
+            const idNum = parseInt(eventId, 10);
+            await uc.registerToEvent(idNum);
+            setIsRegistered(true);
+        } catch (error) {
+            if (error instanceof Error) {
+                showError(error.message);
+                return;
+            }
+            console.error('Failed to register for event:', error);
+        }
+    };
+
+    const unRegisterEvent = async () => {
+        if (!eventId) return;
+        try {
+            const idNum = parseInt(eventId, 10);
+            await uc.unRegisterFromEvent(idNum);
+            setIsRegistered(false);
+        } catch (error) {
+            console.error('Failed to register for event:', error);
+        }
+    };
 
     if (!event) {
         return <div className="flex items-center justify-center h-screen">Chargement de l’évènement…</div>;
@@ -154,9 +196,15 @@ function EventDetails({ uc }: { uc: HomeUc }) {
                     </div>
 
                     <div className="popup-action">
-                        <Button variant={'orange'} className={'w-full'}>
-                            Rejoindre
-                        </Button>
+                        {isRegistered ? (
+                            <Button variant={'destructive'} className={'w-full'} onClick={unRegisterEvent}>
+                                Se désinscrire
+                            </Button>
+                        ) : (
+                            <Button variant={'orange'} className={'w-full'} onClick={registerEvent}>
+                                S'inscrire
+                            </Button>
+                        )}
                     </div>
                 </div>
             </div>
