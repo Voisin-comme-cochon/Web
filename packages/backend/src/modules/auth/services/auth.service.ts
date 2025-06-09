@@ -14,6 +14,7 @@ import { TagsRepository } from '../../tags/domain/tags.abstract.repository';
 import { UserEntity } from '../../../core/entities/user.entity';
 import { UserTagEntity } from '../../../core/entities/user-tag.entity';
 import { isNull } from '../../../utils/tools';
+import { CreateAuthModel } from '../domain/auth.model';
 
 interface DecodedToken {
     id: number;
@@ -34,24 +35,14 @@ export class AuthService {
         private tagRepository: TagsRepository
     ) {}
 
-    public async signIn(
-        firstName: string,
-        lastName: string,
-        phone: string,
-        email: string,
-        address: string,
-        password: string,
-        description?: string,
-        profileImage?: Express.Multer.File,
-        tagIds?: string
-    ): Promise<LogInSignInDtoOutput> {
-        const isUserExist = await this.userRepository.findByEmail(email);
-        const isPhoneExist = await this.userRepository.findByPhone(phone);
+    public async signIn(data: CreateAuthModel): Promise<LogInSignInDtoOutput> {
+        const isUserExist = await this.userRepository.findByEmail(data.email);
+        const isPhoneExist = await this.userRepository.findByPhone(data.phone);
         if (isUserExist || isPhoneExist) {
             throw new CochonError('account-already-exist', 'Account already exist', 409);
         }
 
-        const tagIdsArray = tagIds?.split(',').map(Number) ?? [];
+        const tagIdsArray = data.tagIds.split(',').map(Number);
         if (tagIdsArray.length > 0) {
             for (const tagId of tagIdsArray) {
                 const tag = await this.tagRepository.getTagById(tagId);
@@ -62,14 +53,14 @@ export class AuthService {
         }
 
         const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(password, salt);
+        const hashedPassword = await bcrypt.hash(data.password, salt);
 
         let profileImageUrl: string | undefined;
-        if (profileImage) {
+        if (data.profileImage) {
             try {
                 profileImageUrl = await this.objectStorageService.uploadFile(
-                    profileImage.buffer,
-                    profileImage.originalname,
+                    data.profileImage.buffer,
+                    data.profileImage.originalname,
                     BucketType.PROFILE_IMAGES
                 );
             } catch (error) {
@@ -78,13 +69,15 @@ export class AuthService {
         }
 
         const userEntity = new UserEntity();
-        userEntity.firstName = firstName;
-        userEntity.lastName = lastName;
-        userEntity.phone = phone;
-        userEntity.email = email;
-        userEntity.address = address;
+        userEntity.firstName = data.firstName;
+        userEntity.lastName = data.lastName;
+        userEntity.phone = data.phone;
+        userEntity.email = data.email;
+        userEntity.address = data.address;
+        userEntity.latitude = data.latitude;
+        userEntity.longitude = data.longitude;
         userEntity.password = hashedPassword;
-        userEntity.description = description;
+        userEntity.description = data.description;
         userEntity.profileImageUrl = profileImageUrl;
         userEntity.isSuperAdmin = false;
         userEntity.newsletter = false;

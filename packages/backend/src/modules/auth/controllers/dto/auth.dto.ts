@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsOptional, IsString, MinLength } from 'class-validator';
+import { IsEmail, IsNumber, IsOptional, IsString, MinLength } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class SignInDto {
@@ -23,6 +23,16 @@ export class SignInDto {
     @IsString()
     address!: string;
 
+    @ApiProperty({ example: 48.8566, description: 'Latitude of the user location' })
+    @Type(() => Number)
+    @IsNumber({ maxDecimalPlaces: 6 })
+    latitude!: number;
+
+    @ApiProperty({ example: 2.3522, description: 'Longitude of the user location' })
+    @Type(() => Number)
+    @IsNumber({ maxDecimalPlaces: 6 })
+    longitude!: number;
+
     @ApiProperty({ example: 'A short description about the user', description: 'Description of the user' })
     @IsString()
     @IsOptional()
@@ -44,9 +54,9 @@ export class SignInDto {
         example: '1,2,3',
         description: 'List of tag IDs',
     })
-    @IsOptional()
     @IsString()
-    tagIds?: string;
+    @MinLength(1)
+    tagIds!: string;
 }
 
 export class RefreshTokenDto {

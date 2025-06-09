@@ -25,9 +25,19 @@ import {
 import { TagUc } from '@/domain/use-cases/tagUc.ts';
 import { TagRepository } from '@/infrastructure/repositories/TagRepository.ts';
 import { TagModel } from '@/domain/models/tag.model.ts';
+import { AddressAutocomplete } from '@/components/AddressSuggestion/AddressSuggestion.tsx';
+
+interface AddressData {
+    address: string;
+    city: string;
+    postcode: string;
+    coordinates: [number, number];
+    label: string;
+}
 
 export default function SigninForm() {
     const { goLanding, goLogin } = useAppNavigation();
+    const [selectedAddress, setSelectedAddress] = useState<AddressData | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [availableTags, setAvailableTags] = useState<TagModel[]>([]);
@@ -71,7 +81,9 @@ export default function SigninForm() {
             await authUc.signin({
                 firstName: values.firstName,
                 lastName: values.lastName,
-                address: values.address,
+                address: selectedAddress?.label || values.address,
+                latitude: selectedAddress?.coordinates[1] || 0,
+                longitude: selectedAddress?.coordinates[0] || 0,
                 email: values.email,
                 phone: values.phone,
                 password: values.password,
@@ -236,13 +248,16 @@ export default function SigninForm() {
                                     <FormItem>
                                         <FormLabel>Adresse</FormLabel>
                                         <FormControl>
-                                            <Input
-                                                placeholder="123 rue de la République"
-                                                disabled={isLoading}
-                                                {...field}
-                                                onChange={(e) => {
-                                                    field.onChange(e);
+                                            <AddressAutocomplete
+                                                value={field.value}
+                                                onChange={(value) => {
+                                                    field.onChange(value);
                                                     setError(null);
+                                                }}
+                                                placeholder="123 rue de la République, 75001 Paris"
+                                                disabled={isLoading}
+                                                onAddressSelect={(addressData) => {
+                                                    setSelectedAddress(addressData);
                                                 }}
                                             />
                                         </FormControl>

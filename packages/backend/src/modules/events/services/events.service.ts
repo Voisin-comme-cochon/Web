@@ -7,11 +7,16 @@ import { CochonError } from '../../../utils/CochonError';
 import { BucketType } from '../../objectStorage/domain/bucket-type.enum';
 import { ObjectStorageService } from '../../objectStorage/services/objectStorage.service';
 import { EventEntity } from '../../../core/entities/event.entity';
+import { NeighborhoodService } from '../../neighborhoods/services/neighborhood.service';
+import { TagsService } from '../../tags/services/tags.service';
+import { isNull } from '../../../utils/tools';
 
 export class EventsService {
     constructor(
         private eventRepository: EventsRepository,
-        private readonly objectStorageService: ObjectStorageService
+        private readonly objectStorageService: ObjectStorageService,
+        private readonly neighborhoodService: NeighborhoodService,
+        private readonly tagsService: TagsService
     ) {}
 
     public async getEvents(page: number, limit: number): Promise<[Event[], number]> {
@@ -109,6 +114,24 @@ export class EventsService {
         if (new Date(dateStart) < new Date() || new Date(dateEnd) < new Date()) {
             throw new CochonError('invalid_date', 'The start and end dates must be in the future', 400);
         }
+
+        const neighborhood = await this.neighborhoodService.getNeighborhoodById(neighborhoodId);
+
+        if (isNull(neighborhood)) {
+            throw new CochonError('neighborhood_not_found', 'Neighborhood not found', 404);
+        }
+
+        console.log(createdBy);
+        console.log(neighborhood.neighborhood_users);
+
+        if (
+            neighborhood.neighborhood_users &&
+            !neighborhood.neighborhood_users.some((member) => member.userId === createdBy)
+        ) {
+            throw new CochonError('not_member_of_neighborhood', 'You are not a member of this neighborhood', 403);
+        }
+
+        await this.tagsService.getTagById(tagId);
 
         const photoUrl = await this.createAndUploadEventImageEntities(photo);
 

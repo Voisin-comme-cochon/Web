@@ -7,6 +7,8 @@ export class User {
     phone!: string;
     email!: string;
     address!: string;
+    latitude!: number;
+    longitude!: number;
     password!: string;
     description?: string;
     profileImageUrl?: string;

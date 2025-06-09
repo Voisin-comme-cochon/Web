@@ -27,17 +27,19 @@ export class AuthController {
         @Body() body: SignInDto,
         @UploadedFile() profileImage?: Express.Multer.File
     ): Promise<LogInSignInDtoOutput> {
-        return await this.authService.signIn(
-            body.firstName,
-            body.lastName,
-            body.phone,
-            body.email,
-            body.address,
-            body.password,
-            body.description,
-            profileImage,
-            body.tagIds
-        );
+        return await this.authService.signIn({
+            firstName: body.firstName,
+            lastName: body.lastName,
+            phone: body.phone,
+            email: body.email,
+            address: body.address,
+            latitude: body.latitude,
+            longitude: body.longitude,
+            password: body.password,
+            description: body.description,
+            profileImage: profileImage,
+            tagIds: body.tagIds,
+        });
     }
 
     @Post('login')
