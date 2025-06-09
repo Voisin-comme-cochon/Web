@@ -125,10 +125,33 @@ function EventDetails({ user, uc }: { user: UserModel; uc: HomeUc }) {
                         <span className="material-symbols-outlined popup-close">close</span>
                     </div>
 
-                    <p>
-                        {new Date(event.dateStart).toLocaleDateString()} -{' '}
-                        {new Date(event.dateEnd).toLocaleDateString()}
-                    </p>
+                    {new Date(event.dateStart).toLocaleDateString() === new Date(event.dateEnd).toLocaleDateString() ? (
+                        <p>
+                            Le {new Date(event.dateStart).toLocaleDateString()} de{' '}
+                            {new Date(event.dateStart).toLocaleTimeString([], {
+                                hour: '2-digit',
+                                minute: '2-digit',
+                            })}{' '}
+                            à{' '}
+                            {new Date(event.dateEnd).toLocaleTimeString([], {
+                                hour: '2-digit',
+                                minute: '2-digit',
+                            })}
+                        </p>
+                    ) : (
+                        <p>
+                            du {new Date(event.dateStart).toLocaleDateString()} à{' '}
+                            {new Date(event.dateStart).toLocaleTimeString([], {
+                                hour: '2-digit',
+                                minute: '2-digit',
+                            })}{' '}
+                            au {new Date(event.dateEnd).toLocaleDateString()} à{' '}
+                            {new Date(event.dateEnd).toLocaleTimeString([], {
+                                hour: '2-digit',
+                                minute: '2-digit',
+                            })}
+                        </p>
+                    )}
 
                     <div className="img-popup-container">
                         <img src={event.photo} alt="Photo de l’évènement" className="img-popup" />
