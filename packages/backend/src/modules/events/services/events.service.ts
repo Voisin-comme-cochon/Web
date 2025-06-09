@@ -7,11 +7,13 @@ import { CochonError } from '../../../utils/CochonError';
 import { BucketType } from '../../objectStorage/domain/bucket-type.enum';
 import { ObjectStorageService } from '../../objectStorage/services/objectStorage.service';
 import { EventEntity } from '../../../core/entities/event.entity';
+import { MailerService } from '../../mailer/services/mailer.service';
 
 export class EventsService {
     constructor(
         private eventRepository: EventsRepository,
-        private readonly objectStorageService: ObjectStorageService
+        private readonly objectStorageService: ObjectStorageService,
+        private mailerService: MailerService
     ) {}
 
     public async getEvents(page: number, limit: number): Promise<[Event[], number]> {
@@ -22,7 +24,7 @@ export class EventsService {
         return [eventsWithLinks, count];
     }
 
-    public async deleteEvent(id: number, userId: number): Promise<void> {
+    public async deleteEvent(id: number, userId: number, reason: string): Promise<void> {
         const event = await this.eventRepository.getEventById(id);
         if (!event) {
             throw new CochonError('event_not_found', 'Event not found', 404);
@@ -36,7 +38,32 @@ export class EventsService {
             await this.objectStorageService.deleteFile(event.photo, BucketType.EVENT_IMAGES);
         }
 
+        const registeredUsers = await this.eventRepository.getUsersByEventIdNoLimit(id);
+
+        const creator = registeredUsers.find((user) => user.id === event.createdBy);
+        if (!creator) {
+            throw new CochonError('creator_not_found', 'Event creator not found in registered users', 404);
+        }
+
+        const usersToEmail = registeredUsers.filter((user) => user.id !== creator.id);
         await this.eventRepository.deleteEvent(id);
+
+        await Promise.all(
+            usersToEmail.map((user) =>
+                this.mailerService.sendRawEmail({
+                    to: [user.email],
+                    subject: 'Évènement annulé',
+                    template: 'deleted-event-email',
+                    context: {
+                        eventName: event.name,
+                        eventDate: event.dateStart.toLocaleDateString() + ' à ' + event.dateStart.toLocaleTimeString(),
+                        userName: user.firstName + ' ' + user.lastName,
+                        creatorName: creator.firstName + ' ' + creator.lastName,
+                        cancelMessage: reason,
+                    },
+                })
+            )
+        );
     }
 
     public async getEventsByNeighnorhoodId(id: number, page: number, limit: number): Promise<[Event[], number]> {

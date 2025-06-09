@@ -25,9 +25,9 @@ export class HomeUc {
         }
     }
 
-    async deleteEvent(eventId: number): Promise<void> {
+    async deleteEvent(eventId: number, reason: string): Promise<void> {
         try {
-            await this.eventRepository.deleteEvent(eventId);
+            await this.eventRepository.deleteEvent(eventId, reason);
         } catch (error) {
             throw new Error((error as ApiGlobalError).response.data.message);
         }

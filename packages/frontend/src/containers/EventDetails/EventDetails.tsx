@@ -33,6 +33,7 @@ const EventDetails: FC<{ user: UserModel; uc: HomeUc }> = ({ user, uc }) => {
     const [isRegistered, setIsRegistered] = useState(false);
     const [selectedCategory, setSelectedCategory] = useState<ChangeCategory>('description');
     const [popUpVisible, setPopUpVisible] = useState(false);
+    const [reason, setReason] = useState('');
     const { showError, showSuccess } = useToast();
 
     useEffect(() => {
@@ -59,12 +60,16 @@ const EventDetails: FC<{ user: UserModel; uc: HomeUc }> = ({ user, uc }) => {
     const handleDeleteEvent = async () => {
         if (!eventId) return;
         try {
-            await uc.deleteEvent(+eventId);
+            await uc.deleteEvent(+eventId, reason);
             showSuccess('Évènement supprimé avec succès !');
             window.history.back();
         } catch (err) {
             showError(err instanceof Error ? err.message : 'Erreur lors de la suppression');
         }
+    };
+
+    const handleReasonChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setReason(e.target.value);
     };
 
     const registerEvent = async () => {
@@ -105,7 +110,11 @@ const EventDetails: FC<{ user: UserModel; uc: HomeUc }> = ({ user, uc }) => {
                             Les personnes déjà inscrites seront prévenues de l'annulation.
                         </DialogDescription>
                     </DialogHeader>
-                    <Input placeholder="Message à adresser aux gens" className="w-full mt-4" />
+                    <Input
+                        placeholder="Message à adresser aux gens"
+                        className="w-full mt-4"
+                        onChange={handleReasonChange}
+                    />
                     <DialogFooter className="mt-6 grid grid-cols-2 gap-2">
                         <Button variant="outline" className="w-full" onClick={() => setPopUpVisible(false)}>
                             Fermer
@@ -207,7 +216,7 @@ const EventDetails: FC<{ user: UserModel; uc: HomeUc }> = ({ user, uc }) => {
 
                 <CardFooter className="flex space-x-2 px-6">
                     {isRegistered ? (
-                        <Button variant="destructive" onClick={unRegisterEvent}>
+                        <Button variant="destructive" onClick={unRegisterEvent} disabled={event.creator.id === user.id}>
                             Se désinscrire
                         </Button>
                     ) : (

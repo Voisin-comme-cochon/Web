@@ -8,13 +8,15 @@ import { NeighborhoodModule } from '../neighborhoods/neighborhood.module';
 
 import { ObjectStorageService } from '../objectStorage/services/objectStorage.service';
 import { ObjectStorageModule } from '../objectStorage/objectStorage.module';
+import { MailerModule } from '../mailer/mailer.module';
+import { MailerService } from '../mailer/services/mailer.service';
 import { EventsRepository } from './domain/events.abstract.repository';
 import { EventsRepositoryImplementation } from './repository/events.repository.implementation';
 import { EventsService } from './services/events.service';
 import { EventsController } from './controllers/events.controller';
 
 @Module({
-    imports: [AuthModule, UsersModule, TagsModule, NeighborhoodModule, ObjectStorageModule],
+    imports: [AuthModule, UsersModule, TagsModule, NeighborhoodModule, ObjectStorageModule, MailerModule],
     controllers: [EventsController],
     providers: [
         {
@@ -24,9 +26,12 @@ import { EventsController } from './controllers/events.controller';
         },
         {
             provide: EventsService,
-            inject: [EventsRepository, ObjectStorageService],
-            useFactory: (eventsRepository: EventsRepository, objectStorageService: ObjectStorageService) =>
-                new EventsService(eventsRepository, objectStorageService),
+            inject: [EventsRepository, ObjectStorageService, MailerService],
+            useFactory: (
+                eventsRepository: EventsRepository,
+                objectStorageService: ObjectStorageService,
+                mailerService: MailerService
+            ) => new EventsService(eventsRepository, objectStorageService, mailerService),
         },
     ],
     exports: [EventsRepository, EventsService],

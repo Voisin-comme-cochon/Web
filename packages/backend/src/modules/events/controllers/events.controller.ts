@@ -90,12 +90,13 @@ export class EventsController {
     @ApiNotFoundResponse({ description: 'Event not found' })
     async deleteEventById(
         @Param() params: GetEventIdDto,
+        @Body('reason') reason: string,
         @Request()
         req: {
             user: { id: number };
         }
     ): Promise<void> {
-        await this.eventsService.deleteEvent(params.id, req.user.id);
+        await this.eventsService.deleteEvent(params.id, req.user.id, reason);
     }
 
     @Get()

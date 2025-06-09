@@ -27,7 +27,9 @@ export class EventRepository {
         return response.data;
     }
 
-    async deleteEvent(eventId: number): Promise<void> {
-        await ApiService.delete(`/events/${eventId}`);
+    async deleteEvent(eventId: number, reason: string): Promise<void> {
+        await ApiService.delete(`/events/${eventId}`, {
+            data: { reason },
+        });
     }
 }
