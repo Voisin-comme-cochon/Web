@@ -4,7 +4,7 @@ WORKDIR /app
 
 COPY package*.json ./
 
-RUN npm ci --silent
+RUN npm i --silent
 
 COPY . .
 
@@ -16,7 +16,7 @@ WORKDIR /app
 
 COPY package*.json ./
 
-RUN npm ci --only=production --silent && npm cache clean --force
+RUN npm i --only=production --silent && npm cache clean --force
 
 COPY --from=builder /app/dist ./dist
 
