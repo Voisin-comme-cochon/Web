@@ -5,8 +5,10 @@ import DashboardHeader from '@/components/Header/DashboardHeader.tsx';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card.tsx';
 import { Button } from '@/components/ui/button.tsx';
 import { X } from 'lucide-react';
+import { HomeUc } from '@/domain/use-cases/homeUc.ts';
+import { withHeaderData } from '@/containers/Wrapper/Wrapper.tsx';
 
-export default function CreateEventPage() {
+function CreateEventPage({ uc }: { uc: HomeUc }) {
     return (
         <div>
             <DashboardHeader />
@@ -21,9 +23,12 @@ export default function CreateEventPage() {
                 </CardHeader>
 
                 <CardContent className="px-6">
-                    <CreateEventForm />
+                    <CreateEventForm uc={uc} />
                 </CardContent>
             </Card>
         </div>
     );
 }
+
+const CreateEventPageWrapper = withHeaderData(CreateEventPage);
+export default CreateEventPageWrapper;

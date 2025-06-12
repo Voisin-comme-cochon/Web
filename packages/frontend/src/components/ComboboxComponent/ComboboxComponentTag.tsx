@@ -1,48 +1,32 @@
 import * as React from 'react';
-import { useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Check, ChevronsUpDown } from 'lucide-react';
-import { FrontNeighborhood } from '@/domain/models/FrontNeighborhood.ts';
+import { TagModel } from '@/domain/models/tag.model.ts';
 
-const LOCALSTORAGE_KEY = 'neighborhoodId';
-
-export default function ComboboxComponent({
-    neighborhoods = [],
-    onNeighborhoodChange,
+export default function ComboboxComponentTag({
+    tags = [],
+    handleSetTag,
 }: {
-    neighborhoods?: FrontNeighborhood[];
-    onNeighborhoodChange?: () => void;
+    tags: TagModel[];
+    handleSetTag: (selectedTag: number) => void;
 }) {
     const [open, setOpen] = React.useState(false);
     const [value, setValue] = React.useState<string>('');
 
-    useEffect(() => {
-        if (typeof window !== 'undefined') {
-            const saved = localStorage.getItem(LOCALSTORAGE_KEY);
-            if (saved && neighborhoods.some((n) => n.id.toString() === saved)) {
-                setValue(saved);
-            }
-        }
-    }, [neighborhoods]);
-
     const handleSelect = (currentId: string) => {
         if (currentId === value) {
             setValue('');
-            localStorage.removeItem(LOCALSTORAGE_KEY);
         } else {
             setValue(currentId);
-            localStorage.setItem(LOCALSTORAGE_KEY, currentId);
         }
         setOpen(false);
-        if (onNeighborhoodChange) {
-            onNeighborhoodChange();
-        }
+        handleSetTag(currentId);
     };
 
-    const selectedName = neighborhoods.find((n) => n.id.toString() === value)?.name || 'Choisir un quartier';
+    const selectedName = tags.find((n) => n.id.toString() === value)?.name || 'Choisir un tag';
 
     return (
         <Popover open={open} onOpenChange={setOpen}>
@@ -58,19 +42,19 @@ export default function ComboboxComponent({
                     <CommandList>
                         <CommandEmpty>Aucun quartier trouvé.</CommandEmpty>
                         <CommandGroup>
-                            {neighborhoods.map((neighborhood) => (
+                            {tags.map((tag) => (
                                 <CommandItem
-                                    key={neighborhood.id}
-                                    value={neighborhood.id.toString()}
-                                    onSelect={() => handleSelect(neighborhood.id.toString())}
+                                    key={tag.id}
+                                    value={tag.id.toString()}
+                                    onSelect={() => handleSelect(tag.id.toString())}
                                 >
                                     <Check
                                         className={cn(
                                             'mr-2 h-4 w-4',
-                                            value === neighborhood.id.toString() ? 'opacity-100' : 'opacity-0'
+                                            value === tag.id.toString() ? 'opacity-100' : 'opacity-0'
                                         )}
                                     />
-                                    {neighborhood.name}
+                                    {tag.name}
                                 </CommandItem>
                             ))}
                         </CommandGroup>

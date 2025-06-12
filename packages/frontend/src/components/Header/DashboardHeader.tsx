@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import logo from '@/assets/images/logoWebV1Light.webp';
 import AvatarComponent from '@/components/AvatarComponent/AvatarComponent';
-import ComboboxComponent from '@/components/ComboboxComponent/ComboboxComponent';
+import ComboboxComponentNeighborhood from '@/components/ComboboxComponent/ComboboxComponentNeighborhood.tsx';
 import { FrontNeighborhood } from '@/domain/models/FrontNeighborhood.ts';
 import { UserModel } from '@/domain/models/user.model.ts';
 import { HomeUc } from '@/domain/use-cases/homeUc.ts';
@@ -119,7 +119,10 @@ export default function DashboardHeader() {
                     // Squelette loader simple
                     <div className="w-[200px] h-10 bg-gray-100 rounded animate-pulse" />
                 ) : (
-                    <ComboboxComponent neighborhoods={neighborhoods} onNeighborhoodChange={handleNeighborhoodChange} />
+                    <ComboboxComponentNeighborhood
+                        neighborhoods={neighborhoods}
+                        onNeighborhoodChange={handleNeighborhoodChange}
+                    />
                 )}
                 {loading ? (
                     <div className="w-10 h-10 bg-gray-100 rounded-full animate-pulse" />

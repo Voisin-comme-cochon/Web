@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -11,24 +11,20 @@ import { CloudUpload, Paperclip } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { AddressAutocomplete } from '@/components/AddressSuggestion/AddressSuggestion.tsx';
 import { Switch } from '@/components/ui/switch';
-import {
-    MultiSelector,
-    MultiSelectorContent,
-    MultiSelectorInput,
-    MultiSelectorItem,
-    MultiSelectorList,
-    MultiSelectorTrigger,
-} from '@/components/ui/multi-select';
 import { Textarea } from '@/components/ui/textarea';
 import { SmartDatetimeInput } from '@/components/ui/smart-datetime-input';
 import { fr } from 'date-fns/locale';
 import { FileInput, FileUploader, FileUploaderContent, FileUploaderItem } from '@/components/ui/file-input.tsx';
+import { SelectedAddress } from '@/domain/models/SelectedAddress.ts';
+import { TagModel } from '@/domain/models/tag.model.ts';
+import ComboboxComponentTag from '@/components/ComboboxComponent/ComboboxComponentTag.tsx';
+import { HomeUc } from '@/domain/use-cases/homeUc.ts';
 
 // Schéma de validation
 const formSchema = z.object({
     file_event_input: z.array(z.instanceof(File)).max(1, 'Maximum 1 fichier').optional(),
     name_event_input: z.string().min(1, 'Le nom est requis'),
-    multiselect_tag_input: z.array(z.string()).nonempty('Sélectionnez au moins un tag'),
+    tag_input: z.number({ required_error: 'Sélectionnez au moins un tag' }).nullable(),
     description_event_input: z.string(),
     address: z.string().optional(),
     end_address: z.string().optional(),
@@ -40,19 +36,30 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
-export default function CreateEventForm() {
+export default function CreateEventForm({ uc }: { uc: HomeUc }) {
     const [files, setFiles] = useState<File[]>([]);
     const [showAddress, setShowAddress] = useState(false);
     const [showEndAddress, setShowEndAddress] = useState(false);
-    const [selectedAddress, setSelectedAddress] = useState<any>(null);
-    const [selectedEndAddress, setSelectedEndAddress] = useState<any>(null);
+    const [selectedAddress, setSelectedAddress] = useState<SelectedAddress | null>(null);
+    const [selectedEndAddress, setSelectedEndAddress] = useState<SelectedAddress | null>(null);
     const [errorStart, setErrorStart] = useState<string | null>(null);
     const [errorEnd, setErrorEnd] = useState<string | null>(null);
+    const [tags, setTags] = useState<TagModel[] | null>(null);
+    const [tag, setTag] = useState<number>();
+
+    const handleSetTag = (selectedTag: number) => {
+        setTag(selectedTag);
+        if (selectedTag) {
+            form.setValue('tag_input', parseInt(selectedTag, 10));
+        } else {
+            form.setValue('tag_input', null);
+        }
+    };
 
     const form = useForm<FormValues>({
         resolver: zodResolver(formSchema),
         defaultValues: {
-            multiselect_tag_input: ['React'],
+            tag_input: null,
             date_start_event_input: new Date(),
             date_end_event_input: new Date(),
             address: '',
@@ -61,6 +68,7 @@ export default function CreateEventForm() {
     });
 
     function onSubmit(values: FormValues) {
+        console.log(values);
         if (showAddress && !selectedAddress) {
             setErrorStart('Veuillez sélectionner une adresse de début valide');
             return;
@@ -84,10 +92,18 @@ export default function CreateEventForm() {
         multiple: true,
     };
 
+    useEffect(() => {
+        const fetchTags = async () => {
+            const resTags = await uc.getTags();
+            setTags(resTags);
+        };
+
+        fetchTags();
+    }, []);
+
     return (
         <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 max-w-3xl mx-auto">
-                {/* Upload */}
                 <FormField
                     control={form.control}
                     name="file_event_input"
@@ -130,7 +146,6 @@ export default function CreateEventForm() {
                     )}
                 />
 
-                {/* Nom */}
                 <FormField
                     control={form.control}
                     name="name_event_input"
@@ -145,38 +160,20 @@ export default function CreateEventForm() {
                     )}
                 />
 
-                {/* Catégories */}
                 <FormField
                     control={form.control}
-                    name="multiselect_tag_input"
+                    name="tag_input"
                     render={({ field }) => (
-                        <FormItem>
+                        <FormItem className={'flex flex-col'}>
                             <FormLabel>Catégorie de l'évènement</FormLabel>
                             <FormControl>
-                                <MultiSelector
-                                    values={field.value}
-                                    onValuesChange={field.onChange}
-                                    loop
-                                    className="max-w-xs"
-                                >
-                                    <MultiSelectorTrigger>
-                                        <MultiSelectorInput placeholder="Sélectionnez..." />
-                                    </MultiSelectorTrigger>
-                                    <MultiSelectorContent>
-                                        <MultiSelectorList>
-                                            <MultiSelectorItem value="React">React</MultiSelectorItem>
-                                            <MultiSelectorItem value="Vue">Vue</MultiSelectorItem>
-                                            <MultiSelectorItem value="Svelte">Svelte</MultiSelectorItem>
-                                        </MultiSelectorList>
-                                    </MultiSelectorContent>
-                                </MultiSelector>
+                                <ComboboxComponentTag tags={tags ?? []} {...field} handleSetTag={handleSetTag} />
                             </FormControl>
                             <FormMessage />
                         </FormItem>
                     )}
                 />
 
-                {/* Description */}
                 <FormField
                     control={form.control}
                     name="description_event_input"
@@ -191,7 +188,6 @@ export default function CreateEventForm() {
                     )}
                 />
 
-                {/* Dates toujours présentes */}
                 <FormField
                     control={form.control}
                     name="date_start_event_input"
@@ -229,7 +225,6 @@ export default function CreateEventForm() {
                     )}
                 />
 
-                {/* Switch: afficher l'adresse */}
                 <FormItem className="flex items-center justify-between">
                     <FormLabel>Lieu dans l'évènement ?</FormLabel>
                     <Switch checked={showAddress} onCheckedChange={setShowAddress} />
@@ -260,7 +255,6 @@ export default function CreateEventForm() {
                             )}
                         />
 
-                        {/* Switch: lieu de fin différent */}
                         <FormItem className="flex items-center justify-between">
                             <FormLabel>Lieu de fin différent ?</FormLabel>
                             <Switch checked={showEndAddress} onCheckedChange={setShowEndAddress} />
@@ -293,7 +287,6 @@ export default function CreateEventForm() {
                     </>
                 )}
 
-                {/* Participants min */}
                 <FormField
                     control={form.control}
                     name="min_users_event_input"
@@ -315,7 +308,6 @@ export default function CreateEventForm() {
                     )}
                 />
 
-                {/* Participants max */}
                 <FormField
                     control={form.control}
                     name="max_users_event_input"
@@ -337,7 +329,7 @@ export default function CreateEventForm() {
                     )}
                 />
 
-                <Button variant="orange" className={'w-full'} onClick={() => window.history.back()}>
+                <Button variant="orange" className={'w-full'} onClick={() => {}}>
                     Envoyer
                 </Button>
             </form>
