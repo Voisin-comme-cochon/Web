@@ -9,7 +9,13 @@ import { FrontNeighborhood } from '@/domain/models/FrontNeighborhood.ts';
 
 const LOCALSTORAGE_KEY = 'neighborhoodId';
 
-export default function ComboboxComponent({ neighborhoods = [] }: { neighborhoods?: FrontNeighborhood[] }) {
+export default function ComboboxComponent({
+    neighborhoods = [],
+    onNeighborhoodChange,
+}: {
+    neighborhoods?: FrontNeighborhood[];
+    onNeighborhoodChange?: () => void;
+}) {
     const [open, setOpen] = React.useState(false);
     const [value, setValue] = React.useState<string>('');
 
@@ -31,6 +37,9 @@ export default function ComboboxComponent({ neighborhoods = [] }: { neighborhood
             localStorage.setItem(LOCALSTORAGE_KEY, currentId);
         }
         setOpen(false);
+        if (onNeighborhoodChange) {
+            onNeighborhoodChange();
+        }
     };
 
     const selectedName = neighborhoods.find((n) => n.id.toString() === value)?.name || 'Choisir un quartier';

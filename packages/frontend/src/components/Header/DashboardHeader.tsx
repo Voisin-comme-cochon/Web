@@ -16,6 +16,7 @@ import { TagRepository } from '@/infrastructure/repositories/TagRepository.ts';
 export default function DashboardHeader() {
     const [user, setUser] = useState<UserModel | null>(null);
     const [neighborhoods, setNeighborhoods] = useState<FrontNeighborhood[]>([]);
+    const [loading, setLoading] = useState(true);
     const { goMyNeighborhood, goNeighborhoodEvents, goNeighborhoodJournal, goNeighborhoodMat } = useAppNavigation();
     const [page, setPage] = useState<string>('');
 
@@ -33,6 +34,7 @@ export default function DashboardHeader() {
             new TagRepository()
         );
         const fetchData = async () => {
+            setLoading(true);
             const token = localStorage.getItem('jwt');
             if (token) {
                 try {
@@ -46,9 +48,14 @@ export default function DashboardHeader() {
                     console.error('Failed to fetch user or neighborhoods:', error);
                 }
             }
+            setLoading(false);
         };
         fetchData();
     }, []);
+
+    const handleNeighborhoodChange = () => {
+        window.location.reload();
+    };
 
     return (
         <header className="relative flex items-center w-full px-4 bg-white h-[64px] border-b-2 border-gray-200">
@@ -108,8 +115,17 @@ export default function DashboardHeader() {
             </div>
 
             <div className="flex items-center justify-end min-w-[200px] gap-4 ml-auto">
-                <ComboboxComponent neighborhoods={neighborhoods} />
-                {user && <AvatarComponent user={user} />}
+                {loading ? (
+                    // Squelette loader simple
+                    <div className="w-[200px] h-10 bg-gray-100 rounded animate-pulse" />
+                ) : (
+                    <ComboboxComponent neighborhoods={neighborhoods} onNeighborhoodChange={handleNeighborhoodChange} />
+                )}
+                {loading ? (
+                    <div className="w-10 h-10 bg-gray-100 rounded-full animate-pulse" />
+                ) : (
+                    user && <AvatarComponent user={user} />
+                )}
             </div>
         </header>
     );
