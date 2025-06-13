@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { JavaRepository } from '../domain/java.abstract.repository';
-import { JavaDto } from '../dto/java-version.dto';
+import { JavaDto } from '../adapters/java.adapter';
 
 @Injectable()
 export class JavaService {

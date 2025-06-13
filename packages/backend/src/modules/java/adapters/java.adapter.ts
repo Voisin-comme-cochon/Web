@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-export class JavaVersionDto {
+export class JavaDto {
     @ApiProperty({
         description: 'Identifiant unique de la version',
         example: 1

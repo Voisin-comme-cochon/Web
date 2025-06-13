@@ -1,7 +1,7 @@
 import { Controller, Get } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { JavaService } from '../services/java.service';
-import { JavaDto } from '../dto/java-version.dto';
+import { JavaDto } from '../adapters/java.adapter';
 
 @ApiTags('Java')
 @Controller('java')
