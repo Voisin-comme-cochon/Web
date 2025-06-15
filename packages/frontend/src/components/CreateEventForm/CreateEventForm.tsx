@@ -24,7 +24,12 @@ import { HomeUc } from '@/domain/use-cases/homeUc.ts';
 const formSchema = z.object({
     file_event_input: z.array(z.instanceof(File)).max(1, 'Maximum 1 fichier').optional(),
     name_event_input: z.string().min(1, 'Le nom est requis'),
-    tag_input: z.number({ required_error: 'Sélectionnez au moins un tag' }).nullable(),
+    tag_input: z
+        .number({ required_error: 'Sélectionnez au moins un tag' })
+        .nullable()
+        .refine((val) => val !== null, {
+            message: 'Sélectionnez au moins un tag',
+        }),
     description_event_input: z.string(),
     address: z.string().optional(),
     end_address: z.string().optional(),
@@ -45,14 +50,14 @@ export default function CreateEventForm({ uc }: { uc: HomeUc }) {
     const [errorStart, setErrorStart] = useState<string | null>(null);
     const [errorEnd, setErrorEnd] = useState<string | null>(null);
     const [tags, setTags] = useState<TagModel[] | null>(null);
-    const [tag, setTag] = useState<number>();
+    const [tag, setTag] = useState<number | null>(null);
 
-    const handleSetTag = (selectedTag: number) => {
+    const handleSetTag = (selectedTag: number | null) => {
         setTag(selectedTag);
         if (selectedTag) {
-            form.setValue('tag_input', parseInt(selectedTag, 10));
+            form.setValue('tag_input', selectedTag, { shouldValidate: true });
         } else {
-            form.setValue('tag_input', null);
+            form.setValue('tag_input', null, { shouldValidate: true });
         }
     };
 
@@ -167,7 +172,12 @@ export default function CreateEventForm({ uc }: { uc: HomeUc }) {
                         <FormItem className={'flex flex-col'}>
                             <FormLabel>Catégorie de l'évènement</FormLabel>
                             <FormControl>
-                                <ComboboxComponentTag tags={tags ?? []} {...field} handleSetTag={handleSetTag} />
+                                <ComboboxComponentTag
+                                    tags={tags ?? []}
+                                    {...field}
+                                    value={field.value}
+                                    handleSetTag={handleSetTag}
+                                />
                             </FormControl>
                             <FormMessage />
                         </FormItem>

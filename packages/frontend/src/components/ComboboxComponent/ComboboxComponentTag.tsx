@@ -6,32 +6,42 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Check, ChevronsUpDown } from 'lucide-react';
 import { TagModel } from '@/domain/models/tag.model.ts';
 
-export default function ComboboxComponentTag({
-    tags = [],
-    handleSetTag,
-}: {
-    tags: TagModel[];
-    handleSetTag: (selectedTag: number) => void;
-}) {
+const ComboboxComponentTag = React.forwardRef<
+    HTMLButtonElement,
+    {
+        tags: TagModel[];
+        value?: number | null;
+        onChange?: (value: number | null) => void;
+        handleSetTag: (selectedTag: number | null) => void;
+    }
+>(({ tags = [], value, onChange, handleSetTag }, ref) => {
     const [open, setOpen] = React.useState(false);
-    const [value, setValue] = React.useState<string>('');
+
+    const selectedValue = value !== undefined && value !== null ? value.toString() : '';
 
     const handleSelect = (currentId: string) => {
-        if (currentId === value) {
-            setValue('');
+        if (currentId === selectedValue) {
+            handleSetTag(null);
+            onChange?.(null);
         } else {
-            setValue(currentId);
+            handleSetTag(Number(currentId));
+            onChange?.(Number(currentId));
         }
         setOpen(false);
-        handleSetTag(currentId);
     };
 
-    const selectedName = tags.find((n) => n.id.toString() === value)?.name || 'Choisir un tag';
+    const selectedName = tags.find((n) => n.id.toString() === selectedValue)?.name || 'Choisir un tag';
 
     return (
         <Popover open={open} onOpenChange={setOpen}>
             <PopoverTrigger asChild>
-                <Button variant="outline" role="combobox" aria-expanded={open} className="w-[200px] justify-between">
+                <Button
+                    ref={ref}
+                    variant="outline"
+                    role="combobox"
+                    aria-expanded={open}
+                    className="w-[200px] justify-between"
+                >
                     {selectedName}
                     <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                 </Button>
@@ -51,7 +61,7 @@ export default function ComboboxComponentTag({
                                     <Check
                                         className={cn(
                                             'mr-2 h-4 w-4',
-                                            value === tag.id.toString() ? 'opacity-100' : 'opacity-0'
+                                            selectedValue === tag.id.toString() ? 'opacity-100' : 'opacity-0'
                                         )}
                                     />
                                     {tag.name}
@@ -63,4 +73,8 @@ export default function ComboboxComponentTag({
             </PopoverContent>
         </Popover>
     );
-}
+});
+
+ComboboxComponentTag.displayName = 'ComboboxComponentTag';
+
+export default ComboboxComponentTag;
