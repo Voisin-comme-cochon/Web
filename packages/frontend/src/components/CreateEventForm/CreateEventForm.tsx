@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { toast } from 'sonner';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -19,10 +18,10 @@ import { SelectedAddress } from '@/domain/models/SelectedAddress.ts';
 import { TagModel } from '@/domain/models/tag.model.ts';
 import ComboboxComponentTag from '@/components/ComboboxComponent/ComboboxComponentTag.tsx';
 import { HomeUc } from '@/domain/use-cases/homeUc.ts';
+import { useToast } from '@/presentation/hooks/useToast.ts';
 
-// Schéma de validation
 const formSchema = z.object({
-    file_event_input: z.array(z.instanceof(File)).max(1, 'Maximum 1 fichier').optional(),
+    file_event_input: z.array(z.instanceof(File)).max(1, 'Maximum 1 fichier'),
     name_event_input: z.string().min(1, 'Le nom est requis'),
     tag_input: z
         .number({ required_error: 'Sélectionnez au moins un tag' })
@@ -34,23 +33,22 @@ const formSchema = z.object({
     address: z.string().optional(),
     end_address: z.string().optional(),
     date_start_event_input: z.date(),
-    date_end_event_input: z.date().optional(),
+    date_end_event_input: z.date(),
     min_users_event_input: z.number().min(1, 'Au moins 1 participant'),
-    max_users_event_input: z.number().min(1).optional(),
+    max_users_event_input: z.number().min(1, 'Au moins 1 participant'),
 });
 
 type FormValues = z.infer<typeof formSchema>;
 
-export default function CreateEventForm({ uc }: { uc: HomeUc }) {
+export default function CreateEventForm({ uc, neighborhoodId }: { uc: HomeUc; neighborhoodId: number }) {
     const [files, setFiles] = useState<File[]>([]);
     const [showAddress, setShowAddress] = useState(false);
     const [showEndAddress, setShowEndAddress] = useState(false);
     const [selectedAddress, setSelectedAddress] = useState<SelectedAddress | null>(null);
     const [selectedEndAddress, setSelectedEndAddress] = useState<SelectedAddress | null>(null);
-    const [errorStart, setErrorStart] = useState<string | null>(null);
-    const [errorEnd, setErrorEnd] = useState<string | null>(null);
     const [tags, setTags] = useState<TagModel[] | null>(null);
     const [tag, setTag] = useState<number | null>(null);
+    const { showSuccess, showError } = useToast();
 
     const handleSetTag = (selectedTag: number | null) => {
         setTag(selectedTag);
@@ -72,23 +70,27 @@ export default function CreateEventForm({ uc }: { uc: HomeUc }) {
         },
     });
 
-    function onSubmit(values: FormValues) {
-        console.log(values);
-        if (showAddress && !selectedAddress) {
-            setErrorStart('Veuillez sélectionner une adresse de début valide');
-            return;
+    async function onSubmit(values: FormValues) {
+        try {
+            const payload = { ...values };
+            await uc.createEvent(
+                neighborhoodId,
+                payload.name_event_input,
+                payload.description_event_input,
+                payload.date_start_event_input,
+                payload.date_end_event_input ?? payload.date_start_event_input,
+                payload.min_users_event_input ?? 1,
+                payload.max_users_event_input ?? 1,
+                payload.tag_input ?? 0,
+                selectedAddress,
+                selectedEndAddress,
+                files[0]
+            );
+            showSuccess('Évènement créé avec succès !');
+            window.history.back();
+        } catch (err) {
+            showError(err instanceof Error ? err.message : 'Erreur lors de la suppression');
         }
-        if (showEndAddress && !selectedEndAddress) {
-            setErrorEnd('Veuillez sélectionner une adresse de fin valide');
-            return;
-        }
-        const payload = { ...values };
-        console.log(payload);
-        toast(
-            <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-                <code className="text-white">{JSON.stringify(payload, null, 2)}</code>
-            </pre>
-        );
     }
 
     const dropZoneConfig = {
@@ -253,14 +255,12 @@ export default function CreateEventForm({ uc }: { uc: HomeUc }) {
                                             value={field.value}
                                             onChange={(value) => {
                                                 field.onChange(value);
-                                                setErrorStart(null);
                                             }}
                                             placeholder="123 rue de la République, 75001 Paris"
                                             onAddressSelect={(addressData) => setSelectedAddress(addressData)}
                                         />
                                     </FormControl>
                                     <FormMessage />
-                                    {errorStart && <p className="text-red-500 text-sm mt-1">{errorStart}</p>}
                                 </FormItem>
                             )}
                         />
@@ -282,14 +282,12 @@ export default function CreateEventForm({ uc }: { uc: HomeUc }) {
                                                 value={field.value}
                                                 onChange={(value) => {
                                                     field.onChange(value);
-                                                    setErrorEnd(null);
                                                 }}
                                                 placeholder="456 avenue Victor Hugo, 75016 Paris"
                                                 onAddressSelect={(addressData) => setSelectedEndAddress(addressData)}
                                             />
                                         </FormControl>
                                         <FormMessage />
-                                        {errorEnd && <p className="text-red-500 text-sm mt-1">{errorEnd}</p>}
                                     </FormItem>
                                 )}
                             />

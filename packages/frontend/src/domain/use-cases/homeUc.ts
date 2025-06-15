@@ -7,6 +7,7 @@ import { EventRepository } from '@/infrastructure/repositories/EventRepository.t
 import { ApiGlobalError } from '@/shared/errors/apiGlobalError.ts';
 import { TagModel } from '@/domain/models/tag.model.ts';
 import { TagRepository } from '@/infrastructure/repositories/TagRepository.ts';
+import { SelectedAddress } from '@/domain/models/SelectedAddress.ts';
 
 export class HomeUc {
     constructor(
@@ -77,6 +78,41 @@ export class HomeUc {
                 throw new Error(error.message);
             }
             throw new Error("Une erreur est survenue lors de la récupération de l'événement");
+        }
+    }
+
+    async createEvent(
+        neighborhoodId: number,
+        name: string,
+        description: string,
+        dateStart: Date,
+        dateEnd: Date,
+        min: number,
+        max: number,
+        tagId: number,
+        addressStart: SelectedAddress,
+        addressEnd: SelectedAddress | null,
+        eventImage: File
+    ): Promise<EventModel> {
+        try {
+            return await this.eventRepository.createEvent(
+                neighborhoodId,
+                name,
+                description,
+                dateStart,
+                dateEnd,
+                min,
+                max,
+                tagId,
+                addressStart,
+                addressEnd,
+                eventImage
+            );
+        } catch (error) {
+            if (error instanceof Error) {
+                throw new Error(error.message);
+            }
+            throw new Error("Une erreur est survenue lors de la création de l'événement");
         }
     }
 

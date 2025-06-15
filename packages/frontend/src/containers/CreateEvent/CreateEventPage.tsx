@@ -8,7 +8,7 @@ import { X } from 'lucide-react';
 import { HomeUc } from '@/domain/use-cases/homeUc.ts';
 import { withHeaderData } from '@/containers/Wrapper/Wrapper.tsx';
 
-function CreateEventPage({ uc }: { uc: HomeUc }) {
+function CreateEventPage({ uc, neighborhoodId }: { uc: HomeUc; neighborhoodId: number }) {
     return (
         <div>
             <DashboardHeader />
@@ -23,7 +23,7 @@ function CreateEventPage({ uc }: { uc: HomeUc }) {
                 </CardHeader>
 
                 <CardContent className="px-6">
-                    <CreateEventForm uc={uc} />
+                    <CreateEventForm uc={uc} neighborhoodId={neighborhoodId} />
                 </CardContent>
             </Card>
         </div>
