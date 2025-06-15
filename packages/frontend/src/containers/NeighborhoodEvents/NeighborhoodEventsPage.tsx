@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react';
 import DashboardHeader from '@/components/Header/DashboardHeader.tsx';
-import { UserModel } from '@/domain/models/user.model.ts';
 import { HomeUc } from '@/domain/use-cases/homeUc.ts';
 import { withHeaderData } from '@/containers/Wrapper/Wrapper.tsx';
 import MyEventsPage from '@/containers/NeighborhoodEvents/MyEventsPage.tsx';
 import PlanningPage from '@/containers/NeighborhoodEvents/PlanningPage.tsx';
+import { UserModel } from '@/domain/models/user.model.ts';
 
-function NeighborhoodEventsPage({ user, uc, neighborhoodId }: { user: UserModel; uc: HomeUc; neighborhoodId: string }) {
+function NeighborhoodEventsPage({ uc, neighborhoodId, user }: { uc: HomeUc; neighborhoodId: string; user: UserModel }) {
     const [activeTab, setActiveTab] = useState<'planning' | 'events'>('events');
 
     useEffect(() => {
@@ -48,7 +48,7 @@ function NeighborhoodEventsPage({ user, uc, neighborhoodId }: { user: UserModel;
                 </button>
             </div>
 
-            {activeTab === 'events' && <MyEventsPage />}
+            {activeTab === 'events' && <MyEventsPage uc={uc} neighborhoodId={neighborhoodId} user={user} />}
             {activeTab === 'planning' && <PlanningPage uc={uc} neighborhoodId={neighborhoodId} />}
         </div>
     );

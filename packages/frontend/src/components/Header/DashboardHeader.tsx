@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import logo from '@/assets/images/logoWebV1Light.webp';
 import AvatarComponent from '@/components/AvatarComponent/AvatarComponent';
-import ComboboxComponent from '@/components/ComboboxComponent/ComboboxComponent';
+import ComboboxComponentNeighborhood from '@/components/ComboboxComponent/ComboboxComponentNeighborhood.tsx';
 import { FrontNeighborhood } from '@/domain/models/FrontNeighborhood.ts';
 import { UserModel } from '@/domain/models/user.model.ts';
 import { HomeUc } from '@/domain/use-cases/homeUc.ts';
@@ -11,10 +11,12 @@ import { EventRepository } from '@/infrastructure/repositories/EventRepository.t
 import { jwtDecode } from 'jwt-decode';
 import { DecodedUser } from '@/domain/models/DecodedUser.ts';
 import { useAppNavigation } from '@/presentation/state/navigate.ts';
+import { TagRepository } from '@/infrastructure/repositories/TagRepository.ts';
 
 export default function DashboardHeader() {
     const [user, setUser] = useState<UserModel | null>(null);
     const [neighborhoods, setNeighborhoods] = useState<FrontNeighborhood[]>([]);
+    const [loading, setLoading] = useState(true);
     const { goMyNeighborhood, goNeighborhoodEvents, goNeighborhoodJournal, goNeighborhoodMat } = useAppNavigation();
     const [page, setPage] = useState<string>('');
 
@@ -25,8 +27,14 @@ export default function DashboardHeader() {
     }, []);
 
     useEffect(() => {
-        const uc = new HomeUc(new UserFrontRepository(), new NeighborhoodFrontRepository(), new EventRepository());
+        const uc = new HomeUc(
+            new UserFrontRepository(),
+            new NeighborhoodFrontRepository(),
+            new EventRepository(),
+            new TagRepository()
+        );
         const fetchData = async () => {
+            setLoading(true);
             const token = localStorage.getItem('jwt');
             if (token) {
                 try {
@@ -40,9 +48,14 @@ export default function DashboardHeader() {
                     console.error('Failed to fetch user or neighborhoods:', error);
                 }
             }
+            setLoading(false);
         };
         fetchData();
     }, []);
+
+    const handleNeighborhoodChange = () => {
+        window.location.reload();
+    };
 
     return (
         <header className="relative flex items-center w-full px-4 bg-white h-[64px] border-b-2 border-gray-200">
@@ -102,8 +115,20 @@ export default function DashboardHeader() {
             </div>
 
             <div className="flex items-center justify-end min-w-[200px] gap-4 ml-auto">
-                <ComboboxComponent neighborhoods={neighborhoods} />
-                {user && <AvatarComponent user={user} />}
+                {loading ? (
+                    // Squelette loader simple
+                    <div className="w-[200px] h-10 bg-gray-100 rounded animate-pulse" />
+                ) : (
+                    <ComboboxComponentNeighborhood
+                        neighborhoods={neighborhoods}
+                        onNeighborhoodChange={handleNeighborhoodChange}
+                    />
+                )}
+                {loading ? (
+                    <div className="w-10 h-10 bg-gray-100 rounded-full animate-pulse" />
+                ) : (
+                    user && <AvatarComponent user={user} />
+                )}
             </div>
         </header>
     );

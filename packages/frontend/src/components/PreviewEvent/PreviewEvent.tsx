@@ -1,6 +1,7 @@
 import { EventModel } from '@/domain/models/event.model.ts';
 import { UserModel } from '@/domain/models/user.model.ts';
 import { useAppNavigation } from '@/presentation/state/navigate.ts';
+import TagComponent from '@/components/TagComponent/TagComponent.tsx';
 
 export default function PreviewEvent({ event, user }: { event: EventModel; user: UserModel }) {
     const { goEventDetail } = useAppNavigation();
@@ -9,6 +10,9 @@ export default function PreviewEvent({ event, user }: { event: EventModel; user:
             className="relative rounded-2xl max-w-80 h-60 w-full overflow-hidden shadow-lg bg-gray-100 cursor-pointer"
             onClick={() => goEventDetail(event.id)}
         >
+            <div className={'absolute top-2 left-2 z-10'}>
+                <TagComponent tag={event.tag} />
+            </div>
             <img src={event.photo} alt={event.name} className="w-full h-40 object-cover" />
             <div className="absolute bottom-0 left-0 w-full bg-white rounded-b-2xl flex flex-col gap-2 p-4 z-10">
                 <div className="flex flex-row justify-between items-center">

@@ -1,240 +1,242 @@
 import { useParams } from 'react-router-dom';
-import { EventModelWithUser } from '@/domain/models/event.model.ts';
-import { useEffect, useState } from 'react';
+import { FC, useEffect, useState } from 'react';
 import { withHeaderData } from '@/containers/Wrapper/Wrapper.tsx';
 import { HomeUc } from '@/domain/use-cases/homeUc.ts';
-import './style.css';
 import DashboardHeader from '@/components/Header/DashboardHeader.tsx';
 import UserCard from '@/components/UserCard/UserCard.tsx';
 import EventMapBox from '@/components/MapBox/EventMapBox.tsx';
 import { MapBoxRepository } from '@/infrastructure/repositories/MapBoxRepository.ts';
 import { Button } from '@/components/ui/button.tsx';
-import { UserModel } from '@/domain/models/user.model.ts';
+import { Input } from '@/components/ui/input.tsx';
 import { useToast } from '@/presentation/hooks/useToast.ts';
+import {
+    Dialog,
+    DialogClose,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog.tsx';
+import { Trash, X } from 'lucide-react';
+import type { EventModelWithUser } from '@/domain/models/event.model.ts';
+import type { UserModel } from '@/domain/models/user.model.ts';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card.tsx';
+import TagComponent from '@/components/TagComponent/TagComponent.tsx';
 
 type ChangeCategory = 'description' | 'inscrits' | 'lieu';
 
-function EventDetails({ user, uc }: { user: UserModel; uc: HomeUc }) {
+const EventDetails: FC<{ user: UserModel; uc: HomeUc }> = ({ user, uc }) => {
+    const { eventId } = useParams<{ eventId: string }>();
     const [event, setEvent] = useState<EventModelWithUser | null>(null);
     const [addressStart, setAddressStart] = useState<string | null>(null);
     const [addressEnd, setAddressEnd] = useState<string | null>(null);
-    const [isRegistered, setIsRegistered] = useState<boolean>(false);
-    const { eventId } = useParams<{ eventId: string }>();
+    const [isRegistered, setIsRegistered] = useState(false);
     const [selectedCategory, setSelectedCategory] = useState<ChangeCategory>('description');
+    const [popUpVisible, setPopUpVisible] = useState(false);
+    const [reason, setReason] = useState('');
     const { showError, showSuccess } = useToast();
 
     useEffect(() => {
-        const checkRegistration = async () => {
-            if (!eventId) return;
-            try {
-                const idNum = parseInt(eventId, 10);
-                const registered = await uc.isUserRegistered(idNum, user.id);
-                setIsRegistered(registered);
-            } catch (error) {
-                console.error('Failed to check registration:', error);
-            }
-        };
-        checkRegistration();
-    }, [eventId, uc]);
-
-    const handleCategoryChange = (category: ChangeCategory) => {
-        setSelectedCategory(category);
-    };
-
-    useEffect(() => {
-        const fetchEvent = async () => {
-            if (!eventId) return;
-            try {
-                const idNum = parseInt(eventId, 10);
-                const fetchedEvent = await uc.getEventById(idNum);
-                setEvent(fetchedEvent);
-            } catch (error) {
-                console.error('Failed to fetch event:', error);
-            }
-        };
-        fetchEvent();
+        if (!eventId) return;
+        uc.getEventById(+eventId).then(setEvent).catch(console.error);
     }, [eventId, uc, isRegistered]);
 
     useEffect(() => {
         if (!event) return;
-
-        const fetchAddress = async () => {
-            const mapBoxRepo = new MapBoxRepository();
-
-            if (event.addressStart?.coordinates) {
-                try {
-                    const addrStart = await mapBoxRepo.getAddressByPoint(event.addressStart.coordinates);
-                    setAddressStart(addrStart);
-                } catch (err) {
-                    console.error('Erreur lors de la récupération de l’adresse de départ :', err);
-                }
-            }
-
-            if (event.addressEnd?.coordinates) {
-                try {
-                    const addrEnd = await mapBoxRepo.getAddressByPoint(event.addressEnd.coordinates);
-                    setAddressEnd(addrEnd);
-                } catch (err) {
-                    console.error('Erreur lors de la récupération de l’adresse d’arrivée :', err);
-                }
-            }
-        };
-
-        fetchAddress();
+        const repo = new MapBoxRepository();
+        if (event.addressStart?.coordinates) {
+            repo.getAddressByPoint(event.addressStart.coordinates).then(setAddressStart).catch(console.error);
+        }
+        if (event.addressEnd?.coordinates) {
+            repo.getAddressByPoint(event.addressEnd.coordinates).then(setAddressEnd).catch(console.error);
+        }
     }, [event]);
+
+    useEffect(() => {
+        if (!eventId) return;
+        uc.isUserRegistered(+eventId, user.id).then(setIsRegistered).catch(console.error);
+    }, [eventId, uc, user.id]);
+
+    const handleDeleteEvent = async () => {
+        if (!eventId) return;
+        try {
+            await uc.deleteEvent(+eventId, reason);
+            showSuccess('Évènement supprimé avec succès !');
+            window.history.back();
+        } catch (err) {
+            showError(err instanceof Error ? err.message : 'Erreur lors de la suppression');
+        }
+    };
+
+    const handleReasonChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setReason(e.target.value);
+    };
 
     const registerEvent = async () => {
         if (!eventId) return;
         try {
-            const idNum = parseInt(eventId, 10);
-            await uc.registerToEvent(idNum);
+            await uc.registerToEvent(+eventId);
             setIsRegistered(true);
             showSuccess('Inscription réussie !');
-        } catch (error) {
-            if (error instanceof Error) {
-                showError(error.message);
-                return;
-            }
-            console.error('Failed to register for event:', error);
+        } catch (err) {
+            showError(err instanceof Error ? err.message : 'Erreur inscrption');
         }
     };
 
     const unRegisterEvent = async () => {
         if (!eventId) return;
         try {
-            const idNum = parseInt(eventId, 10);
-            await uc.unRegisterFromEvent(idNum);
+            await uc.unRegisterFromEvent(+eventId);
             setIsRegistered(false);
             showSuccess('Désinscription réussie !');
-        } catch (error) {
-            console.error('Failed to register for event:', error);
+        } catch (err) {
+            console.error(err);
         }
     };
 
-    if (!event) {
-        return <div className="flex items-center justify-center h-screen">Chargement de l’évènement…</div>;
-    }
+    if (!event) return <div className="flex items-center justify-center h-screen">Chargement…</div>;
 
     return (
         <>
             <DashboardHeader />
-            <div className="page">
-                <div className="popup">
-                    <div className="popup-header">
-                        <p className="popup-title">{event.name}</p>
-                        <span className="material-symbols-outlined popup-close">close</span>
+            <Dialog open={popUpVisible} onOpenChange={setPopUpVisible}>
+                <DialogContent className="sm:max-w-md w-full p-6 bg-white rounded-2xl shadow-lg">
+                    <DialogClose></DialogClose>
+                    <DialogHeader className="space-y-1 text-center">
+                        <DialogTitle className="text-xl font-semibold text-orange">
+                            Supprimer cet événement ?
+                        </DialogTitle>
+                        <DialogDescription className="text-sm text-gray-600">
+                            Les personnes déjà inscrites seront prévenues de l'annulation.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <Input
+                        placeholder="Message à adresser aux gens"
+                        className="w-full mt-4"
+                        onChange={handleReasonChange}
+                    />
+                    <DialogFooter className="mt-6 grid grid-cols-2 gap-2">
+                        <Button variant="outline" className="w-full" onClick={() => setPopUpVisible(false)}>
+                            Fermer
+                        </Button>
+                        <Button variant="destructive" className="w-full" onClick={handleDeleteEvent}>
+                            Annuler l'événement
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+            <Card className="max-w-3xl mx-auto mt-8">
+                <CardHeader className="flex flex-row justify-between items-center">
+                    <div className={'flex gap-4 items-center'}>
+                        <CardTitle className="text-2xl">{event.name}</CardTitle>
+                        <TagComponent tag={event.tag} />
+                    </div>
+                    <Button variant="ghost" onClick={() => window.history.back()}>
+                        <X />
+                    </Button>
+                </CardHeader>
+
+                {new Date(event.dateStart).toLocaleDateString() === new Date(event.dateEnd).toLocaleDateString() ? (
+                    <p className="px-6 mb-2">
+                        Le {new Date(event.dateStart).toLocaleDateString()} de{' '}
+                        {new Date(event.dateStart).toLocaleTimeString([], {
+                            hour: '2-digit',
+                            minute: '2-digit',
+                        })}{' '}
+                        à{' '}
+                        {new Date(event.dateEnd).toLocaleTimeString([], {
+                            hour: '2-digit',
+                            minute: '2-digit',
+                        })}
+                    </p>
+                ) : (
+                    <p className="px-6">
+                        du {new Date(event.dateStart).toLocaleDateString()} à{' '}
+                        {new Date(event.dateStart).toLocaleTimeString([], {
+                            hour: '2-digit',
+                            minute: '2-digit',
+                        })}{' '}
+                        au {new Date(event.dateEnd).toLocaleDateString()} à{' '}
+                        {new Date(event.dateEnd).toLocaleTimeString([], {
+                            hour: '2-digit',
+                            minute: '2-digit',
+                        })}
+                    </p>
+                )}
+
+                <CardContent className="px-6">
+                    <img
+                        src={event.photo}
+                        alt="Photo de l’évènement"
+                        className="w-full h-64 object-cover rounded-lg mb-4"
+                    />
+
+                    <div className="flex space-x-4 mb-4">
+                        {(['description', 'inscrits', 'lieu'] as ChangeCategory[]).map((cat) => (
+                            <button
+                                key={cat}
+                                onClick={() => setSelectedCategory(cat)}
+                                className={`px-4 py-2 rounded-full font-medium hover:bg-gray-100 ${
+                                    selectedCategory === cat ? 'bg-blue-100 text-blue-600' : 'text-gray-600'
+                                }`}
+                            >
+                                {cat.charAt(0).toUpperCase() + cat.slice(1)}
+                            </button>
+                        ))}
                     </div>
 
-                    {new Date(event.dateStart).toLocaleDateString() === new Date(event.dateEnd).toLocaleDateString() ? (
-                        <p>
-                            Le {new Date(event.dateStart).toLocaleDateString()} de{' '}
-                            {new Date(event.dateStart).toLocaleTimeString([], {
-                                hour: '2-digit',
-                                minute: '2-digit',
-                            })}{' '}
-                            à{' '}
-                            {new Date(event.dateEnd).toLocaleTimeString([], {
-                                hour: '2-digit',
-                                minute: '2-digit',
-                            })}
-                        </p>
-                    ) : (
-                        <p>
-                            du {new Date(event.dateStart).toLocaleDateString()} à{' '}
-                            {new Date(event.dateStart).toLocaleTimeString([], {
-                                hour: '2-digit',
-                                minute: '2-digit',
-                            })}{' '}
-                            au {new Date(event.dateEnd).toLocaleDateString()} à{' '}
-                            {new Date(event.dateEnd).toLocaleTimeString([], {
-                                hour: '2-digit',
-                                minute: '2-digit',
-                            })}
-                        </p>
-                    )}
-
-                    <div className="img-popup-container">
-                        <img src={event.photo} alt="Photo de l’évènement" className="img-popup" />
-                    </div>
-
-                    <div className="popup-content">
-                        <div className="popup-content-category">
-                            <p
-                                onClick={() => handleCategoryChange('description')}
-                                className={selectedCategory === 'description' ? 'focus-category' : undefined}
-                            >
-                                Description
-                            </p>
-                            <p
-                                onClick={() => handleCategoryChange('inscrits')}
-                                className={selectedCategory === 'inscrits' ? 'focus-category' : undefined}
-                            >
-                                Inscrits
-                            </p>
-                            <p
-                                onClick={() => handleCategoryChange('lieu')}
-                                className={selectedCategory === 'lieu' ? 'focus-category' : undefined}
-                            >
-                                Lieu
-                            </p>
-                        </div>
-
-                        <div className="popup-content-description">
-                            {selectedCategory === 'description' && (
-                                <div>
-                                    <p>{event.description}</p>
+                    <div className="mb-4">
+                        {selectedCategory === 'description' && <p className="text-gray-700">{event.description}</p>}
+                        {selectedCategory === 'inscrits' && (
+                            <>
+                                <p className="text-sm text-gray-500 mb-2">
+                                    {event.registeredUsers.length} / {event.max}
+                                </p>
+                                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                                    {event.registeredUsers.map((u) => (
+                                        <UserCard key={u.id} user={u} uc={uc} isCreator={u.id === event.creator.id} />
+                                    ))}
                                 </div>
-                            )}
-
-                            {selectedCategory === 'inscrits' && (
-                                <div className="registered-list">
-                                    <p className="registered-amount">
-                                        {event.registeredUsers.length} / {event.max}
-                                    </p>
-                                    <div className="registered-grid">
-                                        {event.registeredUsers.map((participant) => (
-                                            <UserCard
-                                                uc={uc}
-                                                key={participant.id}
-                                                user={participant}
-                                                isCreator={participant.id === event.creator.id}
-                                            />
-                                        ))}
-                                    </div>
-                                </div>
-                            )}
-
-                            {selectedCategory === 'lieu' &&
-                                (addressStart ? (
-                                    <div>
-                                        <p>{addressStart}</p>
-                                        <p>{addressEnd ? ` → ${addressEnd}` : ''}</p>
-                                        <EventMapBox
-                                            start={event.addressStart?.coordinates ?? null}
-                                            end={event.addressEnd?.coordinates}
-                                        />
-                                    </div>
-                                ) : (
-                                    <p>Pas de lieu renseigné</p>
-                                ))}
-                        </div>
-                    </div>
-
-                    <div className="popup-action">
-                        {isRegistered ? (
-                            <Button variant={'destructive'} className={'w-full'} onClick={unRegisterEvent}>
-                                Se désinscrire
-                            </Button>
-                        ) : (
-                            <Button variant={'orange'} className={'w-full'} onClick={registerEvent}>
-                                S'inscrire
-                            </Button>
+                            </>
                         )}
+                        {selectedCategory === 'lieu' &&
+                            (addressStart ? (
+                                <>
+                                    <p className="text-gray-700">Départ : {addressStart}</p>
+                                    {addressEnd && <p className="text-gray-700">Arrivée : {addressEnd}</p>}
+                                    <p>--</p>
+                                    <EventMapBox
+                                        start={event.addressStart?.coordinates ?? null}
+                                        end={event.addressEnd?.coordinates}
+                                    />
+                                </>
+                            ) : (
+                                <p className="text-gray-500">Pas de lieu renseigné</p>
+                            ))}
                     </div>
-                </div>
-            </div>
+                </CardContent>
+
+                <CardFooter className="flex space-x-2 px-6">
+                    {isRegistered ? (
+                        <Button variant="destructive" onClick={unRegisterEvent} disabled={event.creator.id === user.id}>
+                            Se désinscrire
+                        </Button>
+                    ) : (
+                        <Button variant="default" onClick={registerEvent}>
+                            S'inscrire
+                        </Button>
+                    )}
+                    {user.id === event.creator.id && (
+                        <Button variant="destructive" onClick={() => setPopUpVisible(true)}>
+                            <Trash />
+                        </Button>
+                    )}
+                </CardFooter>
+            </Card>
         </>
     );
-}
+};
 
 export default withHeaderData(EventDetails);

@@ -60,7 +60,6 @@ export class ObjectStorageService implements OnModuleInit {
             const bucketName = this.getBucketName(bucketType);
 
             const fileExists = await this.minioClient.statObject(bucketName, fileName).catch(() => false);
-
             if (!fileExists) {
                 throw new CochonError('file_not_found', 'File not found', 404);
             }

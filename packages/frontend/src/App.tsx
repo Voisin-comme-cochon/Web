@@ -10,6 +10,7 @@ import MyNeighborhoodPage from '@/containers/MyNeighborhood/MyNeighborhoodPage.t
 import NeighborhoodEventsPage from '@/containers/NeighborhoodEvents/NeighborhoodEventsPage.tsx';
 import NeighborhoodJournalPage from '@/containers/NeighborhoodJournal/NeighborhoodJournalPage.tsx';
 import NeighborhoodMaterialsPage from '@/containers/NeighborhoodMaterials/NeighborhoodMaterialsPage.tsx';
+import CreateEventPage from '@/containers/CreateEvent/CreateEventPage.tsx';
 
 export default function App() {
     return (
@@ -26,6 +27,7 @@ export default function App() {
                 <Route path="/neighborhood-journal" element={<NeighborhoodJournalPage />} />
                 <Route path="/neighborhood-materials" element={<NeighborhoodMaterialsPage />} />
                 <Route path="/neighborhoods/invite/:token" element={<NeighborhoodInvitation />} />
+                <Route path="/events/create" element={<CreateEventPage />} />
             </Routes>
         </Router>
     );

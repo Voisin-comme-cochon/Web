@@ -5,22 +5,24 @@ import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import frLocale from '@fullcalendar/core/locales/fr';
 import { EventClickArg } from '@fullcalendar/core';
-import { useNavigate } from 'react-router-dom';
 import { HomeUc } from '@/domain/use-cases/homeUc.ts';
 import { EventModel } from '@/domain/models/event.model.ts';
 import { useAppNavigation } from '@/presentation/state/navigate.ts';
 
 export default function EventCalendar({ uc, neighborhoodId }: { uc: HomeUc; neighborhoodId: string }) {
     const [events, setEvents] = useState<EventModel[]>([]);
-    const navigate = useNavigate();
+    const [registeredIds, setRegisteredIds] = useState<number[]>([]);
     const { goEventDetail } = useAppNavigation();
 
     useEffect(() => {
-        const fetchEvents = async () => {
-            const response = await uc.getNeighborhoodEvents(parseInt(neighborhoodId, 10), 2000, 1);
-            setEvents(response);
+        const fetchData = async () => {
+            const allEvents = await uc.getNeighborhoodEvents(parseInt(neighborhoodId, 10), 2000, 1);
+            setEvents(allEvents);
+
+            const registeredEvents = await uc.getEventsByUserId();
+            setRegisteredIds(registeredEvents.map((e: EventModel) => e.id));
         };
-        fetchEvents();
+        fetchData();
     }, [neighborhoodId, uc]);
 
     const handleEventClick = (clickInfo: EventClickArg) => {
@@ -48,6 +50,10 @@ export default function EventCalendar({ uc, neighborhoodId }: { uc: HomeUc; neig
                     start: event.dateStart,
                     end: event.dateEnd,
                     id: event.id.toString(),
+                    // Ajout d'une couleur de fond si l'utilisateur est inscrit
+                    backgroundColor: registeredIds.includes(event.id) ? 'orange' : 'undefined',
+                    borderColor: registeredIds.includes(event.id) ? 'black' : undefined,
+                    textColor: registeredIds.includes(event.id) ? 'black' : undefined,
                 }))}
                 eventDidMount={(info) => {
                     info.el.setAttribute(

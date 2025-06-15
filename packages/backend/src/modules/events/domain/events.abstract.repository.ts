@@ -17,4 +17,8 @@ export abstract class EventsRepository {
     abstract registerUserForEvent(id: number, userId: number): void;
 
     abstract unregisterUserFromEvent(id: number, userId: number): void;
+
+    abstract getEventsByUserId(userId: number): Promise<EventEntity[]>;
+
+    abstract deleteEvent(id: number): Promise<void>;
 }

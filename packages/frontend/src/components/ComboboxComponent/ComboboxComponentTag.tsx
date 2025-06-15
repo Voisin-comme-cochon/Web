@@ -1,44 +1,47 @@
 import * as React from 'react';
-import { useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Check, ChevronsUpDown } from 'lucide-react';
-import { FrontNeighborhood } from '@/domain/models/FrontNeighborhood.ts';
+import { TagModel } from '@/domain/models/tag.model.ts';
 
-const LOCALSTORAGE_KEY = 'neighborhoodId';
-
-export default function ComboboxComponent({ neighborhoods = [] }: { neighborhoods?: FrontNeighborhood[] }) {
+const ComboboxComponentTag = React.forwardRef<
+    HTMLButtonElement,
+    {
+        tags: TagModel[];
+        value?: number | null;
+        onChange?: (value: number | null) => void;
+        handleSetTag: (selectedTag: number | null) => void;
+    }
+>(({ tags = [], value, onChange, handleSetTag }, ref) => {
     const [open, setOpen] = React.useState(false);
-    const [value, setValue] = React.useState<string>('');
 
-    useEffect(() => {
-        if (typeof window !== 'undefined') {
-            const saved = localStorage.getItem(LOCALSTORAGE_KEY);
-            if (saved && neighborhoods.some((n) => n.id.toString() === saved)) {
-                setValue(saved);
-            }
-        }
-    }, [neighborhoods]);
+    const selectedValue = value !== undefined && value !== null ? value.toString() : '';
 
     const handleSelect = (currentId: string) => {
-        if (currentId === value) {
-            setValue('');
-            localStorage.removeItem(LOCALSTORAGE_KEY);
+        if (currentId === selectedValue) {
+            handleSetTag(null);
+            onChange?.(null);
         } else {
-            setValue(currentId);
-            localStorage.setItem(LOCALSTORAGE_KEY, currentId);
+            handleSetTag(Number(currentId));
+            onChange?.(Number(currentId));
         }
         setOpen(false);
     };
 
-    const selectedName = neighborhoods.find((n) => n.id.toString() === value)?.name || 'Choisir un quartier';
+    const selectedName = tags.find((n) => n.id.toString() === selectedValue)?.name || 'Choisir un tag';
 
     return (
         <Popover open={open} onOpenChange={setOpen}>
             <PopoverTrigger asChild>
-                <Button variant="outline" role="combobox" aria-expanded={open} className="w-[200px] justify-between">
+                <Button
+                    ref={ref}
+                    variant="outline"
+                    role="combobox"
+                    aria-expanded={open}
+                    className="w-[200px] justify-between"
+                >
                     {selectedName}
                     <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                 </Button>
@@ -49,19 +52,19 @@ export default function ComboboxComponent({ neighborhoods = [] }: { neighborhood
                     <CommandList>
                         <CommandEmpty>Aucun quartier trouvé.</CommandEmpty>
                         <CommandGroup>
-                            {neighborhoods.map((neighborhood) => (
+                            {tags.map((tag) => (
                                 <CommandItem
-                                    key={neighborhood.id}
-                                    value={neighborhood.id.toString()}
-                                    onSelect={() => handleSelect(neighborhood.id.toString())}
+                                    key={tag.id}
+                                    value={tag.id.toString()}
+                                    onSelect={() => handleSelect(tag.id.toString())}
                                 >
                                     <Check
                                         className={cn(
                                             'mr-2 h-4 w-4',
-                                            value === neighborhood.id.toString() ? 'opacity-100' : 'opacity-0'
+                                            selectedValue === tag.id.toString() ? 'opacity-100' : 'opacity-0'
                                         )}
                                     />
-                                    {neighborhood.name}
+                                    {tag.name}
                                 </CommandItem>
                             ))}
                         </CommandGroup>
@@ -70,4 +73,8 @@ export default function ComboboxComponent({ neighborhoods = [] }: { neighborhood
             </PopoverContent>
         </Popover>
     );
-}
+});
+
+ComboboxComponentTag.displayName = 'ComboboxComponentTag';
+
+export default ComboboxComponentTag;

@@ -46,6 +46,59 @@ export class EventsController {
         private readonly neighborhoodService: NeighborhoodService
     ) {}
 
+    @Get('registered')
+    @ApiOperation({ summary: 'Get events by user ID' })
+    @ApiOkResponse({ description: 'Events found', type: ResponseEventDto })
+    @ApiNotFoundResponse({ description: 'Events not found' })
+    async getEventsByUserId(
+        @Request()
+        req: {
+            user: { id: number };
+        }
+    ): Promise<ResponseEventDto[]> {
+        const events = await this.eventsService.getEventsByUserId(req.user.id);
+
+        return await Promise.all(
+            events.map(async (event) => {
+                const creator = await this.usersService.getUserById(event.createdBy);
+                const responseCreator = UserAdapter.domainToResponseUser(creator);
+
+                const tag = await this.tagsService.getTagById(event.tagId);
+                const responseTag = TagsAdapter.domainToResponseTag(tag);
+
+                const neighborhood = await this.neighborhoodService.getNeighborhoodById(event.neighborhoodId);
+                if (!neighborhood) {
+                    throw new CochonError('neighborhood-not-found', 'Neighborhood not found', 404);
+                }
+
+                const [users, countUsers] = await this.eventsService.getUsersByEventId(event.id, 1, 1);
+
+                return EventsAdapter.domainToResponseEvent(
+                    event,
+                    responseTag,
+                    neighborhood,
+                    responseCreator,
+                    countUsers
+                );
+            })
+        );
+    }
+
+    @Delete(':id')
+    @ApiOperation({ summary: 'Delete an event by ID' })
+    @ApiOkResponse({ description: 'Event deleted successfully' })
+    @ApiNotFoundResponse({ description: 'Event not found' })
+    async deleteEventById(
+        @Param() params: GetEventIdDto,
+        @Body('reason') reason: string,
+        @Request()
+        req: {
+            user: { id: number };
+        }
+    ): Promise<void> {
+        await this.eventsService.deleteEvent(params.id, req.user.id, reason);
+    }
+
     @Get()
     @UseInterceptors(PaginationInterceptor)
     @ApiOperation({ summary: 'Get events' })

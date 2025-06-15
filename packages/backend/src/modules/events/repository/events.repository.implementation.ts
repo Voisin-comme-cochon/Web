@@ -1,4 +1,4 @@
-import { DataSource } from 'typeorm';
+import { DataSource, MoreThan } from 'typeorm';
 import { EventsRepository } from '../domain/events.abstract.repository';
 import { EventEntity } from '../../../core/entities/event.entity';
 import { EventRegistrationEntity } from '../../../core/entities/event-registration.entity';
@@ -18,7 +18,8 @@ export class EventsRepositoryImplementation implements EventsRepository {
 
     public getEventsByNeighborhoodId(id: number, limit: number, offset: number): Promise<[EventEntity[], number]> {
         return this.dataSource.getRepository(EventEntity).findAndCount({
-            where: { neighborhoodId: id },
+            where: { neighborhoodId: id, dateStart: MoreThan(new Date()) },
+            order: { dateStart: 'ASC' },
             skip: offset,
             take: limit,
         });
@@ -71,5 +72,23 @@ export class EventsRepositoryImplementation implements EventsRepository {
             where: { id },
             relations: ['creator', 'neighborhood', 'tag'],
         });
+    }
+
+    public getEventsByUserId(userId: number): Promise<EventEntity[]> {
+        return this.dataSource
+            .getRepository(EventRegistrationEntity)
+            .createQueryBuilder('registration')
+            .leftJoinAndSelect('registration.event', 'event')
+            .where('registration.userId = :userId', { userId })
+            .getMany()
+            .then((registrations) =>
+                registrations
+                    .map((registration) => registration.event)
+                    .filter((event): event is EventEntity => event !== undefined)
+            );
+    }
+
+    public async deleteEvent(id: number): Promise<void> {
+        await this.dataSource.getRepository(EventEntity).delete({ id });
     }
 }

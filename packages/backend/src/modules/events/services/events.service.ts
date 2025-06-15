@@ -7,6 +7,7 @@ import { CochonError } from '../../../utils/CochonError';
 import { BucketType } from '../../objectStorage/domain/bucket-type.enum';
 import { ObjectStorageService } from '../../objectStorage/services/objectStorage.service';
 import { EventEntity } from '../../../core/entities/event.entity';
+import { MailerService } from '../../mailer/services/mailer.service';
 import { NeighborhoodService } from '../../neighborhoods/services/neighborhood.service';
 import { TagsService } from '../../tags/services/tags.service';
 import { isNull } from '../../../utils/tools';
@@ -16,7 +17,8 @@ export class EventsService {
         private eventRepository: EventsRepository,
         private readonly objectStorageService: ObjectStorageService,
         private readonly neighborhoodService: NeighborhoodService,
-        private readonly tagsService: TagsService
+        private readonly tagsService: TagsService,
+        private mailerService: MailerService
     ) {}
 
     public async getEvents(page: number, limit: number): Promise<[Event[], number]> {
@@ -25,6 +27,48 @@ export class EventsService {
         const domainEvents = EventsAdapter.listEntityToDomain(events);
         const eventsWithLinks = await this.replacePhotosByLinks(domainEvents);
         return [eventsWithLinks, count];
+    }
+
+    public async deleteEvent(id: number, userId: number, reason: string): Promise<void> {
+        const event = await this.eventRepository.getEventById(id);
+        if (!event) {
+            throw new CochonError('event_not_found', 'Event not found', 404);
+        }
+
+        if (event.createdBy !== userId) {
+            throw new CochonError('forbidden_delete', 'You cant delete this event', 403);
+        }
+
+        if (event.photo) {
+            await this.objectStorageService.deleteFile(event.photo, BucketType.EVENT_IMAGES);
+        }
+
+        const registeredUsers = await this.eventRepository.getUsersByEventIdNoLimit(id);
+
+        const creator = registeredUsers.find((user) => user.id === event.createdBy);
+        if (!creator) {
+            throw new CochonError('creator_not_found', 'Event creator not found in registered users', 404);
+        }
+
+        const usersToEmail = registeredUsers.filter((user) => user.id !== creator.id);
+        await this.eventRepository.deleteEvent(id);
+
+        await Promise.all(
+            usersToEmail.map((user) =>
+                this.mailerService.sendRawEmail({
+                    to: [user.email],
+                    subject: 'Évènement annulé',
+                    template: 'deleted-event-email',
+                    context: {
+                        eventName: event.name,
+                        eventDate: event.dateStart.toLocaleDateString() + ' à ' + event.dateStart.toLocaleTimeString(),
+                        userName: user.firstName + ' ' + user.lastName,
+                        creatorName: creator.firstName + ' ' + creator.lastName,
+                        cancelMessage: reason,
+                    },
+                })
+            )
+        );
     }
 
     public async getEventsByNeighnorhoodId(id: number, page: number, limit: number): Promise<[Event[], number]> {
@@ -158,8 +202,19 @@ export class EventsService {
         }
 
         const createdEvent = await this.eventRepository.createEvent(eventEntity);
-        createdEvent.photo = prevLink;
-        return EventsAdapter.entityToDomain(createdEvent);
+        this.eventRepository.registerUserForEvent(createdEvent.id, createdEvent.createdBy);
+        const newEvent = await this.eventRepository.getEventById(createdEvent.id);
+        if (!newEvent) {
+            throw new CochonError('event_creation_error', 'Event creation failed, event not found', 500);
+        }
+        newEvent.photo = prevLink;
+        return EventsAdapter.entityToDomain(newEvent);
+    }
+
+    public getEventsByUserId(userId: number): Promise<Event[]> {
+        return this.eventRepository.getEventsByUserId(userId).then((events) => {
+            return this.replacePhotosByLinks(EventsAdapter.listEntityToDomain(events));
+        });
     }
 
     private async replacePhotoByLink(event: Event): Promise<Event> {
@@ -170,7 +225,11 @@ export class EventsService {
     }
 
     private async replacePhotosByLinks(events: Event[]): Promise<Event[]> {
-        return Promise.all(events.map((event) => this.replacePhotoByLink(event)));
+        return Promise.all(
+            events.map((event) => {
+                return this.replacePhotoByLink(event);
+            })
+        );
     }
 
     private async createAndUploadEventImageEntities(file: Express.Multer.File): Promise<string> {

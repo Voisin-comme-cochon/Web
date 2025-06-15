@@ -6,7 +6,7 @@ interface EventMapBoxProps {
     end?: [number, number] | null;
 }
 
-const EventMapBox: React.FC<EventMapBfoxProps> = ({ start, end }) => {
+const EventMapBox: React.FC<EventMapBoxProps> = ({ start, end }) => {
     const mapContainer = useRef<HTMLDivElement | null>(null);
     const mapInstance = useRef<mapboxgl.Map | null>(null);
 
