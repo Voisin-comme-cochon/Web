@@ -16,16 +16,17 @@ import { AuthError, AuthUc } from '@/domain/use-cases/authUc';
 import { AuthRepository } from '@/infrastructure/repositories/AuthRepository';
 import {
     MultiSelector,
-    MultiSelectorTrigger,
-    MultiSelectorInput,
     MultiSelectorContent,
-    MultiSelectorList,
+    MultiSelectorInput,
     MultiSelectorItem,
+    MultiSelectorList,
+    MultiSelectorTrigger,
 } from '@/components/ui/multi-select';
 import { TagUc } from '@/domain/use-cases/tagUc.ts';
 import { TagRepository } from '@/infrastructure/repositories/TagRepository.ts';
 import { TagModel } from '@/domain/models/tag.model.ts';
 import { AddressAutocomplete } from '@/components/AddressSuggestion/AddressSuggestion.tsx';
+import { useToast } from '@/presentation/hooks/useToast.ts';
 
 interface AddressData {
     address: string;
@@ -41,6 +42,7 @@ export default function SigninForm() {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [availableTags, setAvailableTags] = useState<TagModel[]>([]);
+    const { showSuccess } = useToast();
 
     useEffect(() => {
         const fetchTags = async () => {
@@ -96,6 +98,7 @@ export default function SigninForm() {
                     })
                     .filter((id) => id !== null) as number[],
             });
+            showSuccess('Inscription réussie ! Bienvenue !');
             goLanding();
         } catch (err) {
             if (err instanceof AuthError) {
