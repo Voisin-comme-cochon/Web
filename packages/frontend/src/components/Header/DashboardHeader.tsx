@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import logo from '@/assets/images/logoWebV1Light.webp';
-import AvatarComponent from '@/components/AvatarComponent/AvatarComponent';
 import ComboboxComponentNeighborhood from '@/components/ComboboxComponent/ComboboxComponentNeighborhood.tsx';
 import { FrontNeighborhood } from '@/domain/models/FrontNeighborhood.ts';
 import { UserModel } from '@/domain/models/user.model.ts';
@@ -12,6 +11,7 @@ import { jwtDecode } from 'jwt-decode';
 import { DecodedUser } from '@/domain/models/DecodedUser.ts';
 import { useAppNavigation } from '@/presentation/state/navigate.ts';
 import { TagRepository } from '@/infrastructure/repositories/TagRepository.ts';
+import UserMenu from '@/components/UserMenu/UserMenu.tsx';
 
 export default function DashboardHeader() {
     const [user, setUser] = useState<UserModel | null>(null);
@@ -127,7 +127,7 @@ export default function DashboardHeader() {
                 {loading ? (
                     <div className="w-10 h-10 bg-gray-100 rounded-full animate-pulse" />
                 ) : (
-                    user && <AvatarComponent user={user} />
+                    user && <UserMenu user={user} />
                 )}
             </div>
         </header>
