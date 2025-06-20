@@ -6,6 +6,19 @@ interface MembersListProps {
 }
 
 export function MembersList({ members }: MembersListProps) {
+    const readableRole = (role: string) => {
+        switch (role) {
+            case 'admin':
+                return 'Administrateur';
+            case 'user':
+                return 'Membre';
+            case 'journalist':
+                return 'Journaliste';
+            default:
+                return 'Utilisateur';
+        }
+    };
+
     return (
         <div>
             <div className="flex items-center gap-2 mb-4">
@@ -19,17 +32,25 @@ export function MembersList({ members }: MembersListProps) {
                 {members.map((member) => (
                     <div key={member.id} className="flex flex-col items-center text-center p-3 rounded-lg bg-[#f2f5f8]">
                         <div className="w-12 h-12 rounded-full overflow-hidden mb-2">
-                            <img
-                                src={member.profileImageUrl || '/placeholder.svg?height=48&width=48'}
-                                alt={member.firstName + ' ' + member.lastName}
-                                className="w-full h-full object-cover"
-                            />
+                            {!member.profileImageUrl || member.profileImageUrl === '' ? (
+                                <div className="w-full h-full flex items-center justify-center bg-gray-200">
+                                    <span className="material-symbols-outlined text-gray-400 text-3xl">person</span>
+                                </div>
+                            ) : (
+                                <img
+                                    src={member.profileImageUrl || '/placeholder.svg?height=48&width=48'}
+                                    alt={member.firstName + ' ' + member.lastName}
+                                    className="w-full h-full object-cover"
+                                />
+                            )}
                         </div>
                         <p className="text-sm font-medium text-[#1a2a41] truncate w-full">
                             {member.firstName + ' ' + member.lastName}
                         </p>
                         {member.neighborhoodRole && (
-                            <p className="text-xs text-[#1a2a41]/60 truncate w-full">{member.neighborhoodRole}</p>
+                            <p className="text-xs text-[#1a2a41]/60 truncate w-full">
+                                {readableRole(member.neighborhoodRole)}
+                            </p>
                         )}
                     </div>
                 ))}

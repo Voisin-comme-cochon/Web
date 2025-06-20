@@ -3,6 +3,7 @@ import { FrontNeighborhood } from '@/domain/models/FrontNeighborhood.ts';
 import type { NeighborhoodFormValues } from '@/containers/Neighborhood/neighborhood.schema';
 import type { CreateMultipleInvitationsInput } from '@/domain/models/NeighborhoodInvitation';
 import { PaginatedResultModel } from '@/domain/models/paginated-result.model.ts';
+import { NeighborhoodUserModel } from '@/domain/models/NeighborhoodUser.model.ts';
 
 export class NeighborhoodFrontRepository {
     async getAcceptedNeighborhoods(): Promise<FrontNeighborhood[]> {
@@ -14,6 +15,11 @@ export class NeighborhoodFrontRepository {
     async getMyNeighborhoods(id: string | number): Promise<FrontNeighborhood[]> {
         const response = await ApiService.get(`/neighborhoods/users/${id}`);
         return response.data;
+    }
+
+    async getNeighborhoodByPos(longitude: string, latitude: string): Promise<FrontNeighborhood[]> {
+        const response = await ApiService.get(`/neighborhoods?status=accepted&lat=${latitude}&lng=${longitude}`);
+        return response.data.data;
     }
 
     async createNeighborhood(data: NeighborhoodFormValues): Promise<FrontNeighborhood> {
@@ -47,5 +53,15 @@ export class NeighborhoodFrontRepository {
 
     async acceptInvitation(token: string) {
         return ApiService.post<{ success: boolean }>(`/neighborhoods/invitations/accept/${token}`);
+    }
+
+    async getNeighborhoodById(id: string | number): Promise<FrontNeighborhood> {
+        const response = await ApiService.get(`/neighborhoods/${id}`);
+        return response.data;
+    }
+
+    async getMembersByNeighborhoodId(id: string | number): Promise<NeighborhoodUserModel[]> {
+        const response = await ApiService.get(`/neighborhoods/${id}/users?page=1&limit=2000`);
+        return response.data.data;
     }
 }

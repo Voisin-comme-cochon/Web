@@ -11,6 +11,8 @@ import NeighborhoodEventsPage from '@/containers/NeighborhoodEvents/Neighborhood
 import NeighborhoodJournalPage from '@/containers/NeighborhoodJournal/NeighborhoodJournalPage.tsx';
 import NeighborhoodMaterialsPage from '@/containers/NeighborhoodMaterials/NeighborhoodMaterialsPage.tsx';
 import CreateEventPage from '@/containers/CreateEvent/CreateEventPage.tsx';
+import JoinNeighborhood from '@/containers/JoinNeighborhood/JoinNeighborhood.tsx';
+import NeighborhoodDetails from '@/containers/NeighborhoodDetails/NeighborhoodDetails.tsx';
 
 export default function App() {
     return (
@@ -28,6 +30,8 @@ export default function App() {
                 <Route path="/neighborhood-materials" element={<NeighborhoodMaterialsPage />} />
                 <Route path="/neighborhoods/invite/:token" element={<NeighborhoodInvitation />} />
                 <Route path="/events/create" element={<CreateEventPage />} />
+                <Route path="/join-neighborhoods" element={<JoinNeighborhood />} />
+                <Route path={'/neighborhood/details/:neighborhoodId'} element={<NeighborhoodDetails />} />
             </Routes>
         </Router>
     );
