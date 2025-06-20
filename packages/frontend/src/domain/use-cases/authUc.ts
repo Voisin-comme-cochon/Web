@@ -74,6 +74,7 @@ export class AuthUc {
         try {
             const tokens = await this.authRepository.signin(data);
             localStorage.setItem('jwt', tokens.access_token);
+            localStorage.setItem('refresh_token', tokens.refresh_token);
             return tokens;
         } catch (error) {
             if (error instanceof AxiosError) {

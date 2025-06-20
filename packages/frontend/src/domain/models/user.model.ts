@@ -7,6 +7,8 @@ export interface UserModel {
     address: string;
     description: string;
     isSuperAdmin: boolean;
+    latitude: string;
+    longitude: string;
     newsletter: boolean;
     prefferredNotifMethod: string;
     profileImageUrl?: string | null;
