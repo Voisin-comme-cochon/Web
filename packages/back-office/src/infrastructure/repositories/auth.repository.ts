@@ -61,5 +61,7 @@ export async function logout() {
     if (!response.ok) throw new Error('Logout failed');
 
     localStorage.removeItem('jwt');
+    localStorage.removeItem('page');
     localStorage.removeItem('refresh_token');
+    localStorage.removeItem('neighborhoodId');
 }

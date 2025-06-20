@@ -8,12 +8,26 @@ import MinimalHeader from '@/components/Header/MinimalHeader.tsx';
 import { useAppNavigation } from '@/presentation/state/navigate.ts';
 import { withHeaderDataOnlyUserCheck } from '@/containers/Wrapper/Wrapper.tsx';
 import { UserModel } from '@/domain/models/user.model.ts';
+import {
+    Dialog,
+    DialogClose,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog.tsx';
+import { useToast } from '@/presentation/hooks/useToast.ts';
 
 function JoinNeighborhood({ uc, user }: { uc: HomeUc; user: UserModel }) {
     const [neighborhoods, setNeighborhoods] = useState<FrontNeighborhood[]>([]);
     const [searchTerm, setSearchTerm] = useState<string>('');
     const [selectedImage, setSelectedImage] = useState<string | null>(null);
+    const [popUpVisible, setPopUpVisible] = useState(false);
+    const [neighborhoodId, setNeighborhoodId] = useState<number | null>(null);
+
     const { goCreateNeighborhood, goNeighborhoodDetails } = useAppNavigation();
+    const { showSuccess, showError } = useToast();
 
     useEffect(() => {
         const fetchNeighborhoods = async () => {
@@ -28,11 +42,53 @@ function JoinNeighborhood({ uc, user }: { uc: HomeUc; user: UserModel }) {
         fetchNeighborhoods();
     }, [uc, user]);
 
+    const handlePopup = (neighborhoodId: number) => {
+        setPopUpVisible(!popUpVisible);
+        setNeighborhoodId(neighborhoodId);
+    };
     const filteredNeighborhoods = neighborhoods.filter((n) => n.name.toLowerCase().includes(searchTerm.toLowerCase()));
+
+    const joinNeighborhood = async (neighborhoodId: number) => {
+        try {
+            handlePopup(neighborhoodId);
+            await uc.joinNeighborhood(neighborhoodId);
+            showSuccess('Demande de rejoindre le quartier envoyée', 'Un administrateur examinera ta demande sous peu.');
+        } catch (error) {
+            const message = error instanceof Error ? error.message : '';
+            if (message === 'User is already a member of this neighborhood') {
+                showError('Tu as déjà fait la demande pour rejoindre ce quartier.');
+            } else {
+                showError(message || 'Erreur lors de la demande pour rejoindre le quartier');
+            }
+        }
+    };
 
     return (
         <>
             <MinimalHeader />
+            <Dialog open={popUpVisible} onOpenChange={setPopUpVisible}>
+                <DialogContent className="sm:max-w-md w-full p-6 bg-white rounded-2xl shadow-lg">
+                    <DialogClose></DialogClose>
+                    <DialogHeader className="space-y-1 text-center">
+                        <DialogTitle className="text-xl font-semibold text-orange">Rejoindre ce quartier ?</DialogTitle>
+                        <DialogDescription className="text-sm text-gray-600">
+                            Un administrateur examinera ta demande, tu recevras la réponse par mail.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter className="mt-6 grid grid-cols-2 gap-2">
+                        <Button variant="outline" className="w-full" onClick={() => setPopUpVisible(false)}>
+                            Fermer
+                        </Button>
+                        <Button
+                            variant="orange"
+                            className="w-full"
+                            onClick={() => joinNeighborhood(neighborhoodId ?? -1)}
+                        >
+                            Rejoindre
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
             <div className="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-md mt-8">
                 <h1 className="text-2xl font-bold mb-4 text-center">
                     <span className="text-orange font-bold">Rejoindre</span> votre quartier
@@ -84,10 +140,7 @@ function JoinNeighborhood({ uc, user }: { uc: HomeUc; user: UserModel }) {
                                     >
                                         Infos
                                     </Button>
-                                    <Button
-                                        variant="orange"
-                                        onClick={() => (window.location.href = `/neighborhood/${neighborhood.id}`)}
-                                    >
+                                    <Button variant="orange" onClick={() => handlePopup(neighborhood.id)}>
                                         Rejoindre
                                     </Button>
                                 </div>

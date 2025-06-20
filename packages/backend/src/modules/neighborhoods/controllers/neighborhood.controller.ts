@@ -307,4 +307,20 @@ export class NeighborhoodController {
     async getNeighborhoodsByUserId(@Param() params: GetNeiborhoodByUserIdDto): Promise<ResponseNeighborhoodDto[]> {
         return await this.neighborhoodUserService.getNeighborhoodsByUserId(params.userId);
     }
+
+    @Post(':neighborhoodId/join')
+    @UseGuards(IsLoginGuard)
+    @ApiOperation({ summary: 'Join a neighborhood' })
+    @ApiOkResponse({
+        description: 'User has requested to join the neighborhood',
+    })
+    @ApiNotFoundResponse({
+        description: 'Neighborhood not found or user already in the neighborhood',
+    })
+    async joinNeighborhood(
+        @Param('neighborhoodId') neighborhoodId: number,
+        @Request() req: { user: { id: number } }
+    ): Promise<void> {
+        await this.neighborhoodUserService.joinNeighborhood(req.user.id, neighborhoodId);
+    }
 }

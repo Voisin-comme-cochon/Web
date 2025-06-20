@@ -119,6 +119,8 @@ export async function logout() {
 
     localStorage.removeItem('jwt');
     localStorage.removeItem('refresh_token');
+    localStorage.removeItem('neighborhoodId');
+    localStorage.removeItem('page');
 }
 
 export async function refreshAccessToken(): Promise<AuthTokensModel> {

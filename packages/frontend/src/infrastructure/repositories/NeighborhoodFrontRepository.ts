@@ -64,4 +64,8 @@ export class NeighborhoodFrontRepository {
         const response = await ApiService.get(`/neighborhoods/${id}/users?page=1&limit=2000`);
         return response.data.data;
     }
+
+    async joinNeighborhood(neighborhoodId: number): Promise<void> {
+        await ApiService.post(`/neighborhoods/${neighborhoodId}/join`);
+    }
 }

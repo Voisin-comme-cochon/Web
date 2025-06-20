@@ -71,12 +71,19 @@ import { NeighborhoodUserRepositoryImplementation } from './repository/neighborh
         },
         {
             provide: NeighborhoodUserService,
-            inject: [NeighborhoodUserRepository, NeighborhoodService, UsersService],
+            inject: [NeighborhoodUserRepository, NeighborhoodService, UsersService, MailerService],
             useFactory: (
                 neighborhoodUserRepository: NeighborhoodUserRepository,
                 neighborhoodService: NeighborhoodService,
-                usersService: UsersService
-            ) => new NeighborhoodUserService(neighborhoodUserRepository, neighborhoodService, usersService),
+                usersService: UsersService,
+                mailerService: MailerService
+            ) =>
+                new NeighborhoodUserService(
+                    neighborhoodUserRepository,
+                    neighborhoodService,
+                    usersService,
+                    mailerService
+                ),
         },
     ],
     exports: [NeighborhoodService],

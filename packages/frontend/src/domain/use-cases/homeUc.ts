@@ -173,4 +173,12 @@ export class HomeUc {
             throw new Error((error as ApiGlobalError).response.data.message);
         }
     }
+
+    async joinNeighborhood(neighborhoodId: number): Promise<void> {
+        try {
+            await this.neighborhoodRepository.joinNeighborhood(neighborhoodId);
+        } catch (error) {
+            throw new Error((error as ApiGlobalError).response.data.message);
+        }
+    }
 }
