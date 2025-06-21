@@ -222,4 +222,12 @@ export class HomeUc {
             throw new Error((error as ApiGlobalError).response.data.message);
         }
     }
+
+    async removeUserFromNeighborhood(neighborhoodId: number, userId: number): Promise<void> {
+        try {
+            await this.neighborhoodRepository.removeUserFromNeighborhood(neighborhoodId, userId);
+        } catch (error) {
+            throw new Error((error as ApiGlobalError).response.data.message);
+        }
+    }
 }

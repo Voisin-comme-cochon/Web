@@ -83,4 +83,8 @@ export class NeighborhoodFrontRepository {
     async joinNeighborhood(neighborhoodId: number): Promise<void> {
         await ApiService.post(`/neighborhoods/${neighborhoodId}/join`);
     }
+
+    async removeUserFromNeighborhood(neighborhoodId: number, userId: number): Promise<void> {
+        return await ApiService.delete(`/neighborhoods/${neighborhoodId}/users/${userId}`);
+    }
 }

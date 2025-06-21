@@ -46,7 +46,7 @@ export default function MemberManagePage({ uc, neighborhoodId }: Props) {
     const [duration, setDuration] = useState<number>(7);
     const [maxUses, setMaxUses] = useState<number>(1);
     const [inviteLink, setInviteLink] = useState<string>('');
-    const { showSuccess } = useToast();
+    const { showSuccess, showError } = useToast();
 
     const itemsPerPage = 10;
 
@@ -90,12 +90,28 @@ export default function MemberManagePage({ uc, neighborhoodId }: Props) {
 
     const handleDelete = (ids: number[]) => {
         if (!confirm(`Supprimer ${ids.length} membre(s) ?`)) return;
-        setMembers((prev) => prev.filter((m) => !ids.includes(m.id)));
+        setMembers(prev =>
+            prev.filter(m =>
+                !ids.includes(m.id) || m.neighborhoodRole === Roles.ADMIN
+            )
+        );
         setSelectedIds((prev) => {
             const next = new Set(prev);
-            ids.forEach((id) => next.delete(id));
+            ids.forEach((id) => {
+                next.delete(id);
+            });
             return next;
         });
+        try {
+            ids.map((id) => {
+                uc.removeUserFromNeighborhood(neighborhoodId, id).catch((err) => {
+                    showError(err instanceof Error ? err.message : 'Erreur lors de la suppression');
+                });
+            });
+            showSuccess('Membre(s) supprimé(s) avec succès !');
+        } catch (err) {
+            showError(err instanceof Error ? err.message : 'Erreur lors de la suppression');
+        }
     };
 
     const generateLink = async () => {
