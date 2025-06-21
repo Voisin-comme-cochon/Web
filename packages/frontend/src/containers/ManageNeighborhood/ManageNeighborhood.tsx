@@ -11,7 +11,7 @@ import { useAppNavigation } from '@/presentation/state/navigate.ts';
 
 type LowerPagesManage = 'neighborhood' | 'members' | 'events' | 'support';
 
-function ManageNeighborhood({ uc, neighborhoodId, user }: { uc: HomeUc; neighborhoodId: string; user: UserModel }) {
+function ManageNeighborhood({ uc, neighborhoodId, user }: { uc: HomeUc; neighborhoodId: number; user: UserModel }) {
     const [activeTab, setActiveTab] = useState<LowerPagesManage>('neighborhood');
     const { goMyNeighborhood } = useAppNavigation();
     useEffect(() => {

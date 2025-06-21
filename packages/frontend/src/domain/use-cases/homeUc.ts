@@ -8,6 +8,7 @@ import { ApiGlobalError } from '@/shared/errors/apiGlobalError.ts';
 import { TagModel } from '@/domain/models/tag.model.ts';
 import { TagRepository } from '@/infrastructure/repositories/TagRepository.ts';
 import { SelectedAddress } from '@/domain/models/SelectedAddress.ts';
+import { NeighborhoodUserModel } from '@/domain/models/NeighborhoodUser.model.ts';
 
 export class HomeUc {
     constructor(
@@ -26,6 +27,17 @@ export class HomeUc {
                 throw new Error(error.message);
             }
             throw new Error("Une erreur est survenue lors de la vérification de l'inscription");
+        }
+    }
+
+    async getNeighborhoodMembers(neighborhoodId: number): Promise<NeighborhoodUserModel[]> {
+        try {
+            return await this.neighborhoodRepository.getUsersInNeighborhood(neighborhoodId);
+        } catch (error) {
+            if (error instanceof Error) {
+                throw new Error(error.message);
+            }
+            throw new Error('Une erreur est survenue lors de la récupération des membres du quartier');
         }
     }
 
