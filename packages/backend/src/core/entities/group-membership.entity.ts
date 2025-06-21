@@ -1,28 +1,37 @@
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
-import { StatusMembershipGroupEnum } from './StatusMembershipGroup.enum';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
 import { UserEntity } from './user.entity';
 import { GroupEntity } from './group.entity';
 
-@Entity({ name: 'group-memberships' })
+export enum MembershipStatus {
+    PENDING = 'pending',
+    ACTIVE = 'active',
+    REJECTED = 'rejected',
+}
+
+@Entity('group-memberships')
 export class GroupMembershipEntity {
     @PrimaryGeneratedColumn()
     id!: number;
 
     @Column()
-    userId!: string;
+    userId!: number;
 
     @Column()
-    groupId!: string;
+    groupId!: number;
 
-    @Column()
-    status!: StatusMembershipGroupEnum;
+    @Column({
+        type: 'enum',
+        enum: MembershipStatus,
+        default: MembershipStatus.PENDING,
+    })
+    status!: MembershipStatus;
 
-    // Clés étrangères
-    @ManyToOne(() => UserEntity, (user) => user.user_groups, { onDelete: 'CASCADE' })
+    // Relations
+    @ManyToOne(() => UserEntity, { onDelete: 'CASCADE' })
     @JoinColumn({ name: 'userId' })
-    user?: UserEntity;
+    user!: UserEntity;
 
-    @ManyToOne(() => GroupEntity, (group) => group.members, { onDelete: 'CASCADE' })
+    @ManyToOne(() => GroupEntity, (group) => group.memberships, { onDelete: 'CASCADE' })
     @JoinColumn({ name: 'groupId' })
-    group?: GroupEntity;
+    group!: GroupEntity;
 }

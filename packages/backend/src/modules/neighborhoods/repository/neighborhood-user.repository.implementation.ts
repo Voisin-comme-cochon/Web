@@ -187,4 +187,16 @@ export class NeighborhoodUserRepositoryImplementation implements NeighborhoodUse
 
         return repository.save(neighborhoodUser);
     }
+
+    async isUserMemberOfNeighborhood(userId: number, neighborhoodId: number): Promise<boolean> {
+        const count = await this.dataSource.getRepository(NeighborhoodUserEntity).count({
+            where: {
+                userId,
+                neighborhoodId,
+                status: 'accepted',
+            },
+        });
+
+        return count > 0;
+    }
 }
