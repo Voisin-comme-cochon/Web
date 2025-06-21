@@ -3,7 +3,7 @@ import { DataSource } from 'typeorm';
 import { AuthModule } from '../auth/auth.module';
 import { UsersModule } from '../users/users.module';
 import { NeighborhoodModule } from '../neighborhoods/neighborhood.module';
-import { UsersRepository } from '../users/domain/users.abstract.repository';
+import { UsersService } from '../users/services/users.service';
 import { NeighborhoodUserRepository } from '../neighborhoods/domain/neighborhood-user.abstract.repository';
 import { GroupRepository } from './domain/group.abstract.repository';
 import { GroupMessageRepository } from './domain/group-message.abstract.repository';
@@ -42,21 +42,21 @@ import { MessagingGateway } from './gateways/messaging.gateway';
                 GroupMessageRepository,
                 GroupMembershipRepository,
                 NeighborhoodUserRepository,
-                UsersRepository,
+                UsersService,
             ],
             useFactory: (
                 groupRepository: GroupRepository,
                 messageRepository: GroupMessageRepository,
                 membershipRepository: GroupMembershipRepository,
                 neighborhoodUserRepository: NeighborhoodUserRepository,
-                usersRepository: UsersRepository
+                usersService: UsersService
             ) =>
                 new MessagingService(
                     groupRepository,
                     messageRepository,
                     membershipRepository,
                     neighborhoodUserRepository,
-                    usersRepository
+                    usersService
                 ),
         },
         MessagingGateway,

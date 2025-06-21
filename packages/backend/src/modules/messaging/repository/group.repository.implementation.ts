@@ -1,5 +1,5 @@
-// messaging/repository/group.repository.implementation.ts
 import { DataSource, Repository } from 'typeorm';
+import { GroupTypeEntity } from '../../../core/entities/group.entity';
 import { GroupEntity } from '../../../core/entities/group.entity';
 import { GroupRepository } from '../domain/group.abstract.repository';
 import { Group, GroupType, CreateGroup, UpdateGroup } from '../domain/group.model';
@@ -34,7 +34,12 @@ export class GroupRepositoryImplementation extends GroupRepository {
         return GroupAdapter.listEntityToDomain(entities);
     }
 
-    async findUserGroupsInNeighborhood(userId: number, neighborhoodId: number, page: number, limit: number): Promise<[Group[], number]> {
+    async findUserGroupsInNeighborhood(
+        userId: number,
+        neighborhoodId: number,
+        page: number,
+        limit: number
+    ): Promise<[Group[], number]> {
         const queryBuilder = this.groupEntityRepository
             .createQueryBuilder('group')
             .leftJoinAndSelect(
@@ -74,7 +79,7 @@ export class GroupRepositoryImplementation extends GroupRepository {
     async create(group: CreateGroup): Promise<Group> {
         const entityData = {
             ...group,
-            type: group.type as unknown as import('../../../core/entities/group.entity').GroupTypeEntity,
+            type: group.type as unknown as GroupTypeEntity,
         };
         const entity = this.groupEntityRepository.create(entityData);
         const savedEntity = await this.groupEntityRepository.save(entity);
@@ -84,9 +89,7 @@ export class GroupRepositoryImplementation extends GroupRepository {
     async update(id: number, group: UpdateGroup): Promise<Group> {
         const updateData = {
             ...group,
-            type: group.type
-                ? (group.type as unknown as import('../../../core/entities/group.entity').GroupTypeEntity)
-                : undefined,
+            type: group.type ? (group.type as unknown as GroupTypeEntity) : undefined,
         };
         await this.groupEntityRepository.update(id, updateData);
         const updatedEntity = await this.groupEntityRepository.findOne({ where: { id } });

@@ -13,15 +13,18 @@ export class GroupAdapter {
             tagId: entity.tagId,
             createdAt: entity.createdAt,
             memberCount: (entity as { memberCount?: number }).memberCount ?? 0,
-            // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-            lastMessage: (entity.messages && entity.messages.length > 0) ? {
-                id: entity.messages[0].id,
-                content: entity.messages[0].content,
-                userId: entity.messages[0].userId,
-                groupId: entity.messages[0].groupId,
-                createdAt: entity.messages[0].createdAt,
-                user: entity.messages[0].user,
-            } : undefined,
+
+            lastMessage:
+                entity.messages.length > 0
+                    ? {
+                          id: entity.messages[0].id,
+                          content: entity.messages[0].content,
+                          userId: entity.messages[0].userId,
+                          groupId: entity.messages[0].groupId,
+                          createdAt: entity.messages[0].createdAt,
+                          user: entity.messages[0].user,
+                      }
+                    : undefined,
         };
     }
 

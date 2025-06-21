@@ -5,7 +5,12 @@ export abstract class GroupRepository {
 
     abstract findByNeighborhoodId(neighborhoodId: number): Promise<Group[]>;
 
-    abstract findUserGroupsInNeighborhood(userId: number, neighborhoodId: number, page: number, limit: number): Promise<[Group[], number]>;
+    abstract findUserGroupsInNeighborhood(
+        userId: number,
+        neighborhoodId: number,
+        page: number,
+        limit: number
+    ): Promise<[Group[], number]>;
 
     abstract findPrivateChatBetweenUsers(
         user1Id: number,

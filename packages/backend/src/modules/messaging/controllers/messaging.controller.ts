@@ -91,7 +91,7 @@ export class MessagingController {
         @Query() pagination: Paging
     ): Promise<Paginated<GroupDto>> {
         const [groups, count] = await this.messagingService.getUserGroups(
-            req.user.id, 
+            req.user.id,
             getUserGroupsDto.neighborhoodId,
             pagination.page,
             pagination.limit

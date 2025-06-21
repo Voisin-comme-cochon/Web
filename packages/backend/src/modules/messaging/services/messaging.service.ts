@@ -6,7 +6,7 @@ import { GroupRepository } from '../domain/group.abstract.repository';
 import { GroupMessageRepository } from '../domain/group-message.abstract.repository';
 import { GroupMembershipRepository } from '../domain/group-membership.abstract.repository';
 import { NeighborhoodUserRepository } from '../../neighborhoods/domain/neighborhood-user.abstract.repository';
-import { UsersRepository } from '../../users/domain/users.abstract.repository';
+import { UsersService } from '../../users/services/users.service';
 import { UserSummaryDto } from '../controllers/dto/messaging.dto';
 import { CochonError } from '../../../utils/CochonError';
 import { isNotNull, isNull } from '../../../utils/tools';
@@ -38,7 +38,7 @@ export class MessagingService {
         private readonly messageRepository: GroupMessageRepository,
         public readonly membershipRepository: GroupMembershipRepository,
         private readonly neighborhoodUserRepository: NeighborhoodUserRepository,
-        private readonly usersRepository: UsersRepository
+        private readonly usersService: UsersService
     ) {}
 
     async createPrivateChat(userId: number, command: CreatePrivateChatCommand): Promise<Group> {
@@ -60,8 +60,8 @@ export class MessagingService {
         }
 
         const [currentUser, targetUser] = await Promise.all([
-            this.usersRepository.getUserById(userId),
-            this.usersRepository.getUserById(targetUserId),
+            this.usersService.getUserById(userId),
+            this.usersService.getUserById(targetUserId),
         ]);
 
         if (isNull(currentUser) || isNull(targetUser)) {
@@ -170,7 +170,48 @@ export class MessagingService {
         // Check si bien membre du quartier
         await this.validateUserInNeighborhood(userId, neighborhoodId);
 
-        return await this.groupRepository.findUserGroupsInNeighborhood(userId, neighborhoodId, page, limit);
+        const [groups, count] = await this.groupRepository.findUserGroupsInNeighborhood(
+            userId,
+            neighborhoodId,
+            page,
+            limit
+        );
+
+        const lastMessageUserIds = groups
+            .map((group) => group.lastMessage?.userId)
+            .filter((uid): uid is number => uid !== undefined);
+
+        if (lastMessageUserIds.length > 0) {
+            const uniqueUserIds = Array.from(new Set(lastMessageUserIds));
+            const users = await Promise.all(uniqueUserIds.map((uid) => this.usersService.getUserById(uid)));
+            const userMap = new Map(users.map((user) => [user.id, user]));
+
+            const groupsWithUsers = groups.map((group) => {
+                const newGroup = Object.assign({}, group);
+
+                if (group.lastMessage) {
+                    const userInfo = userMap.get(group.lastMessage.userId);
+                    const lastMessageCopy = Object.assign({}, group.lastMessage);
+
+                    if (userInfo) {
+                        lastMessageCopy.user = {
+                            id: userInfo.id,
+                            firstName: userInfo.firstName,
+                            lastName: userInfo.lastName,
+                            profileImageUrl: userInfo.profileImageUrl,
+                        };
+                    }
+
+                    newGroup.lastMessage = lastMessageCopy;
+                }
+
+                return newGroup;
+            });
+
+            return [groupsWithUsers, count];
+        }
+
+        return [groups, count];
     }
 
     async getGroupMessages(
@@ -189,7 +230,29 @@ export class MessagingService {
             });
         }
 
-        return await this.messageRepository.findByGroupId(groupId, page, limit);
+        const [messages, count] = await this.messageRepository.findByGroupId(groupId, page, limit);
+
+        const uniqueUserIds = Array.from(new Set(messages.map((message) => message.userId)));
+        const users = await Promise.all(uniqueUserIds.map((uid) => this.usersService.getUserById(uid)));
+        const userMap = new Map(users.map((user) => [user.id, user]));
+
+        const messagesWithUsers = messages.map((message) => {
+            const newMessage = Object.assign({}, message);
+            const userInfo = userMap.get(message.userId);
+
+            if (userInfo) {
+                newMessage.user = {
+                    id: userInfo.id,
+                    firstName: userInfo.firstName,
+                    lastName: userInfo.lastName,
+                    profileImageUrl: userInfo.profileImageUrl,
+                };
+            }
+
+            return newMessage;
+        });
+
+        return [messagesWithUsers, count];
     }
 
     async joinGroup(userId: number, groupId: number): Promise<GroupMembership> {
@@ -247,7 +310,31 @@ export class MessagingService {
             });
         }
 
-        return await this.membershipRepository.findActiveByGroupId(groupId);
+        const memberships = await this.membershipRepository.findActiveByGroupId(groupId);
+
+        // Recup les user depuis le service pour profiter de la logique métier réalisé (pas envoyer le pwd, le bon lien d'image, ...)
+        const uniqueUserIds = Array.from(new Set(memberships.map((m) => m.userId)));
+        const users = await Promise.all(uniqueUserIds.map((uid) => this.usersService.getUserById(uid)));
+        const userMap = new Map(users.map((user) => [user.id, user]));
+
+        // Remplace par les données sur service
+        const membershipsWithUsers = memberships.map((m) => {
+            const newMembership = Object.assign({}, m);
+            const userInfo = userMap.get(m.userId);
+
+            if (userInfo) {
+                newMembership.user = {
+                    id: userInfo.id,
+                    firstName: userInfo.firstName,
+                    lastName: userInfo.lastName,
+                    profileImageUrl: userInfo.profileImageUrl,
+                };
+            }
+
+            return newMembership;
+        });
+
+        return membershipsWithUsers;
     }
 
     async searchUsersInNeighborhood(
