@@ -28,4 +28,6 @@ export abstract class NeighborhoodUserRepository {
     abstract getNeighborhoodsByUserId(id: number): Promise<Neighborhood[]>;
 
     abstract addUserToNeighborhood(neighborhoodUser: NeighborhoodUserEntity): Promise<NeighborhoodUserEntity>;
+
+    abstract removeUserFromNeighborhood(userId: number, neighborhoodId: number): Promise<void>;
 }

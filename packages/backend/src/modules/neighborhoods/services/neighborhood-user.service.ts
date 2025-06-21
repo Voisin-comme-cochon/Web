@@ -171,4 +171,43 @@ export class NeighborhoodUserService {
                 role: NeighborhoodUserAdapter.toReadableRole(userWithRole.role),
             }));
     }
+
+    async removeMemberFromNeighborhood(neighborhoodId: number, memberId: number, adminId: number): Promise<void> {
+        const neighborhood = await this.neighborhoodService.getNeighborhoodById(neighborhoodId);
+        if (isNull(neighborhood)) {
+            throw new CochonError('neighborhood_not_found', 'Neighborhood not found', 404, {
+                neighborhoodId,
+            });
+        }
+
+        const checkAdmin = await this.neighborhoodUserRepository.getUserInNeighborhood(neighborhoodId, adminId);
+        if (isNull(checkAdmin) || checkAdmin.role !== NeighborhoodUserRole.ADMIN) {
+            throw new CochonError(
+                'not_authorized',
+                'You are not authorized to remove members from this neighborhood',
+                403,
+                {
+                    userId: adminId,
+                    neighborhoodId,
+                }
+            );
+        }
+
+        const neighborhoodUser = await this.neighborhoodUserRepository.getUserInNeighborhood(neighborhoodId, memberId);
+        if (isNull(neighborhoodUser)) {
+            throw new CochonError('user_not_in_neighborhood', 'User is not in this neighborhood', 400, {
+                userId: memberId,
+                neighborhoodId,
+            });
+        }
+
+        if (neighborhoodUser.role === NeighborhoodUserRole.ADMIN) {
+            throw new CochonError('cannot_remove_admin', 'You cannot remove an admin from this neighborhood', 400, {
+                userId: memberId,
+                neighborhoodId,
+            });
+        }
+
+        return this.neighborhoodUserRepository.removeUserFromNeighborhood(neighborhoodUser.user.id, neighborhoodId);
+    }
 }

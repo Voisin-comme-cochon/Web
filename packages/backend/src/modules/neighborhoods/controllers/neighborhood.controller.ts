@@ -1,6 +1,7 @@
 import {
     Body,
     Controller,
+    Delete,
     Get,
     Param,
     Patch,
@@ -322,5 +323,25 @@ export class NeighborhoodController {
         @Request() req: { user: { id: number } }
     ): Promise<void> {
         await this.neighborhoodUserService.joinNeighborhood(req.user.id, neighborhoodId);
+    }
+
+    @Delete(':neighborhoodId/users/:userId')
+    @UseGuards(IsLoginGuard)
+    @ApiOperation({ summary: 'Remove a member from a neighborhood' })
+    @ApiOkResponse({
+        description: 'Member removed from the neighborhood',
+    })
+    @ApiNotFoundResponse({
+        description: 'Neighborhood or user not found',
+    })
+    async removeMemberFromNeighborhood(
+        @Param() params: { neighborhoodId: number; userId: number },
+        @Request() req: { user: { id: number } }
+    ): Promise<void> {
+        await this.neighborhoodUserService.removeMemberFromNeighborhood(
+            params.neighborhoodId,
+            params.userId,
+            req.user.id
+        );
     }
 }

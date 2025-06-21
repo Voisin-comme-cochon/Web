@@ -126,4 +126,14 @@ export class NeighborhoodUserRepositoryImplementation implements NeighborhoodUse
         const repository = this.dataSource.getRepository(NeighborhoodUserEntity);
         return repository.save(neighborhoodUser);
     }
+
+    async removeUserFromNeighborhood(userId: number, neighborhoodId: number): Promise<void> {
+        await this.dataSource
+            .getRepository(NeighborhoodUserEntity)
+            .createQueryBuilder()
+            .delete()
+            .where('userId = :userId', { userId })
+            .andWhere('neighborhoodId = :neighborhoodId', { neighborhoodId })
+            .execute();
+    }
 }
