@@ -23,4 +23,6 @@ export abstract class GroupRepository {
     abstract update(id: number, group: Partial<Group>): Promise<Group>;
 
     abstract delete(id: number): Promise<void>;
+
+    abstract findAvailableGroupsInNeighborhood(neighborhoodId: number, userId: number): Promise<Group[]>;
 }

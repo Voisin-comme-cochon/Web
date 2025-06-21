@@ -296,7 +296,18 @@ export class MessagingService {
             groupId,
             status: MembershipStatus.ACTIVE,
         };
-        return await this.membershipRepository.create(membershipData);
+        const membership = await this.membershipRepository.create(membershipData);
+
+        const user = await this.usersService.getUserById(userId);
+
+        return Object.assign({}, membership, {
+            user: {
+                id: user.id,
+                firstName: user.firstName,
+                lastName: user.lastName,
+                profileImageUrl: user.profileImageUrl,
+            },
+        });
     }
 
     async getGroupMembers(userId: number, groupId: number): Promise<GroupMembership[]> {
@@ -363,6 +374,11 @@ export class MessagingService {
         }
 
         return users;
+    }
+
+    async getAvailableGroups(userId: number, neighborhoodId: number): Promise<Group[]> {
+        await this.validateUserInNeighborhood(userId, neighborhoodId);
+        return await this.groupRepository.findAvailableGroupsInNeighborhood(neighborhoodId, userId);
     }
 
     private async validateUserInNeighborhood(userId: number, neighborhoodId: number): Promise<void> {

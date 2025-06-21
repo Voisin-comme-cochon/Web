@@ -89,6 +89,13 @@ export class JoinGroupDto {
     groupId!: number;
 }
 
+export class GetByNeighborhoodIdDto {
+    @ApiProperty({ example: 1, description: 'ID du quartier' })
+    @IsInt()
+    @Type(() => Number)
+    neighborhoodId!: number;
+}
+
 export class GetGroupMembersDto {
     @ApiProperty({ example: 1, description: 'ID du groupe' })
     @IsInt()

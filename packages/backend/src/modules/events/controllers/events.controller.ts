@@ -71,7 +71,7 @@ export class EventsController {
                     throw new CochonError('neighborhood-not-found', 'Neighborhood not found', 404);
                 }
 
-                const [users, countUsers] = await this.eventsService.getUsersByEventId(event.id, 1, 1);
+                const [, countUsers] = await this.eventsService.getUsersByEventId(event.id, 1, 1);
 
                 return EventsAdapter.domainToResponseEvent(
                     event,

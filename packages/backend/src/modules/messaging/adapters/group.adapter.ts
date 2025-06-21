@@ -15,7 +15,8 @@ export class GroupAdapter {
             memberCount: (entity as { memberCount?: number }).memberCount ?? 0,
 
             lastMessage:
-                entity.messages.length > 0
+                // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+                entity.messages && entity.messages.length > 0
                     ? {
                           id: entity.messages[0].id,
                           content: entity.messages[0].content,

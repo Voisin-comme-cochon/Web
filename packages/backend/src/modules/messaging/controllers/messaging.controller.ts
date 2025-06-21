@@ -24,6 +24,7 @@ import {
     GroupMessageDto,
     GroupMembershipDto,
     UserSummaryDto,
+    GetByNeighborhoodIdDto,
 } from './dto/messaging.dto';
 
 @ApiTags('Messaging')
@@ -135,6 +136,24 @@ export class MessagingController {
         @Param('groupId') groupId: number
     ): Promise<GroupMembershipDto[]> {
         return await this.messagingService.getGroupMembers(req.user.id, Number(groupId));
+    }
+
+    @Get('groups/available-groups')
+    @ApiOperation({
+        summary: 'Récupérer les groupes disponibles',
+        description: 'Récupère la liste des groupes publics disponibles dans le quartier de l’utilisateur',
+    })
+    @ApiOkResponse({ description: 'Liste des groupes récupérée avec succès', type: [GroupDto] })
+    @ApiForbiddenResponse({ description: 'Utilisateur non membre du quartier' })
+    @ApiUnauthorizedResponse({ description: 'Token JWT manquant ou invalide' })
+    async getAvailableGroups(
+        @Request()
+        req: {
+            user: { id: number };
+        },
+        @Query() query: GetByNeighborhoodIdDto
+    ): Promise<GroupDto[]> {
+        return await this.messagingService.getAvailableGroups(req.user.id, Number(query.neighborhoodId));
     }
 
     // ========== MESSAGING ==========

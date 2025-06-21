@@ -102,4 +102,31 @@ export class GroupRepositoryImplementation extends GroupRepository {
     async delete(id: number): Promise<void> {
         await this.groupEntityRepository.delete(id);
     }
+
+    async findAvailableGroupsInNeighborhood(neighborhoodId: number, userId: number): Promise<Group[]> {
+        const queryBuilder = this.groupEntityRepository
+            .createQueryBuilder('group')
+            .leftJoin(
+                'group.memberships',
+                'userMembership',
+                'userMembership.userId = :userId AND userMembership.status = :activeStatus',
+                {
+                    userId,
+                    activeStatus: 'active',
+                }
+            )
+            .leftJoinAndSelect('group.messages', 'lastMessage')
+            .leftJoinAndSelect('lastMessage.user', 'messageUser')
+            .loadRelationCountAndMap('group.memberCount', 'group.memberships', 'membershipCount', (qb) =>
+                qb.where('membershipCount.status = :status', { status: 'active' })
+            )
+            .where('group.neighborhoodId = :neighborhoodId', { neighborhoodId })
+            .andWhere('group.type = :publicType', { publicType: GroupType.PUBLIC })
+            .andWhere('group.isPrivate = false')
+            .andWhere('userMembership.id IS NULL')
+            .orderBy('group.createdAt', 'DESC');
+
+        const entities = await queryBuilder.getMany();
+        return GroupAdapter.listEntityToDomain(entities);
+    }
 }
