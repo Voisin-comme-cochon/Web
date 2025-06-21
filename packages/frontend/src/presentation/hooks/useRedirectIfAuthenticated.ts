@@ -41,7 +41,7 @@ export const useRedirectIfAuthenticated = (minimumRole: Roles = Roles.USER) => {
                         setIsAuthenticated(true);
                     } catch (refreshError) {
                         console.error('Échec du refresh du token:', refreshError);
-                        localStorage.removeItem('jwt');
+
                         navigate('/login');
                         return;
                     }
@@ -56,6 +56,9 @@ export const useRedirectIfAuthenticated = (minimumRole: Roles = Roles.USER) => {
             } catch (error) {
                 console.error('Erreur lors du décodage du token:', error);
                 localStorage.removeItem('jwt');
+                localStorage.removeItem('page');
+                localStorage.removeItem('refresh_token');
+                localStorage.removeItem('neighborhoodId');
                 navigate('/login');
                 return;
             }

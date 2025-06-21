@@ -119,6 +119,8 @@ export async function logout() {
 
     localStorage.removeItem('jwt');
     localStorage.removeItem('refresh_token');
+    localStorage.removeItem('neighborhoodId');
+    localStorage.removeItem('page');
 }
 
 export async function refreshAccessToken(): Promise<AuthTokensModel> {
@@ -133,8 +135,6 @@ export async function refreshAccessToken(): Promise<AuthTokensModel> {
             refreshToken: localStorage.getItem('refresh_token') || '',
         }),
     });
-
-    console.log('Refresh token response:', response);
 
     if (!response.ok) throw new Error('Refresh token failed');
 

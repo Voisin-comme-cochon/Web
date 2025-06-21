@@ -1,5 +1,9 @@
 import { UserWithRole } from '../repository/neighborhood-user.repository.implementation';
-import { NeighborhoodUserEntity } from '../../../core/entities/neighborhood-user.entity';
+import {
+    NeighborhoodUserEntity,
+    NeighborhoodUserRole,
+    NeighborhoodUserStatus,
+} from '../../../core/entities/neighborhood-user.entity';
 import { Neighborhood } from './neighborhood.model';
 
 export abstract class NeighborhoodUserRepository {
@@ -9,7 +13,19 @@ export abstract class NeighborhoodUserRepository {
         limit?: number
     ): Promise<[UserWithRole[], number]>;
 
-    abstract getNeighborhoodsById(id: number): Promise<Neighborhood[]>;
+    abstract getUserInNeighborhood(neighborhoodId: number, userId: number): Promise<UserWithRole | null>;
+
+    abstract getUsersByRoleInNeighborhoodId(
+        neighborhoodId: number,
+        role: NeighborhoodUserRole
+    ): Promise<UserWithRole[] | null>;
+
+    abstract getUsersInNeighborhoodByStatus(
+        neighborhoodId: number,
+        status: NeighborhoodUserStatus
+    ): Promise<[UserWithRole[], number]>;
+
+    abstract getNeighborhoodsByUserId(id: number): Promise<Neighborhood[]>;
 
     abstract addUserToNeighborhood(neighborhoodUser: NeighborhoodUserEntity): Promise<NeighborhoodUserEntity>;
 }

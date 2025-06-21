@@ -15,12 +15,17 @@ import {
 } from '../../../core/entities/neighborhood-user.entity';
 import { isNotNull } from '../../../utils/tools';
 import { NeighborhoodStatusEntity } from '../../../core/entities/neighborhood-status.entity';
+import { MailerService } from '../../mailer/services/mailer.service';
+import { Templates } from '../../mailer/domain/templates.enum';
+import { UsersService } from '../../users/services/users.service';
 
 @Injectable()
 export class NeighborhoodService {
     constructor(
         private readonly neighborhoodRepository: NeighborhoodRepository,
-        private readonly objectStorageService: ObjectStorageService
+        private readonly objectStorageService: ObjectStorageService,
+        private readonly mailerService: MailerService,
+        private readonly userService: UsersService
     ) {}
 
     async getAllNeighborhoods(
@@ -75,10 +80,111 @@ export class NeighborhoodService {
         return this.neighborhoodRepository.createNeighborhood(neighborhood);
     }
 
-    async setNeighborhoodStatus(id: number, status: NeighborhoodStatusEntity): Promise<Neighborhood> {
+    async setNeighborhoodStatus(
+        id: number,
+        status: NeighborhoodStatusEntity,
+        reason: string | null
+    ): Promise<Neighborhood> {
+        const prevNeighborhood = await this.neighborhoodRepository.getNeighborhoodById(id);
+        if (!prevNeighborhood) {
+            throw new CochonError('neighborhood_not_found', 'Neighborhood not found', 404);
+        }
         const neighborhood = await this.neighborhoodRepository.setNeighborhoodStatus(id, status);
         if (!neighborhood) {
             throw new CochonError('neighborhood_not_found', 'Neighborhood not found', 404);
+        }
+
+        if (status === NeighborhoodStatusEntity.refused && (!reason || reason.trim() === '')) {
+            throw new CochonError('reason_required', 'Reason is required for refusing a neighborhood', 400);
+        }
+
+        const creators = neighborhood.neighborhood_users?.filter((user) => user.role == NeighborhoodUserRole.ADMIN);
+        if (neighborhood.neighborhood_users?.length == 0 || !creators || creators.length === 0) {
+            throw new CochonError('no_admin_found', 'No admin found for this neighborhood', 404);
+        }
+
+        if (
+            prevNeighborhood.status == NeighborhoodStatusEntity.accepted &&
+            neighborhood.status === NeighborhoodStatusEntity.refused
+        ) {
+            await Promise.all(
+                (neighborhood.neighborhood_users ?? []).map(async (creator) => {
+                    const user = await this.userService.getUserById(creator.userId);
+                    await this.mailerService.sendRawEmail({
+                        to: [user.email],
+                        subject: 'Quartier supprimé.',
+                        template: Templates.DELETE_NEIGHBORHOOD,
+                        context: {
+                            neighborhoodName: neighborhood.name,
+                            userName: user.firstName,
+                            supportEmail: process.env.VCC_SUPPORT_EMAIL,
+                            reason: reason,
+                        },
+                    });
+                })
+            );
+
+            return neighborhood;
+        }
+
+        if (
+            prevNeighborhood.status == NeighborhoodStatusEntity.refused &&
+            neighborhood.status === NeighborhoodStatusEntity.accepted
+        ) {
+            await Promise.all(
+                (neighborhood.neighborhood_users ?? []).map(async (creator) => {
+                    const user = await this.userService.getUserById(creator.userId);
+                    await this.mailerService.sendRawEmail({
+                        to: [user.email],
+                        subject: 'Quartier réouvert !',
+                        template: Templates.REOPENED_NEIGHBORHOOD,
+                        context: {
+                            neighborhoodName: neighborhood.name,
+                            userName: user.firstName,
+                            supportEmail: process.env.VCC_SUPPORT_EMAIL,
+                        },
+                    });
+                })
+            );
+
+            return neighborhood;
+        }
+
+        if (neighborhood.status === NeighborhoodStatusEntity.accepted) {
+            await Promise.all(
+                creators.map(async (creator) => {
+                    const user = await this.userService.getUserById(creator.userId);
+                    await this.mailerService.sendRawEmail({
+                        to: [user.email],
+                        subject: 'Demande de création de quartier acceptée !',
+                        template: Templates.ACCEPTED_NEIGHBORHOOD,
+                        context: {
+                            neighborhoodName: neighborhood.name,
+                            userName: user.firstName,
+                            supportEmail: process.env.VCC_SUPPORT_EMAIL,
+                        },
+                    });
+                })
+            );
+        }
+
+        if (neighborhood.status === NeighborhoodStatusEntity.refused) {
+            await Promise.all(
+                creators.map(async (creator) => {
+                    const user = await this.userService.getUserById(creator.userId);
+                    await this.mailerService.sendRawEmail({
+                        to: [user.email],
+                        subject: 'Demande de création de quartier refusée !',
+                        template: Templates.REFUSED_NEIGHBORHOOD,
+                        context: {
+                            neighborhoodName: neighborhood.name,
+                            userName: user.firstName,
+                            supportEmail: process.env.VCC_SUPPORT_EMAIL,
+                            reason: reason,
+                        },
+                    });
+                })
+            );
         }
         return neighborhood;
     }

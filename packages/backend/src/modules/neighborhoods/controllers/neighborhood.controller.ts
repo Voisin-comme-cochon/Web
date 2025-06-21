@@ -139,11 +139,11 @@ export class NeighborhoodController {
     @UseGuards(IsLoginGuard, IsSuperAdminGuard)
     @ApiBearerAuth()
     async setNeighborhoodStatus(
-        @Param('id') id: string,
-        @Query() query: SetStatusNeighborhoodDto
+        @Param('id') id: number,
+        @Query() query: SetStatusNeighborhoodDto,
+        @Body('reason') reason: string | null
     ): Promise<ResponseNeighborhoodDto> {
-        const numberId = parseInt(id, 10);
-        const neighborhood = await this.neighborhoodService.setNeighborhoodStatus(numberId, query.status);
+        const neighborhood = await this.neighborhoodService.setNeighborhoodStatus(id, query.status, reason);
 
         return NeighborhoodsAdapter.domainToDto(neighborhood);
     }
@@ -306,5 +306,21 @@ export class NeighborhoodController {
     })
     async getNeighborhoodsByUserId(@Param() params: GetNeiborhoodByUserIdDto): Promise<ResponseNeighborhoodDto[]> {
         return await this.neighborhoodUserService.getNeighborhoodsByUserId(params.userId);
+    }
+
+    @Post(':neighborhoodId/join')
+    @UseGuards(IsLoginGuard)
+    @ApiOperation({ summary: 'Join a neighborhood' })
+    @ApiOkResponse({
+        description: 'User has requested to join the neighborhood',
+    })
+    @ApiNotFoundResponse({
+        description: 'Neighborhood not found or user already in the neighborhood',
+    })
+    async joinNeighborhood(
+        @Param('neighborhoodId') neighborhoodId: number,
+        @Request() req: { user: { id: number } }
+    ): Promise<void> {
+        await this.neighborhoodUserService.joinNeighborhood(req.user.id, neighborhoodId);
     }
 }

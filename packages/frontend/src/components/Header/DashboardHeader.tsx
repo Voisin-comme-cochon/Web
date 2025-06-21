@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import logo from '@/assets/images/logoWebV1Light.webp';
-import AvatarComponent from '@/components/AvatarComponent/AvatarComponent';
 import ComboboxComponentNeighborhood from '@/components/ComboboxComponent/ComboboxComponentNeighborhood.tsx';
 import { FrontNeighborhood } from '@/domain/models/FrontNeighborhood.ts';
 import { UserModel } from '@/domain/models/user.model.ts';
@@ -12,12 +11,14 @@ import { jwtDecode } from 'jwt-decode';
 import { DecodedUser } from '@/domain/models/DecodedUser.ts';
 import { useAppNavigation } from '@/presentation/state/navigate.ts';
 import { TagRepository } from '@/infrastructure/repositories/TagRepository.ts';
+import UserMenu from '@/components/UserMenu/UserMenu.tsx';
 
 export default function DashboardHeader() {
     const [user, setUser] = useState<UserModel | null>(null);
     const [neighborhoods, setNeighborhoods] = useState<FrontNeighborhood[]>([]);
     const [loading, setLoading] = useState(true);
-    const { goMyNeighborhood, goNeighborhoodEvents, goNeighborhoodJournal, goNeighborhoodMat } = useAppNavigation();
+    const { goMyNeighborhood, goNeighborhoodEvents, goNeighborhoodJournal, goNeighborhoodMat, goJoinNeighborhood } =
+        useAppNavigation();
     const [page, setPage] = useState<string>('');
 
     useEffect(() => {
@@ -44,6 +45,9 @@ export default function DashboardHeader() {
 
                     const fetchedNeighborhoods = await uc.getMyNeighborhoods(fetchedUser.id);
                     setNeighborhoods(fetchedNeighborhoods);
+                    if (fetchedNeighborhoods.length === 0) {
+                        goJoinNeighborhood();
+                    }
                 } catch (error) {
                     console.error('Failed to fetch user or neighborhoods:', error);
                 }
@@ -98,7 +102,6 @@ export default function DashboardHeader() {
                         key={id}
                         className="flex flex-col items-center gap-1 cursor-pointer"
                         onClick={() => {
-                            console.log(path, page);
                             action();
                         }}
                     >
@@ -127,7 +130,7 @@ export default function DashboardHeader() {
                 {loading ? (
                     <div className="w-10 h-10 bg-gray-100 rounded-full animate-pulse" />
                 ) : (
-                    user && <AvatarComponent user={user} />
+                    user && <UserMenu user={user} />
                 )}
             </div>
         </header>

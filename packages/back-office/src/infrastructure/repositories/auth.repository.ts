@@ -35,8 +35,6 @@ export async function refreshAccessToken(): Promise<AuthTokensModel> {
         }),
     });
 
-    console.log('Refresh token response:', response);
-
     if (!response.ok) throw new Error('Refresh token failed');
 
     const data: AuthTokensModel = await response.json();
@@ -61,5 +59,7 @@ export async function logout() {
     if (!response.ok) throw new Error('Logout failed');
 
     localStorage.removeItem('jwt');
+    localStorage.removeItem('page');
     localStorage.removeItem('refresh_token');
+    localStorage.removeItem('neighborhoodId');
 }

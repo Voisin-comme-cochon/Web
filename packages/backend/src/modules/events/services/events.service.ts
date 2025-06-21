@@ -165,9 +165,6 @@ export class EventsService {
             throw new CochonError('neighborhood_not_found', 'Neighborhood not found', 404);
         }
 
-        console.log(createdBy);
-        console.log(neighborhood.neighborhood_users);
-
         if (
             neighborhood.neighborhood_users &&
             !neighborhood.neighborhood_users.some((member) => member.userId === createdBy)

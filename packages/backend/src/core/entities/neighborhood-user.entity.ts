@@ -5,6 +5,7 @@ import { UserEntity } from './user.entity';
 export enum NeighborhoodUserRole {
     ADMIN = 'admin',
     USER = 'user',
+    JOURNALIST = 'journalist',
 }
 
 export enum NeighborhoodUserStatus {

@@ -19,7 +19,7 @@ export async function getUsersByNeighborhood(id: string | number, page: number, 
     return await response.data;
 }
 
-export async function setNeighborhoodStatus(id: string | number, status: NeighborhoodStatusEnum): Promise<NeighborhoodModel> {
-    const response = await apiService.patch(`neighborhoods/${id}?status=${status}`);
+export async function setNeighborhoodStatus(id: string | number, status: NeighborhoodStatusEnum, reason: string): Promise<NeighborhoodModel> {
+    const response = await apiService.patch(`neighborhoods/${id}?status=${status}`, {reason});
     return await response.data;
 }

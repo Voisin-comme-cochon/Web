@@ -29,6 +29,32 @@ export class HomeUc {
         }
     }
 
+    async getNeighborhoodByPos(longitude: string, lagitude: string): Promise<FrontNeighborhood[]> {
+        try {
+            return await this.neighborhoodRepository.getNeighborhoodByPos(longitude, lagitude);
+        } catch (error) {
+            if (error instanceof Error) {
+                throw new Error(error.message);
+            }
+            throw new Error('Une erreur est survenue lors de la récupération du quartier');
+        }
+    }
+
+    async getUserLocation(userId: number) {
+        try {
+            const user = await this.userFrontRepository.getUserById(userId);
+            if (!user || !user.latitude || !user.longitude || user.latitude == '0' || user.longitude == '0') {
+                throw new Error('User location not found');
+            }
+            return [user.latitude, user.longitude];
+        } catch (e) {
+            if (e instanceof Error) {
+                throw new Error(e.message);
+            }
+            throw new Error('Une erreur est survenue lors de la récupération du quartier');
+        }
+    }
+
     async deleteEvent(eventId: number, reason: string): Promise<void> {
         try {
             await this.eventRepository.deleteEvent(eventId, reason);
@@ -143,6 +169,14 @@ export class HomeUc {
     async getEventsByUserId(): Promise<EventModel[]> {
         try {
             return await this.eventRepository.getEventsByUserId();
+        } catch (error) {
+            throw new Error((error as ApiGlobalError).response.data.message);
+        }
+    }
+
+    async joinNeighborhood(neighborhoodId: number): Promise<void> {
+        try {
+            await this.neighborhoodRepository.joinNeighborhood(neighborhoodId);
         } catch (error) {
             throw new Error((error as ApiGlobalError).response.data.message);
         }

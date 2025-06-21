@@ -7,7 +7,7 @@ import { useAppNavigation } from '@/presentation/state/navigate';
 import LandingHeader from '@/components/Header/LandingHeader.tsx';
 
 export default function LandingPage() {
-    const { goCreateNeighborhood } = useAppNavigation();
+    const { goSignin } = useAppNavigation();
 
     return (
         <div className="flex items-center justify-center flex-col w-full bg-background overflow-x-hidden">
@@ -27,8 +27,8 @@ export default function LandingPage() {
                     </div>
                     <img src={neighborhood} className="max-w-full h-auto" alt={"Illustration d'un quartier"} />
                 </div>
-                <Button onClick={() => goCreateNeighborhood} variant={'floatingOrange'}>
-                    CRÉER MON QUARTIER
+                <Button onClick={goSignin} variant={'floatingOrange'}>
+                    CRÉER MON COMPTE
                 </Button>
             </div>
             <div className={'h-lvh w-full bg-white flex justify-center items-center flex-col'} id={'why-vcc'}>

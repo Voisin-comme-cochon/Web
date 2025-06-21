@@ -1,0 +1,103 @@
+doctype html
+html(lang="fr")
+    head
+        meta(charset="UTF-8")
+        meta(name="viewport", content="width=device-width, initial-scale=1.0")
+        title Votre demande de création de quartier a été refusée
+        style.
+            body {
+                font-family: 'Montserrat', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                margin: 0;
+                padding: 0;
+                background-color: #f2f5f8;
+                color: #1a2a41;
+                line-height: 1.6;
+            }
+
+            .container {
+                max-width: 600px;
+                margin: 0 auto;
+                padding: 20px;
+                background-color: #ffffff;
+                border-radius: 8px;
+                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            }
+
+            .header {
+                text-align: center;
+                padding: 20px 0;
+            }
+
+            .logo {
+                max-width: 250px;
+                height: auto;
+            }
+
+            .content {
+                padding: 20px;
+            }
+
+            h1 {
+                color: #1a2a41;
+                font-size: 24px;
+                margin-bottom: 20px;
+                text-align: center;
+            }
+
+            p {
+                margin-bottom: 16px;
+                color: rgba(26, 42, 65, 0.8);
+            }
+
+            .highlight {
+                color: #e36f4c;
+                font-weight: 600;
+            }
+
+            .reason-box {
+                background-color: #fef1ee;
+                color: #d15e3b;
+                border-left: 4px solid #e36f4c;
+                padding: 12px;
+                margin: 20px 0;
+                border-radius: 4px;
+                font-style: italic;
+            }
+
+            .footer {
+                text-align: center;
+                padding: 20px;
+                color: rgba(26, 42, 65, 0.6);
+                font-size: 12px;
+                border-top: 1px solid #f2f5f8;
+                margin-top: 20px;
+            }
+
+            @media only screen and (max-width: 600px) {
+                .container {
+                    width: 100%;
+                    border-radius: 0;
+                }
+
+                .content {
+                    padding: 15px;
+                }
+            }
+    body
+        .container
+            .header
+                img.logo(src="https://res.cloudinary.com/dqa93fepx/image/upload/v1746350203/logoWebV1Light_qlz38l.webp" alt="VCC Logo")
+            .content
+                h1 Demande de création refusée
+                p Bonjour #{userName},
+                p Après analyse, votre demande de création du quartier <strong>#{neighborhoodName}</strong> n’a malheureusement pas été acceptée par notre équipe de modération.
+                p Voici la raison indiquée :
+                .reason-box
+                    | #{reason}
+                p Nous vous invitons à consulter les règles de création de quartier, à adapter votre demande si nécessaire, puis à la soumettre de nouveau.
+                p Pour toute question, vous pouvez nous contacter à :
+                p
+                    a(href="mailto:#{supportEmail}") #{supportEmail}
+            .footer
+                p Ce message a été envoyé automatiquement, merci de ne pas y répondre.
+                p &copy; 2025 Voisin comme Cochon. Ensemble, cultivons l'esprit de <span class="highlight">quartier</span>.

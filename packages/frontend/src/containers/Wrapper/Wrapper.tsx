@@ -29,3 +29,29 @@ export function withHeaderData<P>(
         return <WrappedComponent {...props} user={user} neighborhoodId={neighborhoodId} uc={uc} />;
     };
 }
+
+export function withHeaderDataOnlyUserCheck<P>(
+    WrappedComponent: React.ComponentType<
+        P & {
+            uc: HomeUc;
+            user: UserModel | null;
+        }
+    >
+) {
+    return function WithHeaderDataWrapper(props: P) {
+        const { user, uc } = useHeaderData();
+
+        if (!user) {
+            return (
+                <>
+                    <DashboardHeader />
+                    <div className="flex items-center justify-center h-[calc(100vh-64px)] flex-col">
+                        <p className="text-lg">Veuillez vous connecter pour continuer.</p>
+                    </div>
+                </>
+            );
+        }
+
+        return <WrappedComponent {...props} user={user} uc={uc} />;
+    };
+}

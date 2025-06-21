@@ -20,8 +20,6 @@ export function NeighborhoodMapForm({ onSubmit, onBack }: NeighborhoodMapFormPro
             return;
         }
 
-        console.log(selectedGeo);
-
         setError(null);
         setIsLoading(true);
 

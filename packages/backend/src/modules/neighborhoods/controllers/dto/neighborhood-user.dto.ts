@@ -5,7 +5,7 @@ export class ResponseNeighborhoodUserDto extends ResponseUserDto {
     @ApiProperty({
         description: "Le rôle de l'utilisateur dans le quartier",
         example: 'admin',
-        enum: ['admin', 'user'],
+        enum: ['admin', 'user', 'journalist'],
     })
     neighborhoodRole!: string;
 }

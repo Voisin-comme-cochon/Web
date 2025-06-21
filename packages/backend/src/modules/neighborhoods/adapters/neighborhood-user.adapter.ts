@@ -5,6 +5,8 @@ export class NeighborhoodUserAdapter {
                 return 'Admin';
             case 'user':
                 return 'Membre';
+            case 'journalist':
+                return 'Journaliste';
             default:
                 return 'Unknown Role';
         }
