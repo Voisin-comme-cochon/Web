@@ -62,7 +62,9 @@ export default function MemberManagePage({ uc, neighborhoodId }: Props) {
     const filtered = useMemo(
         () =>
             members.filter((m) =>
-                `${m.firstName} ${m.lastName} ${m.neighborhoodRole}`.toLowerCase().includes(search.toLowerCase())
+                `${m.firstName} ${m.lastName} ${getRoleText(m.neighborhoodRole)}`
+                    .toLowerCase()
+                    .includes(search.toLowerCase())
             ),
         [members, search]
     );
