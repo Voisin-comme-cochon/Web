@@ -39,9 +39,9 @@ export class NeighborhoodDetailsUseCase {
         }
     }
 
-    public async setNeighborhoodStatusUc(id: string | number, status: NeighborhoodStatusEnum): Promise<NeighborhoodModel> {
+    public async setNeighborhoodStatusUc(id: string | number, status: NeighborhoodStatusEnum, reason: string | null): Promise<NeighborhoodModel> {
         try {
-            return await setNeighborhoodStatus(id, status);
+            return await setNeighborhoodStatus(id, status, reason ?? "");
         } catch (error) {
             if (error instanceof ApiError) {
                 if ((error as ApiError).status === 400) {

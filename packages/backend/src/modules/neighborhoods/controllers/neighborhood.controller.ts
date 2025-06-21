@@ -139,11 +139,11 @@ export class NeighborhoodController {
     @UseGuards(IsLoginGuard, IsSuperAdminGuard)
     @ApiBearerAuth()
     async setNeighborhoodStatus(
-        @Param('id') id: string,
-        @Query() query: SetStatusNeighborhoodDto
+        @Param('id') id: number,
+        @Query() query: SetStatusNeighborhoodDto,
+        @Body('reason') reason: string | null
     ): Promise<ResponseNeighborhoodDto> {
-        const numberId = parseInt(id, 10);
-        const neighborhood = await this.neighborhoodService.setNeighborhoodStatus(numberId, query.status);
+        const neighborhood = await this.neighborhoodService.setNeighborhoodStatus(id, query.status, reason);
 
         return NeighborhoodsAdapter.domainToDto(neighborhood);
     }

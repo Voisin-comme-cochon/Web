@@ -63,9 +63,6 @@ export class EventRepository {
             },
         });
 
-        console.log('BJR ZIOAZOIA');
-        console.log(response);
-
         if (response.status !== 201) {
             throw new Error('Failed to create event');
         }

@@ -46,9 +46,13 @@ import { NeighborhoodUserRepositoryImplementation } from './repository/neighborh
         },
         {
             provide: NeighborhoodService,
-            inject: [NeighborhoodRepository, ObjectStorageService],
-            useFactory: (neighborhoodRepository: NeighborhoodRepository, objectStorageService: ObjectStorageService) =>
-                new NeighborhoodService(neighborhoodRepository, objectStorageService),
+            inject: [NeighborhoodRepository, ObjectStorageService, MailerService, UsersService],
+            useFactory: (
+                neighborhoodRepository: NeighborhoodRepository,
+                objectStorageService: ObjectStorageService,
+                mailerSerice: MailerService,
+                usersService: UsersService
+            ) => new NeighborhoodService(neighborhoodRepository, objectStorageService, mailerSerice, usersService),
         },
         {
             provide: NeighborhoodInvitationService,

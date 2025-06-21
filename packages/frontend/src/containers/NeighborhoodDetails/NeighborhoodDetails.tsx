@@ -44,7 +44,6 @@ export const NeighborhoodDetailsPage: React.FC = () => {
                     neighborhoodRole: user.neighborhoodRole,
                 }));
                 setNeighborhood(neighborhood);
-                console.log('Quartier récupéré:', neighborhood);
             } catch (err) {
                 console.error('Erreur fetch quartier:', err);
                 // eslint-disable-next-line @typescript-eslint/ban-ts-comment

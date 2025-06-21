@@ -35,8 +35,6 @@ export async function refreshAccessToken(): Promise<AuthTokensModel> {
         }),
     });
 
-    console.log('Refresh token response:', response);
-
     if (!response.ok) throw new Error('Refresh token failed');
 
     const data: AuthTokensModel = await response.json();

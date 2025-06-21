@@ -102,7 +102,6 @@ export default function DashboardHeader() {
                         key={id}
                         className="flex flex-col items-center gap-1 cursor-pointer"
                         onClick={() => {
-                            console.log(path, page);
                             action();
                         }}
                     >
