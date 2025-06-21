@@ -100,7 +100,7 @@ export class NeighborhoodUserRepositoryImplementation implements NeighborhoodUse
         };
     }
 
-    async getNeighborhoodsById(id: number): Promise<Neighborhood[]> {
+    async getNeighborhoodsByUserId(id: number): Promise<Neighborhood[]> {
         const neighborhoods = await this.dataSource
             .getRepository(NeighborhoodUserEntity)
             .createQueryBuilder('neighborhoodUser')
@@ -108,10 +108,14 @@ export class NeighborhoodUserRepositoryImplementation implements NeighborhoodUse
             .leftJoinAndSelect('neighborhood.images', 'images')
             .leftJoinAndSelect('neighborhood.neighborhood_users', 'neighborhood_users')
             .leftJoinAndSelect('neighborhood_users.user', 'user')
-            .where('neighborhoodUser.userId = :userId AND neighborhood.status = :status', {
-                userId: id,
-                status: 'accepted',
-            })
+            .where(
+                'neighborhoodUser.userId = :userId AND neighborhood.status = :status AND neighborhoodUser.status = :userStatus',
+                {
+                    userId: id,
+                    status: 'accepted',
+                    userStatus: 'accepted',
+                }
+            )
             .getMany();
 
         const neighborhoodsEntity = neighborhoods.map((neighborhoodUser) => neighborhoodUser.neighborhood);

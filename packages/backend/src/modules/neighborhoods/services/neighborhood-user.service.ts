@@ -59,7 +59,7 @@ export class NeighborhoodUserService {
     }
 
     async getNeighborhoodsByUserId(userId: number): Promise<Neighborhood[]> {
-        return await this.neighborhoodUserRepository.getNeighborhoodsById(userId);
+        return await this.neighborhoodUserRepository.getNeighborhoodsByUserId(userId);
     }
 
     async joinNeighborhood(userId: number, neighborhoodId: number) {

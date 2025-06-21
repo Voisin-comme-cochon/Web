@@ -17,7 +17,8 @@ export default function DashboardHeader() {
     const [user, setUser] = useState<UserModel | null>(null);
     const [neighborhoods, setNeighborhoods] = useState<FrontNeighborhood[]>([]);
     const [loading, setLoading] = useState(true);
-    const { goMyNeighborhood, goNeighborhoodEvents, goNeighborhoodJournal, goNeighborhoodMat } = useAppNavigation();
+    const { goMyNeighborhood, goNeighborhoodEvents, goNeighborhoodJournal, goNeighborhoodMat, goJoinNeighborhood } =
+        useAppNavigation();
     const [page, setPage] = useState<string>('');
 
     useEffect(() => {
@@ -44,6 +45,9 @@ export default function DashboardHeader() {
 
                     const fetchedNeighborhoods = await uc.getMyNeighborhoods(fetchedUser.id);
                     setNeighborhoods(fetchedNeighborhoods);
+                    if (fetchedNeighborhoods.length === 0) {
+                        goJoinNeighborhood();
+                    }
                 } catch (error) {
                     console.error('Failed to fetch user or neighborhoods:', error);
                 }

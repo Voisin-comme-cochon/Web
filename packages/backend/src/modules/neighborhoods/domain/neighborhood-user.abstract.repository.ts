@@ -25,7 +25,7 @@ export abstract class NeighborhoodUserRepository {
         status: NeighborhoodUserStatus
     ): Promise<[UserWithRole[], number]>;
 
-    abstract getNeighborhoodsById(id: number): Promise<Neighborhood[]>;
+    abstract getNeighborhoodsByUserId(id: number): Promise<Neighborhood[]>;
 
     abstract addUserToNeighborhood(neighborhoodUser: NeighborhoodUserEntity): Promise<NeighborhoodUserEntity>;
 }
