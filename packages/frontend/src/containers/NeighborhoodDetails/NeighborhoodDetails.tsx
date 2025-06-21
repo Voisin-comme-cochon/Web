@@ -12,6 +12,7 @@ import { NeighborhoodFrontRepository } from '@/infrastructure/repositories/Neigh
 import { InviteTab } from '@/containers/NeighborhoodInvitation/NeighborhoodInvitation.tsx';
 import { NeighborhoodUserModel } from '@/domain/models/NeighborhoodUser.model.ts';
 import MinimalHeader from '@/components/Header/MinimalHeader.tsx';
+import { AxiosError } from 'axios';
 
 export const NeighborhoodDetailsPage: React.FC = () => {
     const { neighborhoodId } = useParams<{ neighborhoodId: string }>();
@@ -46,7 +47,9 @@ export const NeighborhoodDetailsPage: React.FC = () => {
                 console.log('Quartier récupéré:', neighborhood);
             } catch (err) {
                 console.error('Erreur fetch quartier:', err);
-                setError('Erreur lors de la récupération des données.');
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                // @ts-expect-error
+                setError((err as AxiosError).response?.data?.message || 'Erreur lors de la récupération du quartier.');
             } finally {
                 setLoading(false);
             }
