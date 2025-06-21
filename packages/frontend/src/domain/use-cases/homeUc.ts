@@ -85,6 +85,23 @@ export class HomeUc {
         }
     }
 
+    async isUserAdminOfNeighborhood(userId: number, neighborhoodId: number | string): Promise<boolean> {
+        try {
+            const users = await this.neighborhoodRepository.getUsersInNeighborhood(neighborhoodId);
+            const user = users.find((user) => user.id === userId);
+            if (!user) {
+                throw new Error('Utilisateur non trouvé dans le quartier');
+            }
+            console.log('User neighborhood role:', user.neighborhoodRole);
+            return user.neighborhoodRole === 'admin';
+        } catch (error) {
+            if (error instanceof Error) {
+                throw new Error(error.message);
+            }
+            throw new Error("Une erreur est survenue lors de la vérification du statut d'administrateur");
+        }
+    }
+
     async getNeighborhoodEvents(neighborhoodId: number, limit: number, page: number): Promise<EventModel[]> {
         try {
             return await this.eventRepository.getNeighborhoodEvents(neighborhoodId, limit, page);

@@ -17,14 +17,22 @@ export default function DashboardHeader() {
     const [user, setUser] = useState<UserModel | null>(null);
     const [neighborhoods, setNeighborhoods] = useState<FrontNeighborhood[]>([]);
     const [loading, setLoading] = useState(true);
-    const { goMyNeighborhood, goNeighborhoodEvents, goNeighborhoodJournal, goNeighborhoodMat, goJoinNeighborhood } =
-        useAppNavigation();
+    const [isAdmin, setIsAdmin] = useState(false);
+
+    const {
+        goMyNeighborhood,
+        goNeighborhoodEvents,
+        goNeighborhoodJournal,
+        goNeighborhoodMat,
+        goJoinNeighborhood,
+        goManageNeighborhood,
+    } = useAppNavigation();
+
     const [page, setPage] = useState<string>('');
 
     useEffect(() => {
         const page = window.location.href.split('/')[3] || '';
-        const cleanedPage = page.split('?')[0];
-        setPage(cleanedPage);
+        setPage(page.split('?')[0]);
     }, []);
 
     useEffect(() => {
@@ -45,11 +53,22 @@ export default function DashboardHeader() {
 
                     const fetchedNeighborhoods = await uc.getMyNeighborhoods(fetchedUser.id);
                     setNeighborhoods(fetchedNeighborhoods);
+
                     if (fetchedNeighborhoods.length === 0) {
                         goJoinNeighborhood();
+                        setLoading(false);
+                        return;
+                    }
+
+                    const currentNb = localStorage.getItem('neighborhoodId');
+                    if (currentNb) {
+                        const isAdmin = await uc.isUserAdminOfNeighborhood(fetchedUser.id, currentNb);
+                        setIsAdmin(isAdmin);
+                    } else {
+                        setIsAdmin(false);
                     }
                 } catch (error) {
-                    console.error('Failed to fetch user or neighborhoods:', error);
+                    console.error('Failed to fetch user or neighborhoods or admin status:', error);
                 }
             }
             setLoading(false);
@@ -61,6 +80,47 @@ export default function DashboardHeader() {
         window.location.reload();
     };
 
+    const menuItems = [
+        {
+            id: 1,
+            icon: 'apartment',
+            label: 'Mon quartier',
+            action: goMyNeighborhood,
+            path: ['my-neighborhood'],
+        },
+        {
+            id: 2,
+            icon: 'calendar_today',
+            label: 'Événements',
+            action: goNeighborhoodEvents,
+            path: ['neighborhood-events', 'events'],
+        },
+        {
+            id: 3,
+            icon: 'newsmode',
+            label: 'Journal',
+            action: goNeighborhoodJournal,
+            path: ['neighborhood-journal'],
+        },
+        {
+            id: 4,
+            icon: 'emoji_objects',
+            label: 'Matériel',
+            action: goNeighborhoodMat,
+            path: ['neighborhood-materials'],
+        },
+    ];
+
+    if (isAdmin) {
+        menuItems.push({
+            id: 5,
+            icon: 'settings',
+            label: 'Gérer le quartier',
+            action: goManageNeighborhood,
+            path: ['neighborhood-manage', 'manage'],
+        });
+    }
+
     return (
         <header className="relative flex items-center w-full px-4 bg-white h-[64px] border-b-2 border-gray-200">
             <div className="flex items-center justify-start min-w-[150px]">
@@ -68,43 +128,8 @@ export default function DashboardHeader() {
             </div>
 
             <div className="absolute left-1/2 transform -translate-x-1/2 flex gap-8">
-                {[
-                    {
-                        id: 1,
-                        icon: 'apartment',
-                        label: 'Mon quartier',
-                        action: goMyNeighborhood,
-                        path: ['my-neighborhood'],
-                    },
-                    {
-                        id: 2,
-                        icon: 'calendar_today',
-                        label: 'Événements',
-                        action: goNeighborhoodEvents,
-                        path: ['neighborhood-events', 'events'],
-                    },
-                    {
-                        id: 3,
-                        icon: 'newsmode',
-                        label: 'Journal',
-                        action: goNeighborhoodJournal,
-                        path: ['neighborhood-journal'],
-                    },
-                    {
-                        id: 4,
-                        icon: 'emoji_objects',
-                        label: 'Matériel',
-                        action: goNeighborhoodMat,
-                        path: ['neighborhood-materials'],
-                    },
-                ].map(({ id, icon, label, action, path }) => (
-                    <div
-                        key={id}
-                        className="flex flex-col items-center gap-1 cursor-pointer"
-                        onClick={() => {
-                            action();
-                        }}
-                    >
+                {menuItems.map(({ id, icon, label, action, path }) => (
+                    <div key={id} className="flex flex-col items-center gap-1 cursor-pointer" onClick={() => action()}>
                         <span
                             className={`material-symbols-outlined ${
                                 path.includes(page) ? 'text-black' : 'text-gray-400'
@@ -119,7 +144,6 @@ export default function DashboardHeader() {
 
             <div className="flex items-center justify-end min-w-[200px] gap-4 ml-auto">
                 {loading ? (
-                    // Squelette loader simple
                     <div className="w-[200px] h-10 bg-gray-100 rounded animate-pulse" />
                 ) : (
                     <ComboboxComponentNeighborhood
