@@ -30,6 +30,18 @@ export class HomeUc {
         }
     }
 
+    async generateInviteLink(neighborhoodId: number, duration: number, maxUses: number): Promise<string> {
+        try {
+            const response = await this.neighborhoodRepository.generateInviteLink(neighborhoodId, duration, maxUses);
+            return response.invitationLink;
+        } catch (error) {
+            if (error instanceof Error) {
+                throw new Error(error.message);
+            }
+            throw new Error("Une erreur est survenue lors de la génération du lien d'invitation");
+        }
+    }
+
     async getNeighborhoodMembers(neighborhoodId: number): Promise<NeighborhoodUserModel[]> {
         try {
             return await this.neighborhoodRepository.getUsersInNeighborhood(neighborhoodId);

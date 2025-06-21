@@ -4,6 +4,7 @@ import type { NeighborhoodFormValues } from '@/containers/Neighborhood/neighborh
 import type { CreateMultipleInvitationsInput } from '@/domain/models/NeighborhoodInvitation';
 import { PaginatedResultModel } from '@/domain/models/paginated-result.model.ts';
 import { NeighborhoodUserModel } from '@/domain/models/NeighborhoodUser.model.ts';
+import { InvitationModel } from '@/domain/models/invitation.model.ts';
 
 export class NeighborhoodFrontRepository {
     async getAcceptedNeighborhoods(): Promise<FrontNeighborhood[]> {
@@ -14,6 +15,15 @@ export class NeighborhoodFrontRepository {
 
     async getMyNeighborhoods(id: string | number): Promise<FrontNeighborhood[]> {
         const response = await ApiService.get(`/neighborhoods/users/${id}`);
+        return response.data;
+    }
+
+    async generateInviteLink(neighborhoodId: number, duration: number, maxUses: number): Promise<InvitationModel> {
+        const response = await ApiService.post<InvitationModel>(`/neighborhoods/invitations/public`, {
+            durationInDays: duration,
+            maxUse: maxUses,
+            neighborhoodId: neighborhoodId,
+        });
         return response.data;
     }
 
