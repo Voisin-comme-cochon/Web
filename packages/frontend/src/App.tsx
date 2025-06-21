@@ -33,7 +33,7 @@ export default function App() {
                 <Route path="/events/create" element={<CreateEventPage />} />
                 <Route path="/join-neighborhoods" element={<JoinNeighborhood />} />
                 <Route path={'/neighborhood/details/:neighborhoodId'} element={<NeighborhoodDetails />} />
-                <Route path={'/neighborhoods/manage'} element={<ManageNeighborhood />} />
+                <Route path={'/neighborhood-manage'} element={<ManageNeighborhood />} />
             </Routes>
         </Router>
     );

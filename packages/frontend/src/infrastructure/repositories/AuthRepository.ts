@@ -1,4 +1,3 @@
-// src/infrastructure/repositories/AuthRepository.ts
 import ApiService from '@/infrastructure/api/ApiService.ts';
 import { ApiError } from '@/shared/errors/ApiError';
 import { AuthTokensModel } from '@/domain/models/auth-tokens.model.ts';

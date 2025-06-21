@@ -19,7 +19,7 @@ export const useAppNavigation = () => {
     const goNeighborhoodDetails = (neighborhoodId: string | number) => {
         navigate(`/neighborhood/details/${neighborhoodId}`);
     };
-    const goManageNeighborhood = () => navigate('/neighborhoods/manage');
+    const goManageNeighborhood = () => navigate('/neighborhood-manage');
 
     return {
         goLogin,

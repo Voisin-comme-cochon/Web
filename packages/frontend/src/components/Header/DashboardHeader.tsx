@@ -117,7 +117,7 @@ export default function DashboardHeader() {
             icon: 'settings',
             label: 'Gérer le quartier',
             action: goManageNeighborhood,
-            path: ['neighborhood-manage', 'manage'],
+            path: ['neighborhood-manage'],
         });
     }
 
