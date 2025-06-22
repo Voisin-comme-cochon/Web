@@ -5,22 +5,13 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/presentation/hooks/useToast.ts';
-import {
-    Dialog,
-    DialogClose,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
-} from '@/components/ui/dialog';
-import { Copy, Eye, Link as LinkIcon, Trash2 } from 'lucide-react';
+import { Eye, Trash2 } from 'lucide-react';
 import { NeighborhoodMemberManageModel } from '@/domain/models/NeighborhoodUser.model.ts';
 import { Roles } from '@/domain/models/Roles.ts';
 import { UserStatus } from '@/domain/models/UserStatus.ts';
 import { getRoleText, getStatusText } from '@/shared/utils/get-enum-values.ts';
 import { ApiError } from '@/shared/errors/ApiError.ts';
+import { InvitationDialog } from '@/components/InvitationDialog/InvitationDialog.tsx';
 
 type Props = {
     uc: HomeUc;
@@ -33,9 +24,6 @@ export default function MemberManagePage({ uc, neighborhoodId }: Props) {
     const [search, setSearch] = useState<string>('');
     const [currentPage, setCurrentPage] = useState<number>(1);
     const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
-    const [duration, setDuration] = useState<number>(7);
-    const [maxUses, setMaxUses] = useState<number>(1);
-    const [inviteLink, setInviteLink] = useState<string>('');
     const { showSuccess, showError } = useToast();
 
     const itemsPerPage = 10;
@@ -98,18 +86,6 @@ export default function MemberManagePage({ uc, neighborhoodId }: Props) {
         }
     };
 
-    const generateLink = async () => {
-        const link = await uc.generateInviteLink(neighborhoodId, duration, maxUses);
-        setInviteLink(link);
-        showSuccess('Lien généré avec succès !');
-    };
-
-    const copyToClipboard = () => {
-        navigator.clipboard.writeText(inviteLink).then(() => {
-            showSuccess('Lien copié dans le presse-papier !');
-        });
-    };
-
     const handleRoleChange = async (userId: number, newRole: Roles) => {
         try {
             await uc.updateNeighborhoodMemberRole(neighborhoodId, userId, newRole);
@@ -144,67 +120,12 @@ export default function MemberManagePage({ uc, neighborhoodId }: Props) {
                         className="max-w-xs"
                     />
                     <div className="flex space-x-2">
-                        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                            <DialogTrigger asChild>
-                                <Button variant="orange" size="sm" className="flex items-center">
-                                    <LinkIcon className="mr-2 h-4 w-4" /> Inviter des membres
-                                </Button>
-                            </DialogTrigger>
-                            <DialogContent>
-                                <DialogHeader>
-                                    <DialogTitle>Inviter des membres</DialogTitle>
-                                    <DialogDescription>
-                                        Renseignez la durée de validité du lien (en jours) et le nombre maximum
-                                        d'utilisations.
-                                    </DialogDescription>
-                                </DialogHeader>
-                                <div className="space-y-4">
-                                    <div>
-                                        <label className="block text-sm font-medium mb-1">Durée (jours)</label>
-                                        <Input
-                                            type="number"
-                                            value={duration}
-                                            onChange={(e) => setDuration(Number(e.target.value))}
-                                            min={1}
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium mb-1">
-                                            Nombre max d'utilisations
-                                        </label>
-                                        <Input
-                                            type="number"
-                                            value={maxUses}
-                                            onChange={(e) => setMaxUses(Number(e.target.value))}
-                                            min={1}
-                                        />
-                                    </div>
-
-                                    {inviteLink && (
-                                        <div className="mt-2 flex items-center space-x-2 bg-gray-100 p-3 rounded-lg">
-                                            <Input value={inviteLink} readOnly className="flex-1 bg-white" />
-                                            <Button
-                                                variant="outline"
-                                                size="sm"
-                                                onClick={copyToClipboard}
-                                                className="flex items-center space-x-1"
-                                            >
-                                                <Copy className="h-4 w-4" />
-                                                <span>Copier</span>
-                                            </Button>
-                                        </div>
-                                    )}
-                                </div>
-                                <DialogFooter>
-                                    <DialogClose asChild>
-                                        <Button variant="outline">Annuler</Button>
-                                    </DialogClose>
-                                    <Button onClick={generateLink} variant="orange">
-                                        Générer le lien
-                                    </Button>
-                                </DialogFooter>
-                            </DialogContent>
-                        </Dialog>
+                        <InvitationDialog
+                            isDialogOpen={isDialogOpen}
+                            setIsDialogOpen={setIsDialogOpen}
+                            uc={uc}
+                            neighborhoodId={neighborhoodId}
+                        />
 
                         <Button
                             variant="destructive"
