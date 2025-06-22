@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Search, Plus, Lock, Globe, X } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
@@ -14,51 +14,85 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Textarea } from '@/components/ui/textarea';
+import { UserSummaryModel } from '@/domain/models/messaging.model';
+import { MessagingUc } from '@/domain/use-cases/messagingUc';
+import { MessagingRepository } from '@/infrastructure/repositories/MessagingRepository';
 
 type User = {
-    id: string;
+    id: number;
     name: string;
-    avatar: string;
-    online: boolean;
+    avatar?: string;
+    online?: boolean;
 };
-
-const suggestedUsers: User[] = [
-    { id: '1', name: 'Marie Dupont', avatar: '/placeholder.svg?height=40&width=40', online: true },
-    { id: '2', name: 'Thomas Martin', avatar: '/placeholder.svg?height=40&width=40', online: false },
-    { id: '3', name: 'Sophie Bernard', avatar: '/placeholder.svg?height=40&width=40', online: true },
-    { id: '4', name: 'Lucas Petit', avatar: '/placeholder.svg?height=40&width=40', online: false },
-    { id: '6', name: 'Émilie Rousseau', avatar: '/placeholder.svg?height=40&width=40', online: true },
-    { id: '7', name: 'Antoine Lefevre', avatar: '/placeholder.svg?height=40&width=40', online: false },
-    { id: '8', name: 'Camille Dubois', avatar: '/placeholder.svg?height=40&width=40', online: true },
-];
 
 export function CreateGroupDialog({
     open,
     onOpenChange,
     onCreateGroup,
+    neighborhoodId,
 }: {
     open: boolean;
     onOpenChange: (open: boolean) => void;
-    onCreateGroup: (group: { id: string; name: string; description: string; type: 'public' | 'private'; members: User[]; avatar: string }) => void;
+    onCreateGroup: (group: {
+        id: string;
+        name: string;
+        description: string;
+        type: 'public' | 'private';
+        members: User[];
+        avatar: string;
+    }) => void;
+    neighborhoodId?: number;
 }) {
     const [groupName, setGroupName] = useState('');
     const [groupDescription, setGroupDescription] = useState('');
     const [groupType, setGroupType] = useState('public');
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedMembers, setSelectedMembers] = useState<User[]>([]);
+    const [searchResults, setSearchResults] = useState<User[]>([]);
+    const [isSearching, setIsSearching] = useState(false);
 
-    const filteredUsers = suggestedUsers.filter(
-        (user) =>
-            user.name.toLowerCase().includes(searchQuery.toLowerCase()) &&
-            !selectedMembers.some((member) => member.id === user.id)
-    );
+    // Instance du use case pour la recherche
+    const messagingUc = useMemo(() => new MessagingUc(new MessagingRepository()), []);
+
+    // Recherche d'utilisateurs
+    useEffect(() => {
+        const searchUsers = async () => {
+            if (!neighborhoodId || !searchQuery.trim() || searchQuery.length < 2) {
+                setSearchResults([]);
+                return;
+            }
+
+            setIsSearching(true);
+            try {
+                const users = await messagingUc.searchUsers(neighborhoodId, searchQuery);
+                // Convertir UserSummaryModel vers User et filtrer les membres déjà sélectionnés
+                const convertedUsers: User[] = users
+                    .filter(user => !selectedMembers.some(member => member.id === user.id))
+                    .map(user => ({
+                        id: user.id,
+                        name: `${user.firstName} ${user.lastName}`,
+                        avatar: user.avatarUrl,
+                        online: user.online || false
+                    }));
+                setSearchResults(convertedUsers);
+            } catch (error) {
+                console.error('Erreur lors de la recherche d\'utilisateurs:', error);
+                setSearchResults([]);
+            } finally {
+                setIsSearching(false);
+            }
+        };
+
+        const timeoutId = setTimeout(searchUsers, 300); // Debounce de 300ms
+        return () => clearTimeout(timeoutId);
+    }, [searchQuery, neighborhoodId, selectedMembers, messagingUc]);
 
     const handleAddMember = (user: User) => {
         setSelectedMembers([...selectedMembers, user]);
         setSearchQuery('');
     };
 
-    const handleRemoveMember = (userId: string) => {
+    const handleRemoveMember = (userId: number) => {
         setSelectedMembers(selectedMembers.filter((member) => member.id !== userId));
     };
 
@@ -109,7 +143,7 @@ export function CreateGroupDialog({
                     </div>
                     <div className="space-y-2">
                         <Label htmlFor="description" className="text-primary">
-                            Description (optionnelle)
+                            Description
                         </Label>
                         <Textarea
                             id="description"
@@ -184,10 +218,15 @@ export function CreateGroupDialog({
                             </div>
                         )}
 
-                        {/* Suggested Users */}
-                        {searchQuery && filteredUsers.length > 0 && (
+                        {/* Search Results */}
+                        {searchQuery && searchQuery.length >= 2 && (
                             <div className="mt-2 border border-border rounded-md max-h-40 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
-                                {filteredUsers.map((user) => (
+                                {isSearching ? (
+                                    <div className="p-3 text-center text-muted-foreground text-sm">
+                                        Recherche en cours...
+                                    </div>
+                                ) : searchResults.length > 0 ? (
+                                    searchResults.map((user) => (
                                     <div
                                         key={user.id}
                                         onClick={() => handleAddMember(user)}
@@ -206,7 +245,18 @@ export function CreateGroupDialog({
                                         <span className="text-sm text-primary">{user.name}</span>
                                         <Plus size={16} className="ml-auto text-orange" />
                                     </div>
-                                ))}
+                                    ))
+                                ) : (
+                                    <div className="p-3 text-center text-muted-foreground text-sm">
+                                        Aucun utilisateur trouvé
+                                    </div>
+                                )}
+                            </div>
+                        )}
+                        
+                        {searchQuery && searchQuery.length > 0 && searchQuery.length < 2 && (
+                            <div className="mt-2 p-2 text-xs text-muted-foreground">
+                                Tapez au moins 2 caractères pour rechercher
                             </div>
                         )}
                     </div>

@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { MessageSquare, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import ChatPanel from './chat-panel';
 import { cn } from '@/lib/utils';
+import ChatPanelWithApi from '@/components/Messaging/chat-panel-with-api.tsx';
 
 export default function ChatButton() {
     const [isOpen, setIsOpen] = useState(false);
@@ -27,7 +27,7 @@ export default function ChatButton() {
                     isOpen ? 'scale-100 opacity-100' : 'scale-95 opacity-0 pointer-events-none'
                 )}
             >
-                <ChatPanel onClose={() => setIsOpen(false)} />
+                <ChatPanelWithApi onClose={() => setIsOpen(false)} />
             </div>
         </>
     );

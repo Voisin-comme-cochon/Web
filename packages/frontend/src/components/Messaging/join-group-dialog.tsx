@@ -73,18 +73,23 @@ export function JoinGroupDialog({
     open,
     onOpenChange,
     onJoinGroup,
+    availableGroups,
+    loading,
 }: {
     open: boolean;
     onOpenChange: (open: boolean) => void;
     onJoinGroup: (group: Group) => void;
+    availableGroups?: Group[];
+    loading?: boolean;
 }) {
     const [searchQuery, setSearchQuery] = useState('');
     const [activeTab, setActiveTab] = useState('discover');
 
-    const filteredPublicGroups = publicGroups.filter(
+    const groupsToFilter = availableGroups || publicGroups;
+    const filteredPublicGroups = groupsToFilter.filter(
         (group) =>
             group.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            group.description.toLowerCase().includes(searchQuery.toLowerCase())
+            (group.description && group.description.toLowerCase().includes(searchQuery.toLowerCase()))
     );
 
     const handleJoinGroup = (group: Group) => {
@@ -125,7 +130,11 @@ export function JoinGroupDialog({
                         </div>
 
                         <div className="space-y-2 max-h-[300px] overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
-                            {filteredPublicGroups.length > 0 ? (
+                            {loading ? (
+                                <div className="text-center py-8 text-muted-foreground">
+                                    Chargement des groupes...
+                                </div>
+                            ) : filteredPublicGroups.length > 0 ? (
                                 filteredPublicGroups.map((group) => (
                                     <div
                                         key={group.id}
