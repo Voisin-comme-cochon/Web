@@ -115,7 +115,7 @@ export default function DashboardHeader() {
         menuItems.push({
             id: 5,
             icon: 'settings',
-            label: 'Gérer le quartier',
+            label: 'Gestion',
             action: goManageNeighborhood,
             path: ['neighborhood-manage'],
         });

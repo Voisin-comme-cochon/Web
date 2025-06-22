@@ -269,4 +269,15 @@ export class HomeUc {
             throw new Error((error as ApiGlobalError).response.data.message);
         }
     }
+
+    async getNeighborhoodById(neighborhoodId: number): Promise<FrontNeighborhood> {
+        try {
+            return await this.neighborhoodRepository.getNeighborhoodById(neighborhoodId);
+        } catch (error) {
+            if (error instanceof Error) {
+                throw new Error(error.message);
+            }
+            throw new Error('Une erreur est survenue lors de la récupération du quartier');
+        }
+    }
 }
