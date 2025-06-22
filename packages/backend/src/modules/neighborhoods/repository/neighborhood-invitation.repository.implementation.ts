@@ -1,6 +1,6 @@
-import { DataSource } from 'typeorm';
+import { DataSource, MoreThanOrEqual } from 'typeorm';
 import { NeighborhoodInvitationRepository } from '../domain/neighborhood-invitation.abstract.repository';
-import { NeighborhoodInvitationCreation, NeighborhoodInvitation } from '../domain/neighborhood-invitation.model';
+import { NeighborhoodInvitation, NeighborhoodInvitationCreation } from '../domain/neighborhood-invitation.model';
 import { NeighborhoodInvitationEntity } from '../../../core/entities/neighborhood-invitation.entity';
 import { NeighborhoodsInvitationAdapter } from '../adapters/neighborhood-invitation.adapter';
 import { isNull } from '../../../utils/tools';
@@ -36,5 +36,17 @@ export class NeighborhoodInvitationRepositoryImplementation implements Neighborh
 
         invitation.currentUse += 1;
         await invitationRepository.save(invitation);
+    }
+
+    async getInvitationsByNeighborhoodId(neighborhoodId: number): Promise<NeighborhoodInvitation[]> {
+        const invitations = await this.dataSource.getRepository(NeighborhoodInvitationEntity).find({
+            where: { neighborhoodId, expiredAt: MoreThanOrEqual(new Date()) },
+        });
+
+        if (invitations.length === 0) {
+            return [];
+        }
+
+        return invitations.map((invitation) => NeighborhoodsInvitationAdapter.entityToDomain(invitation));
     }
 }

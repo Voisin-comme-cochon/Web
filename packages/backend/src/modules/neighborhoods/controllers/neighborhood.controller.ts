@@ -34,6 +34,7 @@ import { NeighborhoodUserService } from '../services/neighborhood-user.service';
 import { isNull } from '../../../utils/tools';
 import { UserAdapter } from '../../users/adapters/user.adapter';
 import { NeighborhoodUserEntity } from '../../../core/entities/neighborhood-user.entity';
+import { NeighborhoodInvitation } from '../domain/neighborhood-invitation.model';
 import {
     CreateMultipleNeighborhoodInvitationsDto,
     CreatePublicNeighborhoodInvitationDto,
@@ -401,5 +402,20 @@ export class NeighborhoodController {
         }
 
         return users;
+    }
+
+    @Get(':neighborhoodId/invitations')
+    @UseGuards(IsLoginGuard)
+    @ApiOperation({ summary: 'Get all invitations for a neighborhood' })
+    @ApiOkResponse({
+        description: 'Invitations found for the neighborhood',
+    })
+    @ApiNotFoundResponse({
+        description: 'Neighborhood not found or no invitations found',
+    })
+    async getInvitationsByNeighborhoodId(
+        @Param('neighborhoodId') neighborhoodId: number
+    ): Promise<NeighborhoodInvitation[]> {
+        return this.neighborhoodInvitationService.getInvitationsByNeighborhoodId(neighborhoodId);
     }
 }

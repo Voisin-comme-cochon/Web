@@ -6,4 +6,6 @@ export abstract class NeighborhoodInvitationRepository {
     abstract findInvitationByToken(token: string): Promise<NeighborhoodInvitation | null>;
 
     abstract incrementInvitationUsage(token: string): Promise<void>;
+
+    abstract getInvitationsByNeighborhoodId(neighborhoodId: number): Promise<NeighborhoodInvitation[]>;
 }
