@@ -3,8 +3,10 @@ import { FrontNeighborhood } from '@/domain/models/FrontNeighborhood.ts';
 import type { NeighborhoodFormValues } from '@/containers/Neighborhood/neighborhood.schema';
 import type { CreateMultipleInvitationsInput } from '@/domain/models/NeighborhoodInvitation';
 import { PaginatedResultModel } from '@/domain/models/paginated-result.model.ts';
-import { NeighborhoodUserModel } from '@/domain/models/NeighborhoodUser.model.ts';
+import { NeighborhoodMemberManageModel, NeighborhoodUserModel } from '@/domain/models/NeighborhoodUser.model.ts';
 import { InvitationModel } from '@/domain/models/invitation.model.ts';
+import { Roles } from '@/domain/models/Roles.ts';
+import { UserStatus } from '@/domain/models/UserStatus.ts';
 
 export class NeighborhoodFrontRepository {
     async getAcceptedNeighborhoods(): Promise<FrontNeighborhood[]> {
@@ -32,9 +34,9 @@ export class NeighborhoodFrontRepository {
         return response.data.data;
     }
 
-    async getUsersInNeighborhood(neighborhoodId: string | number): Promise<NeighborhoodUserModel[]> {
-        const response = await ApiService.get(`/neighborhoods/${neighborhoodId}/users?page=1&limit=2000`);
-        return response.data.data;
+    async getUsersInNeighborhood(neighborhoodId: string | number): Promise<NeighborhoodMemberManageModel[]> {
+        const response = await ApiService.get(`/neighborhoods/${neighborhoodId}/manage-users`);
+        return response.data;
     }
 
     async createNeighborhood(data: NeighborhoodFormValues): Promise<FrontNeighborhood> {
@@ -86,5 +88,13 @@ export class NeighborhoodFrontRepository {
 
     async removeUserFromNeighborhood(neighborhoodId: number, userId: number): Promise<void> {
         return await ApiService.delete(`/neighborhoods/${neighborhoodId}/users/${userId}`);
+    }
+
+    async updateNeighborhoodMemberRole(neighborhoodId: number, userId: number, role: Roles): Promise<void> {
+        return await ApiService.patch(`/neighborhoods/${neighborhoodId}/users/${userId}`, { role });
+    }
+
+    async updateNeighborhoodMemberStatus(neighborhoodId: number, userId: number, status: UserStatus): Promise<void> {
+        return await ApiService.patch(`/neighborhoods/${neighborhoodId}/users/${userId}`, { status });
     }
 }

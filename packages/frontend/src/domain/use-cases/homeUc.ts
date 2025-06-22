@@ -8,7 +8,9 @@ import { ApiGlobalError } from '@/shared/errors/apiGlobalError.ts';
 import { TagModel } from '@/domain/models/tag.model.ts';
 import { TagRepository } from '@/infrastructure/repositories/TagRepository.ts';
 import { SelectedAddress } from '@/domain/models/SelectedAddress.ts';
-import { NeighborhoodUserModel } from '@/domain/models/NeighborhoodUser.model.ts';
+import { NeighborhoodMemberManageModel } from '@/domain/models/NeighborhoodUser.model.ts';
+import { Roles } from '@/domain/models/Roles.ts';
+import { UserStatus } from '@/domain/models/UserStatus.ts';
 
 export class HomeUc {
     constructor(
@@ -42,7 +44,7 @@ export class HomeUc {
         }
     }
 
-    async getNeighborhoodMembers(neighborhoodId: number): Promise<NeighborhoodUserModel[]> {
+    async getNeighborhoodMembers(neighborhoodId: number): Promise<NeighborhoodMemberManageModel[]> {
         try {
             return await this.neighborhoodRepository.getUsersInNeighborhood(neighborhoodId);
         } catch (error) {
@@ -112,7 +114,8 @@ export class HomeUc {
     async isUserAdminOfNeighborhood(userId: number, neighborhoodId: number | string): Promise<boolean> {
         try {
             const users = await this.neighborhoodRepository.getUsersInNeighborhood(neighborhoodId);
-            const user = users.find((user) => user.id === userId);
+            const user = users.find((user) => user.userId === userId);
+            console.log('User in neighborhood:', users, 'User ID:', userId, 'Neighborhood ID:', neighborhoodId);
             if (!user) {
                 throw new Error('Utilisateur non trouvé dans le quartier');
             }
@@ -226,6 +229,22 @@ export class HomeUc {
     async removeUserFromNeighborhood(neighborhoodId: number, userId: number): Promise<void> {
         try {
             await this.neighborhoodRepository.removeUserFromNeighborhood(neighborhoodId, userId);
+        } catch (error) {
+            throw new Error((error as ApiGlobalError).response.data.message);
+        }
+    }
+
+    async updateNeighborhoodMemberRole(neighborhoodId: number, userId: number, role: Roles): Promise<void> {
+        try {
+            await this.neighborhoodRepository.updateNeighborhoodMemberRole(neighborhoodId, userId, role);
+        } catch (error) {
+            throw new Error((error as ApiGlobalError).response.data.message);
+        }
+    }
+
+    async updateNeighborhoodMemberStatus(neighborhoodId: number, userId: number, status: UserStatus): Promise<void> {
+        try {
+            await this.neighborhoodRepository.updateNeighborhoodMemberStatus(neighborhoodId, userId, status);
         } catch (error) {
             throw new Error((error as ApiGlobalError).response.data.message);
         }

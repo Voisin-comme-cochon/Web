@@ -16,8 +16,9 @@ import {
     DialogTrigger,
 } from '@/components/ui/dialog';
 import { Copy, Eye, Link as LinkIcon, Trash2 } from 'lucide-react';
-import { NeighborhoodUserModel } from '@/domain/models/NeighborhoodUser.model.ts';
+import { NeighborhoodMemberManageModel } from '@/domain/models/NeighborhoodUser.model.ts';
 import { Roles } from '@/domain/models/Roles.ts';
+import { UserStatus } from '@/domain/models/UserStatus.ts';
 
 type Props = {
     uc: HomeUc;
@@ -37,8 +38,21 @@ const getRoleText = (role: Roles | string) => {
     }
 };
 
+const getStatusText = (status: UserStatus | string) => {
+    switch (status) {
+        case 'accepted':
+            return 'Accepté';
+        case 'pending':
+            return 'En attente';
+        case 'rejected':
+            return 'Refusé';
+        default:
+            return 'Inconnu';
+    }
+};
+
 export default function MemberManagePage({ uc, neighborhoodId }: Props) {
-    const [members, setMembers] = useState<NeighborhoodUserModel[]>([]);
+    const [members, setMembers] = useState<NeighborhoodMemberManageModel[]>([]);
     const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
     const [search, setSearch] = useState<string>('');
     const [currentPage, setCurrentPage] = useState<number>(1);
@@ -62,7 +76,7 @@ export default function MemberManagePage({ uc, neighborhoodId }: Props) {
     const filtered = useMemo(
         () =>
             members.filter((m) =>
-                `${m.firstName} ${m.lastName} ${getRoleText(m.neighborhoodRole)}`
+                `${m.firstName} ${m.lastName} ${getRoleText(m.neighborhoodRole)} ${getStatusText(m.status)}`
                     .toLowerCase()
                     .includes(search.toLowerCase())
             ),
@@ -84,33 +98,27 @@ export default function MemberManagePage({ uc, neighborhoodId }: Props) {
     const selectAll = () => {
         setSelectedIds((prev) => {
             if (prev.size === current.length) return new Set<number>();
-            return new Set(current.map((m) => m.id));
+            return new Set(current.map((m) => m.userId));
         });
     };
 
     const handleDelete = (ids: number[]) => {
         if (!confirm(`Supprimer ${ids.length} membre(s) ?`)) return;
-        setMembers(prev =>
-            prev.filter(m =>
-                !ids.includes(m.id) || m.neighborhoodRole === Roles.ADMIN
-            )
-        );
+        setMembers((prev) => prev.filter((m) => !ids.includes(m.userId) || m.neighborhoodRole === Roles.ADMIN));
         setSelectedIds((prev) => {
             const next = new Set(prev);
-            ids.forEach((id) => {
-                next.delete(id);
-            });
+            ids.forEach((id) => next.delete(id));
             return next;
         });
         try {
-            ids.map((id) => {
+            ids.forEach((id) => {
                 uc.removeUserFromNeighborhood(neighborhoodId, id).catch((err) => {
                     showError(err instanceof Error ? err.message : 'Erreur lors de la suppression');
                 });
             });
             showSuccess('Membre(s) supprimé(s) avec succès !');
         } catch (err) {
-            showError(err instanceof Error ? err.message : 'Erreur lors de la suppression');
+            showError(err.message || 'Erreur lors de la suppression');
         }
     };
 
@@ -124,6 +132,26 @@ export default function MemberManagePage({ uc, neighborhoodId }: Props) {
         navigator.clipboard.writeText(inviteLink).then(() => {
             showSuccess('Lien copié dans le presse-papier !');
         });
+    };
+
+    const handleRoleChange = async (userId: number, newRole: Roles) => {
+        try {
+            await uc.updateNeighborhoodMemberRole(neighborhoodId, userId, newRole);
+            setMembers((prev) => prev.map((m) => (m.userId === userId ? { ...m, neighborhoodRole: newRole } : m)));
+            showSuccess('Rôle mis à jour avec succès !');
+        } catch (err: any) {
+            showError(err.message || 'Erreur lors de la mise à jour du rôle');
+        }
+    };
+
+    const handleStatusChange = async (userId: number, newStatus: UserStatus) => {
+        try {
+            await uc.updateNeighborhoodMemberStatus(neighborhoodId, userId, newStatus);
+            setMembers((prev) => prev.map((m) => (m.userId === userId ? { ...m, status: newStatus } : m)));
+            showSuccess('Statut mis à jour avec succès !');
+        } catch (err) {
+            showError(err.message || 'Erreur lors de la mise à jour du statut');
+        }
     };
 
     return (
@@ -226,26 +254,57 @@ export default function MemberManagePage({ uc, neighborhoodId }: Props) {
                             <TableHead>Nom</TableHead>
                             <TableHead>Prénom</TableHead>
                             <TableHead>Rôle</TableHead>
+                            <TableHead>Status</TableHead>
                             <TableHead className="text-right">Actions</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
                         {current.map((member) => (
-                            <TableRow key={member.id} className="hover:bg-gray-50">
+                            <TableRow key={member.userId} className="hover:bg-gray-50">
                                 <TableCell className="px-4">
                                     <Checkbox
-                                        checked={selectedIds.has(member.id)}
-                                        onCheckedChange={() => toggleSelect(member.id)}
+                                        checked={selectedIds.has(member.userId)}
+                                        onCheckedChange={() => toggleSelect(member.userId)}
                                     />
                                 </TableCell>
                                 <TableCell>{member.lastName}</TableCell>
                                 <TableCell>{member.firstName}</TableCell>
-                                <TableCell>{getRoleText(member.neighborhoodRole)}</TableCell>
+                                <TableCell>
+                                    <select
+                                        value={member.neighborhoodRole}
+                                        onChange={(e) => handleRoleChange(member.userId, e.target.value as Roles)}
+                                        className="border rounded p-1"
+                                    >
+                                        {Object.values(Roles).map(
+                                            (r) =>
+                                                r !== Roles.SUPER_ADMIN && (
+                                                    <option key={r} value={r}>
+                                                        {getRoleText(r)}
+                                                    </option>
+                                                )
+                                        )}
+                                    </select>
+                                </TableCell>
+                                <TableCell>
+                                    <select
+                                        value={member.status as UserStatus}
+                                        onChange={(e) =>
+                                            handleStatusChange(member.userId, e.target.value as UserStatus)
+                                        }
+                                        className="border rounded p-1"
+                                    >
+                                        {Object.values(UserStatus).map((s: UserStatus | string) => (
+                                            <option key={s} value={s}>
+                                                {getStatusText(s)}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </TableCell>
                                 <TableCell className="text-right space-x-2">
                                     <Button variant="outline" size="icon" onClick={() => {}}>
                                         <Eye className="h-4 w-4" />
                                     </Button>
-                                    <Button variant="ghost" size="icon" onClick={() => handleDelete([member.id])}>
+                                    <Button variant="ghost" size="icon" onClick={() => handleDelete([member.userId])}>
                                         <Trash2 className="h-4 w-4 text-red-500" />
                                     </Button>
                                 </TableCell>

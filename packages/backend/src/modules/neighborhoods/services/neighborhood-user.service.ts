@@ -289,7 +289,7 @@ export class NeighborhoodUserService {
         return await Promise.all(
             users.map((user) => ({
                 neighborhoodId: neighborhood.id,
-                userId: user.id,
+                userId: user.userId,
                 lastName: user.lastName,
                 firstName: user.firstName,
                 neighborhoodRole: user.role,
