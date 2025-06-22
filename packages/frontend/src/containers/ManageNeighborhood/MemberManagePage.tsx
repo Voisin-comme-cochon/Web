@@ -19,36 +19,12 @@ import { Copy, Eye, Link as LinkIcon, Trash2 } from 'lucide-react';
 import { NeighborhoodMemberManageModel } from '@/domain/models/NeighborhoodUser.model.ts';
 import { Roles } from '@/domain/models/Roles.ts';
 import { UserStatus } from '@/domain/models/UserStatus.ts';
+import { getRoleText, getStatusText } from '@/shared/utils/get-enum-values.ts';
+import { ApiError } from '@/shared/errors/ApiError.ts';
 
 type Props = {
     uc: HomeUc;
     neighborhoodId: number;
-};
-
-const getRoleText = (role: Roles | string) => {
-    switch (role) {
-        case Roles.ADMIN:
-            return 'Administrateur';
-        case Roles.USER:
-            return 'Membre';
-        case Roles.JOURNALIST:
-            return 'Journaliste';
-        default:
-            return 'Inconnu';
-    }
-};
-
-const getStatusText = (status: UserStatus | string) => {
-    switch (status) {
-        case 'accepted':
-            return 'Accepté';
-        case 'pending':
-            return 'En attente';
-        case 'rejected':
-            return 'Refusé';
-        default:
-            return 'Inconnu';
-    }
 };
 
 export default function MemberManagePage({ uc, neighborhoodId }: Props) {
@@ -118,7 +94,7 @@ export default function MemberManagePage({ uc, neighborhoodId }: Props) {
             });
             showSuccess('Membre(s) supprimé(s) avec succès !');
         } catch (err) {
-            showError(err.message || 'Erreur lors de la suppression');
+            showError((err as ApiError).message || 'Erreur lors de la suppression');
         }
     };
 
@@ -139,8 +115,8 @@ export default function MemberManagePage({ uc, neighborhoodId }: Props) {
             await uc.updateNeighborhoodMemberRole(neighborhoodId, userId, newRole);
             setMembers((prev) => prev.map((m) => (m.userId === userId ? { ...m, neighborhoodRole: newRole } : m)));
             showSuccess('Rôle mis à jour avec succès !');
-        } catch (err: any) {
-            showError(err.message || 'Erreur lors de la mise à jour du rôle');
+        } catch (err) {
+            showError((err as ApiError).message || 'Erreur lors de la mise à jour du rôle');
         }
     };
 
@@ -150,7 +126,7 @@ export default function MemberManagePage({ uc, neighborhoodId }: Props) {
             setMembers((prev) => prev.map((m) => (m.userId === userId ? { ...m, status: newStatus } : m)));
             showSuccess('Statut mis à jour avec succès !');
         } catch (err) {
-            showError(err.message || 'Erreur lors de la mise à jour du statut');
+            showError((err as ApiError).message || 'Erreur lors de la mise à jour du statut');
         }
     };
 
