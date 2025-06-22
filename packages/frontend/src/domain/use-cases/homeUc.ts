@@ -11,6 +11,7 @@ import { SelectedAddress } from '@/domain/models/SelectedAddress.ts';
 import { NeighborhoodMemberManageModel } from '@/domain/models/NeighborhoodUser.model.ts';
 import { Roles } from '@/domain/models/Roles.ts';
 import { UserStatus } from '@/domain/models/UserStatus.ts';
+import { EventManageModel } from '@/domain/models/EventManageModel.ts';
 
 export class HomeUc {
     constructor(
@@ -115,11 +116,9 @@ export class HomeUc {
         try {
             const users = await this.neighborhoodRepository.getUsersInNeighborhood(neighborhoodId);
             const user = users.find((user) => user.userId === userId);
-            console.log('User in neighborhood:', users, 'User ID:', userId, 'Neighborhood ID:', neighborhoodId);
             if (!user) {
                 throw new Error('Utilisateur non trouvé dans le quartier');
             }
-            console.log('User neighborhood role:', user.neighborhoodRole);
             return user.neighborhoodRole === 'admin';
         } catch (error) {
             if (error instanceof Error) {
@@ -132,6 +131,27 @@ export class HomeUc {
     async getNeighborhoodEvents(neighborhoodId: number, limit: number, page: number): Promise<EventModel[]> {
         try {
             return await this.eventRepository.getNeighborhoodEvents(neighborhoodId, limit, page);
+        } catch (error) {
+            if (error instanceof Error) {
+                throw new Error(error.message);
+            }
+            throw new Error('Une erreur est survenue lors de la récupération des événements du quartier');
+        }
+    }
+
+    async getNeighborhoodManageEvents(neighborhoodId: number): Promise<EventManageModel[]> {
+        try {
+            const events = await this.eventRepository.getNeighborhoodEvents(neighborhoodId, 2000, 1);
+            return events.map((event) => ({
+                id: event.id,
+                name: event.name,
+                createdAt: event.createdAt,
+                dateStart: event.dateStart,
+                dateEnd: event.dateEnd,
+                registeredUsers: event.registeredUsers,
+                max: event.max,
+                tag: event.tag,
+            }));
         } catch (error) {
             if (error instanceof Error) {
                 throw new Error(error.message);

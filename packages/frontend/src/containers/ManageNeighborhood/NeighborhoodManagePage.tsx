@@ -1,6 +1,6 @@
 import { HomeUc } from '@/domain/use-cases/homeUc.ts';
 
-export default function NeighborhoodManagePage({ uc, neighborhoodId }: { uc: HomeUc; neighborhoodId: string }) {
+export default function NeighborhoodManagePage({ uc, neighborhoodId }: { uc: HomeUc; neighborhoodId: number }) {
     return (
         <div className="flex justify-center items-center mb-12">
             <div
