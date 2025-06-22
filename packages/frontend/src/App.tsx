@@ -13,6 +13,7 @@ import NeighborhoodMaterialsPage from '@/containers/NeighborhoodMaterials/Neighb
 import CreateEventPage from '@/containers/CreateEvent/CreateEventPage.tsx';
 import JoinNeighborhood from '@/containers/JoinNeighborhood/JoinNeighborhood.tsx';
 import NeighborhoodDetails from '@/containers/NeighborhoodDetails/NeighborhoodDetails.tsx';
+import ManageNeighborhood from '@/containers/ManageNeighborhood/ManageNeighborhood.tsx';
 
 export default function App() {
     return (
@@ -32,6 +33,7 @@ export default function App() {
                 <Route path="/events/create" element={<CreateEventPage />} />
                 <Route path="/join-neighborhoods" element={<JoinNeighborhood />} />
                 <Route path={'/neighborhood/details/:neighborhoodId'} element={<NeighborhoodDetails />} />
+                <Route path={'/neighborhood-manage'} element={<ManageNeighborhood />} />
             </Routes>
         </Router>
     );

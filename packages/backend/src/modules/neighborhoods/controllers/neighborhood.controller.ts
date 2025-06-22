@@ -1,6 +1,7 @@
 import {
     Body,
     Controller,
+    Delete,
     Get,
     Param,
     Patch,
@@ -32,6 +33,8 @@ import { IsSuperAdminGuard } from '../../../middleware/is-super-admin.middleware
 import { NeighborhoodUserService } from '../services/neighborhood-user.service';
 import { isNull } from '../../../utils/tools';
 import { UserAdapter } from '../../users/adapters/user.adapter';
+import { NeighborhoodUserEntity } from '../../../core/entities/neighborhood-user.entity';
+import { NeighborhoodInvitation } from '../domain/neighborhood-invitation.model';
 import {
     CreateMultipleNeighborhoodInvitationsDto,
     CreatePublicNeighborhoodInvitationDto,
@@ -42,9 +45,12 @@ import {
 } from './dto/neighborhood-invitation.dto';
 import {
     GetNeighborhoodQueryParamsDto,
+    QueryGetManageUser,
     RequestNeighborhoodDto,
+    ResponseMemberNeighborhoodDto,
     ResponseNeighborhoodDto,
     SetStatusNeighborhoodDto,
+    UpdateNeighborhoodUserDto,
 } from './dto/neighborhood.dto';
 import { ResponseNeighborhoodUserDto } from './dto/neighborhood-user.dto';
 
@@ -125,6 +131,30 @@ export class NeighborhoodController {
             userId: Number(req.user.id),
             files,
         });
+    }
+
+    @Patch(':neighborhoodId/users/:userId')
+    @UseGuards(IsLoginGuard)
+    @ApiOperation({ summary: 'Update a member role or status in a neighborhood' })
+    @ApiOkResponse({
+        description: 'Member role or status updated in the neighborhood',
+        type: ResponseNeighborhoodUserDto,
+    })
+    @ApiNotFoundResponse({
+        description: 'Neighborhood or user not found',
+    })
+    async updateMemberInNeighborhood(
+        @Param() params: { neighborhoodId: number; userId: number },
+        @Body() body: UpdateNeighborhoodUserDto,
+        @Request() req: { user: { id: number } }
+    ): Promise<NeighborhoodUserEntity> {
+        return await this.neighborhoodUserService.updateMemberInNeighborhood(
+            params.neighborhoodId,
+            params.userId,
+            req.user.id,
+            body.role,
+            body.status
+        );
     }
 
     @Patch(':id')
@@ -322,5 +352,70 @@ export class NeighborhoodController {
         @Request() req: { user: { id: number } }
     ): Promise<void> {
         await this.neighborhoodUserService.joinNeighborhood(req.user.id, neighborhoodId);
+    }
+
+    @Delete(':neighborhoodId/users/:userId')
+    @UseGuards(IsLoginGuard)
+    @ApiOperation({ summary: 'Remove a member from a neighborhood' })
+    @ApiOkResponse({
+        description: 'Member removed from the neighborhood',
+    })
+    @ApiNotFoundResponse({
+        description: 'Neighborhood or user not found',
+    })
+    async removeMemberFromNeighborhood(
+        @Param() params: { neighborhoodId: number; userId: number },
+        @Request() req: { user: { id: number } }
+    ): Promise<void> {
+        await this.neighborhoodUserService.removeMemberFromNeighborhood(
+            params.neighborhoodId,
+            params.userId,
+            req.user.id
+        );
+    }
+
+    @Get(':neighborhoodId/manage-users')
+    @UseGuards(IsLoginGuard)
+    @ApiOperation({ summary: 'Get all users in a neighborhood for management' })
+    @ApiOkResponse({
+        description: 'Users in the neighborhood for management',
+        type: [ResponseMemberNeighborhoodDto],
+        isArray: true,
+    })
+    @ApiNotFoundResponse({
+        description: 'Neighborhood not found or no users in the neighborhood',
+    })
+    async getManageUsersInNeighborhood(
+        @Param('neighborhoodId') neighborhoodId: number,
+        @Request() req: { user: { id: number } },
+        @Query() query: QueryGetManageUser
+    ): Promise<ResponseMemberNeighborhoodDto[]> {
+        const users = await this.neighborhoodUserService.getManageUsersInNeighborhood(
+            neighborhoodId,
+            req.user.id,
+            query.role,
+            query.status
+        );
+
+        if (isNull(users) || users.length === 0) {
+            return [];
+        }
+
+        return users;
+    }
+
+    @Get(':neighborhoodId/invitations')
+    @UseGuards(IsLoginGuard)
+    @ApiOperation({ summary: 'Get all invitations for a neighborhood' })
+    @ApiOkResponse({
+        description: 'Invitations found for the neighborhood',
+    })
+    @ApiNotFoundResponse({
+        description: 'Neighborhood not found or no invitations found',
+    })
+    async getInvitationsByNeighborhoodId(
+        @Param('neighborhoodId') neighborhoodId: number
+    ): Promise<NeighborhoodInvitation[]> {
+        return this.neighborhoodInvitationService.getInvitationsByNeighborhoodId(neighborhoodId);
     }
 }

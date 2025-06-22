@@ -8,6 +8,9 @@ import { ApiGlobalError } from '@/shared/errors/apiGlobalError.ts';
 import { TagModel } from '@/domain/models/tag.model.ts';
 import { TagRepository } from '@/infrastructure/repositories/TagRepository.ts';
 import { SelectedAddress } from '@/domain/models/SelectedAddress.ts';
+import { NeighborhoodMemberManageModel } from '@/domain/models/NeighborhoodUser.model.ts';
+import { Roles } from '@/domain/models/Roles.ts';
+import { UserStatus } from '@/domain/models/UserStatus.ts';
 
 export class HomeUc {
     constructor(
@@ -26,6 +29,29 @@ export class HomeUc {
                 throw new Error(error.message);
             }
             throw new Error("Une erreur est survenue lors de la vérification de l'inscription");
+        }
+    }
+
+    async generateInviteLink(neighborhoodId: number, duration: number, maxUses: number): Promise<string> {
+        try {
+            const response = await this.neighborhoodRepository.generateInviteLink(neighborhoodId, duration, maxUses);
+            return response.invitationLink;
+        } catch (error) {
+            if (error instanceof Error) {
+                throw new Error(error.message);
+            }
+            throw new Error("Une erreur est survenue lors de la génération du lien d'invitation");
+        }
+    }
+
+    async getNeighborhoodMembers(neighborhoodId: number): Promise<NeighborhoodMemberManageModel[]> {
+        try {
+            return await this.neighborhoodRepository.getUsersInNeighborhood(neighborhoodId);
+        } catch (error) {
+            if (error instanceof Error) {
+                throw new Error(error.message);
+            }
+            throw new Error('Une erreur est survenue lors de la récupération des membres du quartier');
         }
     }
 
@@ -82,6 +108,24 @@ export class HomeUc {
                 throw new Error(error.message);
             }
             throw new Error('Une erreur est survenue lors de la récupération des quartiers');
+        }
+    }
+
+    async isUserAdminOfNeighborhood(userId: number, neighborhoodId: number | string): Promise<boolean> {
+        try {
+            const users = await this.neighborhoodRepository.getUsersInNeighborhood(neighborhoodId);
+            const user = users.find((user) => user.userId === userId);
+            console.log('User in neighborhood:', users, 'User ID:', userId, 'Neighborhood ID:', neighborhoodId);
+            if (!user) {
+                throw new Error('Utilisateur non trouvé dans le quartier');
+            }
+            console.log('User neighborhood role:', user.neighborhoodRole);
+            return user.neighborhoodRole === 'admin';
+        } catch (error) {
+            if (error instanceof Error) {
+                throw new Error(error.message);
+            }
+            throw new Error("Une erreur est survenue lors de la vérification du statut d'administrateur");
         }
     }
 
@@ -177,6 +221,30 @@ export class HomeUc {
     async joinNeighborhood(neighborhoodId: number): Promise<void> {
         try {
             await this.neighborhoodRepository.joinNeighborhood(neighborhoodId);
+        } catch (error) {
+            throw new Error((error as ApiGlobalError).response.data.message);
+        }
+    }
+
+    async removeUserFromNeighborhood(neighborhoodId: number, userId: number): Promise<void> {
+        try {
+            await this.neighborhoodRepository.removeUserFromNeighborhood(neighborhoodId, userId);
+        } catch (error) {
+            throw new Error((error as ApiGlobalError).response.data.message);
+        }
+    }
+
+    async updateNeighborhoodMemberRole(neighborhoodId: number, userId: number, role: Roles): Promise<void> {
+        try {
+            await this.neighborhoodRepository.updateNeighborhoodMemberRole(neighborhoodId, userId, role);
+        } catch (error) {
+            throw new Error((error as ApiGlobalError).response.data.message);
+        }
+    }
+
+    async updateNeighborhoodMemberStatus(neighborhoodId: number, userId: number, status: UserStatus): Promise<void> {
+        try {
+            await this.neighborhoodRepository.updateNeighborhoodMemberStatus(neighborhoodId, userId, status);
         } catch (error) {
             throw new Error((error as ApiGlobalError).response.data.message);
         }

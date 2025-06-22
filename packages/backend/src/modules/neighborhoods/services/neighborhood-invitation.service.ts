@@ -2,9 +2,10 @@ import { JsonWebTokenError, JwtService } from '@nestjs/jwt';
 import dayjs from 'dayjs';
 import { NeighborhoodInvitationRepository } from '../domain/neighborhood-invitation.abstract.repository';
 import {
-    NeighborhoodInvitationCreation,
     CreateMultipleInvitationsInput,
     CreatePublicInvitationInput,
+    NeighborhoodInvitation,
+    NeighborhoodInvitationCreation,
 } from '../domain/neighborhood-invitation.model';
 import { CochonError } from '../../../utils/CochonError';
 import { isNull } from '../../../utils/tools';
@@ -77,13 +78,6 @@ export class NeighborhoodInvitationService {
         }
 
         return invitation;
-    }
-
-    private generateInvitationToken(userId: number, neighborhoodId: number, durationInDays: number): string {
-        const payload = { userId, neighborhoodId };
-        return this.jwtService.sign(payload, {
-            expiresIn: `${durationInDays}d`,
-        });
     }
 
     async createMultipleInvitations(input: CreateMultipleInvitationsInput) {
@@ -212,6 +206,17 @@ export class NeighborhoodInvitationService {
         }
 
         return true;
+    }
+
+    async getInvitationsByNeighborhoodId(neighborhoodId: number): Promise<NeighborhoodInvitation[]> {
+        return await this.neighborhoodInvitationRepository.getInvitationsByNeighborhoodId(neighborhoodId);
+    }
+
+    private generateInvitationToken(userId: number, neighborhoodId: number, durationInDays: number): string {
+        const payload = { userId, neighborhoodId };
+        return this.jwtService.sign(payload, {
+            expiresIn: `${durationInDays}d`,
+        });
     }
 
     private async commonVerifyInvitation(token: string, userId: number): Promise<void> {

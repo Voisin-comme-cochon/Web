@@ -37,67 +37,45 @@ export class AuthRepository {
         if (data.description) {
             formData.append('description', data.description);
         }
-
         if (data.profileImage) {
             formData.append('profileImage', data.profileImage);
         }
 
         const response = await ApiService.post('/auth/signin', formData, {
-            headers: {
-                'Content-Type': 'multipart/form-data',
-            },
+            headers: { 'Content-Type': 'multipart/form-data' },
         });
-
         return response.data;
     }
 
     async login(email: string, password: string): Promise<AuthTokens> {
-        const response = await ApiService.post('/auth/login', {
-            email,
-            password,
-        });
-
+        const response = await ApiService.post('/auth/login', { email, password });
         if (response.status === 400) {
             throw new ApiError(400, 'Invalid email or password');
         }
-
         return response.data;
     }
 
     async resetPassword(token: string, password: string): Promise<void> {
-        const response = await ApiService.post(
-            '/auth/reset-password',
-            JSON.stringify({
-                token,
-                password,
-            })
-        );
-
+        const response = await ApiService.post('/auth/reset-password', JSON.stringify({ token, password }));
         if (response.status === 400) {
             throw new ApiError(400, 'Invalid or expired token');
         }
-
         return response.data;
     }
 
     async requestPasswordReset(email: string): Promise<void> {
-        return await ApiService.post(
-            '/auth/forgot-password',
-            JSON.stringify({
-                email,
-            })
-        );
+        return await ApiService.post('/auth/forgot-password', JSON.stringify({ email }));
     }
 
+    /**
+     * Rafraîchit access & refresh tokens côté serveur.
+     * NE GÈRE PLUS la concurrence ici : c'est délégué à l'interceptor Axios.
+     */
     async refreshAccessToken(refreshToken: string): Promise<AuthTokens> {
-        const response = await ApiService.patch('/auth/refresh', {
-            refreshToken,
-        });
-
+        const response = await ApiService.patch('/auth/refresh', { refreshToken });
         if (response.status === 401) {
             throw new ApiError(401, 'Unauthorized');
         }
-
         return response.data;
     }
 }
@@ -114,7 +92,6 @@ export async function logout() {
             refreshToken: localStorage.getItem('refresh_token') || '',
         }),
     });
-
     if (!response.ok) throw new Error('Logout failed');
 
     localStorage.removeItem('jwt');
@@ -123,7 +100,12 @@ export async function logout() {
     localStorage.removeItem('page');
 }
 
+/**
+ * Fonction utilitaire de refresh pour l’intercepteur Axios.
+ * Met à jour localStorage et renvoie le nouveau jeu de tokens.
+ */
 export async function refreshAccessToken(): Promise<AuthTokensModel> {
+    const currentRt = localStorage.getItem('refresh_token') || '';
     const response = await fetch(`${import.meta.env.VITE_VCC_API_URL}/auth/refresh`, {
         method: 'PATCH',
         credentials: 'include',
@@ -131,12 +113,11 @@ export async function refreshAccessToken(): Promise<AuthTokensModel> {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${localStorage.getItem('jwt') || ''}`,
         },
-        body: JSON.stringify({
-            refreshToken: localStorage.getItem('refresh_token') || '',
-        }),
+        body: JSON.stringify({ refreshToken: currentRt }),
     });
-
-    if (!response.ok) throw new Error('Refresh token failed');
+    if (!response.ok) {
+        throw new Error('Refresh token failed');
+    }
 
     const data: AuthTokensModel = await response.json();
     localStorage.setItem('jwt', data.access_token);

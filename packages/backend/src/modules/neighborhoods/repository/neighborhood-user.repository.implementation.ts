@@ -8,6 +8,7 @@ import { UserEntity } from '../../../core/entities/user.entity';
 import { NeighborhoodUserRepository } from '../domain/neighborhood-user.abstract.repository';
 import { Neighborhood } from '../domain/neighborhood.model';
 import { NeighborhoodsAdapter } from '../adapters/neighborhoods.adapter';
+import { NeighborhoodMemberModel } from '../domain/neighborhood-member.model';
 
 export interface UserWithRole {
     user: UserEntity;
@@ -34,6 +35,33 @@ export class NeighborhoodUserRepositoryImplementation implements NeighborhoodUse
         }));
 
         return [usersWithRoles, count];
+    }
+
+    async getMemberUsersByNeighborhood(
+        neighborhoodId: number,
+        roleFilter?: NeighborhoodUserRole,
+        statusFilter?: NeighborhoodUserStatus
+    ): Promise<NeighborhoodMemberModel[]> {
+        const neighborhoodUsers = await this.dataSource.getRepository(NeighborhoodUserEntity).find({
+            where: {
+                neighborhoodId,
+                ...(roleFilter ? { role: roleFilter } : {}),
+                ...(statusFilter ? { status: statusFilter } : {}),
+            },
+            relations: ['user'],
+        });
+
+        return await Promise.all(
+            neighborhoodUsers.map((neighborhoodUser) => ({
+                id: neighborhoodUser.id,
+                neighborhoodId: neighborhoodUser.neighborhoodId,
+                userId: neighborhoodUser.userId,
+                firstName: neighborhoodUser.user.firstName,
+                lastName: neighborhoodUser.user.lastName,
+                role: neighborhoodUser.role as NeighborhoodUserRole,
+                status: neighborhoodUser.status as NeighborhoodUserStatus,
+            }))
+        );
     }
 
     async getUsersInNeighborhoodByStatus(
@@ -124,6 +152,39 @@ export class NeighborhoodUserRepositoryImplementation implements NeighborhoodUse
 
     async addUserToNeighborhood(neighborhoodUser: NeighborhoodUserEntity): Promise<NeighborhoodUserEntity> {
         const repository = this.dataSource.getRepository(NeighborhoodUserEntity);
+        return repository.save(neighborhoodUser);
+    }
+
+    async removeUserFromNeighborhood(userId: number, neighborhoodId: number): Promise<void> {
+        await this.dataSource
+            .getRepository(NeighborhoodUserEntity)
+            .createQueryBuilder()
+            .delete()
+            .where('userId = :userId', { userId })
+            .andWhere('neighborhoodId = :neighborhoodId', { neighborhoodId })
+            .execute();
+    }
+
+    async updateMemberInNeighborhood(
+        neighborhoodId: number,
+        userId: number,
+        role?: NeighborhoodUserRole,
+        status?: NeighborhoodUserStatus
+    ): Promise<NeighborhoodUserEntity> {
+        const repository = this.dataSource.getRepository(NeighborhoodUserEntity);
+        const neighborhoodUser = await repository.findOneBy({ neighborhoodId, userId });
+
+        if (!neighborhoodUser) {
+            throw new Error('Neighborhood user not found');
+        }
+
+        if (role) {
+            neighborhoodUser.role = role;
+        }
+        if (status) {
+            neighborhoodUser.status = status;
+        }
+
         return repository.save(neighborhoodUser);
     }
 }

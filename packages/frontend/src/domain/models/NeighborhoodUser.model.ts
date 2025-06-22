@@ -5,3 +5,12 @@ export interface NeighborhoodUserModel {
     profileImageUrl: string;
     neighborhoodRole: string;
 }
+
+export interface NeighborhoodMemberManageModel {
+    neighborhoodId: number;
+    userId: number;
+    firstName: string;
+    lastName: string;
+    neighborhoodRole: string;
+    status: string;
+}
