@@ -61,15 +61,6 @@ export default function EventManagePage({ uc, neighborhoodId }: Props) {
         fetchEvents();
     }, []);
 
-    const filtered = useMemo(
-        () => events.filter((e) => e.name.toLowerCase().includes(search.toLowerCase())),
-        [events, search]
-    );
-
-    const totalPages = Math.max(1, Math.ceil(filtered.length / itemsPerPage));
-    const start = (currentPage - 1) * itemsPerPage;
-    const current = filtered.slice(start, start + itemsPerPage);
-
     const formatDate = (iso: string) =>
         new Date(iso).toLocaleDateString('fr-FR', {
             day: '2-digit',
@@ -79,6 +70,20 @@ export default function EventManagePage({ uc, neighborhoodId }: Props) {
             minute: '2-digit',
             timeZone: 'Europe/Paris',
         });
+
+    const filtered = useMemo(
+        () =>
+            events.filter((e) =>
+                `${e.name} ${e.tag.name} ${formatDate(e.dateStart)} ${formatDate(e.dateEnd)}`
+                    .toLowerCase()
+                    .includes(search.toLowerCase())
+            ),
+        [events, search]
+    );
+
+    const totalPages = Math.max(1, Math.ceil(filtered.length / itemsPerPage));
+    const start = (currentPage - 1) * itemsPerPage;
+    const current = filtered.slice(start, start + itemsPerPage);
 
     const toggleSelect = (id: number) => {
         setSelectedIds((prev) => {
