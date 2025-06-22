@@ -12,6 +12,7 @@ import { UserStatus } from '@/domain/models/UserStatus.ts';
 import { getRoleText, getStatusText } from '@/shared/utils/get-enum-values.ts';
 import { ApiError } from '@/shared/errors/ApiError.ts';
 import { InvitationDialog } from '@/components/InvitationDialog/InvitationDialog.tsx';
+import { useAppNavigation } from '@/presentation/state/navigate.ts';
 
 type Props = {
     uc: HomeUc;
@@ -25,6 +26,7 @@ export default function MemberManagePage({ uc, neighborhoodId }: Props) {
     const [currentPage, setCurrentPage] = useState<number>(1);
     const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
     const { showSuccess, showError } = useToast();
+    const { goUserProfile } = useAppNavigation();
 
     const itemsPerPage = 10;
 
@@ -198,7 +200,13 @@ export default function MemberManagePage({ uc, neighborhoodId }: Props) {
                                     </select>
                                 </TableCell>
                                 <TableCell className="text-right space-x-2">
-                                    <Button variant="outline" size="icon" onClick={() => {}}>
+                                    <Button
+                                        variant="outline"
+                                        size="icon"
+                                        onClick={() => {
+                                            goUserProfile(member.userId);
+                                        }}
+                                    >
                                         <Eye className="h-4 w-4" />
                                     </Button>
                                     <Button variant="ghost" size="icon" onClick={() => handleDelete([member.userId])}>

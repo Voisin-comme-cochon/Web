@@ -25,7 +25,7 @@ import { useState } from 'react';
 import { HomeUc } from '@/domain/use-cases/homeUc.ts';
 
 export default function UserMenu({ user, uc }: { user: UserModel | null; uc: HomeUc }) {
-    const { goLanding } = useAppNavigation();
+    const { goLanding, goUserProfile } = useAppNavigation();
     const [duration, setDuration] = useState<number>(7);
     const [maxUses, setMaxUses] = useState<number>(1);
     const [inviteLink, setInviteLink] = useState<string>('');
@@ -67,7 +67,9 @@ export default function UserMenu({ user, uc }: { user: UserModel | null; uc: Hom
                 </DropdownMenuTrigger>
 
                 <DropdownMenuContent className="w-56">
-                    <DropdownMenuItem className="cursor-pointer">Profil</DropdownMenuItem>
+                    <DropdownMenuItem className="cursor-pointer" onClick={() => goUserProfile(user.id)}>
+                        Profil
+                    </DropdownMenuItem>
                     <DropdownMenuItem className="cursor-pointer">Paramètres</DropdownMenuItem>
 
                     <DropdownMenuItem

@@ -19,6 +19,7 @@ export const useAppNavigation = () => {
     const goNeighborhoodDetails = (neighborhoodId: string | number) => {
         navigate(`/neighborhood/details/${neighborhoodId}`);
     };
+    const goUserProfile = (userId: number | string) => navigate(`/user/${userId}`);
     const goManageNeighborhood = () => navigate('/neighborhood-manage');
 
     return {
@@ -37,5 +38,6 @@ export const useAppNavigation = () => {
         goCreateEvent,
         goNeighborhoodDetails,
         goManageNeighborhood,
+        goUserProfile,
     };
 };
