@@ -12,6 +12,7 @@ import { EventRepository } from '@/infrastructure/repositories/EventRepository.t
 import { HomeUc } from '@/domain/use-cases/homeUc.ts';
 import DashboardHeader from '@/components/Header/DashboardHeader.tsx';
 import { TagRepository } from '@/infrastructure/repositories/TagRepository.ts';
+import ChatButton from '@/components/Messaging/chat-button.tsx';
 
 export default function MyNeighborhoodPage() {
     const [events, setEvents] = useState<EventModel[]>([]);
@@ -103,6 +104,7 @@ export default function MyNeighborhoodPage() {
                     )}
                 </div>
             </div>
+            <ChatButton />
         </div>
     );
 }
