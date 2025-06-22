@@ -13,6 +13,7 @@ import {
 import { NeighborhoodUserAdapter } from '../adapters/neighborhood-user.adapter';
 import { MailerService } from '../../mailer/services/mailer.service';
 import { Templates } from '../../mailer/domain/templates.enum';
+import { ResponseMemberNeighborhoodDto } from '../controllers/dto/neighborhood.dto';
 import { NeighborhoodService } from './neighborhood.service';
 
 export interface UserDomainWithRole {
@@ -251,5 +252,49 @@ export class NeighborhoodUserService {
         }
 
         return this.neighborhoodUserRepository.updateMemberInNeighborhood(neighborhoodId, memberId, role, status);
+    }
+
+    async getManageUsersInNeighborhood(
+        neighborhoodId: number,
+        adminId: number,
+        roleFilter?: NeighborhoodUserRole,
+        statusFilter?: NeighborhoodUserStatus
+    ): Promise<ResponseMemberNeighborhoodDto[]> {
+        const neighborhood = await this.neighborhoodService.getNeighborhoodById(neighborhoodId);
+        if (isNull(neighborhood)) {
+            throw new CochonError('neighborhood_not_found', 'Neighborhood not found', 404, {
+                neighborhoodId,
+            });
+        }
+
+        const checkAdmin = await this.neighborhoodUserRepository.getUserInNeighborhood(neighborhoodId, adminId);
+        if (isNull(checkAdmin) || checkAdmin.role !== NeighborhoodUserRole.ADMIN.toString()) {
+            throw new CochonError(
+                'not_authorized',
+                'You are not authorized to manage users in this neighborhood',
+                403,
+                {
+                    userId: adminId,
+                    neighborhoodId,
+                }
+            );
+        }
+
+        const users = await this.neighborhoodUserRepository.getMemberUsersByNeighborhood(
+            neighborhoodId,
+            roleFilter,
+            statusFilter
+        );
+
+        return await Promise.all(
+            users.map((user) => ({
+                neighborhoodId: neighborhood.id,
+                userId: user.id,
+                lastName: user.lastName,
+                firstName: user.firstName,
+                neighborhoodRole: user.role,
+                status: user.status,
+            }))
+        );
     }
 }

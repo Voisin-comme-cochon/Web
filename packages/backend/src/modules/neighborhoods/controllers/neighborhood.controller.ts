@@ -44,7 +44,9 @@ import {
 } from './dto/neighborhood-invitation.dto';
 import {
     GetNeighborhoodQueryParamsDto,
+    QueryGetManageUser,
     RequestNeighborhoodDto,
+    ResponseMemberNeighborhoodDto,
     ResponseNeighborhoodDto,
     SetStatusNeighborhoodDto,
     UpdateNeighborhoodUserDto,
@@ -369,5 +371,35 @@ export class NeighborhoodController {
             params.userId,
             req.user.id
         );
+    }
+
+    @Get(':neighborhoodId/manage-users')
+    @UseGuards(IsLoginGuard)
+    @ApiOperation({ summary: 'Get all users in a neighborhood for management' })
+    @ApiOkResponse({
+        description: 'Users in the neighborhood for management',
+        type: [ResponseMemberNeighborhoodDto],
+        isArray: true,
+    })
+    @ApiNotFoundResponse({
+        description: 'Neighborhood not found or no users in the neighborhood',
+    })
+    async getManageUsersInNeighborhood(
+        @Param('neighborhoodId') neighborhoodId: number,
+        @Request() req: { user: { id: number } },
+        @Query() query: QueryGetManageUser
+    ): Promise<ResponseMemberNeighborhoodDto[]> {
+        const users = await this.neighborhoodUserService.getManageUsersInNeighborhood(
+            neighborhoodId,
+            req.user.id,
+            query.role,
+            query.status
+        );
+
+        if (isNull(users) || users.length === 0) {
+            return [];
+        }
+
+        return users;
     }
 }

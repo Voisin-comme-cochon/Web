@@ -5,6 +5,7 @@ import {
     NeighborhoodUserStatus,
 } from '../../../core/entities/neighborhood-user.entity';
 import { Neighborhood } from './neighborhood.model';
+import { NeighborhoodMemberModel } from './neighborhood-member.model';
 
 export abstract class NeighborhoodUserRepository {
     abstract getUsersByNeighborhood(
@@ -12,6 +13,12 @@ export abstract class NeighborhoodUserRepository {
         page?: number,
         limit?: number
     ): Promise<[UserWithRole[], number]>;
+
+    abstract getMemberUsersByNeighborhood(
+        neighborhoodId: number,
+        roleFilter?: NeighborhoodUserRole,
+        statusFilter?: NeighborhoodUserStatus
+    ): Promise<NeighborhoodMemberModel[]>;
 
     abstract getUserInNeighborhood(neighborhoodId: number, userId: number): Promise<UserWithRole | null>;
 

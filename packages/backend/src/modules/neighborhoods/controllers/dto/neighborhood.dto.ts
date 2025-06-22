@@ -132,3 +132,67 @@ export class UpdateNeighborhoodUserDto {
     @IsEnum(NeighborhoodUserStatus)
     status?: NeighborhoodUserStatus;
 }
+
+export class ResponseMemberNeighborhoodDto {
+    @ApiProperty({
+        example: 1,
+        description: 'The id of the Neighborhood',
+    })
+    @IsInt()
+    neighborhoodId!: number;
+
+    @ApiProperty({
+        example: 1,
+        description: 'The id of the User',
+    })
+    @IsInt()
+    userId!: number;
+
+    @ApiProperty({
+        example: 'John',
+        description: 'Lastname of the User',
+    })
+    @IsString()
+    lastName!: string;
+
+    @ApiProperty({
+        example: 'Doe',
+        description: 'Firstname of the User',
+    })
+    @IsString()
+    firstName!: string;
+
+    @ApiProperty({
+        example: 'admin',
+        description: "Le rôle de l'utilisateur dans le quartier",
+    })
+    @IsEnum(NeighborhoodUserRole)
+    neighborhoodRole!: NeighborhoodUserRole;
+
+    @ApiProperty({
+        example: 'active',
+        description: "Le statut de l'utilisateur dans le quartier",
+    })
+    @IsEnum(NeighborhoodUserStatus)
+    status!: NeighborhoodUserStatus;
+}
+
+export class QueryGetManageUser {
+    @ApiProperty({
+        example: 'admin',
+        description: "Le rôle de l'utilisateur à gérer",
+        required: false,
+    })
+    @IsOptional()
+    @IsEnum(NeighborhoodUserRole)
+    role?: NeighborhoodUserRole;
+
+    @ApiProperty({
+        example: 'active',
+        description: "Le statut de l'utilisateur à gérer",
+        required: false,
+    })
+    @IsOptional()
+    @IsEnum(NeighborhoodUserStatus)
+    status?: NeighborhoodUserStatus;
+}
