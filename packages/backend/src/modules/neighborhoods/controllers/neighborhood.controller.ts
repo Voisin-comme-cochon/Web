@@ -33,6 +33,7 @@ import { IsSuperAdminGuard } from '../../../middleware/is-super-admin.middleware
 import { NeighborhoodUserService } from '../services/neighborhood-user.service';
 import { isNull } from '../../../utils/tools';
 import { UserAdapter } from '../../users/adapters/user.adapter';
+import { NeighborhoodUserEntity } from '../../../core/entities/neighborhood-user.entity';
 import {
     CreateMultipleNeighborhoodInvitationsDto,
     CreatePublicNeighborhoodInvitationDto,
@@ -46,6 +47,7 @@ import {
     RequestNeighborhoodDto,
     ResponseNeighborhoodDto,
     SetStatusNeighborhoodDto,
+    UpdateNeighborhoodUserDto,
 } from './dto/neighborhood.dto';
 import { ResponseNeighborhoodUserDto } from './dto/neighborhood-user.dto';
 
@@ -126,6 +128,30 @@ export class NeighborhoodController {
             userId: Number(req.user.id),
             files,
         });
+    }
+
+    @Patch(':neighborhoodId/users/:userId')
+    @UseGuards(IsLoginGuard)
+    @ApiOperation({ summary: 'Update a member role or status in a neighborhood' })
+    @ApiOkResponse({
+        description: 'Member role or status updated in the neighborhood',
+        type: ResponseNeighborhoodUserDto,
+    })
+    @ApiNotFoundResponse({
+        description: 'Neighborhood or user not found',
+    })
+    async updateMemberInNeighborhood(
+        @Param() params: { neighborhoodId: number; userId: number },
+        @Body() body: UpdateNeighborhoodUserDto,
+        @Request() req: { user: { id: number } }
+    ): Promise<NeighborhoodUserEntity> {
+        return await this.neighborhoodUserService.updateMemberInNeighborhood(
+            params.neighborhoodId,
+            params.userId,
+            req.user.id,
+            body.role,
+            body.status
+        );
     }
 
     @Patch(':id')

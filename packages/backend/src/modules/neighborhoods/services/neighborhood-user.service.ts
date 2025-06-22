@@ -5,7 +5,11 @@ import { UserAdapter } from '../../users/adapters/user.adapter';
 import { User } from '../../users/domain/user.model';
 import { UsersService } from '../../users/services/users.service';
 import { Neighborhood } from '../domain/neighborhood.model';
-import { NeighborhoodUserEntity, NeighborhoodUserRole } from '../../../core/entities/neighborhood-user.entity';
+import {
+    NeighborhoodUserEntity,
+    NeighborhoodUserRole,
+    NeighborhoodUserStatus,
+} from '../../../core/entities/neighborhood-user.entity';
 import { NeighborhoodUserAdapter } from '../adapters/neighborhood-user.adapter';
 import { MailerService } from '../../mailer/services/mailer.service';
 import { Templates } from '../../mailer/domain/templates.enum';
@@ -181,7 +185,7 @@ export class NeighborhoodUserService {
         }
 
         const checkAdmin = await this.neighborhoodUserRepository.getUserInNeighborhood(neighborhoodId, adminId);
-        if (isNull(checkAdmin) || checkAdmin.role !== NeighborhoodUserRole.ADMIN) {
+        if (isNull(checkAdmin) || checkAdmin.role !== NeighborhoodUserRole.ADMIN.toString()) {
             throw new CochonError(
                 'not_authorized',
                 'You are not authorized to remove members from this neighborhood',
@@ -201,7 +205,7 @@ export class NeighborhoodUserService {
             });
         }
 
-        if (neighborhoodUser.role === NeighborhoodUserRole.ADMIN) {
+        if (neighborhoodUser.role === NeighborhoodUserRole.ADMIN.toString()) {
             throw new CochonError('cannot_remove_admin', 'You cannot remove an admin from this neighborhood', 400, {
                 userId: memberId,
                 neighborhoodId,
@@ -209,5 +213,43 @@ export class NeighborhoodUserService {
         }
 
         return this.neighborhoodUserRepository.removeUserFromNeighborhood(neighborhoodUser.user.id, neighborhoodId);
+    }
+
+    async updateMemberInNeighborhood(
+        neighborhoodId: number,
+        memberId: number,
+        adminId: number,
+        role?: NeighborhoodUserRole,
+        status?: NeighborhoodUserStatus
+    ): Promise<NeighborhoodUserEntity> {
+        const neighborhood = await this.neighborhoodService.getNeighborhoodById(neighborhoodId);
+        if (isNull(neighborhood)) {
+            throw new CochonError('neighborhood_not_found', 'Neighborhood not found', 404, {
+                neighborhoodId,
+            });
+        }
+
+        const checkAdmin = await this.neighborhoodUserRepository.getUserInNeighborhood(neighborhoodId, adminId);
+        if (isNull(checkAdmin) || checkAdmin.role !== NeighborhoodUserRole.ADMIN.toString()) {
+            throw new CochonError(
+                'not_authorized',
+                'You are not authorized to update members in this neighborhood',
+                403,
+                {
+                    userId: adminId,
+                    neighborhoodId,
+                }
+            );
+        }
+
+        const neighborhoodUser = await this.neighborhoodUserRepository.getUserInNeighborhood(neighborhoodId, memberId);
+        if (isNull(neighborhoodUser)) {
+            throw new CochonError('user_not_in_neighborhood', 'User is not in this neighborhood', 400, {
+                userId: memberId,
+                neighborhoodId,
+            });
+        }
+
+        return this.neighborhoodUserRepository.updateMemberInNeighborhood(neighborhoodId, memberId, role, status);
     }
 }

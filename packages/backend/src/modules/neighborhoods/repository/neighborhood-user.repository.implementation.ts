@@ -136,4 +136,27 @@ export class NeighborhoodUserRepositoryImplementation implements NeighborhoodUse
             .andWhere('neighborhoodId = :neighborhoodId', { neighborhoodId })
             .execute();
     }
+
+    async updateMemberInNeighborhood(
+        neighborhoodId: number,
+        userId: number,
+        role?: NeighborhoodUserRole,
+        status?: NeighborhoodUserStatus
+    ): Promise<NeighborhoodUserEntity> {
+        const repository = this.dataSource.getRepository(NeighborhoodUserEntity);
+        const neighborhoodUser = await repository.findOneBy({ neighborhoodId, userId });
+
+        if (!neighborhoodUser) {
+            throw new Error('Neighborhood user not found');
+        }
+
+        if (role) {
+            neighborhoodUser.role = role;
+        }
+        if (status) {
+            neighborhoodUser.status = status;
+        }
+
+        return repository.save(neighborhoodUser);
+    }
 }

@@ -2,6 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsEnum, IsInt, IsISO8601, IsOptional, IsString } from 'class-validator';
 import { Geography } from 'typeorm';
 import { NeighborhoodStatusEntity } from '../../../../core/entities/neighborhood-status.entity';
+import { NeighborhoodUserRole, NeighborhoodUserStatus } from '../../../../core/entities/neighborhood-user.entity';
 import { ResponseNeighborhoodImageDto } from './neighborhood-image.dto';
 
 export class ResponseNeighborhoodDto {
@@ -110,4 +111,24 @@ export class SetStatusNeighborhoodDto {
     })
     @IsEnum(NeighborhoodStatusEntity)
     status!: NeighborhoodStatusEntity;
+}
+
+export class UpdateNeighborhoodUserDto {
+    @ApiProperty({
+        example: 'admin',
+        description: "Le rôle de l'utilisateur dans le quartier",
+        required: false,
+    })
+    @IsOptional()
+    @IsEnum(NeighborhoodUserRole)
+    role?: NeighborhoodUserRole;
+
+    @ApiProperty({
+        example: 'active',
+        description: "Le statut de l'utilisateur dans le quartier",
+        required: false,
+    })
+    @IsOptional()
+    @IsEnum(NeighborhoodUserStatus)
+    status?: NeighborhoodUserStatus;
 }
