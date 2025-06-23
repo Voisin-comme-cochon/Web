@@ -7,11 +7,13 @@ import {
     ApiNotFoundResponse,
     ApiForbiddenResponse,
     ApiUnauthorizedResponse,
+    ApiBearerAuth,
 } from '@nestjs/swagger';
 import { PaginationInterceptor } from '../../../core/pagination/pagination.interceptor';
 import { Paginated, Paging } from '../../../core/pagination/pagination';
 import { IsLoginGuard } from '../../../middleware/is-login.middleware';
 import { MessagingService } from '../services/messaging.service';
+import { IsSuperAdminGuard } from '../../../middleware/is-super-admin.middleware';
 import {
     CreateGroupDto,
     CreatePrivateChatDto,
@@ -25,9 +27,11 @@ import {
     GroupMembershipDto,
     UserSummaryDto,
     GetByNeighborhoodIdDto,
+    CountMessagesDto,
 } from './dto/messaging.dto';
 
 @ApiTags('Messaging')
+@ApiBearerAuth()
 @Controller('messaging')
 @UseGuards(IsLoginGuard)
 export class MessagingController {
@@ -202,6 +206,20 @@ export class MessagingController {
             pagination.limit
         );
         return new Paginated(messages, pagination, count);
+    }
+
+    @Get('messages/count')
+    @ApiOperation({
+        summary: 'Récupérer le nombre total de messages',
+        description: 'Récupère le nombre total de messages dans la base de données',
+    })
+    @ApiOkResponse({ description: 'Nombre de messages récupéré avec succès', type: CountMessagesDto })
+    @ApiUnauthorizedResponse({ description: 'Token JWT manquant ou invalide' })
+    @UseGuards(IsSuperAdminGuard)
+    async getAmountOfMessage(): Promise<CountMessagesDto> {
+        return {
+            count: await this.messagingService.getAmountOfMessage(),
+        };
     }
 
     // ========== USER SEARCH ==========

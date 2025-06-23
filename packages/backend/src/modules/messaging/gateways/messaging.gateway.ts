@@ -104,7 +104,6 @@ export class MessagingGateway implements OnGatewayInit, OnGatewayConnection, OnG
 
             client.userId = userId;
 
-            // Ajoute l'utilisateur à la liste des utilisateurs connectés
             if (!this.connectedUsers.has(userId)) {
                 this.connectedUsers.set(userId, new Set());
             }
@@ -115,7 +114,6 @@ export class MessagingGateway implements OnGatewayInit, OnGatewayConnection, OnG
 
             this.logger.log(`User ${userId} connected with socket ${client.id}`);
 
-            // Envoie un événement de connexion au client
             client.emit('connected', { userId, socketId: client.id });
         } catch (error) {
             this.logger.error(`Authentication failed for client ${client.id}:`, error);
@@ -149,7 +147,6 @@ export class MessagingGateway implements OnGatewayInit, OnGatewayConnection, OnG
         try {
             const { groupId } = payload;
 
-            // Check si bien accès au groupe
             const membership = await this.messagingService.membershipRepository.findByUserAndGroup(
                 client.userId,
                 groupId
@@ -160,7 +157,6 @@ export class MessagingGateway implements OnGatewayInit, OnGatewayConnection, OnG
                 return;
             }
 
-            // Rejoint la room du groupe
             const roomName = `group-${groupId}`;
             await client.join(roomName);
 
@@ -208,7 +204,6 @@ export class MessagingGateway implements OnGatewayInit, OnGatewayConnection, OnG
                 content,
             });
 
-            // Emet un événement de message envoyé à tous les membres du groupe
             const roomName = `group-${groupId}`;
             const messageEvent: MessageSentEvent = {
                 id: message.id,
@@ -238,7 +233,6 @@ export class MessagingGateway implements OnGatewayInit, OnGatewayConnection, OnG
         const { groupId } = payload;
         const roomName = `group-${groupId}`;
 
-        // Emet un signal aux autres membres que l'utilisateur a commencé à taper
         client.to(roomName).emit('user-typing', {
             userId: client.userId,
             groupId,
@@ -255,7 +249,6 @@ export class MessagingGateway implements OnGatewayInit, OnGatewayConnection, OnG
         const { groupId } = payload;
         const roomName = `group-${groupId}`;
 
-        // Emet un signe aux autres membres que l'utilisateur a arrêté de taper
         client.to(roomName).emit('user-typing', {
             userId: client.userId,
             groupId,

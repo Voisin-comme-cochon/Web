@@ -213,3 +213,8 @@ export class GroupMembershipDto {
     @ApiProperty({ description: "Informations sur l'utilisateur", required: false })
     user?: UserSummaryDto;
 }
+
+export class CountMessagesDto {
+    @ApiProperty({ example: 10, description: "Nombre total de messages sur l'application" })
+    count!: number;
+}

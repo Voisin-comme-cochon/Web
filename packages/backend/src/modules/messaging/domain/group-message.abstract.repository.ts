@@ -12,4 +12,6 @@ export abstract class GroupMessageRepository {
     abstract countByGroupId(groupId: number): Promise<number>;
 
     abstract delete(id: number): Promise<void>;
+
+    abstract getAmountOfMessage(): Promise<number>;
 }

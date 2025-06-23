@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { Group, GroupType, CreateGroup } from '../domain/group.model';
-import { GroupMessage, CreateGroupMessage } from '../domain/group-message.model';
-import { GroupMembership, MembershipStatus, CreateGroupMembership } from '../domain/group-membership.model';
+import { CreateGroup, Group, GroupType } from '../domain/group.model';
+import { CreateGroupMessage, GroupMessage } from '../domain/group-message.model';
+import { CreateGroupMembership, GroupMembership, MembershipStatus } from '../domain/group-membership.model';
 import { GroupRepository } from '../domain/group.abstract.repository';
 import { GroupMessageRepository } from '../domain/group-message.abstract.repository';
 import { GroupMembershipRepository } from '../domain/group-membership.abstract.repository';
@@ -329,7 +329,7 @@ export class MessagingService {
         const userMap = new Map(users.map((user) => [user.id, user]));
 
         // Remplace par les données sur service
-        const membershipsWithUsers = memberships.map((m) => {
+        return memberships.map((m) => {
             const newMembership = Object.assign({}, m);
             const userInfo = userMap.get(m.userId);
 
@@ -344,8 +344,6 @@ export class MessagingService {
 
             return newMembership;
         });
-
-        return membershipsWithUsers;
     }
 
     async searchUsersInNeighborhood(
@@ -408,5 +406,9 @@ export class MessagingService {
                 }
             );
         }
+    }
+
+    async getAmountOfMessage(): Promise<number> {
+        return await this.messageRepository.getAmountOfMessage();
     }
 }

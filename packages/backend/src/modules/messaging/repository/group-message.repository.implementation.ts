@@ -68,4 +68,8 @@ export class GroupMessageRepositoryImplementation extends GroupMessageRepository
     async delete(id: number): Promise<void> {
         await this.repository.delete(id);
     }
+
+    async getAmountOfMessage(): Promise<number> {
+        return await this.repository.count();
+    }
 }
