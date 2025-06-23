@@ -10,6 +10,7 @@ import { TagsModule } from './modules/tags/tags.module';
 import { EventsModule } from './modules/events/events.module';
 import { GroupsModule } from './modules/groups/groups.module';
 import { SalesModule } from './modules/sales/sales.module';
+import {JavaModule} from './modules/java/java.modules';
 
 @Module({
     imports: [
@@ -23,6 +24,7 @@ import { SalesModule } from './modules/sales/sales.module';
         GroupsModule,
         SalesModule,
         ObjectStorageModule,
+        JavaModule,
         TypeOrmModule.forRoot({
             type: 'postgres',
             host: process.env.VCC_DATABASE_HOST,
