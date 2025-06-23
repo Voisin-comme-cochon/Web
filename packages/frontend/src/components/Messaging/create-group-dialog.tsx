@@ -3,6 +3,8 @@ import { Search, Plus, Lock, Globe, X } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
+import AvatarComponent from '@/components/AvatarComponent/AvatarComponent';
+
 import { Button } from '@/components/ui/button';
 import {
     Dialog,
@@ -29,6 +31,8 @@ type User = {
     id: number;
     name: string;
     avatar?: string;
+    firstName?: string;
+    lastName?: string;
 };
 
 export function CreateGroupDialog({
@@ -102,7 +106,9 @@ export function CreateGroupDialog({
                     .map((user) => ({
                         id: user.id,
                         name: `${user.firstName} ${user.lastName}`,
-                        avatar: user.avatarUrl,
+                        avatar: user.profileImageUrl,
+                        firstName: user.firstName,
+                        lastName: user.lastName,
                     }));
                 setSearchResults(convertedUsers);
             } catch (error) {
@@ -321,10 +327,14 @@ export function CreateGroupDialog({
                                             key={member.id}
                                             className="flex items-center bg-muted rounded-full pl-1 pr-2 py-1"
                                         >
-                                            <img
-                                                src={member.avatar || '/placeholder.svg'}
-                                                alt={member.name}
-                                                className="w-5 h-5 rounded-full mr-1"
+                                            <AvatarComponent
+                                                user={{
+                                                    id: member.id,
+                                                    firstName: member.firstName || '',
+                                                    lastName: member.lastName || '',
+                                                    profileImageUrl: member.avatar,
+                                                }}
+                                                className="w-5 h-5 mr-1"
                                             />
                                             <span className="text-xs text-primary">{member.name}</span>
                                             <button
@@ -353,11 +363,15 @@ export function CreateGroupDialog({
                                                 onClick={() => handleAddMember(user)}
                                                 className="flex items-center p-2 hover:bg-muted cursor-pointer"
                                             >
-                                                <div className="relative">
-                                                    <img
-                                                        src={user.avatar || '/placeholder.svg'}
-                                                        alt={user.name}
-                                                        className="w-8 h-8 rounded-full mr-2"
+                                                <div className="mr-2">
+                                                    <AvatarComponent
+                                                        user={{
+                                                            id: user.id,
+                                                            firstName: user.firstName || '',
+                                                            lastName: user.lastName || '',
+                                                            profileImageUrl: user.avatar,
+                                                        }}
+                                                        className="w-8 h-8"
                                                     />
                                                 </div>
                                                 <span className="text-sm text-primary">{user.name}</span>

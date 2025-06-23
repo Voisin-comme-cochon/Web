@@ -360,23 +360,28 @@ export class MessagingService {
 
         const [usersWithRole] = await this.neighborhoodUserRepository.getUsersByNeighborhood(neighborhoodId, 1, 100);
 
-        let users = usersWithRole.map((userWithRole) => ({
-            id: userWithRole.user.id,
-            firstName: userWithRole.user.firstName,
-            lastName: userWithRole.user.lastName,
-            profileImageUrl: userWithRole.user.profileImageUrl,
+        const uniqueUserIds = Array.from(new Set(usersWithRole.map((userWithRole) => userWithRole.user.id))).filter(
+            (id) => id !== userId
+        );
+        const users = await Promise.all(uniqueUserIds.map((uid) => this.usersService.getUserById(uid)));
+
+        let mappedUsers = users.map((user) => ({
+            id: user.id,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            profileImageUrl: user.profileImageUrl,
         }));
 
         if (isNotNull(search)) {
             const searchLower = search.toLowerCase();
-            users = users.filter(
+            mappedUsers = mappedUsers.filter(
                 (user) =>
                     user.firstName.toLowerCase().includes(searchLower) ||
                     user.lastName.toLowerCase().includes(searchLower)
             );
         }
 
-        return users;
+        return mappedUsers;
     }
 
     async getAvailableGroups(userId: number, neighborhoodId: number): Promise<Group[]> {
