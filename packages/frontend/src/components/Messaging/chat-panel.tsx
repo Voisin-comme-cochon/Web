@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { cn } from '@/lib/utils';
 import { CreateGroupDialog } from './create-group-dialog';
-import { JoinGroupDialog } from './join-group-dialog';
+import { Group, JoinGroupDialog } from './join-group-dialog';
 import { useChatManager } from '@/presentation/hooks/useChatManager.ts';
 import { useHeaderData } from '@/presentation/hooks/UseHeaderData.tsx';
 import { GroupType } from '@/domain/models/messaging.model.ts';
@@ -83,6 +83,7 @@ export default function ChatPanel({ onClose }: { onClose: () => void }) {
             type: groupType,
             isPrivate: groupType !== GroupType.PUBLIC,
             neighborhoodId: neighborhoodId!,
+            tagId: group.tagId,
             memberIds: group.members.map((m: any) => m.id),
         };
 
@@ -279,9 +280,9 @@ export default function ChatPanel({ onClose }: { onClose: () => void }) {
                 </div>
             ) : (
                 // Conversation List
-                <div className="flex-1 flex flex-col">
+                <div className="flex-1 flex flex-col min-h-0">
                     {/* Tabs */}
-                    <div className="border-b border-border">
+                    <div className="border-b border-border flex-shrink-0">
                         <Tabs defaultValue="messages" value={activeTab} onValueChange={setActiveTab} className="w-full">
                             <TabsList className="w-full bg-white border-b border-border">
                                 <TabsTrigger value="messages" className="flex-1 data-[state=active]:text-orange">
@@ -295,7 +296,7 @@ export default function ChatPanel({ onClose }: { onClose: () => void }) {
                     </div>
 
                     {/* Search */}
-                    <div className="p-3 border-b border-border">
+                    <div className="p-3 border-b border-border flex-shrink-0">
                         <div className="relative">
                             <Search
                                 className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground"
@@ -316,7 +317,7 @@ export default function ChatPanel({ onClose }: { onClose: () => void }) {
 
                     {/* Group Actions */}
                     {activeTab === 'groups' && (
-                        <div className="p-3 border-b border-border flex gap-2">
+                        <div className="p-3 border-b border-border flex gap-2 flex-shrink-0">
                             <Button
                                 onClick={() => setCreateGroupOpen(true)}
                                 className="flex-1 bg-orange hover:bg-orange-hover text-white"
@@ -338,7 +339,8 @@ export default function ChatPanel({ onClose }: { onClose: () => void }) {
                     )}
 
                     {/* Conversations */}
-                    <div className="flex-1 overflow-y-auto min-h-0">
+                    <div className="flex-1 overflow-y-auto"
+                         style={{ minHeight: 0 }}>
                         {chat.loading && filteredConversations.length === 0 ? (
                             <div className="p-6 text-center text-muted-foreground">Chargement...</div>
                         ) : filteredConversations.length > 0 ? (
@@ -428,7 +430,9 @@ export default function ChatPanel({ onClose }: { onClose: () => void }) {
                 open={joinGroupOpen}
                 onOpenChange={setJoinGroupOpen}
                 onJoinGroup={handleJoinGroup}
-                availableGroups={chat.availableGroups}
+                availableGroups={chat.availableGroups as unknown as Group[]}
+                // Mock data for the moment
+                invitedGroups={[]}
                 loading={chat.loading}
             />
         </div>

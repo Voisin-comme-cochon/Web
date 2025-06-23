@@ -1,12 +1,12 @@
 import { useState } from 'react';
-import { Search, Lock, Globe, Users } from 'lucide-react';
+import { Globe, Lock, Search, Users } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
-type Group = {
+export type Group = {
     id: string;
     name: string;
     description: string;
@@ -16,77 +16,25 @@ type Group = {
     createdAt: string;
 };
 
-// Mock data for public groups
-const publicGroups: Group[] = [
-    {
-        id: 'g1',
-        name: 'Entraide Quartier Saint-Michel',
-        description: "Groupe d'entraide entre voisins du quartier Saint-Michel",
-        avatar: '/placeholder.svg?height=40&width=40',
-        type: 'public',
-        memberCount: 28,
-        createdAt: '2023-05-15T10:30:00Z',
-    },
-    {
-        id: 'g2',
-        name: 'Jardin Partagé Central',
-        description: 'Organisation et gestion du jardin partagé du quartier',
-        avatar: '/placeholder.svg?height=40&width=40',
-        type: 'public',
-        memberCount: 15,
-        createdAt: '2023-06-20T14:45:00Z',
-    },
-    {
-        id: 'g3',
-        name: 'Événements Locaux',
-        description: 'Annonces et organisation des événements dans le quartier',
-        avatar: '/placeholder.svg?height=40&width=40',
-        type: 'public',
-        memberCount: 42,
-        createdAt: '2023-04-10T09:15:00Z',
-    },
-    {
-        id: 'g4',
-        name: 'Petites Annonces',
-        description: 'Achats, ventes et dons entre voisins',
-        avatar: '/placeholder.svg?height=40&width=40',
-        type: 'public',
-        memberCount: 36,
-        createdAt: '2023-07-05T16:20:00Z',
-    },
-];
-
-// Mock data for private groups with invites
-const invitedGroups: Group[] = [
-    {
-        id: 'g5',
-        name: 'Copropriété Résidence des Fleurs',
-        description: 'Groupe des propriétaires de la Résidence des Fleurs',
-        avatar: '/placeholder.svg?height=40&width=40',
-        type: 'private',
-        memberCount: 12,
-        createdAt: '2023-05-22T11:30:00Z',
-    },
-];
-
 export function JoinGroupDialog({
     open,
     onOpenChange,
     onJoinGroup,
     availableGroups,
+    invitedGroups,
     loading,
 }: {
     open: boolean;
     onOpenChange: (open: boolean) => void;
     onJoinGroup: (group: Group) => void;
-    availableGroups?: Group[];
+    availableGroups: Group[];
+    invitedGroups: Group[];
     loading?: boolean;
 }) {
     const [searchQuery, setSearchQuery] = useState('');
     const [activeTab, setActiveTab] = useState('discover');
 
-    const groupsToFilter = availableGroups || publicGroups;
-    const filteredPublicGroups = groupsToFilter.filter(
+    const filteredPublicGroups = availableGroups.filter(
         (group) =>
             group.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
             (group.description && group.description.toLowerCase().includes(searchQuery.toLowerCase()))
@@ -131,9 +79,7 @@ export function JoinGroupDialog({
 
                         <div className="space-y-2 max-h-[300px] overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
                             {loading ? (
-                                <div className="text-center py-8 text-muted-foreground">
-                                    Chargement des groupes...
-                                </div>
+                                <div className="text-center py-8 text-muted-foreground">Chargement des groupes...</div>
                             ) : filteredPublicGroups.length > 0 ? (
                                 filteredPublicGroups.map((group) => (
                                     <div
@@ -148,9 +94,7 @@ export function JoinGroupDialog({
                                             />
                                             <div className="flex-1 min-w-0">
                                                 <div className="flex items-center">
-                                                    <h4 className="font-medium text-primary truncate">
-                                                        {group.name}
-                                                    </h4>
+                                                    <h4 className="font-medium text-primary truncate">{group.name}</h4>
                                                     <Globe size={14} className="ml-2 text-muted-foreground" />
                                                 </div>
                                                 <p className="text-sm text-muted-foreground line-clamp-2 mt-1">
@@ -195,9 +139,7 @@ export function JoinGroupDialog({
                                             />
                                             <div className="flex-1 min-w-0">
                                                 <div className="flex items-center">
-                                                    <h4 className="font-medium text-primary truncate">
-                                                        {group.name}
-                                                    </h4>
+                                                    <h4 className="font-medium text-primary truncate">{group.name}</h4>
                                                     <Lock size={14} className="ml-2 text-muted-foreground" />
                                                 </div>
                                                 <p className="text-sm text-muted-foreground line-clamp-2 mt-1">
