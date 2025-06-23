@@ -2,6 +2,8 @@ import { HomeUc } from '@/domain/use-cases/homeUc.ts';
 import { Button } from '@/components/ui/button.tsx';
 import { useState } from 'react';
 import { FrontNeighborhood } from '@/domain/models/FrontNeighborhood.ts';
+import { useToast } from '@/presentation/hooks/useToast.ts';
+import { ApiError } from '@/shared/errors/ApiError.ts';
 
 export default function NeighborhoodManageInformationPage({
     uc,
@@ -15,17 +17,26 @@ export default function NeighborhoodManageInformationPage({
     const [editName, setEditName] = useState(neighborhood?.name || '');
     const [description, setDescription] = useState(neighborhood?.description || '');
     const [editDescription, setEditDescription] = useState(neighborhood?.description || '');
+    const { showSuccess, showError } = useToast();
 
-    const handleSubmit = () => {
-        setName(editName);
-        setDescription(editDescription);
-        console.log('Submitting:', { editName, editDescription });
-        setEditing(false);
+    const handleSubmit = async () => {
+        try {
+            await uc.updateNeighborhoodManage(editName, editDescription, neighborhood.id);
+            setName(editName);
+            setDescription(editDescription);
+            setEditing(false);
+            showSuccess('Informations du quartier mises à jour avec succès !');
+        } catch (err) {
+            showError(
+                (err as ApiError)?.message ||
+                    'Une erreur est survenue lors de la mise à jour des informations du quartier.'
+            );
+        }
     };
 
     return (
         <div>
-            <div className={'flex justify-between items-center mb-12'}>
+            <div className={'flex justify-between items-center mb-6'}>
                 <div className={'flex flex-col items-start'}>
                     <p className={'text-xl font-bold'}>Informations du quartier</p>
                     <p className={'text-xs'}>Modifiez le nom et la description de votre quartier</p>
@@ -55,13 +66,7 @@ export default function NeighborhoodManageInformationPage({
                         <Button variant={'outline'} onClick={() => setEditing(false)}>
                             Annuler
                         </Button>
-                        <Button
-                            variant={'orange'}
-                            onClick={() => {
-                                handleSubmit();
-                                setEditing(false);
-                            }}
-                        >
+                        <Button variant={'orange'} onClick={() => handleSubmit()}>
                             Enregistrer
                         </Button>
                     </div>

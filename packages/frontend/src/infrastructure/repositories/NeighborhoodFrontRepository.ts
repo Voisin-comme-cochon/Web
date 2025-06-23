@@ -15,6 +15,18 @@ export class NeighborhoodFrontRepository {
         return paging.data;
     }
 
+    async updateNeighborhoodManage(
+        name: string,
+        description: string,
+        neighborhoodId: string | number
+    ): Promise<FrontNeighborhood> {
+        const response = await ApiService.patch<FrontNeighborhood>(`/neighborhoods/${neighborhoodId}/manage`, {
+            name,
+            description,
+        });
+        return response.data;
+    }
+
     async getMyNeighborhoods(id: string | number): Promise<FrontNeighborhood[]> {
         const response = await ApiService.get(`/neighborhoods/users/${id}`);
         return response.data;

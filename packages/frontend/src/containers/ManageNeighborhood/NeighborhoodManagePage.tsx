@@ -18,7 +18,7 @@ export default function NeighborhoodManagePage({ uc, neighborhoodId }: { uc: Hom
         };
 
         fetchNeighborhood();
-    });
+    }, []);
 
     useEffect(() => {
         const params = new URLSearchParams(window.location.search);

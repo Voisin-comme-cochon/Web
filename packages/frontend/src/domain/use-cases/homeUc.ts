@@ -280,4 +280,19 @@ export class HomeUc {
             throw new Error('Une erreur est survenue lors de la récupération du quartier');
         }
     }
+
+    async updateNeighborhoodManage(
+        name: string,
+        description: string,
+        neighborhoodId: number
+    ): Promise<FrontNeighborhood> {
+        try {
+            return await this.neighborhoodRepository.updateNeighborhoodManage(name, description, neighborhoodId);
+        } catch (error) {
+            if (error instanceof Error) {
+                throw new Error(error.message);
+            }
+            throw new Error('Une erreur est survenue lors de la mise à jour du quartier');
+        }
+    }
 }
