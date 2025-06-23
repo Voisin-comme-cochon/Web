@@ -10,16 +10,21 @@ export class JavaRepositoryImplementation implements JavaRepository {
     async getLastVersion(): Promise<JavaVersion> {
         const version = await this.dataSource
             .getRepository(JavaVersion)
-            .findOne({
-                order: {
-                    uploadedAt: 'DESC'
-                }
-            });
+            .createQueryBuilder('version')
+            .orderBy('version.uploadedAt', 'DESC')
+            .getOne();
 
         if (!version) {
             throw new NotFoundException('Aucune version Java trouvée');
         }
-
         return version;
+    }
+
+
+    async createVersion(version: string, fileName: string): Promise<JavaVersion> {
+        const repo = this.dataSource.getRepository(JavaVersion);
+        const javaVersion = repo.create({ version, fileName });
+        await repo.save(javaVersion);
+        return javaVersion;
     }
 }

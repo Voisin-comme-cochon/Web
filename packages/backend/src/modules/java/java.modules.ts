@@ -7,9 +7,11 @@ import { JavaRepository } from './domain/java.abstract.repository';
 import { JavaController } from './controllers/java.controller';
 import { JavaService } from './services/java.service';
 import { JavaRepositoryImplementation } from './repository/java.repository.implementation';
+import { ObjectStorageModule } from '../objectStorage/objectStorage.module';
+import { ObjectStorageService } from '../objectStorage/services/objectStorage.service';
 
 @Module({
-    imports: [AuthModule],
+    imports: [AuthModule, ObjectStorageModule],
     controllers: [JavaController],
     exports: [JavaRepository, JavaService],
     providers: [
@@ -20,8 +22,8 @@ import { JavaRepositoryImplementation } from './repository/java.repository.imple
         },
         {
             provide: JavaService,
-            inject: [JavaRepository],
-            useFactory: (javaRepository: JavaRepository) => new JavaService(javaRepository),
+            inject: [JavaRepository, ObjectStorageService],
+            useFactory: (javaRepository: JavaRepository, objectStorageService: ObjectStorageService) => new JavaService(javaRepository, objectStorageService),
         },
         IsLoginGuard,
         IsSuperAdminGuard,
