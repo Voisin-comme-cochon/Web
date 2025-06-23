@@ -8,6 +8,7 @@ export class GroupMembershipAdapter {
             userId: entity.userId,
             groupId: entity.groupId,
             status: entity.status as MembershipStatus,
+            isOwner: entity.isOwner,
             user: entity.user,
         };
     }

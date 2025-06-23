@@ -9,6 +9,7 @@ export class GroupMembership {
     userId!: number;
     groupId!: number;
     status!: MembershipStatus;
+    isOwner!: boolean;
     user?: {
         id: number;
         firstName: string;

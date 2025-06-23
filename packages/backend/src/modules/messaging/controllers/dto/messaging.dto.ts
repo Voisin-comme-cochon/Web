@@ -210,6 +210,12 @@ export class GroupMembershipDto {
     })
     status!: MembershipStatus;
 
+    @ApiProperty({ 
+        example: false, 
+        description: 'Indique si cet utilisateur est le propriétaire du groupe' 
+    })
+    isOwner!: boolean;
+
     @ApiProperty({ description: "Informations sur l'utilisateur", required: false })
     user?: UserSummaryDto;
 }

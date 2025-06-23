@@ -69,6 +69,7 @@ export class GroupMembershipRepositoryImplementation extends GroupMembershipRepo
             userId: membership.userId,
             groupId: membership.groupId,
             status: membership.status as EntityMembershipStatus,
+            isOwner: membership.isOwner,
         });
 
         const savedEntity = await this.repository.save(entity);
@@ -90,6 +91,7 @@ export class GroupMembershipRepositoryImplementation extends GroupMembershipRepo
                 userId: membership.userId,
                 groupId: membership.groupId,
                 status: membership.status as EntityMembershipStatus,
+                isOwner: membership.isOwner,
             })
         );
 

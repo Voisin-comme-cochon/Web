@@ -80,17 +80,19 @@ export class MessagingService {
 
         const group = await this.groupRepository.create(groupData);
 
-        // Crée les associations
+        // Crée les associations (aucun owner pour les chats privés)
         const memberships: CreateGroupMembership[] = [
             {
                 userId,
                 groupId: group.id,
                 status: MembershipStatus.ACTIVE,
+                isOwner: false,
             },
             {
                 userId: targetUserId,
                 groupId: group.id,
                 status: MembershipStatus.ACTIVE,
+                isOwner: false,
             },
         ];
 
@@ -117,11 +119,12 @@ export class MessagingService {
 
         const group = await this.groupRepository.create(groupData);
 
-        // Ajouter le créateur comme membre
+        // Ajouter le créateur comme membre et propriétaire
         const creatorMembership: CreateGroupMembership = {
             userId,
             groupId: group.id,
             status: MembershipStatus.ACTIVE,
+            isOwner: true,
         };
         await this.membershipRepository.create(creatorMembership);
 
@@ -132,6 +135,7 @@ export class MessagingService {
                     userId: memberId,
                     groupId: group.id,
                     status: MembershipStatus.ACTIVE,
+                    isOwner: false,
                 })
             );
             await this.membershipRepository.createMany(additionalMemberships);
@@ -295,6 +299,7 @@ export class MessagingService {
             userId,
             groupId,
             status: MembershipStatus.ACTIVE,
+            isOwner: false,
         };
         const membership = await this.membershipRepository.create(membershipData);
 

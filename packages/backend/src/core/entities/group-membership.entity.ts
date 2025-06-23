@@ -26,6 +26,12 @@ export class GroupMembershipEntity {
     })
     status!: MembershipStatus;
 
+    @Column({
+        type: 'boolean',
+        default: false,
+    })
+    isOwner!: boolean;
+
     // Relations
     @ManyToOne(() => UserEntity, { onDelete: 'CASCADE' })
     @JoinColumn({ name: 'userId' })
