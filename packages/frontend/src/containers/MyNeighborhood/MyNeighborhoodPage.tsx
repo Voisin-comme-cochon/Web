@@ -13,6 +13,7 @@ import { HomeUc } from '@/domain/use-cases/homeUc.ts';
 import DashboardHeader from '@/components/Header/DashboardHeader.tsx';
 import { TagRepository } from '@/infrastructure/repositories/TagRepository.ts';
 import ChatButton from '@/components/Messaging/chat-button.tsx';
+import AvatarComponent from '@/components/AvatarComponent/AvatarComponent.tsx';
 
 export default function MyNeighborhoodPage() {
     const [events, setEvents] = useState<EventModel[]>([]);
@@ -76,7 +77,7 @@ export default function MyNeighborhoodPage() {
                         <img
                             src={user.profileImageUrl ?? undefined}
                             alt="User Profile"
-                            className="w-14 h-14 rounded-full"
+                            className="w-14 h-14 rounded-full object-cover"
                         />
                     </div>
                 ) : (

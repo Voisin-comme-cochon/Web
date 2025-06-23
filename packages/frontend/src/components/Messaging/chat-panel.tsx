@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { ArrowLeft, MoreVertical, Search, Send, Plus, Users, Lock, Globe } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -6,235 +6,65 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { cn } from '@/lib/utils';
 import { CreateGroupDialog } from './create-group-dialog';
 import { JoinGroupDialog } from './join-group-dialog';
-
-// Types
-type User = {
-    id: string;
-    name: string;
-    avatar: string;
-    online?: boolean;
-};
-
-type Conversation = {
-    id: string;
-    name: string;
-    avatar: string;
-    lastMessage: string;
-    time: string;
-    unread: number;
-    online: boolean;
-    isGroup?: boolean;
-    type?: 'public' | 'private';
-    members?: { name: string; avatar: string; status: string }[];
-};
-
-type Message = {
-    id: string;
-    content: string;
-    sender: 'user' | 'other';
-    senderName?: string;
-    senderAvatar?: string;
-    time: string;
-    read: boolean;
-    isGroup?: boolean;
-};
-
-// Mock data
-const conversations: Conversation[] = [
-    {
-        id: '1',
-        name: 'Marie Dupont',
-        avatar: '/placeholder.svg?height=40&width=40',
-        lastMessage: "Bonjour, comment allez-vous aujourd'hui?",
-        time: '10:30',
-        unread: 2,
-        online: true,
-    },
-    {
-        id: '2',
-        name: 'Thomas Martin',
-        avatar: '/placeholder.svg?height=40&width=40',
-        lastMessage: 'Merci pour votre aide hier!',
-        time: 'Hier',
-        unread: 0,
-        online: false,
-    },
-    {
-        id: '3',
-        name: 'Sophie Bernard',
-        avatar: '/placeholder.svg?height=40&width=40',
-        lastMessage: 'À quelle heure est la réunion de quartier?',
-        time: 'Lun',
-        unread: 1,
-        online: true,
-    },
-    {
-        id: '4',
-        name: 'Lucas Petit',
-        avatar: '/placeholder.svg?height=40&width=40',
-        lastMessage: "J'ai trouvé un électricien pour le problème.",
-        time: 'Dim',
-        unread: 0,
-        online: false,
-    },
-    {
-        id: '5',
-        name: 'Groupe du Quartier',
-        avatar: '/placeholder.svg?height=40&width=40',
-        lastMessage: 'Réunion confirmée pour samedi à 15h!',
-        time: 'Mer',
-        unread: 3,
-        online: false,
-        isGroup: true,
-        type: 'public',
-        members: [
-            { name: 'Marie Dupont', avatar: '/placeholder.svg?height=40&width=40', status: 'En ligne' },
-            { name: 'Thomas Martin', avatar: '/placeholder.svg?height=40&width=40', status: 'Vu à 14:30' },
-            { name: 'Sophie Bernard', avatar: '/placeholder.svg?height=40&width=40', status: 'En ligne' },
-            { name: 'Lucas Petit', avatar: '/placeholder.svg?height=40&width=40', status: 'Vu hier' },
-            { name: 'Émilie Rousseau', avatar: '/placeholder.svg?height=40&width=40', status: 'En ligne' },
-        ],
-    },
-    {
-        id: 'g5',
-        name: 'Copropriété Résidence des Fleurs',
-        avatar: '/placeholder.svg?height=40&width=40',
-        lastMessage: 'La réunion de copropriété aura lieu le 15 juin.',
-        time: 'Lun',
-        unread: 0,
-        online: false,
-        isGroup: true,
-        type: 'private',
-        members: [
-            { name: 'Marie Dupont', avatar: '/placeholder.svg?height=40&width=40', status: 'En ligne' },
-            { name: 'Thomas Martin', avatar: '/placeholder.svg?height=40&width=40', status: 'Vu à 14:30' },
-            { name: 'Sophie Bernard', avatar: '/placeholder.svg?height=40&width=40', status: 'En ligne' },
-        ],
-    },
-];
-
-const messages: Record<string, Message[]> = {
-    '1': [
-        {
-            id: 'm1',
-            content: "Bonjour Marie, comment allez-vous aujourd'hui?",
-            sender: 'user',
-            time: '10:15',
-            read: true,
-        },
-        {
-            id: 'm2',
-            content: 'Bonjour! Je vais très bien, merci. Et vous?',
-            sender: 'other',
-            time: '10:17',
-            read: true,
-        },
-        {
-            id: 'm3',
-            content: "Très bien aussi! Avez-vous des nouvelles concernant l'événement du quartier ce weekend?",
-            sender: 'user',
-            time: '10:20',
-            read: true,
-        },
-        {
-            id: 'm4',
-            content:
-                "Oui, l'événement est confirmé pour samedi à 15h au parc central. Plusieurs voisins ont déjà confirmé leur présence!",
-            sender: 'other',
-            time: '10:25',
-            read: true,
-        },
-        {
-            id: 'm5',
-            content: "Super! J'y serai. Dois-je apporter quelque chose?",
-            sender: 'user',
-            time: '10:28',
-            read: true,
-        },
-        {
-            id: 'm6',
-            content:
-                "Vous pouvez apporter une boisson ou un dessert si vous voulez, mais ce n'est pas obligatoire. L'essentiel est votre présence!",
-            sender: 'other',
-            time: '10:30',
-            read: false,
-        },
-    ],
-    '5': [
-        {
-            id: 'g1',
-            content:
-                'Bonjour à tous! Je propose une réunion de quartier ce samedi à 15h au parc central. Qui serait disponible?',
-            sender: 'other',
-            senderName: 'Marie Dupont',
-            senderAvatar: '/placeholder.svg?height=40&width=40',
-            time: 'Mer, 14:15',
-            read: true,
-            isGroup: true,
-        },
-        {
-            id: 'g2',
-            content: 'Je serai présent!',
-            sender: 'user',
-            time: 'Mer, 14:20',
-            read: true,
-            isGroup: true,
-        },
-        {
-            id: 'g3',
-            content: 'Moi aussi, je viendrai avec quelques boissons.',
-            sender: 'other',
-            senderName: 'Sophie Bernard',
-            senderAvatar: '/placeholder.svg?height=40&width=40',
-            time: 'Mer, 14:25',
-            read: true,
-            isGroup: true,
-        },
-        {
-            id: 'g4',
-            content: 'Je ne pourrai pas être là ce samedi, mais tenez-moi au courant des décisions prises.',
-            sender: 'other',
-            senderName: 'Thomas Martin',
-            senderAvatar: '/placeholder.svg?height=40&width=40',
-            time: 'Mer, 14:30',
-            read: true,
-            isGroup: true,
-        },
-        {
-            id: 'g5',
-            content:
-                "Parfait! Donc nous confirmons la réunion pour samedi à 15h. N'hésitez pas à inviter d'autres voisins intéressés.",
-            sender: 'other',
-            senderName: 'Marie Dupont',
-            senderAvatar: '/placeholder.svg?height=40&width=40',
-            time: 'Mer, 14:45',
-            read: false,
-            isGroup: true,
-        },
-    ],
-};
+import { useChatManager } from '@/presentation/hooks/useChatManager.ts';
+import { useHeaderData } from '@/presentation/hooks/UseHeaderData.tsx';
+import { GroupType } from '@/domain/models/messaging.model.ts';
+import AvatarComponent from '@/components/AvatarComponent/AvatarComponent';
+import { UserModel } from '@/domain/models/user.model.ts';
 
 export default function ChatPanel({ onClose }: { onClose: () => void }) {
-    const [activeConversation, setActiveConversation] = useState<string | null>(null);
     const [newMessage, setNewMessage] = useState('');
     const [searchQuery, setSearchQuery] = useState('');
     const [activeTab, setActiveTab] = useState('messages');
     const [createGroupOpen, setCreateGroupOpen] = useState(false);
     const [joinGroupOpen, setJoinGroupOpen] = useState(false);
-    const [localConversations, setLocalConversations] = useState(conversations);
 
-    const filteredConversations = localConversations.filter(
-        (conv) =>
-            conv.name.toLowerCase().includes(searchQuery.toLowerCase()) && (activeTab !== 'groups' || conv.isGroup)
-    );
+    // Ref pour le conteneur de messages pour le scroll
+    const messagesContainerRef = useRef<HTMLDivElement>(null);
 
-    const handleSendMessage = () => {
-        if (newMessage.trim() === '') return;
-        // Here you would typically send the message to your backend
-        console.log('Sending message:', newMessage);
-        setNewMessage('');
+    // Récupérer les données utilisateur et quartier
+    const { user, neighborhoodId } = useHeaderData();
+
+    // Hook principal pour la gestion du chat
+    const chat = useChatManager({
+        neighborhoodId: Number(neighborhoodId) || undefined,
+        currentUserId: user?.id,
+    });
+
+    // Filtrer les conversations selon l'onglet actif et la recherche
+    const filteredConversations = (() => {
+        if (activeTab === 'messages') {
+            // Onglet Messages : seulement les groupes dont je suis membre
+            return chat.groups.filter((group) => group.name.toLowerCase().includes(searchQuery.toLowerCase()));
+        } else {
+            // Onglet Groupes : seulement les groupes dont je suis membre ET qui ne sont pas des chats privés
+            return chat.groups.filter(
+                (group) =>
+                    group.name.toLowerCase().includes(searchQuery.toLowerCase()) &&
+                    group.type !== GroupType.PRIVATE_CHAT
+            );
+        }
+    })();
+
+    // Charger les groupes disponibles quand on change d'onglet
+    useEffect(() => {
+        if (activeTab === 'groups' && neighborhoodId) {
+            chat.loadAvailableGroups();
+        }
+    }, [activeTab, neighborhoodId, chat.loadAvailableGroups]);
+
+    // Gestionnaire d'envoi de message
+    const handleSendMessage = async () => {
+        if (newMessage.trim() === '' || !chat.activeConversation) return;
+
+        const success = await chat.sendMessage(newMessage, chat.activeConversation);
+
+        if (success) {
+            setNewMessage('');
+        }
     };
 
+    // Gestionnaire de touche Entrée
     const handleKeyDown = (e: React.KeyboardEvent) => {
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
@@ -242,98 +72,94 @@ export default function ChatPanel({ onClose }: { onClose: () => void }) {
         }
     };
 
-    const handleCreateGroup = (group: { id: string; name: string; description: string; type: 'public' | 'private'; members: User[]; avatar: string }) => {
-        const newGroup: Conversation = {
-            id: group.id,
+    // Gestionnaire de création de groupe
+    const handleCreateGroup = async (group: any) => {
+        // Mapper les types du dialog vers les types de l'API
+        const groupType = group.type === 'public' ? GroupType.PUBLIC : GroupType.PRIVATE_GROUP;
+
+        const groupData = {
             name: group.name,
-            avatar: group.avatar,
-            lastMessage: `Groupe créé le ${new Date().toLocaleDateString()}`,
-            time: "Aujourd'hui",
-            unread: 0,
-            online: false,
-            isGroup: true,
-            type: group.type,
-            members: group.members.map((member) => ({
-                name: member.name,
-                avatar: member.avatar,
-                status: 'online' in member && member.online ? 'En ligne' : 'Hors ligne',
-            })),
+            description: group.description,
+            type: groupType,
+            isPrivate: groupType !== GroupType.PUBLIC,
+            neighborhoodId: neighborhoodId!,
+            memberIds: group.members.map((m: any) => m.id),
         };
 
-        setLocalConversations([newGroup, ...localConversations]);
-        setActiveConversation(group.id);
-        setActiveTab('messages');
-    };
-
-    const handleJoinGroup = (group: { id: string; name: string; description: string; type: 'public' | 'private'; avatar: string }) => {
-        const newGroup: Conversation = {
-            id: group.id,
-            name: group.name,
-            avatar: group.avatar,
-            lastMessage: `Vous avez rejoint ce groupe le ${new Date().toLocaleDateString()}`,
-            time: "Aujourd'hui",
-            unread: 0,
-            online: false,
-            isGroup: true,
-            type: group.type,
-            members: [],
-        };
-
-        // Check if the group is already in the conversations
-        if (!localConversations.some((conv) => conv.id === group.id)) {
-            setLocalConversations([newGroup, ...localConversations]);
+        const newGroup = await chat.createAndSelectGroup(groupData);
+        if (newGroup) {
+            setActiveTab('messages');
         }
-
-        setActiveConversation(group.id);
-        setActiveTab('messages');
     };
+
+    // Gestionnaire de rejoindre un groupe
+    const handleJoinGroup = async (group: any) => {
+        const success = await chat.joinAndSelectGroup(group.id);
+        if (success) {
+            setActiveTab('messages');
+        }
+    };
+
+    // Messages de la conversation active
+    const activeMessages = chat.activeConversation ? chat.messages[chat.activeConversation] || [] : [];
+
+    // Fonction pour scroller vers le bas
+    const scrollToBottom = () => {
+        if (messagesContainerRef.current) {
+            messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
+        }
+    };
+
+    // Auto-scroll vers le bas quand on change de conversation ou quand les messages changent
+    useEffect(() => {
+        if (chat.activeConversation && activeMessages.length > 0) {
+            // Délai pour s'assurer que le DOM est mis à jour
+            setTimeout(scrollToBottom, 100);
+        }
+    }, [chat.activeConversation, activeMessages]);
 
     return (
         <div className="bg-white rounded-lg shadow-xl w-[350px] h-[500px] flex flex-col overflow-hidden border border-border">
             {/* Header */}
             <div className="bg-primary text-white p-4 flex items-center justify-between">
-                {activeConversation ? (
+                {chat.activeConversation ? (
                     <>
                         <Button
                             variant="ghost"
                             size="icon"
                             className="text-white hover:bg-primary/80 -ml-2"
-                            onClick={() => setActiveConversation(null)}
+                            onClick={() => chat.selectConversation(null)}
                         >
                             <ArrowLeft size={20} />
                             <span className="sr-only">Retour</span>
                         </Button>
                         <div className="flex items-center flex-1 ml-1">
-                            <div className="w-8 h-8 rounded-full overflow-hidden mr-2 relative">
-                                <img
-                                    src={
-                                        localConversations.find((c) => c.id === activeConversation)?.avatar ||
-                                        '/placeholder.svg'
-                                    }
-                                    alt="Avatar"
-                                    className="w-full h-full object-cover"
-                                />
-                                {localConversations.find((c) => c.id === activeConversation)?.online && (
-                                    <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 rounded-full border-2 border-primary"></div>
+                            <div className="mr-2">
+                                {chat.activeConversationData?.type === GroupType.PRIVATE_CHAT ? (
+                                    <AvatarComponent
+                                        user={chat.activeConversationData.members?.find((m) => m.id !== user?.id)}
+                                        className="w-8 h-8"
+                                    />
+                                ) : (
+                                    <div className="w-8 h-8 rounded-full overflow-hidden bg-secondary flex items-center justify-center text-white font-bold">
+                                        {chat.activeConversationData?.name[0]?.toUpperCase()}
+                                    </div>
                                 )}
                             </div>
                             <div>
                                 <span className="font-medium">
-                                    {localConversations.find((c) => c.id === activeConversation)?.name}
+                                    {chat.activeConversationData &&
+                                        chat.getGroupDisplayName(chat.activeConversationData, user?.id)}
                                 </span>
-                                {localConversations.find((c) => c.id === activeConversation)?.isGroup && (
+                                {chat.activeConversationData?.type !== GroupType.PRIVATE_CHAT && (
                                     <div className="flex items-center text-xs text-white/70">
-                                        {localConversations.find((c) => c.id === activeConversation)?.type ===
-                                        'private' ? (
+                                        {chat.activeConversationData?.isPrivate ? (
                                             <Lock size={10} className="mr-1" />
                                         ) : (
                                             <Globe size={10} className="mr-1" />
                                         )}
                                         <span>
-                                            {localConversations.find((c) => c.id === activeConversation)?.type ===
-                                            'private'
-                                                ? 'Groupe privé'
-                                                : 'Groupe public'}
+                                            {chat.activeConversationData?.isPrivate ? 'Groupe privé' : 'Groupe public'}
                                         </span>
                                     </div>
                                 )}
@@ -343,59 +169,89 @@ export default function ChatPanel({ onClose }: { onClose: () => void }) {
                 ) : (
                     <h3 className="font-bold text-lg">Messages</h3>
                 )}
-                <Button variant="ghost" size="icon" className="text-white hover:bg-primary/80">
+                <Button variant="ghost" size="icon" className="text-white hover:bg-primary/">
                     <MoreVertical size={20} />
                     <span className="sr-only">Options</span>
                 </Button>
             </div>
 
+            {/* État de connexion WebSocket */}
+            {!chat.webSocketConnected && (
+                <div className="bg-orange/10 text-orange text-xs p-2 text-center">
+                    Connexion temps réel indisponible
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        className="ml-2 h-auto p-0 text-orange hover:text-orange-hover"
+                        onClick={chat.reconnectWebSocket}
+                    >
+                        Reconnecter
+                    </Button>
+                </div>
+            )}
+
             {/* Conversation List or Chat View */}
-            {activeConversation ? (
+            {chat.activeConversation ? (
                 // Chat View
-                <div className="flex-1 flex flex-col">
+                <div className="flex-1 flex flex-col min-h-0">
                     {/* Messages */}
-                    <div className="flex-1 overflow-hidden">
-                        <div className="h-full p-4 overflow-y-auto bg-muted">
-                        {messages[activeConversation]?.map((message) => (
-                            <div
-                                key={message.id}
-                                className={cn('mb-4 max-w-[80%]', message.sender === 'user' ? 'ml-auto' : 'mr-auto')}
-                            >
-                                {message.isGroup && message.sender === 'other' && (
-                                    <div className="flex items-center mb-1 ml-2">
-                                        <div className="w-5 h-5 rounded-full overflow-hidden mr-1">
-                                            <img
-                                                src={message.senderAvatar || '/placeholder.svg'}
-                                                alt={message.senderName}
-                                                className="w-full h-full object-cover"
-                                            />
-                                        </div>
-                                        <span className="text-xs font-medium text-primary/70">
-                                            {message.senderName}
+                    <div
+                        ref={messagesContainerRef}
+                        className="flex-1 overflow-y-auto bg-muted p-4"
+                        style={{ minHeight: 0 }}
+                    >
+                        {chat.loading && activeMessages.length === 0 ? (
+                            <div className="flex items-center justify-center h-full text-muted-foreground">
+                                Chargement des messages...
+                            </div>
+                        ) : activeMessages.length === 0 ? (
+                            <div className="flex items-center justify-center h-full text-muted-foreground">
+                                Aucun message dans cette conversation
+                            </div>
+                        ) : (
+                            activeMessages.map((message) => (
+                                <div
+                                    key={message.id}
+                                    className={cn(
+                                        'mb-4 max-w-[80%]',
+                                        message.userId === user?.id ? 'ml-auto' : 'mr-auto'
+                                    )}
+                                >
+                                    {message.groupId &&
+                                        chat.activeConversationData?.type !== GroupType.PRIVATE_CHAT &&
+                                        message.userId !== user?.id && (
+                                            <div className="flex items-center">
+                                                <div className="mr-1">
+                                                    <AvatarComponent user={message.user as UserModel} />
+                                                </div>
+                                                <span className="text-xs font-medium text-primary/70">
+                                                    {chat.getUserDisplayName(message.user)}
+                                                </span>
+                                            </div>
+                                        )}
+                                    <div
+                                        className={cn(
+                                            'p-3 rounded-lg',
+                                            message.userId === user?.id
+                                                ? 'bg-orange text-white rounded-br-none'
+                                                : 'bg-white text-primary border border-border rounded-bl-none'
+                                        )}
+                                    >
+                                        {message.content}
+                                    </div>
+                                    <div
+                                        className={cn(
+                                            'text-xs mt-1 flex items-center',
+                                            message.userId === user?.id ? 'justify-end' : 'justify-start'
+                                        )}
+                                    >
+                                        <span className="text-muted-foreground">
+                                            {chat.formatMessageTime(message.createdAt)}
                                         </span>
                                     </div>
-                                )}
-                                <div
-                                    className={cn(
-                                        'p-3 rounded-lg',
-                                        message.sender === 'user'
-                                            ? 'bg-orange text-white rounded-br-none'
-                                            : 'bg-white text-primary border border-border rounded-bl-none'
-                                    )}
-                                >
-                                    {message.content}
                                 </div>
-                                <div
-                                    className={cn(
-                                        'text-xs mt-1 flex items-center',
-                                        message.sender === 'user' ? 'justify-end' : 'justify-start'
-                                    )}
-                                >
-                                    <span className="text-muted-foreground">{message.time}</span>
-                                </div>
-                            </div>
-                        ))}
-                        </div>
+                            ))
+                        )}
                     </div>
 
                     {/* Message Input */}
@@ -407,12 +263,13 @@ export default function ChatPanel({ onClose }: { onClose: () => void }) {
                                 onKeyDown={handleKeyDown}
                                 placeholder="Écrivez votre message..."
                                 className="flex-1 border-border focus-visible:ring-orange"
+                                disabled={chat.loading}
                             />
                             <Button
                                 onClick={handleSendMessage}
                                 className="ml-2 bg-orange hover:bg-orange-hover text-white"
                                 size="icon"
-                                disabled={newMessage.trim() === ''}
+                                disabled={newMessage.trim() === '' || chat.loading}
                             >
                                 <Send size={18} />
                                 <span className="sr-only">Envoyer</span>
@@ -482,28 +339,32 @@ export default function ChatPanel({ onClose }: { onClose: () => void }) {
 
                     {/* Conversations */}
                     <div className="flex-1 overflow-y-auto min-h-0">
-                        {filteredConversations.length > 0 ? (
+                        {chat.loading && filteredConversations.length === 0 ? (
+                            <div className="p-6 text-center text-muted-foreground">Chargement...</div>
+                        ) : filteredConversations.length > 0 ? (
                             filteredConversations.map((conversation) => (
                                 <div
                                     key={conversation.id}
-                                    onClick={() => setActiveConversation(conversation.id)}
+                                    onClick={() => chat.selectConversation(conversation.id)}
                                     className="p-3 border-b border-border hover:bg-muted cursor-pointer transition-colors"
                                 >
                                     <div className="flex items-center">
                                         <div className="relative">
-                                            <div className="w-12 h-12 rounded-full overflow-hidden mr-3">
-                                                <img
-                                                    src={conversation.avatar || '/placeholder.svg'}
-                                                    alt={conversation.name}
-                                                    className="w-full h-full object-cover"
-                                                />
+                                            <div className="mr-3">
+                                                {conversation.type === GroupType.PRIVATE_CHAT ? (
+                                                    <AvatarComponent
+                                                        user={conversation.members?.find((m) => m.id !== user?.id)}
+                                                        className="w-12 h-12"
+                                                    />
+                                                ) : (
+                                                    <div className="w-12 h-12 rounded-full overflow-hidden bg-secondary flex items-center justify-center text-white font-bold">
+                                                        {conversation.name[0]?.toUpperCase()}
+                                                    </div>
+                                                )}
                                             </div>
-                                            {conversation.online && !conversation.isGroup && (
-                                                <div className="absolute bottom-0 right-3 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
-                                            )}
-                                            {conversation.isGroup && (
+                                            {conversation.type !== GroupType.PRIVATE_CHAT && (
                                                 <div className="absolute bottom-0 right-3 w-4 h-4 bg-white rounded-full border border-white flex items-center justify-center">
-                                                    {conversation.type === 'private' ? (
+                                                    {conversation.isPrivate ? (
                                                         <Lock size={10} className="text-muted-foreground" />
                                                     ) : (
                                                         <Globe size={10} className="text-muted-foreground" />
@@ -514,19 +375,18 @@ export default function ChatPanel({ onClose }: { onClose: () => void }) {
                                         <div className="flex-1 min-w-0">
                                             <div className="flex justify-between items-center">
                                                 <h4 className="font-medium text-primary truncate">
-                                                    {conversation.name}
+                                                    {chat.getGroupDisplayName(conversation, user?.id)}
                                                 </h4>
-                                                <span className="text-xs text-muted-foreground">{conversation.time}</span>
+                                                <span className="text-xs text-muted-foreground">
+                                                    {conversation.lastMessage
+                                                        ? chat.formatMessageTime(conversation.lastMessage.createdAt)
+                                                        : ''}
+                                                </span>
                                             </div>
                                             <div className="flex justify-between items-center mt-1">
                                                 <p className="text-sm text-muted-foreground truncate">
-                                                    {conversation.lastMessage}
+                                                    {conversation.lastMessage?.content || 'Aucun message'}
                                                 </p>
-                                                {conversation.unread > 0 && (
-                                                    <span className="ml-2 bg-orange text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                                                        {conversation.unread}
-                                                    </span>
-                                                )}
                                             </div>
                                         </div>
                                     </div>
@@ -538,6 +398,21 @@ export default function ChatPanel({ onClose }: { onClose: () => void }) {
                             </div>
                         )}
                     </div>
+
+                    {/* Erreurs */}
+                    {chat.error && (
+                        <div className="p-3 bg-destructive/10 text-destructive text-sm">
+                            {chat.error}
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                className="ml-2 h-auto p-0 text-destructive hover:text-destructive/80"
+                                onClick={chat.clearError}
+                            >
+                                Fermer
+                            </Button>
+                        </div>
+                    )}
                 </div>
             )}
 
@@ -546,9 +421,16 @@ export default function ChatPanel({ onClose }: { onClose: () => void }) {
                 open={createGroupOpen}
                 onOpenChange={setCreateGroupOpen}
                 onCreateGroup={handleCreateGroup}
+                neighborhoodId={Number(neighborhoodId)}
             />
 
-            <JoinGroupDialog open={joinGroupOpen} onOpenChange={setJoinGroupOpen} onJoinGroup={handleJoinGroup} />
+            <JoinGroupDialog
+                open={joinGroupOpen}
+                onOpenChange={setJoinGroupOpen}
+                onJoinGroup={handleJoinGroup}
+                availableGroups={chat.availableGroups}
+                loading={chat.loading}
+            />
         </div>
     );
 }
