@@ -47,6 +47,7 @@ import {
     GetNeighborhoodQueryParamsDto,
     QueryGetManageUser,
     RequestNeighborhoodDto,
+    RequestUpdateNeighborhoodDto,
     ResponseMemberNeighborhoodDto,
     ResponseNeighborhoodDto,
     SetStatusNeighborhoodDto,
@@ -155,6 +156,32 @@ export class NeighborhoodController {
             body.role,
             body.status
         );
+    }
+
+    @Patch(':neighborhoodId/manage')
+    @ApiOperation({ summary: 'Update neighborhood details' })
+    @ApiOkResponse({
+        description: 'Neighborhood details updated',
+        type: ResponseNeighborhoodDto,
+    })
+    @ApiNotFoundResponse({
+        description: 'Neighborhood not found',
+    })
+    @UseGuards(IsLoginGuard)
+    @ApiBearerAuth()
+    async updateNeighborhood(
+        @Param('neighborhoodId') neighborhoodId: number,
+        @Body() body: RequestUpdateNeighborhoodDto,
+        @Request() req: { user: { id: number } }
+    ): Promise<ResponseNeighborhoodDto> {
+        const neighborhood = await this.neighborhoodService.updateNeighborhood({
+            id: neighborhoodId,
+            name: body.name,
+            description: body.description,
+            userId: req.user.id,
+        });
+
+        return NeighborhoodsAdapter.domainToDto(neighborhood);
     }
 
     @Patch(':id')
