@@ -1,7 +1,7 @@
 import { DataSource, Repository } from 'typeorm';
 import {
     GroupMembershipEntity,
-    MembershipStatus as EntityMembershipStatus,
+    MembershipStatusEntity as EntityMembershipStatus,
 } from '../../../core/entities/group-membership.entity';
 import { GroupMembershipRepository } from '../domain/group-membership.abstract.repository';
 import { GroupMembership, MembershipStatus } from '../domain/group-membership.model';
@@ -68,7 +68,7 @@ export class GroupMembershipRepositoryImplementation extends GroupMembershipRepo
         const entity = this.repository.create({
             userId: membership.userId,
             groupId: membership.groupId,
-            status: membership.status as EntityMembershipStatus,
+            status: GroupMembershipAdapter.membershipStatusDomainToEntity(membership.status),
             isOwner: membership.isOwner,
         });
 
@@ -90,7 +90,7 @@ export class GroupMembershipRepositoryImplementation extends GroupMembershipRepo
             this.repository.create({
                 userId: membership.userId,
                 groupId: membership.groupId,
-                status: membership.status as EntityMembershipStatus,
+                status: GroupMembershipAdapter.membershipStatusDomainToEntity(membership.status),
                 isOwner: membership.isOwner,
             })
         );
@@ -106,7 +106,7 @@ export class GroupMembershipRepositoryImplementation extends GroupMembershipRepo
     }
 
     async updateStatus(id: number, status: MembershipStatus): Promise<GroupMembership> {
-        await this.repository.update(id, { status: status as EntityMembershipStatus });
+        await this.repository.update(id, { status: GroupMembershipAdapter.membershipStatusDomainToEntity(status) });
 
         const updatedEntity = await this.repository.findOne({
             where: { id },

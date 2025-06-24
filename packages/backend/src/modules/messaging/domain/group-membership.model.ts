@@ -1,7 +1,6 @@
 export enum MembershipStatus {
     PENDING = 'pending',
     ACTIVE = 'active',
-    REJECTED = 'rejected',
 }
 
 export class GroupMembership {
@@ -16,6 +15,11 @@ export class GroupMembership {
         lastName: string;
         profileImageUrl?: string;
     };
+}
+
+export class InviteGroupMembership {
+    groupId!: number;
+    userIds!: number[];
 }
 
 export type CreateGroupMembership = Omit<GroupMembership, 'id' | 'user'>;

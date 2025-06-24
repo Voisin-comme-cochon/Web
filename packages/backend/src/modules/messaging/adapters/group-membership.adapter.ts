@@ -1,5 +1,6 @@
-import { GroupMembershipEntity } from '../../../core/entities/group-membership.entity';
-import { GroupMembership, MembershipStatus } from '../domain/group-membership.model';
+import { GroupMembershipEntity, MembershipStatusEntity } from '../../../core/entities/group-membership.entity';
+import { GroupMembership, InviteGroupMembership, MembershipStatus } from '../domain/group-membership.model';
+import { InviteToGroupDto } from '../controllers/dto/messaging.dto';
 
 export class GroupMembershipAdapter {
     static entityToDomain(entity: GroupMembershipEntity): GroupMembership {
@@ -7,7 +8,7 @@ export class GroupMembershipAdapter {
             id: entity.id,
             userId: entity.userId,
             groupId: entity.groupId,
-            status: entity.status as MembershipStatus,
+            status: this.membershipStatusEntityToDomain(entity.status),
             isOwner: entity.isOwner,
             user: entity.user,
         };
@@ -15,5 +16,30 @@ export class GroupMembershipAdapter {
 
     static listEntityToDomain(entities: GroupMembershipEntity[]): GroupMembership[] {
         return entities.map((entity) => this.entityToDomain(entity));
+    }
+
+    static inviteDtoToDomain(dto: InviteToGroupDto): InviteGroupMembership {
+        return {
+            groupId: dto.groupId,
+            userIds: dto.userIds,
+        };
+    }
+
+    static membershipStatusDomainToEntity(status: MembershipStatus): MembershipStatusEntity {
+        switch (status) {
+            case MembershipStatus.PENDING:
+                return MembershipStatusEntity.PENDING;
+            case MembershipStatus.ACTIVE:
+                return MembershipStatusEntity.ACTIVE;
+        }
+    }
+
+    static membershipStatusEntityToDomain(status: MembershipStatusEntity): MembershipStatus {
+        switch (status) {
+            case MembershipStatusEntity.PENDING:
+                return MembershipStatus.PENDING;
+            case MembershipStatusEntity.ACTIVE:
+                return MembershipStatus.ACTIVE;
+        }
     }
 }

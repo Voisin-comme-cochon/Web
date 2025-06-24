@@ -1,33 +1,35 @@
-import { Controller, Post, Get, Body, Param, Query, UseGuards, Request, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query, Request, UseGuards, UseInterceptors } from '@nestjs/common';
 import {
-    ApiTags,
-    ApiOperation,
-    ApiOkResponse,
     ApiBadRequestResponse,
-    ApiNotFoundResponse,
-    ApiForbiddenResponse,
-    ApiUnauthorizedResponse,
     ApiBearerAuth,
+    ApiForbiddenResponse,
+    ApiNotFoundResponse,
+    ApiOkResponse,
+    ApiOperation,
+    ApiTags,
+    ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { PaginationInterceptor } from '../../../core/pagination/pagination.interceptor';
 import { Paginated, Paging } from '../../../core/pagination/pagination';
 import { IsLoginGuard } from '../../../middleware/is-login.middleware';
 import { MessagingService } from '../services/messaging.service';
 import { IsSuperAdminGuard } from '../../../middleware/is-super-admin.middleware';
+import { GroupMembershipAdapter } from '../adapters/group-membership.adapter';
 import {
+    CountMessagesDto,
     CreateGroupDto,
     CreatePrivateChatDto,
-    SendMessageDto,
-    GetMessagesDto,
-    JoinGroupDto,
-    GetUserGroupsDto,
-    SearchUsersDto,
-    GroupDto,
-    GroupMessageDto,
-    GroupMembershipDto,
-    UserSummaryDto,
     GetByNeighborhoodIdDto,
-    CountMessagesDto,
+    GetMessagesDto,
+    GetUserGroupsDto,
+    GroupDto,
+    GroupMembershipDto,
+    GroupMessageDto,
+    InviteToGroupDto,
+    JoinGroupDto,
+    SearchUsersDto,
+    SendMessageDto,
+    UserSummaryDto,
 } from './dto/messaging.dto';
 
 @ApiTags('Messaging')
@@ -158,6 +160,31 @@ export class MessagingController {
         @Query() query: GetByNeighborhoodIdDto
     ): Promise<GroupDto[]> {
         return await this.messagingService.getAvailableGroups(req.user.id, Number(query.neighborhoodId));
+    }
+
+    @Post('groups/invite')
+    @ApiOperation({
+        summary: 'Inviter des utilisateurs à un groupe',
+        description: 'Permet d’inviter plusieurs utilisateurs à rejoindre un groupe',
+    })
+    @ApiOkResponse({ description: 'Invitations envoyées avec succès', type: [GroupMembershipDto] })
+    @ApiBadRequestResponse({ description: 'Données invalides' })
+    @ApiForbiddenResponse({ description: 'Utilisateur non membre du groupe ou du quartier' })
+    @ApiNotFoundResponse({ description: 'Groupe non trouvé' })
+    @ApiUnauthorizedResponse({ description: 'Token JWT manquant ou invalide' })
+    async inviteToGroup(
+        @Request()
+        req: {
+            user: { id: number };
+        },
+        @Body() inviteToGroupDto: InviteToGroupDto
+    ): Promise<{ success: boolean }> {
+        await this.messagingService.inviteToGroup(
+            req.user.id,
+            GroupMembershipAdapter.inviteDtoToDomain(inviteToGroupDto)
+        );
+
+        return { success: true };
     }
 
     // ========== MESSAGING ==========

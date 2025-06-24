@@ -1,7 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { CreateGroup, Group, GroupType } from '../domain/group.model';
 import { CreateGroupMessage, GroupMessage } from '../domain/group-message.model';
-import { CreateGroupMembership, GroupMembership, MembershipStatus } from '../domain/group-membership.model';
+import {
+    CreateGroupMembership,
+    GroupMembership,
+    InviteGroupMembership,
+    MembershipStatus,
+} from '../domain/group-membership.model';
 import { GroupRepository } from '../domain/group.abstract.repository';
 import { GroupMessageRepository } from '../domain/group-message.abstract.repository';
 import { GroupMembershipRepository } from '../domain/group-membership.abstract.repository';
@@ -147,7 +152,6 @@ export class MessagingService {
     async sendMessage(userId: number, command: SendMessageCommand): Promise<GroupMessage> {
         const { groupId, content } = command;
 
-        // Check si bien membre du groupe
         const membership = await this.membershipRepository.findByUserAndGroup(userId, groupId);
 
         if (isNull(membership) || membership.status !== MembershipStatus.ACTIVE) {
@@ -171,7 +175,6 @@ export class MessagingService {
         page: number,
         limit: number
     ): Promise<[Group[], number]> {
-        // Check si bien membre du quartier
         await this.validateUserInNeighborhood(userId, neighborhoodId);
 
         const [groups, count] = await this.groupRepository.findUserGroupsInNeighborhood(
@@ -224,7 +227,6 @@ export class MessagingService {
         page: number,
         limit: number
     ): Promise<[GroupMessage[], number]> {
-        // Check si bien membre du groupe
         const membership = await this.membershipRepository.findByUserAndGroup(userId, groupId);
 
         if (isNull(membership) || membership.status !== MembershipStatus.ACTIVE) {
@@ -420,5 +422,58 @@ export class MessagingService {
 
     async getAmountOfMessage(): Promise<number> {
         return await this.messageRepository.getAmountOfMessage();
+    }
+
+    async inviteToGroup(userId: number, data: InviteGroupMembership): Promise<void> {
+        const { groupId, userIds } = data;
+
+        const group = await this.groupRepository.findById(groupId);
+        if (isNull(group)) {
+            throw new CochonError('group_not_found', 'Groupe non trouvé', 404, { groupId });
+        }
+
+        const inviterMembership = await this.membershipRepository.findByUserAndGroup(userId, groupId);
+        if (isNull(inviterMembership) || inviterMembership.status !== MembershipStatus.ACTIVE) {
+            throw new CochonError('not_member_of_group', "Vous n'êtes pas membre de ce groupe", 403, {
+                userId: userId,
+                groupId,
+            });
+        }
+
+        console.log('inviterMembership', inviterMembership);
+        if (!inviterMembership.isOwner) {
+            throw new CochonError('not_group_owner', 'Seul le propriétaire du groupe peut inviter des membres', 403, {
+                userId: userId,
+                groupId,
+            });
+        }
+
+        await this.validateUsersInNeighborhood(userIds, group.neighborhoodId);
+
+        // Check si déjà dans le groupe en active ou pending
+        const existingMemberships = await Promise.all(
+            data.userIds.map((userId) => this.membershipRepository.findByUserAndGroup(userId, groupId))
+        );
+
+        if (existingMemberships.some((membership) => membership !== null)) {
+            throw new CochonError(
+                'already_member_of_group',
+                'Un ou plusieurs utilisateurs sont déjà membres du groupe',
+                400,
+                {
+                    userIds,
+                    groupId,
+                }
+            );
+        }
+
+        const memberships: CreateGroupMembership[] = data.userIds.map((userId) => ({
+            userId,
+            groupId,
+            status: MembershipStatus.PENDING, // Statut d'invitation
+            isOwner: false,
+        }));
+
+        await this.membershipRepository.createMany(memberships);
     }
 }

@@ -89,6 +89,23 @@ export class JoinGroupDto {
     groupId!: number;
 }
 
+export class InviteToGroupDto {
+    @ApiProperty({ example: 1, description: 'ID du groupe sur lequel inviter la personne' })
+    @IsInt()
+    @Type(() => Number)
+    groupId!: number;
+
+    @ApiProperty({
+        example: [2, 3],
+        description: 'IDs des utilisateurs à inviter',
+        type: [Number],
+    })
+    @IsArray()
+    @IsInt({ each: true })
+    @Type(() => Number)
+    userIds!: number[];
+}
+
 export class GetByNeighborhoodIdDto {
     @ApiProperty({ example: 1, description: 'ID du quartier' })
     @IsInt()
@@ -210,9 +227,9 @@ export class GroupMembershipDto {
     })
     status!: MembershipStatus;
 
-    @ApiProperty({ 
-        example: false, 
-        description: 'Indique si cet utilisateur est le propriétaire du groupe' 
+    @ApiProperty({
+        example: false,
+        description: 'Indique si cet utilisateur est le propriétaire du groupe',
     })
     isOwner!: boolean;
 

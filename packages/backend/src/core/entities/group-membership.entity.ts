@@ -2,10 +2,9 @@ import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 't
 import { UserEntity } from './user.entity';
 import { GroupEntity } from './group.entity';
 
-export enum MembershipStatus {
+export enum MembershipStatusEntity {
     PENDING = 'pending',
     ACTIVE = 'active',
-    REJECTED = 'rejected',
 }
 
 @Entity('group-memberships')
@@ -21,10 +20,10 @@ export class GroupMembershipEntity {
 
     @Column({
         type: 'enum',
-        enum: MembershipStatus,
-        default: MembershipStatus.PENDING,
+        enum: MembershipStatusEntity,
+        default: MembershipStatusEntity.PENDING,
     })
-    status!: MembershipStatus;
+    status!: MembershipStatusEntity;
 
     @Column({
         type: 'boolean',
