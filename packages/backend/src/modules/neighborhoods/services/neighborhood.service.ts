@@ -117,7 +117,7 @@ export class NeighborhoodService {
                         template: Templates.DELETE_NEIGHBORHOOD,
                         context: {
                             neighborhoodName: neighborhood.name,
-                            userName: user.firstName,
+                            userName: user.firstName + ' ' + user.lastName,
                             supportEmail: process.env.VCC_SUPPORT_EMAIL,
                             reason: reason,
                         },
@@ -141,7 +141,7 @@ export class NeighborhoodService {
                         template: Templates.REOPENED_NEIGHBORHOOD,
                         context: {
                             neighborhoodName: neighborhood.name,
-                            userName: user.firstName,
+                            userName: user.firstName + ' ' + user.lastName,
                             supportEmail: process.env.VCC_SUPPORT_EMAIL,
                         },
                     });
@@ -161,7 +161,7 @@ export class NeighborhoodService {
                         template: Templates.ACCEPTED_NEIGHBORHOOD,
                         context: {
                             neighborhoodName: neighborhood.name,
-                            userName: user.firstName,
+                            userName: user.firstName + ' ' + user.lastName,
                             supportEmail: process.env.VCC_SUPPORT_EMAIL,
                         },
                     });
@@ -179,7 +179,7 @@ export class NeighborhoodService {
                         template: Templates.REFUSED_NEIGHBORHOOD,
                         context: {
                             neighborhoodName: neighborhood.name,
-                            userName: user.firstName,
+                            userName: user.firstName + ' ' + user.lastName,
                             supportEmail: process.env.VCC_SUPPORT_EMAIL,
                             reason: reason,
                         },

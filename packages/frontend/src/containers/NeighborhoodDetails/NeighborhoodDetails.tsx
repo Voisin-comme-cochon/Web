@@ -121,7 +121,7 @@ export const NeighborhoodDetailsPage: React.FC = () => {
                                 </TabsTrigger>
                             </TabsList>
 
-                            <div className="min-h-[300px]">
+                            <div>
                                 <TabsContent value="about">
                                     <div className="prose prose-lg max-w-none">
                                         <p className="text-[#1a2a41]/80 leading-relaxed whitespace-pre-line text-lg">

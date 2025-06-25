@@ -37,7 +37,7 @@ interface AddressData {
 }
 
 export default function SigninForm() {
-    const { goLanding, goLogin } = useAppNavigation();
+    const { goLanding, goLogin, goMyNeighborhood } = useAppNavigation();
     const [selectedAddress, setSelectedAddress] = useState<AddressData | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -99,7 +99,7 @@ export default function SigninForm() {
                     .filter((id) => id !== null) as number[],
             });
             showSuccess('Inscription réussie ! Bienvenue !');
-            goLanding();
+            goMyNeighborhood();
         } catch (err) {
             if (err instanceof AuthError) {
                 setError(err.message);

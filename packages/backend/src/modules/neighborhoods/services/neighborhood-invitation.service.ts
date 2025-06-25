@@ -59,7 +59,7 @@ export class NeighborhoodInvitationService {
                 template: Templates.NEIGHBORHOOD_INVITATION,
                 context: {
                     neighborhoodName: neighborhood.name,
-                    inviterName: sender.firstName,
+                    inviterName: sender.firstName + ' ' + sender.lastName,
                     neighborhoodDescription: neighborhood.description,
                     invitationLink: `${process.env.VCC_FRONT_URL}/neighborhoods/invite/${token}`,
                     linkExpirationDate: dayjs(expiredAt).format('DD/MM/YYYY'),

@@ -114,8 +114,8 @@ export class AuthService {
                 subject: 'Bienvenue sur Voisin comme Cochon !',
                 template: Templates.WELCOME,
                 context: {
-                    name: user.firstName,
-                    profileLink: `${process.env.VCC_FRONT_URL ?? 'http://localhost:8080'}/profile`,
+                    name: user.firstName + ' ' + user.lastName,
+                    profileLink: `${process.env.VCC_FRONT_URL ?? 'http://localhost:8080'}/user/` + user.id,
                     communityLink: `${process.env.VCC_FRONT_URL ?? 'http://localhost:8080'}/community`,
                     supportEmail: process.env.VCC_SUPPORT_EMAIL,
                 },
@@ -229,7 +229,7 @@ export class AuthService {
                 subject: 'Réinitialisation de votre mot de passe',
                 template: Templates.RESET_PASSWORD,
                 context: {
-                    name: user.firstName,
+                    name: user.firstName + ' ' + user.lastName,
                     resetLink: resetLink,
                 },
             });
