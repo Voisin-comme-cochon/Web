@@ -23,40 +23,16 @@ export function useMessaging(neighborhoodId?: number, currentUserId?: number) {
         setLoading(true);
         setError(null);
         try {
-            console.log(
-                'Messaging: Chargement des groupes pour le quartier:',
-                neighborhoodId,
-                'utilisateur:',
-                currentUserId
-            );
             const result = await messagingUc.getGroups(neighborhoodId);
-            console.log("Messaging: Groupes reçus de l'API:", result.data);
-
-            result.data.forEach((group) => {
-                console.log(`Messaging: Groupe "${group.name}" (ID: ${group.id}):`, {
-                    type: group.type,
-                    memberCount: group.memberCount,
-                    members: group.members,
-                });
-            });
-
             let memberGroups = result.data;
 
             if (currentUserId && !groupsVerified) {
-                console.log(`Messaging: Vérification des memberships pour l'utilisateur ${currentUserId}`);
-
                 const verifiedGroups = [];
 
                 for (const group of result.data) {
                     try {
-                        console.log(`Messaging: Vérification du groupe ${group.name} (ID: ${group.id})`);
                         const members = await messagingUc.getGroupMembers(group.id);
                         const isMember = members.some((member) => member.userId === currentUserId);
-
-                        console.log(
-                            `Messaging: Groupe ${group.name} - Utilisateur ${currentUserId} est membre:`,
-                            isMember
-                        );
 
                         if (isMember) {
                             verifiedGroups.push(group);
@@ -68,15 +44,12 @@ export function useMessaging(neighborhoodId?: number, currentUserId?: number) {
 
                 memberGroups = verifiedGroups;
                 setGroupsVerified(true);
-                console.log('Messaging: Groupes après vérification des memberships:', memberGroups);
             } else if (currentUserId && groupsVerified) {
-                console.log('Messaging: Groupes déjà vérifiés, pas de nouvelle vérification');
                 return;
             } else {
                 console.log("Messaging: Pas d'ID utilisateur, utilisation directe des groupes de l'API");
             }
 
-            console.log('Messaging: Groupes filtrés:', memberGroups);
             setGroups(memberGroups);
         } catch (err) {
             console.error('Messaging: Erreur lors du chargement des groupes:', err);

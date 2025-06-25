@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState, useRef } from 'react';
+import { useCallback, useEffect, useState, useRef, useMemo } from 'react';
 import { useMessaging } from './useMessaging';
 import { useWebSocket } from './useWebSocket';
 import { GroupMessageModel, GroupModel } from '../../domain/models/messaging.model';
@@ -167,6 +167,15 @@ export function useChatManager({ neighborhoodId, currentUserId }: UseChatManager
     }, []); // Pas de dépendances pour que cela ne se déclenche qu'au unmount
 
 
+    // Trier les groupes par date du dernier message (plus récent en premier)
+    const sortedGroups = useMemo(() => {
+        return [...messaging.groups].sort((a, b) => {
+            const aTime = a.lastMessage ? new Date(a.lastMessage.createdAt).getTime() : 0;
+            const bTime = b.lastMessage ? new Date(b.lastMessage.createdAt).getTime() : 0;
+            return bTime - aTime;
+        });
+    }, [messaging.groups]);
+
     // Obtenir la conversation active
     const getActiveConversation = useCallback((): GroupModel | null => {
         if (!activeConversation) return null;
@@ -176,6 +185,8 @@ export function useChatManager({ neighborhoodId, currentUserId }: UseChatManager
     return {
         // État de base
         ...messaging,
+        // Groupes triés
+        groups: sortedGroups,
         
         // État WebSocket
         webSocketConnected: webSocket.connected,

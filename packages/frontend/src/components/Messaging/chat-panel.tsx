@@ -232,7 +232,7 @@ export default function ChatPanel({ onClose }: { onClose: () => void }) {
                                         )}
                                     <div
                                         className={cn(
-                                            'p-3 rounded-lg',
+                                            'p-3 rounded-lg break-words whitespace-pre-wrap',
                                             message.userId === user?.id
                                                 ? 'bg-orange text-white rounded-br-none'
                                                 : 'bg-white text-primary border border-border rounded-bl-none'
