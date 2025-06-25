@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Query, Request, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Query, Request, UseGuards, UseInterceptors } from '@nestjs/common';
 import {
     ApiBadRequestResponse,
     ApiBearerAuth,
@@ -26,7 +26,7 @@ import {
     GroupMembershipDto,
     GroupMessageDto,
     InviteToGroupDto,
-    JoinGroupDto,
+    ByGroupDto,
     SearchUsersDto,
     SendMessageDto,
     UserSummaryDto,
@@ -121,9 +121,48 @@ export class MessagingController {
         req: {
             user: { id: number };
         },
-        @Body() joinGroupDto: JoinGroupDto
+        @Body() joinGroupDto: ByGroupDto
     ): Promise<GroupMembershipDto> {
         return await this.messagingService.joinGroup(req.user.id, joinGroupDto.groupId);
+    }
+
+    @Post('groups/leave')
+    @ApiOperation({
+        summary: 'Quitter un groupe',
+        description: 'Permet à un utilisateur de quitter un groupe (public ou privé) dont il est membre',
+    })
+    @ApiOkResponse({ description: 'Groupe quitté avec succès', type: 'object' })
+    @ApiBadRequestResponse({ description: 'Utilisateur non membre du groupe' })
+    @ApiForbiddenResponse({ description: "Le propriétaire ne peut pas quitter le groupe avec d'autres membres" })
+    @ApiNotFoundResponse({ description: 'Groupe non trouvé' })
+    @ApiUnauthorizedResponse({ description: 'Token JWT manquant ou invalide' })
+    async leaveGroup(
+        @Request()
+        req: {
+            user: { id: number };
+        },
+        @Body() leaveGroupDto: ByGroupDto
+    ): Promise<{ success: boolean; newOwnerId?: number; groupDeleted?: boolean }> {
+        return await this.messagingService.leaveGroup(req.user.id, leaveGroupDto.groupId);
+    }
+
+    @Delete('groups/:groupId')
+    @ApiOperation({
+        summary: 'Supprimer un groupe',
+        description: 'Permet au propriétaire de supprimer définitivement un groupe et toutes ses données associées',
+    })
+    @ApiOkResponse({ description: 'Groupe supprimé avec succès' })
+    @ApiForbiddenResponse({ description: 'Seul le propriétaire peut supprimer le groupe' })
+    @ApiNotFoundResponse({ description: 'Groupe non trouvé' })
+    @ApiUnauthorizedResponse({ description: 'Token JWT manquant ou invalide' })
+    async deleteGroup(
+        @Request()
+        req: {
+            user: { id: number };
+        },
+        @Param() params: ByGroupDto
+    ): Promise<{ success: boolean }> {
+        return await this.messagingService.deleteGroup(req.user.id, params.groupId);
     }
 
     @Get('groups/:groupId/members')

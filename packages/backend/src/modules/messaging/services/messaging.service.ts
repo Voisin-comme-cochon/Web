@@ -338,6 +338,85 @@ export class MessagingService {
         );
     }
 
+    async leaveGroup(userId: number, groupId: number): Promise<{ success: boolean }> {
+        const group = await this.groupRepository.findById(groupId);
+
+        if (isNull(group)) {
+            throw new CochonError('group_not_found', 'Groupe non trouvé', 404, {
+                userId,
+                groupId,
+            });
+        }
+
+        const membership = await this.membershipRepository.findByUserAndGroup(userId, groupId);
+
+        if (isNull(membership) || membership.status !== MembershipStatus.ACTIVE) {
+            throw new CochonError('not_member_of_group', "Vous n'êtes pas membre de ce groupe", 403, {
+                userId,
+                groupId,
+            });
+        }
+
+        const activeMembers = await this.membershipRepository.findActiveByGroupId(groupId);
+
+        // Propriétaire qui quitte : on doit transférer la propriété
+        if (membership.isOwner && activeMembers.length > 1) {
+            const otherMembers = activeMembers.filter((m) => m.userId !== userId);
+            // Le plus ancien membre actif devient le nouveau propriétaire
+            const newOwner = otherMembers[0];
+
+            await this.membershipRepository.updateOwner(newOwner.id, newOwner.userId, true);
+
+            await this.membershipRepository.delete(membership.id);
+
+            return { success: true };
+        }
+
+        // Propriétaire seul : on supprime le groupe
+        if (activeMembers.length === 1) {
+            await this.groupRepository.delete(groupId);
+            return { success: true };
+        }
+
+        // Utilisateur qui quitte : on supprime juste le membership
+        await this.membershipRepository.delete(membership.id);
+        return { success: true };
+    }
+
+    async deleteGroup(userId: number, groupId: number): Promise<{ success: boolean }> {
+        const group = await this.groupRepository.findById(groupId);
+
+        if (isNull(group)) {
+            throw new CochonError('group_not_found', 'Groupe non trouvé', 404, {
+                userId,
+                groupId,
+            });
+        }
+
+        // Vérifier que l'utilisateur est membre du groupe
+        const membership = await this.membershipRepository.findByUserAndGroup(userId, groupId);
+
+        if (isNull(membership) || membership.status !== MembershipStatus.ACTIVE) {
+            throw new CochonError('not_member_of_group', "Vous n'êtes pas membre de ce groupe", 403, {
+                userId,
+                groupId,
+            });
+        }
+
+        // Seul le propriétaire peut supprimer le groupe
+        if (!membership.isOwner) {
+            throw new CochonError('not_group_owner', 'Seul le propriétaire peut supprimer le groupe', 403, {
+                userId,
+                groupId,
+            });
+        }
+
+        // Supprimer le groupe (CASCADE supprimera automatiquement les memberships et messages)
+        await this.groupRepository.delete(groupId);
+
+        return { success: true };
+    }
+
     async getGroupMembers(userId: number, groupId: number): Promise<GroupMembership[]> {
         // Vérifier l'accès au groupe
         const membership = await this.membershipRepository.findByUserAndGroup(userId, groupId);

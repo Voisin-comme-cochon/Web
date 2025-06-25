@@ -119,6 +119,24 @@ export class GroupMembershipRepositoryImplementation extends GroupMembershipRepo
         return GroupMembershipAdapter.entityToDomain(updatedEntity);
     }
 
+    async updateOwner(id: number, userId: number, isOwner: boolean): Promise<GroupMembership> {
+        const updatedEntity = await this.repository.findOne({
+            where: { id },
+            relations: ['user'],
+        });
+
+        if (!updatedEntity) {
+            throw new CochonError('membership_not_found', 'Membership not found', 404);
+        }
+
+        updatedEntity.isOwner = isOwner;
+        updatedEntity.userId = userId;
+
+        const savedEntity = await this.repository.save(updatedEntity);
+
+        return GroupMembershipAdapter.entityToDomain(savedEntity);
+    }
+
     async delete(id: number): Promise<void> {
         await this.repository.delete(id);
     }

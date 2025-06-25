@@ -17,6 +17,8 @@ export abstract class GroupMembershipRepository {
 
     abstract updateStatus(id: number, status: MembershipStatus): Promise<GroupMembership>;
 
+    abstract updateOwner(id: number, userId: number, owner: boolean): Promise<GroupMembership>;
+
     abstract delete(id: number): Promise<void>;
 
     abstract countActiveByGroupId(groupId: number): Promise<number>;

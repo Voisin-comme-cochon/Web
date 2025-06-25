@@ -82,7 +82,7 @@ export class GetMessagesDto {
 }
 
 // ========== GROUP MANAGEMENT DTOs ==========
-export class JoinGroupDto {
+export class ByGroupDto {
     @ApiProperty({ example: 1, description: 'ID du groupe à rejoindre' })
     @IsInt()
     @Type(() => Number)
