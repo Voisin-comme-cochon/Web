@@ -108,8 +108,8 @@ export class MessagingController {
 
     @Post('groups/join')
     @ApiOperation({
-        summary: 'Rejoindre un groupe public',
-        description: 'Permet à un utilisateur de rejoindre un groupe public',
+        summary: 'Rejoindre un groupe public ou privée si invité',
+        description: 'Permet à un utilisateur de rejoindre un groupe public ou privé s’il a été invité',
     })
     @ApiOkResponse({ description: 'Groupe rejoint avec succès', type: GroupMembershipDto })
     @ApiBadRequestResponse({ description: 'Utilisateur déjà membre du groupe' })

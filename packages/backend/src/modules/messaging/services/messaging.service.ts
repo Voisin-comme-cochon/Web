@@ -271,18 +271,6 @@ export class MessagingService {
             });
         }
 
-        if (!(group.type === GroupType.PUBLIC && !group.isPrivate)) {
-            throw new CochonError(
-                'group_not_public',
-                'Seuls les groupes publics peuvent être rejoints librement',
-                403,
-                {
-                    userId,
-                    groupId,
-                }
-            );
-        }
-
         // Vérifier que l'utilisateur est membre du quartier
         await this.validateUserInNeighborhood(userId, group.neighborhoodId);
 
@@ -290,31 +278,64 @@ export class MessagingService {
         const existingMembership = await this.membershipRepository.findByUserAndGroup(userId, groupId);
 
         if (isNotNull(existingMembership)) {
-            throw new CochonError('already_member_of_group', 'Vous êtes déjà membre de ce groupe', 400, {
-                userId,
-                groupId,
+            // Si le membership existe et est ACTIVE, l'utilisateur est déjà membre
+            if (existingMembership.status === MembershipStatus.ACTIVE) {
+                throw new CochonError('already_member_of_group', 'Vous êtes déjà membre de ce groupe', 400, {
+                    userId,
+                    groupId,
+                });
+            }
+
+            // Si le membership existe et est PENDING, on peut l'activer (accepter l'invitation)
+            const updatedMembership = await this.membershipRepository.updateStatus(
+                existingMembership.id,
+                MembershipStatus.ACTIVE
+            );
+
+            const user = await this.usersService.getUserById(userId);
+
+            return Object.assign({}, updatedMembership, {
+                user: {
+                    id: user.id,
+                    firstName: user.firstName,
+                    lastName: user.lastName,
+                    profileImageUrl: user.profileImageUrl,
+                },
             });
         }
 
-        // Créer le membership
-        const membershipData: CreateGroupMembership = {
-            userId,
-            groupId,
-            status: MembershipStatus.ACTIVE,
-            isOwner: false,
-        };
-        const membership = await this.membershipRepository.create(membershipData);
+        // Groupe public -> on peut rejoindre sans invitation
+        if (group.type === GroupType.PUBLIC && !group.isPrivate) {
+            const membershipData: CreateGroupMembership = {
+                userId,
+                groupId,
+                status: MembershipStatus.ACTIVE,
+                isOwner: false,
+            };
+            const membership = await this.membershipRepository.create(membershipData);
 
-        const user = await this.usersService.getUserById(userId);
+            const user = await this.usersService.getUserById(userId);
 
-        return Object.assign({}, membership, {
-            user: {
-                id: user.id,
-                firstName: user.firstName,
-                lastName: user.lastName,
-                profileImageUrl: user.profileImageUrl,
-            },
-        });
+            return Object.assign({}, membership, {
+                user: {
+                    id: user.id,
+                    firstName: user.firstName,
+                    lastName: user.lastName,
+                    profileImageUrl: user.profileImageUrl,
+                },
+            });
+        }
+
+        // Groupe privée mais pas invité
+        throw new CochonError(
+            'group_private_no_invitation',
+            'Ce groupe est privé. Vous devez être invité pour le rejoindre.',
+            403,
+            {
+                userId,
+                groupId,
+            }
+        );
     }
 
     async getGroupMembers(userId: number, groupId: number): Promise<GroupMembership[]> {
