@@ -8,6 +8,8 @@ import { UsersService } from '../users/services/users.service';
 import { NeighborhoodUserRepository } from '../neighborhoods/domain/neighborhood-user.abstract.repository';
 import { ObjectStorageService } from '../objectStorage/services/objectStorage.service';
 import { NeighborhoodRepository } from '../neighborhoods/domain/neighborhood.abstract.repository';
+import { TagsModule } from '../tags/tags.module';
+import { TagsRepository } from '../tags/domain/tags.abstract.repository';
 import { GroupRepository } from './domain/group.abstract.repository';
 import { GroupMessageRepository } from './domain/group-message.abstract.repository';
 import { GroupMembershipRepository } from './domain/group-membership.abstract.repository';
@@ -24,6 +26,7 @@ import { MessagingGateway } from './gateways/messaging.gateway';
         forwardRef(() => UsersModule),
         forwardRef(() => NeighborhoodModule),
         ObjectStorageModule,
+        TagsModule,
     ],
     controllers: [MessagingController],
     exports: [GroupRepository, GroupMessageRepository, GroupMembershipRepository, MessagingService, MessagingGateway],
@@ -53,6 +56,7 @@ import { MessagingGateway } from './gateways/messaging.gateway';
                 NeighborhoodUserRepository,
                 UsersService,
                 ObjectStorageService,
+                TagsRepository,
             ],
             useFactory: (
                 groupRepository: GroupRepository,
@@ -61,7 +65,8 @@ import { MessagingGateway } from './gateways/messaging.gateway';
                 neighborhoodRepository: NeighborhoodRepository,
                 neighborhoodUserRepository: NeighborhoodUserRepository,
                 usersService: UsersService,
-                objectStorageService: ObjectStorageService
+                objectStorageService: ObjectStorageService,
+                tagsRepository: TagsRepository
             ) =>
                 new MessagingService(
                     groupRepository,
@@ -70,7 +75,8 @@ import { MessagingGateway } from './gateways/messaging.gateway';
                     neighborhoodRepository,
                     neighborhoodUserRepository,
                     usersService,
-                    objectStorageService
+                    objectStorageService,
+                    tagsRepository
                 ),
         },
         MessagingGateway,

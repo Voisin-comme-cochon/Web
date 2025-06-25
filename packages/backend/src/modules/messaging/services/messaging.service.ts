@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { CreateGroup, Group, GroupType } from '../domain/group.model';
+import { CreateGroup, Group, GroupType, UpdateGroup } from '../domain/group.model';
 import { CreateGroupMessage, GroupMessage } from '../domain/group-message.model';
 import {
     CreateGroupMembership,
@@ -18,6 +18,7 @@ import { isNotNull, isNull } from '../../../utils/tools';
 import { ObjectStorageService } from '../../objectStorage/services/objectStorage.service';
 import { BucketType } from '../../objectStorage/domain/bucket-type.enum';
 import { NeighborhoodRepository } from '../../neighborhoods/domain/neighborhood.abstract.repository';
+import { TagsRepository } from '../../tags/domain/tags.abstract.repository';
 
 @Injectable()
 export class MessagingService {
@@ -28,7 +29,8 @@ export class MessagingService {
         private readonly neighborhoodRepository: NeighborhoodRepository,
         private readonly neighborhoodUserRepository: NeighborhoodUserRepository,
         private readonly usersService: UsersService,
-        private readonly objectStorageService: ObjectStorageService
+        private readonly objectStorageService: ObjectStorageService,
+        private readonly tagRepository: TagsRepository
     ) {}
 
     async createPrivateChat(userId: number, targetUserId: number, neighborhoodId: number): Promise<Group> {
@@ -102,13 +104,21 @@ export class MessagingService {
             groupImage?: Express.Multer.File;
         }
     ): Promise<Group> {
-        console.log('createGroup called with data:', groupData, 'and options:', options);
         const neighborhoodExists = await this.neighborhoodRepository.getNeighborhoodById(groupData.neighborhoodId);
 
         if (isNull(neighborhoodExists)) {
             throw new CochonError('neighborhood_not_found', 'Quartier non trouvé', 404, {
                 neighborhoodId: groupData.neighborhoodId,
             });
+        }
+
+        if (isNotNull(groupData.tagId)) {
+            const tagExists = await this.tagRepository.getTagById(groupData.tagId);
+            if (isNull(tagExists)) {
+                throw new CochonError('tag_not_found', 'Tag non trouvé', 404, {
+                    tagId: groupData.tagId,
+                });
+            }
         }
 
         await this.validateUserInNeighborhood(userId, groupData.neighborhoodId);
@@ -159,6 +169,85 @@ export class MessagingService {
         }
 
         return group;
+    }
+
+    async updateGroup(
+        userId: number,
+        groupId: number,
+        updateData: UpdateGroup,
+        options?: {
+            groupImage?: Express.Multer.File;
+        }
+    ): Promise<Group> {
+        const group = await this.groupRepository.findById(groupId);
+
+        if (isNull(group)) {
+            throw new CochonError('group_not_found', 'Groupe non trouvé', 404, {
+                userId,
+                groupId,
+            });
+        }
+
+        const membership = await this.membershipRepository.findByUserAndGroup(userId, groupId);
+
+        if (isNull(membership) || membership.status !== MembershipStatus.ACTIVE) {
+            throw new CochonError('not_member_of_group', "Vous n'êtes pas membre de ce groupe", 403, {
+                userId,
+                groupId,
+            });
+        }
+
+        if (!membership.isOwner) {
+            throw new CochonError('not_group_owner', 'Seul le propriétaire peut modifier le groupe', 403, {
+                userId,
+                groupId,
+            });
+        }
+
+        if (isNotNull(updateData.tagId)) {
+            const tagExists = await this.tagRepository.getTagById(updateData.tagId);
+            if (isNull(tagExists)) {
+                throw new CochonError('tag_not_found', 'Tag non trouvé', 404, {
+                    tagId: updateData.tagId,
+                });
+            }
+        }
+
+        let imageUrl: string | undefined = updateData.imageUrl;
+        if (options?.groupImage) {
+            try {
+                // Supprimer l'ancienne image si elle existe
+                if (isNotNull(group.imageUrl)) {
+                    try {
+                        await this.objectStorageService.deleteFile(group.imageUrl, BucketType.GROUP_IMAGES);
+                    } catch (error) {
+                        console.error('Error deleting old group image:', error);
+                    }
+                }
+
+                // Télécharger la nouvelle image
+                imageUrl = await this.objectStorageService.uploadFile(
+                    options.groupImage.buffer,
+                    options.groupImage.originalname,
+                    BucketType.GROUP_IMAGES
+                );
+            } catch (error) {
+                console.error('Error uploading group image:', error);
+            }
+        }
+
+        const finalUpdateData: UpdateGroup = {
+            ...updateData,
+            ...(imageUrl !== undefined && { imageUrl }),
+        };
+
+        const updatedGroup = await this.groupRepository.update(groupId, finalUpdateData);
+
+        if (isNotNull(updatedGroup.imageUrl)) {
+            updatedGroup.imageUrl = await this.replaceGroupImageUrl(updatedGroup.imageUrl);
+        }
+
+        return updatedGroup;
     }
 
     async sendMessage(userId: number, content: string, groupId: number): Promise<GroupMessage> {

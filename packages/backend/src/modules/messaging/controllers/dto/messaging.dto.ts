@@ -54,6 +54,63 @@ export class CreateGroupDto {
     @Type(() => Number)
     @IsOptional()
     memberIds?: number[];
+
+    @ApiProperty({
+        type: 'string',
+        format: 'binary',
+        description: 'Image du groupe (optionnel)',
+        required: false,
+    })
+    @IsOptional()
+    groupImage?: Express.Multer.File;
+}
+
+export class UpdateGroupDto {
+    @ApiProperty({ example: 'Nouveau nom du groupe', description: 'Nom du groupe', required: false })
+    @IsString()
+    @IsOptional()
+    name?: string;
+
+    @ApiProperty({ example: 'Nouvelle description', description: 'Description du groupe', required: false })
+    @IsString()
+    @IsOptional()
+    description?: string;
+
+    @ApiProperty({
+        enum: GroupType,
+        example: GroupType.PUBLIC,
+        description: 'Type du groupe',
+        required: false,
+    })
+    @IsEnum(GroupType)
+    @IsOptional()
+    type?: GroupType;
+
+    @ApiProperty({ example: false, description: 'Groupe privé ou public', required: false })
+    @IsBoolean()
+    @Transform(({ value }) => {
+        if (typeof value === 'string') {
+            return value.toLowerCase() === 'true';
+        }
+        return Boolean(value);
+    })
+    @IsOptional()
+    isPrivate?: boolean;
+
+    @ApiProperty({ example: 2, description: 'ID du tag associé', required: false })
+    @IsInt()
+    @Type(() => Number)
+    @IsOptional()
+    tagId?: number;
+
+    @ApiProperty({
+        type: 'string',
+        format: 'binary',
+        description: 'Image du groupe (optionnel)',
+        required: false,
+    })
+    @IsOptional()
+    groupImage?: any;
 }
 
 export class CreatePrivateChatDto {
@@ -89,7 +146,7 @@ export class GetMessagesDto {
 
 // ========== GROUP MANAGEMENT DTOs ==========
 export class ByGroupDto {
-    @ApiProperty({ example: 1, description: 'ID du groupe à rejoindre' })
+    @ApiProperty({ example: 1, description: 'ID du groupe' })
     @IsInt()
     @Type(() => Number)
     groupId!: number;

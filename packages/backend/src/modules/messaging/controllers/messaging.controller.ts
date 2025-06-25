@@ -1,4 +1,17 @@
-import { Body, Controller, Delete, Get, Param, Post, Query, Request, UseGuards, UseInterceptors, UploadedFile } from '@nestjs/common';
+import {
+    Body,
+    Controller,
+    Delete,
+    Get,
+    Param,
+    Patch,
+    Post,
+    Query,
+    Request,
+    UseGuards,
+    UseInterceptors,
+    UploadedFile,
+} from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import {
     ApiBadRequestResponse,
@@ -31,6 +44,7 @@ import {
     ByGroupDto,
     SearchUsersDto,
     SendMessageDto,
+    UpdateGroupDto,
     UserSummaryDto,
 } from './dto/messaging.dto';
 
@@ -48,7 +62,8 @@ export class MessagingController {
     @ApiConsumes('multipart/form-data')
     @ApiOperation({
         summary: 'Crée un nouveau groupe',
-        description: 'Permet de créer un nouveau groupe dans un quartier avec des paramètres personnalisés et une image optionnelle',
+        description:
+            'Permet de créer un nouveau groupe dans un quartier avec des paramètres personnalisés et une image optionnelle',
     })
     @ApiOkResponse({ description: 'Groupe crée avec succès', type: GroupDto })
     @ApiBadRequestResponse({ description: 'Données invalides' })
@@ -63,15 +78,11 @@ export class MessagingController {
         @UploadedFile() groupImage?: Express.Multer.File
     ): Promise<GroupDto> {
         const { memberIds, ...groupData } = createGroupDto;
-        
-        return await this.messagingService.createGroup(
-            req.user.id,
-            groupData,
-            {
-                memberIds,
-                groupImage,
-            }
-        );
+
+        return await this.messagingService.createGroup(req.user.id, groupData, {
+            memberIds,
+            groupImage,
+        });
     }
 
     @Post('chats/private')
@@ -92,8 +103,8 @@ export class MessagingController {
         @Body() createPrivateChatDto: CreatePrivateChatDto
     ): Promise<GroupDto> {
         return await this.messagingService.createPrivateChat(
-            req.user.id, 
-            createPrivateChatDto.targetUserId, 
+            req.user.id,
+            createPrivateChatDto.targetUserId,
             createPrivateChatDto.neighborhoodId
         );
     }
@@ -162,6 +173,33 @@ export class MessagingController {
         @Body() leaveGroupDto: ByGroupDto
     ): Promise<{ success: boolean; newOwnerId?: number; groupDeleted?: boolean }> {
         return await this.messagingService.leaveGroup(req.user.id, leaveGroupDto.groupId);
+    }
+
+    @Patch('groups/:groupId')
+    @UseInterceptors(FileInterceptor('groupImage'))
+    @ApiConsumes('multipart/form-data')
+    @ApiOperation({
+        summary: 'Modifier un groupe',
+        description:
+            "Permet au propriétaire de modifier les informations d'un groupe (nom, description, type, tag, image)",
+    })
+    @ApiOkResponse({ description: 'Groupe modifié avec succès', type: GroupDto })
+    @ApiBadRequestResponse({ description: 'Données invalides' })
+    @ApiForbiddenResponse({ description: 'Seul le propriétaire peut modifier le groupe' })
+    @ApiNotFoundResponse({ description: 'Groupe non trouvé' })
+    @ApiUnauthorizedResponse({ description: 'Token JWT manquant ou invalide' })
+    async updateGroup(
+        @Request()
+        req: {
+            user: { id: number };
+        },
+        @Param() params: ByGroupDto,
+        @Body() updateGroupDto: UpdateGroupDto,
+        @UploadedFile() groupImage?: Express.Multer.File
+    ): Promise<GroupDto> {
+        return await this.messagingService.updateGroup(req.user.id, params.groupId, updateGroupDto, {
+            groupImage,
+        });
     }
 
     @Delete('groups/:groupId')
@@ -262,11 +300,7 @@ export class MessagingController {
         },
         @Body() sendMessageDto: SendMessageDto
     ): Promise<GroupMessageDto> {
-        return await this.messagingService.sendMessage(
-            req.user.id, 
-            sendMessageDto.content, 
-            sendMessageDto.groupId
-        );
+        return await this.messagingService.sendMessage(req.user.id, sendMessageDto.content, sendMessageDto.groupId);
     }
 
     @Get('messages')

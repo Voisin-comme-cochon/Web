@@ -21,4 +21,4 @@ export class Group {
 }
 
 export type CreateGroup = Omit<Group, 'id' | 'createdAt' | 'memberCount' | 'lastMessage'>;
-export type UpdateGroup = Partial<Omit<Group, 'id' | 'createdAt' | 'neighborhoodId' | 'tagId'>>;
+export type UpdateGroup = Partial<Omit<Group, 'id' | 'createdAt' | 'neighborhoodId' | 'memberCount' | 'lastMessage'>>;
