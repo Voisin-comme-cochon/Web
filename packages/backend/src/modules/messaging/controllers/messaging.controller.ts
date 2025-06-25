@@ -1,7 +1,9 @@
-import { Body, Controller, Delete, Get, Param, Post, Query, Request, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Query, Request, UseGuards, UseInterceptors, UploadedFile } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import {
     ApiBadRequestResponse,
     ApiBearerAuth,
+    ApiConsumes,
     ApiForbiddenResponse,
     ApiNotFoundResponse,
     ApiOkResponse,
@@ -42,9 +44,11 @@ export class MessagingController {
     // ========== GROUP MANAGEMENT ==========
 
     @Post('groups')
+    @UseInterceptors(FileInterceptor('groupImage'))
+    @ApiConsumes('multipart/form-data')
     @ApiOperation({
         summary: 'Crée un nouveau groupe',
-        description: 'Permet de créer un nouveau groupe dans un quartier avec des paramètres personnalisés',
+        description: 'Permet de créer un nouveau groupe dans un quartier avec des paramètres personnalisés et une image optionnelle',
     })
     @ApiOkResponse({ description: 'Groupe crée avec succès', type: GroupDto })
     @ApiBadRequestResponse({ description: 'Données invalides' })
@@ -55,9 +59,19 @@ export class MessagingController {
         req: {
             user: { id: number };
         },
-        @Body() createGroupDto: CreateGroupDto
+        @Body() createGroupDto: CreateGroupDto,
+        @UploadedFile() groupImage?: Express.Multer.File
     ): Promise<GroupDto> {
-        return await this.messagingService.createGroup(req.user.id, createGroupDto);
+        const { memberIds, ...groupData } = createGroupDto;
+        
+        return await this.messagingService.createGroup(
+            req.user.id,
+            groupData,
+            {
+                memberIds,
+                groupImage,
+            }
+        );
     }
 
     @Post('chats/private')
@@ -77,7 +91,11 @@ export class MessagingController {
         },
         @Body() createPrivateChatDto: CreatePrivateChatDto
     ): Promise<GroupDto> {
-        return await this.messagingService.createPrivateChat(req.user.id, createPrivateChatDto);
+        return await this.messagingService.createPrivateChat(
+            req.user.id, 
+            createPrivateChatDto.targetUserId, 
+            createPrivateChatDto.neighborhoodId
+        );
     }
 
     @Get('groups')
@@ -244,7 +262,11 @@ export class MessagingController {
         },
         @Body() sendMessageDto: SendMessageDto
     ): Promise<GroupMessageDto> {
-        return await this.messagingService.sendMessage(req.user.id, sendMessageDto);
+        return await this.messagingService.sendMessage(
+            req.user.id, 
+            sendMessageDto.content, 
+            sendMessageDto.groupId
+        );
     }
 
     @Get('messages')

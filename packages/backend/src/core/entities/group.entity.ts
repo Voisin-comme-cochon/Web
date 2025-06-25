@@ -38,6 +38,9 @@ export class GroupEntity {
     @Column()
     neighborhoodId!: number;
 
+    @Column({ nullable: true })
+    imageUrl?: string;
+
     @CreateDateColumn()
     createdAt!: Date;
 

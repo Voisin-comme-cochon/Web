@@ -3,8 +3,11 @@ import { DataSource } from 'typeorm';
 import { AuthModule } from '../auth/auth.module';
 import { UsersModule } from '../users/users.module';
 import { NeighborhoodModule } from '../neighborhoods/neighborhood.module';
+import { ObjectStorageModule } from '../objectStorage/objectStorage.module';
 import { UsersService } from '../users/services/users.service';
 import { NeighborhoodUserRepository } from '../neighborhoods/domain/neighborhood-user.abstract.repository';
+import { ObjectStorageService } from '../objectStorage/services/objectStorage.service';
+import { NeighborhoodRepository } from '../neighborhoods/domain/neighborhood.abstract.repository';
 import { GroupRepository } from './domain/group.abstract.repository';
 import { GroupMessageRepository } from './domain/group-message.abstract.repository';
 import { GroupMembershipRepository } from './domain/group-membership.abstract.repository';
@@ -16,7 +19,12 @@ import { MessagingController } from './controllers/messaging.controller';
 import { MessagingGateway } from './gateways/messaging.gateway';
 
 @Module({
-    imports: [forwardRef(() => AuthModule), forwardRef(() => UsersModule), forwardRef(() => NeighborhoodModule)],
+    imports: [
+        forwardRef(() => AuthModule),
+        forwardRef(() => UsersModule),
+        forwardRef(() => NeighborhoodModule),
+        ObjectStorageModule,
+    ],
     controllers: [MessagingController],
     exports: [GroupRepository, GroupMessageRepository, GroupMembershipRepository, MessagingService, MessagingGateway],
     providers: [
@@ -41,22 +49,28 @@ import { MessagingGateway } from './gateways/messaging.gateway';
                 GroupRepository,
                 GroupMessageRepository,
                 GroupMembershipRepository,
+                NeighborhoodRepository,
                 NeighborhoodUserRepository,
                 UsersService,
+                ObjectStorageService,
             ],
             useFactory: (
                 groupRepository: GroupRepository,
                 messageRepository: GroupMessageRepository,
                 membershipRepository: GroupMembershipRepository,
+                neighborhoodRepository: NeighborhoodRepository,
                 neighborhoodUserRepository: NeighborhoodUserRepository,
-                usersService: UsersService
+                usersService: UsersService,
+                objectStorageService: ObjectStorageService
             ) =>
                 new MessagingService(
                     groupRepository,
                     messageRepository,
                     membershipRepository,
+                    neighborhoodRepository,
                     neighborhoodUserRepository,
-                    usersService
+                    usersService,
+                    objectStorageService
                 ),
         },
         MessagingGateway,

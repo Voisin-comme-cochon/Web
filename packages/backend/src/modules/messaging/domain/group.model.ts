@@ -14,6 +14,7 @@ export class Group {
     isPrivate!: boolean;
     neighborhoodId!: number;
     tagId?: number;
+    imageUrl?: string;
     createdAt!: Date;
     memberCount?: number;
     lastMessage?: GroupMessage;

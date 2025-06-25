@@ -199,10 +199,7 @@ export class MessagingGateway implements OnGatewayInit, OnGatewayConnection, OnG
             const { groupId, content } = payload;
             this.logger.log(`User ${client.userId} sending message to group ${groupId}: ${content}`);
 
-            const message = await this.messagingService.sendMessage(client.userId, {
-                groupId,
-                content,
-            });
+            const message = await this.messagingService.sendMessage(client.userId, content, groupId);
 
             const roomName = `group-${groupId}`;
             const messageEvent: MessageSentEvent = {

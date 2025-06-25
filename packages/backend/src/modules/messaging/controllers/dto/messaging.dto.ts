@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsString, IsOptional, IsEnum, IsArray, IsBoolean, IsInt } from 'class-validator';
-import { Type } from 'class-transformer';
+import { Type, Transform } from 'class-transformer';
 import { GroupType } from '../../domain/group.model';
 import { MembershipStatus } from '../../domain/group-membership.model';
 
@@ -24,6 +24,12 @@ export class CreateGroupDto {
 
     @ApiProperty({ example: true, description: 'Groupe privé ou public' })
     @IsBoolean()
+    @Transform(({ value }) => {
+        if (typeof value === 'string') {
+            return value.toLowerCase() === 'true';
+        }
+        return Boolean(value);
+    })
     isPrivate!: boolean;
 
     @ApiProperty({ example: 1, description: 'ID du quartier' })
@@ -199,6 +205,13 @@ export class GroupDto {
 
     @ApiProperty({ example: 1, description: 'ID du tag associé', required: false })
     tagId?: number;
+
+    @ApiProperty({
+        example: 'https://example.com/group-image.jpg',
+        description: "URL de l'image du groupe",
+        required: false,
+    })
+    imageUrl?: string;
 
     @ApiProperty({ example: '2024-01-01T12:00:00Z', description: 'Date de création' })
     createdAt!: Date;

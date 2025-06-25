@@ -15,26 +15,9 @@ import { UsersService } from '../../users/services/users.service';
 import { UserSummaryDto } from '../controllers/dto/messaging.dto';
 import { CochonError } from '../../../utils/CochonError';
 import { isNotNull, isNull } from '../../../utils/tools';
-
-export interface CreateGroupCommand {
-    name: string;
-    description: string;
-    type: GroupType;
-    isPrivate: boolean;
-    neighborhoodId: number;
-    tagId?: number;
-    memberIds?: number[];
-}
-
-export interface CreatePrivateChatCommand {
-    targetUserId: number;
-    neighborhoodId: number;
-}
-
-export interface SendMessageCommand {
-    content: string;
-    groupId: number;
-}
+import { ObjectStorageService } from '../../objectStorage/services/objectStorage.service';
+import { BucketType } from '../../objectStorage/domain/bucket-type.enum';
+import { NeighborhoodRepository } from '../../neighborhoods/domain/neighborhood.abstract.repository';
 
 @Injectable()
 export class MessagingService {
@@ -42,13 +25,13 @@ export class MessagingService {
         private readonly groupRepository: GroupRepository,
         private readonly messageRepository: GroupMessageRepository,
         public readonly membershipRepository: GroupMembershipRepository,
+        private readonly neighborhoodRepository: NeighborhoodRepository,
         private readonly neighborhoodUserRepository: NeighborhoodUserRepository,
-        private readonly usersService: UsersService
+        private readonly usersService: UsersService,
+        private readonly objectStorageService: ObjectStorageService
     ) {}
 
-    async createPrivateChat(userId: number, command: CreatePrivateChatCommand): Promise<Group> {
-        const { targetUserId, neighborhoodId } = command;
-
+    async createPrivateChat(userId: number, targetUserId: number, neighborhoodId: number): Promise<Group> {
         // Check si les deux sont dans le quartier
         await this.validateUsersInNeighborhood([userId, targetUserId], neighborhoodId);
 
@@ -103,28 +86,53 @@ export class MessagingService {
 
         await this.membershipRepository.createMany(memberships);
 
+        // Convertir l'URL de l'image si elle existe
+        if (isNotNull(group.imageUrl)) {
+            group.imageUrl = await this.replaceGroupImageUrl(group.imageUrl);
+        }
+
         return group;
     }
 
-    async createGroup(userId: number, command: CreateGroupCommand): Promise<Group> {
-        const { neighborhoodId } = command;
+    async createGroup(
+        userId: number,
+        groupData: CreateGroup,
+        options?: {
+            memberIds?: number[];
+            groupImage?: Express.Multer.File;
+        }
+    ): Promise<Group> {
+        console.log('createGroup called with data:', groupData, 'and options:', options);
+        const neighborhoodExists = await this.neighborhoodRepository.getNeighborhoodById(groupData.neighborhoodId);
 
-        // Vérifier que l'utilisateur est membre du quartier
-        await this.validateUserInNeighborhood(userId, neighborhoodId);
+        if (isNull(neighborhoodExists)) {
+            throw new CochonError('neighborhood_not_found', 'Quartier non trouvé', 404, {
+                neighborhoodId: groupData.neighborhoodId,
+            });
+        }
 
-        // Créer le groupe
-        const groupData: CreateGroup = {
-            name: command.name,
-            description: command.description,
-            type: command.type,
-            isPrivate: command.isPrivate,
-            neighborhoodId: command.neighborhoodId,
-            tagId: command.tagId,
+        await this.validateUserInNeighborhood(userId, groupData.neighborhoodId);
+
+        let imageUrl: string | undefined = groupData.imageUrl;
+        if (options?.groupImage) {
+            try {
+                imageUrl = await this.objectStorageService.uploadFile(
+                    options.groupImage.buffer,
+                    options.groupImage.originalname,
+                    BucketType.GROUP_IMAGES
+                );
+            } catch (error) {
+                console.error('Error uploading group image:', error);
+            }
+        }
+
+        const finalGroupData: CreateGroup = {
+            ...groupData,
+            imageUrl,
         };
 
-        const group = await this.groupRepository.create(groupData);
+        const group = await this.groupRepository.create(finalGroupData);
 
-        // Ajouter le créateur comme membre et propriétaire
         const creatorMembership: CreateGroupMembership = {
             userId,
             groupId: group.id,
@@ -134,8 +142,8 @@ export class MessagingService {
         await this.membershipRepository.create(creatorMembership);
 
         // Ajouter les autres membres si spécifiés
-        if (command.memberIds?.length) {
-            const additionalMemberships = command.memberIds.map(
+        if (options?.memberIds?.length) {
+            const additionalMemberships = options.memberIds.map(
                 (memberId): CreateGroupMembership => ({
                     userId: memberId,
                     groupId: group.id,
@@ -146,12 +154,14 @@ export class MessagingService {
             await this.membershipRepository.createMany(additionalMemberships);
         }
 
+        if (isNotNull(group.imageUrl)) {
+            group.imageUrl = await this.replaceGroupImageUrl(group.imageUrl);
+        }
+
         return group;
     }
 
-    async sendMessage(userId: number, command: SendMessageCommand): Promise<GroupMessage> {
-        const { groupId, content } = command;
-
+    async sendMessage(userId: number, content: string, groupId: number): Promise<GroupMessage> {
         const membership = await this.membershipRepository.findByUserAndGroup(userId, groupId);
 
         if (isNull(membership) || membership.status !== MembershipStatus.ACTIVE) {
@@ -193,32 +203,51 @@ export class MessagingService {
             const users = await Promise.all(uniqueUserIds.map((uid) => this.usersService.getUserById(uid)));
             const userMap = new Map(users.map((user) => [user.id, user]));
 
-            const groupsWithUsers = groups.map((group) => {
-                const newGroup = Object.assign({}, group);
+            const groupsWithUsers = await Promise.all(
+                groups.map(async (group) => {
+                    const newGroup = Object.assign({}, group);
 
-                if (group.lastMessage) {
-                    const userInfo = userMap.get(group.lastMessage.userId);
-                    const lastMessageCopy = Object.assign({}, group.lastMessage);
-
-                    if (userInfo) {
-                        lastMessageCopy.user = {
-                            id: userInfo.id,
-                            firstName: userInfo.firstName,
-                            lastName: userInfo.lastName,
-                            profileImageUrl: userInfo.profileImageUrl,
-                        };
+                    // Convertir l'URL de l'image du groupe si elle existe
+                    if (isNotNull(newGroup.imageUrl)) {
+                        newGroup.imageUrl = await this.replaceGroupImageUrl(newGroup.imageUrl);
                     }
 
-                    newGroup.lastMessage = lastMessageCopy;
-                }
+                    if (group.lastMessage) {
+                        const userInfo = userMap.get(group.lastMessage.userId);
+                        const lastMessageCopy = Object.assign({}, group.lastMessage);
 
-                return newGroup;
-            });
+                        if (userInfo) {
+                            lastMessageCopy.user = {
+                                id: userInfo.id,
+                                firstName: userInfo.firstName,
+                                lastName: userInfo.lastName,
+                                profileImageUrl: userInfo.profileImageUrl,
+                            };
+                        }
+
+                        newGroup.lastMessage = lastMessageCopy;
+                    }
+
+                    return newGroup;
+                })
+            );
 
             return [groupsWithUsers, count];
         }
 
-        return [groups, count];
+        // Convertir les URLs d'images même quand il n'y a pas de lastMessage
+        const groupsWithImages = await Promise.all(
+            groups.map(async (group) => {
+                if (isNotNull(group.imageUrl)) {
+                    const groupCopy = Object.assign({}, group);
+                    groupCopy.imageUrl = await this.replaceGroupImageUrl(group.imageUrl);
+                    return groupCopy;
+                }
+                return group;
+            })
+        );
+
+        return [groupsWithImages, count];
     }
 
     async getGroupMessages(
@@ -488,7 +517,30 @@ export class MessagingService {
 
     async getAvailableGroups(userId: number, neighborhoodId: number): Promise<Group[]> {
         await this.validateUserInNeighborhood(userId, neighborhoodId);
-        return await this.groupRepository.findAvailableGroupsInNeighborhood(neighborhoodId, userId);
+        const groups = await this.groupRepository.findAvailableGroupsInNeighborhood(neighborhoodId, userId);
+
+        // Convertir les URLs d'images
+        return await Promise.all(
+            groups.map(async (group) => {
+                if (isNotNull(group.imageUrl)) {
+                    const groupCopy = Object.assign({}, group);
+                    groupCopy.imageUrl = await this.replaceGroupImageUrl(group.imageUrl);
+                    return groupCopy;
+                }
+                return group;
+            })
+        );
+    }
+
+    private async replaceGroupImageUrl(imageUrl: string): Promise<string> {
+        if (isNull(imageUrl)) {
+            return '';
+        }
+        const file = await this.objectStorageService.getFileLink(imageUrl, BucketType.GROUP_IMAGES);
+        if (!file) {
+            throw new CochonError('file-not-found', 'File not found', 404);
+        }
+        return file;
     }
 
     private async validateUserInNeighborhood(userId: number, neighborhoodId: number): Promise<void> {

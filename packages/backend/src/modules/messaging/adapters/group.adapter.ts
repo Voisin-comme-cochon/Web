@@ -11,6 +11,7 @@ export class GroupAdapter {
             isPrivate: entity.isPrivate,
             neighborhoodId: entity.neighborhoodId,
             tagId: entity.tagId,
+            imageUrl: entity.imageUrl,
             createdAt: entity.createdAt,
             memberCount: (entity as { memberCount?: number }).memberCount ?? 0,
 
@@ -42,6 +43,7 @@ export class GroupAdapter {
             isPrivate: domain.isPrivate,
             neighborhoodId: domain.neighborhoodId,
             tagId: domain.tagId,
+            imageUrl: domain.imageUrl,
         };
     }
 }
