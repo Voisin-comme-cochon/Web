@@ -33,6 +33,17 @@ export class HomeUc {
         }
     }
 
+    async sendInviteEmails(neighborhoodId: string, emails: string[], durationInDays: number): Promise<void> {
+        try {
+            await this.neighborhoodRepository.sendInviteEmails(neighborhoodId, emails, durationInDays);
+        } catch (error) {
+            if (error instanceof Error) {
+                throw new Error(error.message);
+            }
+            throw new Error("Une erreur est survenue lors de l'envoi des invitations par email");
+        }
+    }
+
     async generateInviteLink(neighborhoodId: number, duration: number, maxUses: number): Promise<string> {
         try {
             const response = await this.neighborhoodRepository.generateInviteLink(neighborhoodId, duration, maxUses);

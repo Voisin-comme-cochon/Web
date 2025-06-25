@@ -15,6 +15,10 @@ export class NeighborhoodFrontRepository {
         return paging.data;
     }
 
+    async sendInviteEmails(neighborhoodId: string, emails: string[], durationInDays: number): Promise<void> {
+        await ApiService.post(`/neighborhoods/invitations`, { emails, neighborhoodId, durationInDays });
+    }
+
     async updateNeighborhoodManage(
         name: string,
         description: string,
