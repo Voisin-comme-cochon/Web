@@ -14,7 +14,7 @@ import CreateEventPage from '@/containers/CreateEvent/CreateEventPage.tsx';
 import JoinNeighborhood from '@/containers/JoinNeighborhood/JoinNeighborhood.tsx';
 import NeighborhoodDetails from '@/containers/NeighborhoodDetails/NeighborhoodDetails.tsx';
 import ManageNeighborhood from '@/containers/ManageNeighborhood/ManageNeighborhood.tsx';
-import ProfilPage from '@/containers/ProfilPage/LoginPage.tsx';
+import ProfilPage from '@/containers/ProfilPage/ProfilPage.tsx';
 
 export default function App() {
     return (

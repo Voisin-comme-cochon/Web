@@ -12,6 +12,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useToast } from '@/presentation/hooks/useToast.ts';
+import { useNavigate } from 'react-router-dom';
 
 const formSchema = z.object({
     email: z
@@ -23,11 +24,12 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
-export default function LoginForm() {
+export default function LoginForm({ redirect }: { redirect: string | null }) {
     const { goResetPassword, goSignin, goMyNeighborhood } = useAppNavigation();
     const [error, setError] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const { showSuccess } = useToast();
+    const navigate = useNavigate();
 
     const form = useForm<FormValues>({
         resolver: zodResolver(formSchema),
@@ -45,8 +47,12 @@ export default function LoginForm() {
             const authUc = new AuthUc(new AuthRepository());
             await authUc.login(values.email, values.password);
             showSuccess('Connexion réussie !', 'Bienvenue dans votre espace personnel !');
-            // goCreateNeighborhood(); TODO: Checker si la personne a un quartier pour savoir où le rediriger
-            goMyNeighborhood();
+            if (redirect != null) {
+                console.log('Redirecting to:', redirect);
+                navigate(redirect, { replace: true });
+            } else {
+                goMyNeighborhood();
+            }
         } catch (err) {
             if (err instanceof AuthError) {
                 setError(err.message);
@@ -138,7 +144,7 @@ export default function LoginForm() {
                                 <p className={'text-gray-600 mr-2'}>Pas encore de compte ?</p>
                                 <Button
                                     variant="link"
-                                    onClick={goSignin}
+                                    onClick={() => goSignin(redirect == null ? undefined : redirect)}
                                     className="text-orange hover:underline px-0"
                                     type="button"
                                     disabled={isLoading}

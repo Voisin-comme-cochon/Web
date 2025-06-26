@@ -27,7 +27,7 @@ export default function LandingPage() {
                     </div>
                     <img src={neighborhood} className="max-w-full h-auto" alt={"Illustration d'un quartier"} />
                 </div>
-                <Button onClick={goSignin} variant={'floatingOrange'}>
+                <Button onClick={() => goSignin()} variant={'floatingOrange'}>
                     CRÉER MON COMPTE
                 </Button>
             </div>

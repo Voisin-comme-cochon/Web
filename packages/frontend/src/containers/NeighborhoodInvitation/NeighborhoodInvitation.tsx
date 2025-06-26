@@ -9,7 +9,6 @@ import { InvalidInvite } from '@/components/NeighborhoodInvitation/Invite/Invali
 import { ExpiredInvite } from '@/components/NeighborhoodInvitation/Invite/ExpiredInvite';
 import { AlreadyMember } from '@/components/NeighborhoodInvitation/Invite/AlreadyMember';
 import { MembersList } from '@/components/NeighborhoodInvitation/Invite/MembersList';
-import MapBox from '@/components/MapBox/MapBox';
 import { useAppNavigation } from '@/presentation/state/navigate.ts';
 import { NeighborhoodInvitationUc } from '@/domain/use-cases/neighborhoodInvitationUc.ts';
 import { NeighborhoodFrontRepository } from '@/infrastructure/repositories/NeighborhoodFrontRepository.ts';
@@ -17,13 +16,13 @@ import { useParams } from 'react-router-dom';
 import { AxiosError } from 'axios';
 import { FrontNeighborhood } from '@/domain/models/FrontNeighborhood.ts';
 import { useToast } from '@/presentation/hooks/useToast.ts';
+import ViewNeighborhoodMapBox from '@/components/MapBox/ViewNeighborhoodMapBox.tsx';
 
 export type InviteTab = 'about' | 'location' | 'members';
 
 type InviteStatus = 'loading' | 'valid' | 'invalid' | 'expired' | 'already_member' | 'error';
 
 export default function NeighborhoodInvitePage() {
-
     const { goMyNeighborhood } = useAppNavigation();
     const { token } = useParams<{ token: string }>();
 
@@ -96,7 +95,10 @@ export default function NeighborhoodInvitePage() {
                 return;
             }
 
-            showSuccess('Vous avez rejoint le quartier avec succès !');
+            showSuccess(
+                'Vous avez rejoint le quartier avec succès !',
+                "L'administrateur a été informé de votre adhésion. Vous serez prévenu par mail lorsque vous serez accepté."
+            );
             setHasJoined(true);
         } catch (error) {
             console.error("Erreur lors de l'adhésion au quartier:", error);
@@ -177,7 +179,7 @@ export default function NeighborhoodInvitePage() {
                                 Vous avez rejoint le quartier <strong>{invite.name}</strong> avec succès.
                             </p>
                             <Button
-                                onClick={goMyNeighborhood()}
+                                onClick={() => goMyNeighborhood()}
                                 className="bg-[#e36f4c] hover:bg-[#d15e3b] text-white px-8 py-3 text-lg"
                             >
                                 Accéder à mon quartier
@@ -187,8 +189,13 @@ export default function NeighborhoodInvitePage() {
                 ) : (
                     <Card className="max-w-4xl mx-auto">
                         <CardContent className="p-8">
-                            <h3 className="text-3xl font-bold text-[#e36f4c] mb-8 text-center">{invite.name}</h3>
-
+                            <h3 className="text-3xl font-bold text-[#e36f4c] mb-2 text-center">{invite.name}</h3>
+                            {invite.status === 'waiting' && (
+                                <p className={'text-xs text-gray-500 mb-4 text-center'}>
+                                    Ce quartier est en attente de validation, vous serez prévenu par mail lorsqu'il sera
+                                    accepté.
+                                </p>
+                            )}
                             <ImageCarousel
                                 images={invite.images ? invite.images.map((image) => image.url) : []}
                                 alt={invite.name}
@@ -227,7 +234,7 @@ export default function NeighborhoodInvitePage() {
                                     </TabsTrigger>
                                 </TabsList>
 
-                                <div className="min-h-[300px]">
+                                <div>
                                     <TabsContent value="about" className="mt-0">
                                         <div className="prose prose-lg max-w-none">
                                             <p className="text-[#1a2a41]/80 leading-relaxed whitespace-pre-line text-lg">
@@ -239,13 +246,7 @@ export default function NeighborhoodInvitePage() {
                                     <TabsContent value="location" className="mt-0">
                                         <div className="space-y-4">
                                             <div className="h-96 w-full">
-                                                <MapBox
-                                                    canCreate={false}
-                                                    showDetails={false}
-                                                    onGeoSelect={() => {}}
-                                                    specificNeighborhood={invite.geo ? [invite.geo] : []}
-                                                    centerOnNeighborhood={true}
-                                                />
+                                                <ViewNeighborhoodMapBox geometry={invite.geo} />
                                             </div>
                                         </div>
                                     </TabsContent>

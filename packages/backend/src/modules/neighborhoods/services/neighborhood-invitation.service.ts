@@ -61,7 +61,7 @@ export class NeighborhoodInvitationService {
                     neighborhoodName: neighborhood.name,
                     inviterName: sender.firstName + ' ' + sender.lastName,
                     neighborhoodDescription: neighborhood.description,
-                    invitationLink: `${process.env.VCC_FRONT_URL}/neighborhoods/invite/${token}`,
+                    invitationLink: `${process.env.VCC_FRONT_URL}/login?redirect=/neighborhoods/invite/${token}`,
                     linkExpirationDate: dayjs(expiredAt).format('DD/MM/YYYY'),
                     supportEmail: process.env.VCC_SUPPORT_EMAIL,
                 },

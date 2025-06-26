@@ -27,6 +27,7 @@ import { TagRepository } from '@/infrastructure/repositories/TagRepository.ts';
 import { TagModel } from '@/domain/models/tag.model.ts';
 import { AddressAutocomplete } from '@/components/AddressSuggestion/AddressSuggestion.tsx';
 import { useToast } from '@/presentation/hooks/useToast.ts';
+import { useNavigate } from 'react-router-dom';
 
 interface AddressData {
     address: string;
@@ -37,12 +38,15 @@ interface AddressData {
 }
 
 export default function SigninForm() {
-    const { goLanding, goLogin, goMyNeighborhood } = useAppNavigation();
+    const { goLogin, goMyNeighborhood } = useAppNavigation();
     const [selectedAddress, setSelectedAddress] = useState<AddressData | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [availableTags, setAvailableTags] = useState<TagModel[]>([]);
     const { showSuccess } = useToast();
+    const searchParams = new URLSearchParams(window.location.search);
+    const redirect = searchParams.get('redirect');
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchTags = async () => {
@@ -99,7 +103,11 @@ export default function SigninForm() {
                     .filter((id) => id !== null) as number[],
             });
             showSuccess('Inscription réussie ! Bienvenue !');
-            goMyNeighborhood();
+            if (redirect) {
+                navigate(redirect, { replace: true });
+            } else {
+                goMyNeighborhood();
+            }
         } catch (err) {
             if (err instanceof AuthError) {
                 setError(err.message);

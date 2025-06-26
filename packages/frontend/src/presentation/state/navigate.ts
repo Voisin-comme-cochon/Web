@@ -4,7 +4,7 @@ export const useAppNavigation = () => {
     const navigate = useNavigate();
 
     const goLogin = () => navigate('/login');
-    const goSignin = () => navigate('/signin');
+    const goSignin = (redirect?: string) => navigate('/signin' + (redirect ? `?redirect=${redirect}` : ''));
     const goResetPassword = () => navigate('/reset-password');
     const goCreateNeighborhood = () => navigate('/neighborhoods/create');
     const goLanding = () => navigate('/');
