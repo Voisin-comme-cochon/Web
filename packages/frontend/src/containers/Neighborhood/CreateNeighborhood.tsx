@@ -16,7 +16,7 @@ export function CreateNeighborhood() {
     const [step, setStep] = useState(1);
     const [formData, setFormData] = useState<NeighborhoodFormValues | null>(null);
     const [createdNeighborhoodId, setCreatedNeighborhoodId] = useState<number | null>(null);
-    const { goLanding } = useAppNavigation();
+    const { goMyNeighborhood, goLanding } = useAppNavigation();
     const { showError, showSuccess } = useToast();
 
     const handleFormSubmit = async (values: NeighborhoodFormValues) => {
@@ -48,9 +48,9 @@ export function CreateNeighborhood() {
     const handleInvitationFinish = () => {
         showSuccess(
             'Quartier créé et invitations envoyées avec succès !',
-            'Vous pouvez maintenant commencer à utiliser votre quartier.'
+            'Vous serez contacté quand un administrateur validera votre demande.'
         );
-        goLanding();
+        goMyNeighborhood();
     };
 
     const renderStep = () => {

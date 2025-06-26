@@ -19,7 +19,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group.tsx';
 import { Textarea } from '@/components/ui/textarea.tsx';
 
 export default function UserMenu({ user, uc }: { user: UserModel | null; uc: HomeUc }) {
-    const { goLanding, goUserProfile } = useAppNavigation();
+    const { goLanding, goUserProfile, goCreateNeighborhood } = useAppNavigation();
     const [duration, setDuration] = useState<number>(7);
     const [maxUses, setMaxUses] = useState<number>(1);
     const [inviteLink, setInviteLink] = useState<string>('');
@@ -94,6 +94,15 @@ export default function UserMenu({ user, uc }: { user: UserModel | null; uc: Hom
                         }}
                     >
                         Inviter des membres
+                    </DropdownMenuItem>
+
+                    <DropdownMenuItem
+                        className="cursor-pointer"
+                        onClick={() => {
+                            goCreateNeighborhood();
+                        }}
+                    >
+                        Créer un quartier
                     </DropdownMenuItem>
 
                     <DropdownMenuSeparator />
