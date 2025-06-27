@@ -17,10 +17,20 @@ import { AxiosError } from 'axios';
 import { FrontNeighborhood } from '@/domain/models/FrontNeighborhood.ts';
 import { useToast } from '@/presentation/hooks/useToast.ts';
 import ViewNeighborhoodMapBox from '@/components/MapBox/ViewNeighborhoodMapBox.tsx';
+import { MemberPending } from '@/components/NeighborhoodInvitation/Invite/MemberPending.tsx';
+import { MemberRefused } from '@/components/NeighborhoodInvitation/Invite/MemberRefused.tsx';
 
 export type InviteTab = 'about' | 'location' | 'members';
 
-type InviteStatus = 'loading' | 'valid' | 'invalid' | 'expired' | 'already_member' | 'error';
+type InviteStatus =
+    | 'loading'
+    | 'valid'
+    | 'invalid'
+    | 'expired'
+    | 'already_member'
+    | 'error'
+    | 'user_pending'
+    | 'user_rejected';
 
 export default function NeighborhoodInvitePage() {
     const { goMyNeighborhood } = useAppNavigation();
@@ -67,6 +77,10 @@ export default function NeighborhoodInvitePage() {
                         setInviteStatus('expired');
                     } else if (err.response?.status === 400 && err.response?.data?.code === 'user_already_member') {
                         setInviteStatus('already_member');
+                    } else if (err.response?.status === 400 && err.response?.data?.code === 'user_pending') {
+                        setInviteStatus('user_pending');
+                    } else if (err.response?.status === 400 && err.response?.data?.code === 'user_rejected') {
+                        setInviteStatus('user_rejected');
                     } else {
                         setInviteStatus('error');
                         setError(err.message || "Une erreur est survenue lors de la vérification de l'invitation");
@@ -128,6 +142,14 @@ export default function NeighborhoodInvitePage() {
         return <AlreadyMember />;
     }
 
+    if (inviteStatus === 'user_rejected') {
+        return <MemberRefused />;
+    }
+
+    if (inviteStatus === 'user_pending') {
+        return <MemberPending />;
+    }
+
     if (inviteStatus === 'expired') {
         return <ExpiredInvite />;
     }
@@ -175,8 +197,12 @@ export default function NeighborhoodInvitePage() {
                         <CardContent className="text-center py-12">
                             <CheckCircle className="h-20 w-20 text-green-500 mx-auto mb-6" />
                             <h3 className="text-2xl font-bold text-[#1a2a41] mb-4">Félicitations !</h3>
-                            <p className="text-lg text-[#1a2a41]/70 mb-8">
+                            <p className="text-lg text-[#1a2a41]/70 mb-2">
                                 Vous avez rejoint le quartier <strong>{invite.name}</strong> avec succès.
+                            </p>
+                            <p className={'text-gray-500 text-xs text-center mb-8'}>
+                                Il se peut que le quartier soit en attente de validation par un administrateur, vous
+                                serez contacté de la réponse par email.
                             </p>
                             <Button
                                 onClick={() => goMyNeighborhood()}

@@ -12,7 +12,7 @@ import { isNull } from '../../../utils/tools';
 import { MailerService } from '../../mailer/services/mailer.service';
 import { Templates } from '../../mailer/domain/templates.enum';
 import { UsersService } from '../../users/services/users.service';
-import { NeighborhoodUserRole } from '../../../core/entities/neighborhood-user.entity';
+import { NeighborhoodUserRole, NeighborhoodUserStatus } from '../../../core/entities/neighborhood-user.entity';
 import { NeighborhoodsAdapter } from '../adapters/neighborhoods.adapter';
 import {
     NeighborhoodMemberDto,
@@ -148,7 +148,7 @@ export class NeighborhoodInvitationService {
 
         return {
             ...invitation,
-            invitationLink: `${process.env.VCC_FRONT_URL}/neighborhoods/invite/${token}`,
+            invitationLink: `${process.env.VCC_FRONT_URL}/login?redirect=/neighborhoods/invite/${token}`,
             expiresAt: expiredAt,
         };
     }
@@ -242,9 +242,22 @@ export class NeighborhoodInvitationService {
         }
 
         const isUserAlreadyMember = neighborhood.neighborhood_users?.some((user) => user.userId === userId);
+        const userStatus = neighborhood.neighborhood_users?.find((user) => user.userId === userId)?.status;
 
-        if (isUserAlreadyMember) {
+        if (isUserAlreadyMember && userStatus === NeighborhoodUserStatus.ACCEPTED) {
             throw new CochonError('user_already_member', 'User is already a member of the neighborhood', 400);
+        }
+
+        if (isUserAlreadyMember && userStatus === NeighborhoodUserStatus.REJECTED) {
+            throw new CochonError('user_rejected', 'Votre demande pour rejoindre le quartier a été refusé', 400);
+        }
+
+        if (isUserAlreadyMember && userStatus === NeighborhoodUserStatus.PENDING) {
+            throw new CochonError(
+                'user_pending',
+                'Vous êtes en attente de réponse, un admin du quartier analysera votre demande',
+                400
+            );
         }
     }
 
