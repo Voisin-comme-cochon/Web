@@ -138,19 +138,19 @@ export default function ChatPanel({ onClose }: { onClose: () => void }) {
     // Gestionnaire de refuser une invitation
     const handleDeclineInvitation = async (group: any) => {
         const success = await chat.declineGroupInvitation(group.id);
-        showSuccess(`Invitation déclinée pour le groupe ${group.name}.`);
         if (success) {
-            console.log('Invitation déclinée avec succès pour le groupe:', group.name);
+            showSuccess(`Invitation déclinée pour le groupe ${group.name}.`);
         }
     };
 
     // Vérifier si l'utilisateur est propriétaire du groupe actuel
     const isCurrentUserOwner = () => {
-        console.log("Vérification de la propriété du groupe pour l'utilisateur:", chat.activeConversationData);
-        if (!chat.activeConversationData || !user) return false;
-        // Vérifier si l'utilisateur actuel est propriétaire dans les membres du groupe
-        return (
-            chat.activeConversationData.members?.some((member) => member.userId === user.id && member.isOwner) || false
+        if (!chat.activeConversationData || !user || !chat.activeConversationData.members) {
+            return false;
+        }
+        
+        return chat.activeConversationData.members.some((member) => 
+            member.userId === user.id && member.isOwner
         );
     };
 

@@ -790,7 +790,6 @@ export class MessagingService {
             });
         }
 
-        console.log('inviterMembership', inviterMembership);
         if (!inviterMembership.isOwner) {
             throw new CochonError('not_group_owner', 'Seul le propriétaire du groupe peut inviter des membres', 403, {
                 userId: userId,

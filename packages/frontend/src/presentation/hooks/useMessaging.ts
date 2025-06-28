@@ -48,8 +48,6 @@ export function useMessaging(neighborhoodId?: number, currentUserId?: number) {
                 setGroupsVerified(true);
             } else if (currentUserId && groupsVerified) {
                 return;
-            } else {
-                console.log("Messaging: Pas d'ID utilisateur, utilisation directe des groupes de l'API");
             }
 
             setGroups(memberGroups);
@@ -249,6 +247,27 @@ export function useMessaging(neighborhoodId?: number, currentUserId?: number) {
         [messagingUc, neighborhoodId]
     );
 
+    const loadGroupMembers = useCallback(
+        async (groupId: number) => {
+            try {
+                const members = await messagingUc.getGroupMembers(groupId);
+                
+                // Mettre à jour le groupe avec les membres chargés
+                setGroups((prev) =>
+                    prev.map((group) => 
+                        group.id === groupId ? { ...group, members } : group
+                    )
+                );
+                
+                return members;
+            } catch (err) {
+                console.error('Erreur lors du chargement des membres:', err);
+                return [];
+            }
+        },
+        [messagingUc]
+    );
+
     const sendMessage = useCallback(
         async (content: string, groupId: number): Promise<boolean> => {
             setLoading(true);
@@ -307,6 +326,7 @@ export function useMessaging(neighborhoodId?: number, currentUserId?: number) {
         loadAvailableGroups,
         loadGroupInvitations,
         loadMessages,
+        loadGroupMembers,
         searchUsers,
         createGroup,
         createPrivateChat,
