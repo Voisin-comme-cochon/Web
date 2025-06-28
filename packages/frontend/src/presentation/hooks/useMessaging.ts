@@ -217,20 +217,41 @@ export function useMessaging(neighborhoodId?: number, currentUserId?: number) {
         [messagingUc]
     );
 
+    const leaveGroup = useCallback(
+        async (groupId: number): Promise<boolean> => {
+            setLoading(true);
+            setError(null);
+            try {
+                await messagingUc.leaveGroup(groupId);
+
+                // Recharger les groupes pour mettre à jour la liste
+                if (neighborhoodId) {
+                    const result = await messagingUc.getGroups(neighborhoodId);
+                    setGroups(result.data);
+                }
+
+                return true;
+            } catch (err) {
+                setError(err instanceof Error ? err.message : 'Erreur lors de la sortie du groupe');
+                return false;
+            } finally {
+                setLoading(false);
+            }
+        },
+        [messagingUc, neighborhoodId]
+    );
+
     const sendMessage = useCallback(
         async (content: string, groupId: number): Promise<boolean> => {
             setLoading(true);
             setError(null);
             try {
-                console.log('Messaging: Envoi du message via API REST:', { content, groupId });
                 const newMessage = await messagingUc.sendMessage(content, groupId);
-                console.log('Messaging: Message envoyé avec succès via API REST:', newMessage);
 
                 setMessages((prev) => {
                     const existing = prev[groupId] || [];
                     const messageExists = existing.some((msg) => msg.id === newMessage.id);
                     if (messageExists) {
-                        console.log("Messaging: Message déjà présent, pas d'ajout");
                         return prev;
                     }
 
@@ -246,7 +267,6 @@ export function useMessaging(neighborhoodId?: number, currentUserId?: number) {
 
                 return true;
             } catch (err) {
-                console.error("Messaging: Erreur lors de l'envoi du message:", err);
                 setError(err instanceof Error ? err.message : "Erreur lors de l'envoi du message");
                 return false;
             } finally {
@@ -258,12 +278,10 @@ export function useMessaging(neighborhoodId?: number, currentUserId?: number) {
 
     useEffect(() => {
         setGroupsVerified(false);
-        console.log("Messaging: Réinitialisation de l'état de vérification des groupes");
     }, [currentUserId]);
 
     useEffect(() => {
         if (neighborhoodId) {
-            console.log('Messaging: Trigger de chargement des groupes:', { neighborhoodId, currentUserId });
             loadGroups();
         }
     }, [loadGroups, neighborhoodId, currentUserId]);
@@ -286,6 +304,7 @@ export function useMessaging(neighborhoodId?: number, currentUserId?: number) {
         createPrivateChat,
         joinGroup,
         declineGroupInvitation,
+        leaveGroup,
         sendMessage,
 
         getUserDisplayName: messagingUc.getUserDisplayName,

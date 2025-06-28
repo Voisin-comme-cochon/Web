@@ -124,6 +124,27 @@ export class MessagingRepository {
     }
 
     /**
+     * Quitter un groupe
+     */
+    async leaveGroup(dto: JoinGroupDto): Promise<{ success: boolean }> {
+        try {
+            const response = await ApiService.post(`${this.basePath}/groups/leave`, dto);
+            return response.data;
+        } catch (error: any) {
+            if (error.response?.status === 400) {
+                throw new ApiError(400, 'Vous n\'êtes pas membre de ce groupe');
+            }
+            if (error.response?.status === 403) {
+                throw new ApiError(403, 'Le propriétaire ne peut pas quitter le groupe avec d\'autres membres');
+            }
+            if (error.response?.status === 404) {
+                throw new ApiError(404, 'Groupe non trouvé');
+            }
+            throw new ApiError(500, "Erreur lors de la sortie du groupe");
+        }
+    }
+
+    /**
      * Récupérer les membres d'un groupe
      */
     async getGroupMembers(dto: GetGroupMembersDto): Promise<GroupMembershipModel[]> {

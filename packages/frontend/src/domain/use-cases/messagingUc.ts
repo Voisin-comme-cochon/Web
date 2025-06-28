@@ -108,6 +108,21 @@ export class MessagingUc {
         }
     }
 
+    async leaveGroup(groupId: number): Promise<{ success: boolean }> {
+        try {
+            if (!groupId) {
+                throw new Error("L'ID du groupe est requis");
+            }
+
+            return await this.messagingRepository.leaveGroup({ groupId });
+        } catch (error) {
+            if (error instanceof Error) {
+                throw new Error(error.message);
+            }
+            throw new Error("Erreur lors de la sortie du groupe");
+        }
+    }
+
     async getGroupMembers(groupId: number): Promise<GroupMembershipModel[]> {
         try {
             if (!groupId) {

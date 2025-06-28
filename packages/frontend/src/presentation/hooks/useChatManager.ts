@@ -15,17 +15,12 @@ export function useChatManager({ neighborhoodId, currentUserId }: UseChatManager
     const activeConversationRef = useRef<number | null>(null);
     const webSocketRef = useRef<any>(null);
 
-    // Debug des paramètres
-    console.log('ChatManager: Initialisation avec:', { neighborhoodId, currentUserId });
-
     // Hook pour les appels API REST
     const messaging = useMessaging(neighborhoodId, currentUserId);
 
     // Gestion des messages reçus via WebSocket
     const handleMessageReceived = useCallback(
         (message: GroupMessageModel) => {
-            console.log('WebSocket: Message reçu', message);
-
             messaging.setMessages((prev) => ({
                 ...prev,
                 [message.groupId]: [...(prev[message.groupId] || []), message],
@@ -51,11 +46,8 @@ export function useChatManager({ neighborhoodId, currentUserId }: UseChatManager
     // Changer de conversation active
     const selectConversation = useCallback(
         (groupId: number | null) => {
-            console.log('ChatManager: Sélection de la conversation:', groupId);
-
             // Quitter l'ancien groupe
             if (activeConversation && webSocket.isGroupJoined(activeConversation)) {
-                console.log("ChatManager: Quitter l'ancien groupe:", activeConversation);
                 webSocket.leaveGroup(activeConversation);
             }
 
@@ -63,21 +55,9 @@ export function useChatManager({ neighborhoodId, currentUserId }: UseChatManager
 
             // Rejoindre le nouveau groupe
             if (groupId) {
-                console.log('ChatManager: Rejoindre le nouveau groupe:', groupId);
-                console.log('ChatManager: État WebSocket:', {
-                    connected: webSocket.connected,
-                    isGroupJoined: webSocket.isGroupJoined(groupId),
-                    joinedGroups: webSocket.joinedGroups,
-                });
-
                 // Attendre un peu si le WebSocket n'est pas encore connecté
                 if (!webSocket.connected) {
-                    console.log('ChatManager: WebSocket non connecté, attente de 1 seconde...');
                     setTimeout(() => {
-                        console.log(
-                            'ChatManager: Retry joinGroup après timeout, WebSocket connecté:',
-                            webSocket.connected
-                        );
                         if (webSocket.connected) {
                             webSocket.joinGroup(groupId);
                         } else {
@@ -85,12 +65,10 @@ export function useChatManager({ neighborhoodId, currentUserId }: UseChatManager
                         }
                     }, 1000);
                 } else {
-                    console.log('ChatManager: WebSocket connecté, tentative de joinGroup immédiate');
                     webSocket.joinGroup(groupId);
                 }
 
                 // Toujours recharger les messages pour s'assurer d'avoir les derniers
-                console.log('ChatManager: Rechargement des messages pour le groupe:', groupId);
                 messaging.loadMessages(groupId);
             }
         },
@@ -102,18 +80,8 @@ export function useChatManager({ neighborhoodId, currentUserId }: UseChatManager
         async (content: string, groupId: number): Promise<boolean> => {
             if (!content.trim()) return false;
 
-            console.log("ChatManager: Tentative d'envoi de message:", { content, groupId });
-            console.log('ChatManager: État WebSocket complet:', {
-                connected: webSocket.connected,
-                isGroupJoined: webSocket.isGroupJoined(groupId),
-                joinedGroups: webSocket.joinedGroups,
-                activeConversation: activeConversation,
-                groupIdParam: groupId,
-            });
-
             // Vérifier si connecté mais pas dans le groupe - tenter de rejoindre
             if (webSocket.connected && !webSocket.isGroupJoined(groupId)) {
-                console.log('ChatManager: WebSocket connecté mais groupe non rejoint, tentative de rejointure...');
                 webSocket.joinGroup(groupId);
 
                 // Attendre un peu pour que la jointure se fasse
@@ -122,16 +90,13 @@ export function useChatManager({ neighborhoodId, currentUserId }: UseChatManager
 
             // Essayer d'abord via WebSocket si connecté et dans le groupe
             if (webSocket.connected && webSocket.isGroupJoined(groupId)) {
-                console.log('ChatManager: Envoi via WebSocket');
                 const sent = webSocket.sendMessage(groupId, content.trim());
                 if (sent) {
-                    console.log('ChatManager: Message envoyé via WebSocket avec succès');
                     return true;
                 }
             }
 
             // Fallback via API REST
-            console.log('ChatManager: Fallback vers API REST');
             return await messaging.sendMessage(content, groupId);
         },
         [webSocket, messaging]
@@ -178,7 +143,6 @@ export function useChatManager({ neighborhoodId, currentUserId }: UseChatManager
         return () => {
             // Cette cleanup function ne se déclenchera qu'au unmount du composant
             if (activeConversationRef.current && webSocketRef.current) {
-                console.log('ChatManager: Cleanup - quitter le groupe:', activeConversationRef.current);
                 webSocketRef.current.leaveGroup(activeConversationRef.current);
             }
         };

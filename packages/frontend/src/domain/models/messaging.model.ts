@@ -33,6 +33,7 @@ export interface GroupMembershipModel {
     joinedAt: string;
     userId: number;
     groupId: number;
+    isOwner: boolean;
     user: UserSummaryModel;
 }
 

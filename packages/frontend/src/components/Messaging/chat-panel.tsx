@@ -1,11 +1,31 @@
 import { useState, useEffect, useRef } from 'react';
-import { ArrowLeft, MoreVertical, Search, Send, Plus, Users, Lock, Globe } from 'lucide-react';
+import {
+    ArrowLeft,
+    MoreVertical,
+    Search,
+    Send,
+    Plus,
+    Users,
+    Lock,
+    Globe,
+    LogOut,
+    Settings,
+    UserPlus,
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+    DropdownMenuSeparator,
+} from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
 import { CreateGroupDialog } from './create-group-dialog';
 import { Group, JoinGroupDialog } from './join-group-dialog';
+import { LeaveGroupDialog } from './leave-group-dialog';
 import { useChatManager } from '@/presentation/hooks/useChatManager.ts';
 import { useHeaderData } from '@/presentation/hooks/UseHeaderData.tsx';
 import { GroupType } from '@/domain/models/messaging.model.ts';
@@ -19,6 +39,7 @@ export default function ChatPanel({ onClose }: { onClose: () => void }) {
     const [activeTab, setActiveTab] = useState('messages');
     const [createGroupOpen, setCreateGroupOpen] = useState(false);
     const [joinGroupOpen, setJoinGroupOpen] = useState(false);
+    const [leaveGroupDialogOpen, setLeaveGroupDialogOpen] = useState(false);
     const { showSuccess } = useToast();
 
     // Ref pour le conteneur de messages pour le scroll
@@ -118,6 +139,28 @@ export default function ChatPanel({ onClose }: { onClose: () => void }) {
         }
     };
 
+    // Vérifier si l'utilisateur est propriétaire du groupe actuel
+    const isCurrentUserOwner = () => {
+        console.log("Vérification de la propriété du groupe pour l'utilisateur:", chat.activeConversationData);
+        if (!chat.activeConversationData || !user) return false;
+        // Vérifier si l'utilisateur actuel est propriétaire dans les membres du groupe
+        return (
+            chat.activeConversationData.members?.some((member) => member.userId === user.id && member.isOwner) || false
+        );
+    };
+
+    // Gestionnaire pour quitter le groupe
+    const handleLeaveGroup = async () => {
+        if (!chat.activeConversation || !chat.activeConversationData) return;
+
+        const success = await chat.leaveGroup(chat.activeConversation);
+        if (success) {
+            showSuccess(`Vous avez quitté le groupe ${chat.activeConversationData.name}.`);
+            chat.selectConversation(null); // Retourner à la liste des conversations
+        }
+        setLeaveGroupDialogOpen(false);
+    };
+
     // Messages de la conversation active
     const activeMessages = chat.activeConversation ? chat.messages[chat.activeConversation] || [] : [];
 
@@ -187,10 +230,53 @@ export default function ChatPanel({ onClose }: { onClose: () => void }) {
                 ) : (
                     <h3 className="font-bold text-lg">Messages</h3>
                 )}
-                <Button variant="ghost" size="icon" className="text-white hover:bg-primary/">
-                    <MoreVertical size={20} />
-                    <span className="sr-only">Options</span>
-                </Button>
+                {chat.activeConversation && chat.activeConversationData?.type !== GroupType.PRIVATE_CHAT ? (
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="default" size="icon" className="text-white hover:bg-primary/80">
+                                <MoreVertical size={20} />
+                                <span className="sr-only">Options</span>
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-48">
+                            <DropdownMenuItem
+                                onClick={() => setLeaveGroupDialogOpen(true)}
+                                className="text-red-600 focus:text-red-600"
+                            >
+                                <LogOut className="mr-2 h-4 w-4" />
+                                Quitter le groupe
+                            </DropdownMenuItem>
+                            {isCurrentUserOwner() && (
+                                <>
+                                    <DropdownMenuSeparator />
+                                    <DropdownMenuItem
+                                        onClick={() => {
+                                            /* TODO: implémenter */
+                                        }}
+                                        disabled
+                                    >
+                                        <UserPlus className="mr-2 h-4 w-4" />
+                                        Gérer les membres
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem
+                                        onClick={() => {
+                                            /* TODO: implémenter */
+                                        }}
+                                        disabled
+                                    >
+                                        <Settings className="mr-2 h-4 w-4" />
+                                        Gérer le groupe
+                                    </DropdownMenuItem>
+                                </>
+                            )}
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                ) : (
+                    <Button variant="default" size="icon" className="text-white hover:bg-primary/80">
+                        <MoreVertical size={20} />
+                        <span className="sr-only">Options</span>
+                    </Button>
+                )}
             </div>
 
             {/* État de connexion WebSocket */}
@@ -453,6 +539,13 @@ export default function ChatPanel({ onClose }: { onClose: () => void }) {
                 availableGroups={chat.availableGroups as unknown as Group[]}
                 invitedGroups={chat.invitedGroups as unknown as Group[]}
                 loading={chat.loading}
+            />
+
+            <LeaveGroupDialog
+                open={leaveGroupDialogOpen}
+                onOpenChange={setLeaveGroupDialogOpen}
+                onConfirm={handleLeaveGroup}
+                groupName={chat.activeConversationData?.name}
             />
         </div>
     );

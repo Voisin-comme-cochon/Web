@@ -29,7 +29,6 @@ export function useWebSocket({ onMessageReceived, onConnected }: UseWebSocketPro
 
     const connect = useCallback(() => {
         if (socketRef.current) {
-            console.log("WebSocket: Connexion déjà existante, arrêt de la création d'une nouvelle");
             return;
         }
 
@@ -53,7 +52,6 @@ export function useWebSocket({ onMessageReceived, onConnected }: UseWebSocketPro
             const socket = socketRef.current;
 
             socket.on('connect', () => {
-                console.log('WebSocket connecté:', socket.id);
                 setConnected(true);
                 setError(null);
             });
@@ -71,21 +69,11 @@ export function useWebSocket({ onMessageReceived, onConnected }: UseWebSocketPro
             });
 
             socket.on('connected', (data) => {
-                console.log('Utilisateur connecté:', data);
                 onConnected?.(data);
             });
 
             socket.on('message-sent', (message) => {
-                console.log('WebSocket: Événement message-sent reçu:', message);
                 onMessageReceived?.(message);
-            });
-
-            socket.onAny((eventName, ...args) => {
-                console.log('WebSocket: Événement reçu:', eventName, args);
-            });
-
-            socket.onAnyOutgoing((eventName, ...args) => {
-                console.log('WebSocket: Événement émis:', eventName, args);
             });
 
             socket.on('error', (error) => {
@@ -93,89 +81,52 @@ export function useWebSocket({ onMessageReceived, onConnected }: UseWebSocketPro
                 setError(`Erreur WebSocket: ${error.message || 'Erreur inconnue'}`);
             });
 
-            socket.on('user-typing', (data) => {
-                console.log('Utilisateur en train de taper:', data);
-            });
-
             socket.on('joined-group', (data) => {
-                console.log('Groupe rejoint:', data);
                 joinedGroupsRef.current.add(data.groupId);
             });
 
             socket.on('left-group', (data) => {
-                console.log('Groupe quitté:', data);
                 joinedGroupsRef.current.delete(data.groupId);
             });
         } catch (err) {
-            console.error("Erreur lors de l'initialisation du WebSocket:", err);
             setError("Erreur lors de l'initialisation du WebSocket");
         }
     }, [onMessageReceived, onConnected]);
 
     const joinGroup = useCallback((groupId: number) => {
         if (!socketRef.current?.connected) {
-            console.warn('WebSocket: WebSocket non connecté, impossible de rejoindre le groupe', groupId);
             return;
         }
 
         if (joinedGroupsRef.current.has(groupId)) {
-            console.log('WebSocket: Groupe déjà rejoint:', groupId);
             return;
         }
 
-        console.log('WebSocket: Émission de join-group pour le groupe:', groupId);
         socketRef.current.emit('join-group', { groupId });
-        console.log('WebSocket: Tentative de rejoindre le groupe:', groupId);
     }, []);
 
     const leaveGroup = useCallback((groupId: number) => {
         if (!socketRef.current?.connected) {
-            console.warn('WebSocket non connecté');
             return;
         }
 
         if (!joinedGroupsRef.current.has(groupId)) {
-            console.log('Groupe non rejoint:', groupId);
             return;
         }
 
         socketRef.current.emit('leave-group', { groupId });
-        console.log('Tentative de quitter le groupe:', groupId);
     }, []);
 
     const sendMessage = useCallback((groupId: number, content: string) => {
-        console.log("WebSocket: Tentative d'envoi de message:", {
-            groupId,
-            content,
-            connected: socketRef.current?.connected,
-            socketExists: !!socketRef.current,
-            joinedGroups: Array.from(joinedGroupsRef.current),
-        });
-
         if (!socketRef.current?.connected) {
-            console.warn("WebSocket: WebSocket non connecté, impossible d'envoyer le message");
             return false;
         }
 
         if (!joinedGroupsRef.current.has(groupId)) {
-            console.warn(
-                "WebSocket: Groupe non rejoint, impossible d'envoyer le message. Groupes rejoints:",
-                Array.from(joinedGroupsRef.current)
-            );
             return false;
         }
 
-        console.log("WebSocket: Émission de l'événement send-message");
-
-        console.log('WebSocket: État de la socket avant émission:', {
-            connected: socketRef.current.connected,
-            id: socketRef.current.id,
-            rooms: Object.keys(socketRef.current.rooms || {}),
-            hasJoinedGroup: joinedGroupsRef.current.has(groupId),
-        });
-
         socketRef.current.emit('send-message', { groupId, content });
-        console.log('WebSocket: Message envoyé via WebSocket:', { groupId, content });
         return true;
     }, []);
 
@@ -197,7 +148,6 @@ export function useWebSocket({ onMessageReceived, onConnected }: UseWebSocketPro
 
     const disconnect = useCallback(() => {
         if (socketRef.current) {
-            console.log('WebSocket: Déconnexion du socket');
             socketRef.current.disconnect();
             socketRef.current = null;
             setConnected(false);
