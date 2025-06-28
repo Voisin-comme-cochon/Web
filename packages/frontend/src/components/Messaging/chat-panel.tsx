@@ -36,10 +36,14 @@ export default function ChatPanel({ onClose }: { onClose: () => void }) {
     // Filtrer les conversations selon l'onglet actif et la recherche
     const filteredConversations = (() => {
         if (activeTab === 'messages') {
-            // Onglet Messages : seulement les groupes dont je suis membre
-            return chat.groups.filter((group) => group.name.toLowerCase().includes(searchQuery.toLowerCase()));
+            // Onglet Messages : seulement les chats privés entre deux personnes
+            return chat.groups.filter(
+                (group) =>
+                    group.name.toLowerCase().includes(searchQuery.toLowerCase()) &&
+                    group.type === GroupType.PRIVATE_CHAT
+            );
         } else {
-            // Onglet Groupes : seulement les groupes dont je suis membre ET qui ne sont pas des chats privés
+            // Onglet Groupes : seulement les groupes (publics et privés) mais pas les chats privés
             return chat.groups.filter(
                 (group) =>
                     group.name.toLowerCase().includes(searchQuery.toLowerCase()) &&
@@ -319,7 +323,7 @@ export default function ChatPanel({ onClose }: { onClose: () => void }) {
                                 placeholder={
                                     activeTab === 'groups'
                                         ? 'Rechercher un groupe...'
-                                        : 'Rechercher une conversation...'
+                                        : 'Rechercher une conversation privée...'
                                 }
                                 className="pl-10 border-border focus-visible:ring-orange"
                                 value={searchQuery}
@@ -411,7 +415,7 @@ export default function ChatPanel({ onClose }: { onClose: () => void }) {
                             ))
                         ) : (
                             <div className="p-6 text-center text-muted-foreground">
-                                {activeTab === 'groups' ? 'Aucun groupe trouvé' : 'Aucune conversation trouvée'}
+                                {activeTab === 'groups' ? 'Aucun groupe trouvé' : 'Aucune conversation privée trouvée'}
                             </div>
                         )}
                     </div>
