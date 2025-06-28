@@ -173,6 +173,10 @@ export class MessagingUc {
 
     // ===== INVITATIONS =====
 
+    async removeMember(membershipId: number): Promise<{ success: boolean }> {
+        return await this.messagingRepository.removeMember(membershipId);
+    }
+
     async revokeInvitation(membershipId: number): Promise<{ success: boolean }> {
         return await this.messagingRepository.revokeInvitation(membershipId);
     }

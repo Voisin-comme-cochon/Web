@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Search, Plus, Hourglass, Ban, X, RotateCw } from 'lucide-react';
+import { Search, Plus, X, RotateCw, Trash2 } from 'lucide-react';
+
+import ConfirmRemoveMemberDialog from './ConfirmRemoveMemberDialog';
 
 import {
     Dialog,
@@ -11,7 +13,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import AvatarComponent from '@/components/AvatarComponent/AvatarComponent';
-import { GroupModel, MembershipStatus, UserSummaryModel } from '@/domain/models/messaging.model';
+import { GroupModel, MembershipStatus, UserSummaryModel, GroupMembershipModel } from '@/domain/models/messaging.model';
 import { MessagingUc } from '@/domain/use-cases/messagingUc';
 import { MessagingRepository } from '@/infrastructure/repositories/MessagingRepository';
 import { useToast } from '@/presentation/hooks/useToast';
@@ -35,6 +37,7 @@ export function ManageMembersDialog({
     const [searchResults, setSearchResults] = useState<UserSummaryModel[]>([]);
     const [isSearching, setIsSearching] = useState(false);
     const [activeTab, setActiveTab] = useState('active');
+    const [memberToRemove, setMemberToRemove] = useState<GroupMembershipModel | null>(null);
 
     const { showSuccess, showError } = useToast();
 
@@ -68,6 +71,21 @@ export function ManageMembersDialog({
         void search();
         return () => controller.abort();
     }, [searchQuery, neighborhoodId, group?.members, messagingUc]);
+
+    const handleRemoveConfirm = async () => {
+        if (!memberToRemove) return;
+        try {
+            await messagingUc.removeMember(memberToRemove.id);
+            const updated = await messagingUc.getGroupMembers(group!.id);
+            setMembers(updated);
+            onMembersUpdated?.();
+            showSuccess('Membre supprimé');
+        } catch (e) {
+            showError("Erreur lors de la suppression du membre");
+        } finally {
+            setMemberToRemove(null);
+        }
+    };
 
     const handleReinvite = async (member: any) => {
         try {
@@ -136,7 +154,8 @@ export function ManageMembersDialog({
     };
 
     return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
+        <>
+            <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="sm:max-w-[500px]">
                 <DialogHeader>
                     <DialogTitle className="text-primary">Gérer les membres</DialogTitle>
@@ -199,8 +218,16 @@ export function ManageMembersDialog({
                                     <span className="text-sm text-primary">
                                         {member.user.firstName} {member.user.lastName}
                                     </span>
-                                    {member.isOwner && (
+                                    {member.isOwner ? (
                                         <span className="ml-auto text-xs text-muted-foreground">Propriétaire</span>
+                                    ) : (
+                                        <button
+                                            className="ml-auto text-destructive hover:text-destructive/80"
+                                            onClick={() => setMemberToRemove(member)}
+                                            title="Retirer le membre"
+                                        >
+                                            <Trash2 size={14} />
+                                        </button>
                                     )}
                                 </div>
                             ))
@@ -217,7 +244,7 @@ export function ManageMembersDialog({
                                     <span className="text-sm text-primary">
                                         {member.user.firstName} {member.user.lastName}
                                     </span>
-                                    <Hourglass size={14} className="ml-2 text-muted-foreground" />
+                                    
                                     <button
                                         className="ml-auto text-destructive hover:text-destructive/80"
                                         onClick={() => handleRevoke(member.id)}
@@ -239,7 +266,7 @@ export function ManageMembersDialog({
                                     <span className="text-sm text-primary">
                                         {member.user.firstName} {member.user.lastName}
                                     </span>
-                                    <Ban size={14} className="ml-2 text-destructive" />
+                                    
                                     <button
                                         className="ml-auto text-primary hover:text-primary/80"
                                         onClick={() => handleReinvite(member)}
@@ -256,5 +283,14 @@ export function ManageMembersDialog({
                 </Tabs>
             </DialogContent>
         </Dialog>
+
+        {/* Confirm Remove Member */}
+        <ConfirmRemoveMemberDialog
+            open={!!memberToRemove}
+            memberName={`${memberToRemove?.user?.firstName ?? ''} ${memberToRemove?.user?.lastName ?? ''}`.trim()}
+            onConfirm={handleRemoveConfirm}
+            onOpenChange={(open) => !open && setMemberToRemove(null)}
+        />
+        </>
     );
 }

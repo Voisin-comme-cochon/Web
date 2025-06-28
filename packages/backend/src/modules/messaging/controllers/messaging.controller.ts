@@ -53,7 +53,7 @@ import {
 @Controller('messaging')
 @UseGuards(IsLoginGuard)
 export class MessagingController {
-    constructor(private readonly messagingService: MessagingService) {}
+    constructor(private readonly messagingService: MessagingService) { }
 
     // ========== GROUP MANAGEMENT ==========
 
@@ -318,9 +318,37 @@ export class MessagingController {
         return { success: true };
     }
 
+    // ========== MEMBERS MANAGEMENT ==========
+
+    @Delete('groups/members/:membershipId')
+    @ApiOperation({
+        summary: 'Supprimer un membre d’un groupe',
+        description: 'Permet de supprimer un membre d’un groupe',
+    })
+    @ApiOkResponse({ description: 'Membre supprimé avec succès' })
+    @ApiBadRequestResponse({ description: 'Données invalides' })
+    @ApiForbiddenResponse({ description: 'Utilisateur non membre du groupe ou du quartier' })
+    @ApiNotFoundResponse({ description: 'Groupe non trouvé' })
+    @ApiUnauthorizedResponse({ description: 'Token JWT manquant ou invalide' })
+    async removeMember(
+        @Request() req: { user: { id: number } },
+        @Param('membershipId') membershipId: number
+    ): Promise<{ success: boolean }> {
+        return await this.messagingService.removeMember(req.user.id, Number(membershipId));
+    }
+
     // ========== INVITATIONS ==========
 
     @Delete('groups/invitations/:membershipId')
+    @ApiOperation({
+        summary: 'Révoquer une invitation',
+        description: 'Permet de révoquer une invitation',
+    })
+    @ApiOkResponse({ description: 'Invitation révoquée avec succès' })
+    @ApiBadRequestResponse({ description: 'Données invalides' })
+    @ApiForbiddenResponse({ description: 'Utilisateur non membre du groupe ou du quartier' })
+    @ApiNotFoundResponse({ description: 'Groupe non trouvé' })
+    @ApiUnauthorizedResponse({ description: 'Token JWT manquant ou invalide' })
     async revokeInvitation(
         @Request() req: { user: { id: number } },
         @Param('membershipId') membershipId: number

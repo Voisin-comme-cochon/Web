@@ -580,16 +580,37 @@ export class MessagingService {
         return { success: true };
     }
 
+    async removeMember(userId: number, membershipId: number): Promise<{ success: boolean }> {
+        const membership = await this.membershipRepository.findById(membershipId);
+        if (isNull(membership)) {
+            throw new CochonError('member_not_found', 'Membre introuvable', 404);
+        }
+
+        // L'appelant doit être owner
+        const callerMembership = await this.membershipRepository.findByUserAndGroup(userId, membership.groupId);
+        if (isNotNull(callerMembership) && !callerMembership.isOwner) {
+            throw new CochonError('not_group_owner', "Vous n'êtes pas propriétaire du groupe", 403);
+        }
+
+        // On ne peut pas supprimer le propriétaire lui-même
+        if (membership.isOwner) {
+            throw new CochonError('cannot_remove_owner', 'Impossible de supprimer le propriétaire du groupe', 400);
+        }
+
+        await this.membershipRepository.delete(membershipId);
+        return { success: true };
+    }
+
     async revokeInvitation(userId: number, membershipId: number): Promise<{ success: boolean }> {
         // Vérifier que la membership existe
         const membership = await this.membershipRepository.findById(membershipId);
-        if (!membership) {
+        if (isNull(membership)) {
             throw new CochonError('invitation_not_found', "Invitation introuvable", 404, { membershipId });
         }
 
         // Vérifier que l'utilisateur appelant est owner du groupe
         const callerMembership = await this.membershipRepository.findByUserAndGroup(userId, membership.groupId);
-        if (!callerMembership || !callerMembership.isOwner) {
+        if (isNotNull(callerMembership) && !callerMembership.isOwner) {
             throw new CochonError('not_group_owner', "Vous n'êtes pas propriétaire du groupe", 403, {
                 userId,
                 groupId: membership.groupId,

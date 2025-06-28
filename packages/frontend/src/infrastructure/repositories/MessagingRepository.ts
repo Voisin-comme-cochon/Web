@@ -285,6 +285,17 @@ export class MessagingRepository {
     /**
      * Révoquer une invitation (supprimer une membership en attente ou refusée)
      */
+    async removeMember(membershipId: number): Promise<{ success: boolean }> {
+        try {
+            const response = await ApiService.delete(`${this.basePath}/groups/members/${membershipId}`);
+            return response.data;
+        } catch (error: any) {
+            if (error.response?.status === 404) throw new ApiError(404, 'Membre introuvable');
+            if (error.response?.status === 403) throw new ApiError(403, "Vous n'êtes pas autorisé");
+            throw new ApiError(500, 'Erreur lors de la suppression du membre');
+        }
+    }
+
     async revokeInvitation(membershipId: number): Promise<{ success: boolean }> {
         try {
             const response = await ApiService.delete(
