@@ -46,12 +46,13 @@ export default function ChatPanel({ onClose }: { onClose: () => void }) {
         }
     })();
 
-    // Charger les groupes disponibles quand on change d'onglet
+    // Charger les groupes disponibles et les invitations quand on change d'onglet
     useEffect(() => {
         if (activeTab === 'groups' && neighborhoodId) {
             chat.loadAvailableGroups();
+            chat.loadGroupInvitations();
         }
-    }, [activeTab, neighborhoodId, chat.loadAvailableGroups]);
+    }, [activeTab, neighborhoodId, chat.loadAvailableGroups, chat.loadGroupInvitations]);
 
     // Gestionnaire d'envoi de message
     const handleSendMessage = async () => {
@@ -99,6 +100,14 @@ export default function ChatPanel({ onClose }: { onClose: () => void }) {
         if (success) {
             setActiveTab('messages');
         }
+    };
+
+    // Gestionnaire de refuser une invitation
+    const handleDeclineInvitation = async (group: any) => {
+        console.log('Invitation déclinée pour le groupe:', group.name);
+        // TODO: Implémenter l'API pour décliner une invitation
+        // Pour l'instant, on recharge juste les invitations
+        chat.loadGroupInvitations();
     };
 
     // Messages de la conversation active
@@ -327,7 +336,10 @@ export default function ChatPanel({ onClose }: { onClose: () => void }) {
                                 Créer
                             </Button>
                             <Button
-                                onClick={() => setJoinGroupOpen(true)}
+                                onClick={() => {
+                                    setJoinGroupOpen(true);
+                                    chat.loadGroupInvitations();
+                                }}
                                 variant="outline"
                                 className="flex-1 border-border text-primary"
                                 size="sm"
@@ -430,9 +442,9 @@ export default function ChatPanel({ onClose }: { onClose: () => void }) {
                 open={joinGroupOpen}
                 onOpenChange={setJoinGroupOpen}
                 onJoinGroup={handleJoinGroup}
+                onDeclineInvitation={handleDeclineInvitation}
                 availableGroups={chat.availableGroups as unknown as Group[]}
-                // Mock data for the moment
-                invitedGroups={[]}
+                invitedGroups={chat.invitedGroups as unknown as Group[]}
                 loading={chat.loading}
             />
         </div>

@@ -677,9 +677,7 @@ export class MessagingService {
         }
 
         const groupIds = pendingInvitations.map((membership) => membership.groupId);
-        const groups = await Promise.all(groupIds.map((groupId) => this.groupRepository.findById(groupId)));
-
-        const validGroups = groups.filter((group): group is Group => group !== null);
+        const validGroups = await this.groupRepository.findByIdsWithMemberCount(groupIds);
 
         const lastMessageUserIds = validGroups
             .map((group) => group.lastMessage?.userId)

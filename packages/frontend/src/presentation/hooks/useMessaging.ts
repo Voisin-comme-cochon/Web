@@ -7,6 +7,7 @@ export function useMessaging(neighborhoodId?: number, currentUserId?: number) {
     const [groups, setGroups] = useState<GroupModel[]>([]);
     const [messages, setMessages] = useState<Record<number, GroupMessageModel[]>>({});
     const [availableGroups, setAvailableGroups] = useState<GroupModel[]>([]);
+    const [invitedGroups, setInvitedGroups] = useState<GroupModel[]>([]);
     const [users, setUsers] = useState<UserSummaryModel[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -73,6 +74,19 @@ export function useMessaging(neighborhoodId?: number, currentUserId?: number) {
             setLoading(false);
         }
     }, [messagingUc, neighborhoodId]);
+
+    const loadGroupInvitations = useCallback(async () => {
+        setLoading(true);
+        setError(null);
+        try {
+            const result = await messagingUc.getGroupInvitations();
+            setInvitedGroups(result);
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'Erreur lors du chargement des invitations de groupes');
+        } finally {
+            setLoading(false);
+        }
+    }, [messagingUc]);
 
     const loadMessages = useCallback(
         async (groupId: number, page: number = 1) => {
@@ -236,12 +250,14 @@ export function useMessaging(neighborhoodId?: number, currentUserId?: number) {
         groups,
         messages,
         availableGroups,
+        invitedGroups,
         users,
         loading,
         error,
 
         loadGroups,
         loadAvailableGroups,
+        loadGroupInvitations,
         loadMessages,
         searchUsers,
         createGroup,
@@ -257,6 +273,7 @@ export function useMessaging(neighborhoodId?: number, currentUserId?: number) {
         setGroups,
         setMessages,
         setAvailableGroups,
+        setInvitedGroups,
         setUsers,
 
         clearError: () => setError(null),

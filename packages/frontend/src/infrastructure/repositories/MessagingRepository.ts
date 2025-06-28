@@ -135,6 +135,18 @@ export class MessagingRepository {
         }
     }
 
+    /**
+     * Récupérer les invitations de groupes de l'utilisateur
+     */
+    async getGroupInvitations(): Promise<GroupModel[]> {
+        try {
+            const response = await ApiService.get(`${this.basePath}/groups/invite`);
+            return response.data;
+        } catch (error: any) {
+            throw new ApiError(500, 'Erreur lors de la récupération des invitations de groupes');
+        }
+    }
+
     // ===== MESSAGERIE =====
 
     /**

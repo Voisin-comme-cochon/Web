@@ -25,4 +25,6 @@ export abstract class GroupRepository {
     abstract delete(id: number): Promise<void>;
 
     abstract findAvailableGroupsInNeighborhood(neighborhoodId: number, userId: number): Promise<Group[]>;
+
+    abstract findByIdsWithMemberCount(ids: number[]): Promise<Group[]>;
 }

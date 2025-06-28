@@ -11,6 +11,7 @@ export type Group = {
     name: string;
     description: string;
     avatar: string;
+    imageUrl?: string;
     type: 'public' | 'private';
     memberCount: number;
     createdAt: string;
@@ -20,6 +21,7 @@ export function JoinGroupDialog({
     open,
     onOpenChange,
     onJoinGroup,
+    onDeclineInvitation,
     availableGroups,
     invitedGroups,
     loading,
@@ -27,6 +29,7 @@ export function JoinGroupDialog({
     open: boolean;
     onOpenChange: (open: boolean) => void;
     onJoinGroup: (group: Group) => void;
+    onDeclineInvitation?: (group: Group) => void;
     availableGroups: Group[];
     invitedGroups: Group[];
     loading?: boolean;
@@ -42,6 +45,13 @@ export function JoinGroupDialog({
 
     const handleJoinGroup = (group: Group) => {
         onJoinGroup(group);
+        onOpenChange(false);
+    };
+
+    const handleDeclineInvitation = (group: Group) => {
+        if (onDeclineInvitation) {
+            onDeclineInvitation(group);
+        }
         onOpenChange(false);
     };
 
@@ -88,7 +98,7 @@ export function JoinGroupDialog({
                                     >
                                         <div className="flex items-start">
                                             <img
-                                                src={group.avatar || '/placeholder.svg'}
+                                                src={group.avatar || group.imageUrl || '/placeholder.svg'}
                                                 alt={group.name}
                                                 className="w-12 h-12 rounded-lg mr-3"
                                             />
@@ -133,7 +143,7 @@ export function JoinGroupDialog({
                                     >
                                         <div className="flex items-start">
                                             <img
-                                                src={group.avatar || '/placeholder.svg'}
+                                                src={group.avatar || group.imageUrl || '/placeholder.svg'}
                                                 alt={group.name}
                                                 className="w-12 h-12 rounded-lg mr-3"
                                             />
@@ -160,7 +170,7 @@ export function JoinGroupDialog({
                                                 </Button>
                                                 <Button
                                                     variant="outline"
-                                                    onClick={() => onOpenChange(false)}
+                                                    onClick={() => handleDeclineInvitation(group)}
                                                     className="border-border text-primary"
                                                     size="sm"
                                                 >

@@ -205,7 +205,6 @@ export function useChatManager({ neighborhoodId, currentUserId }: UseChatManager
         createAndSelectGroup,
         createAndSelectPrivateChat,
         
-        
         // WebSocket
         reconnectWebSocket: webSocket.reconnect,
         

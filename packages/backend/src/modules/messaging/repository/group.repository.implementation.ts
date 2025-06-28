@@ -24,6 +24,25 @@ export class GroupRepositoryImplementation extends GroupRepository {
         return entity ? GroupAdapter.entityToDomain(entity) : null;
     }
 
+    async findByIdsWithMemberCount(ids: number[]): Promise<Group[]> {
+        if (ids.length === 0) {
+            return [];
+        }
+
+        const queryBuilder = this.groupEntityRepository
+            .createQueryBuilder('group')
+            .leftJoinAndSelect('group.messages', 'lastMessage')
+            .leftJoinAndSelect('lastMessage.user', 'messageUser')
+            .loadRelationCountAndMap('group.memberCount', 'group.memberships', 'membershipCount', (qb) =>
+                qb.where('membershipCount.status = :status', { status: 'active' })
+            )
+            .where('group.id IN (:...ids)', { ids })
+            .orderBy('group.createdAt', 'DESC');
+
+        const entities = await queryBuilder.getMany();
+        return entities.map((entity) => GroupAdapter.entityToDomain(entity));
+    }
+
     async findByNeighborhoodId(neighborhoodId: number): Promise<Group[]> {
         const entities = await this.groupEntityRepository.find({
             where: { neighborhoodId },

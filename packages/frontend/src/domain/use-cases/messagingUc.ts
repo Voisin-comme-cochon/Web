@@ -123,6 +123,17 @@ export class MessagingUc {
         }
     }
 
+    async getGroupInvitations(): Promise<GroupModel[]> {
+        try {
+            return await this.messagingRepository.getGroupInvitations();
+        } catch (error) {
+            if (error instanceof Error) {
+                throw new Error(error.message);
+            }
+            throw new Error('Erreur lors de la récupération des invitations de groupes');
+        }
+    }
+
     // ===== MESSAGERIE =====
 
     async sendMessage(content: string, groupId: number): Promise<GroupMessageModel> {
