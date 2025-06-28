@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Search, Plus, Lock, Globe, X } from 'lucide-react';
+import { Search, Plus, Lock, Globe, X, CloudUpload, Paperclip } from 'lucide-react';
 import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
@@ -20,6 +20,7 @@ import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { FileInput, FileUploader, FileUploaderContent, FileUploaderItem } from '@/components/ui/file-input';
 import { TagModel } from '@/domain/models/tag.model';
 import { MessagingUc } from '@/domain/use-cases/messagingUc';
 import { TagUc } from '@/domain/use-cases/tagUc';
@@ -50,6 +51,7 @@ export function CreateGroupDialog({
         type: 'public' | 'private';
         members: User[];
         avatar: string;
+        groupImage?: File;
     }) => void;
     neighborhoodId?: number;
 }) {
@@ -59,6 +61,7 @@ export function CreateGroupDialog({
     const [availableTags, setAvailableTags] = useState<TagModel[]>([]);
     const [isSearching, setIsSearching] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [groupImageFiles, setGroupImageFiles] = useState<File[]>([]);
 
     // Configuration du formulaire avec validation
     const form = useForm<CreateGroupFormValues>({
@@ -167,6 +170,7 @@ export function CreateGroupDialog({
                 members: values.type === 'private' ? selectedMembers : [], // Only include members for private groups
                 createdAt: new Date().toISOString(),
                 avatar: '/placeholder.svg?height=40&width=40',
+                groupImage: groupImageFiles[0], // Add the uploaded image
             };
 
             onCreateGroup(newGroup);
@@ -175,6 +179,7 @@ export function CreateGroupDialog({
             form.reset();
             setSelectedMembers([]);
             setSearchQuery('');
+            setGroupImageFiles([]);
         } catch (error) {
             console.error('Erreur lors de la création du groupe:', error);
         } finally {
@@ -187,13 +192,14 @@ export function CreateGroupDialog({
             form.reset();
             setSelectedMembers([]);
             setSearchQuery('');
+            setGroupImageFiles([]);
         }
         onOpenChange(open);
     };
 
     return (
         <Dialog open={open} onOpenChange={handleDialogClose}>
-            <DialogContent className="sm:max-w-[500px]">
+            <DialogContent className="sm:max-w-[600px] lg:max-w-[700px] max-h-[90vh] overflow-y-auto w-[95vw] sm:w-auto sm:min-w-[500px]">
                 <DialogHeader>
                     <DialogTitle className="text-primary">Créer un nouveau groupe</DialogTitle>
                     <DialogDescription>
@@ -201,7 +207,47 @@ export function CreateGroupDialog({
                     </DialogDescription>
                 </DialogHeader>
                 <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-2">
+                    <form
+                        onSubmit={form.handleSubmit(onSubmit)}
+                        className="space-y-4 py-2 max-h-[60vh] overflow-y-auto pr-2 pl-2"
+                    >
+                        {/* Image upload field */}
+                        <div className="space-y-2">
+                            <Label className="text-primary">Image du groupe</Label>
+                            <FileUploader
+                                value={groupImageFiles}
+                                onValueChange={setGroupImageFiles}
+                                dropzoneOptions={{
+                                    maxFiles: 1,
+                                    maxSize: 1024 * 1024 * 4, // 4MB
+                                    multiple: false,
+                                }}
+                                className="relative bg-background rounded-lg p-2"
+                            >
+                                <FileInput className="outline-dashed outline-1 outline-slate-500">
+                                    <div className="flex items-center justify-center flex-col p-4 w-full">
+                                        <CloudUpload className="text-gray-500 w-6 h-6 sm:w-8 sm:h-8" />
+                                        <p className="mb-1 text-xs sm:text-sm text-gray-500 text-center">
+                                            <span className="font-semibold">Cliquez pour télécharger</span>
+                                            <span className="hidden sm:inline"> ou glissez-déposez</span>
+                                        </p>
+                                        <p className="text-xs text-gray-500 text-center">PNG, JPG ou GIF (max 4MB)</p>
+                                    </div>
+                                </FileInput>
+                                <FileUploaderContent>
+                                    {groupImageFiles.map((file, i) => (
+                                        <FileUploaderItem key={i} index={i}>
+                                            <Paperclip className="h-4 w-4 stroke-current" />
+                                            <span>{file.name}</span>
+                                        </FileUploaderItem>
+                                    ))}
+                                </FileUploaderContent>
+                            </FileUploader>
+                            <p className="text-xs text-muted-foreground">
+                                Ajoutez une image pour représenter votre groupe (optionnel)
+                            </p>
+                        </div>
+
                         <FormField
                             control={form.control}
                             name="name"
@@ -212,7 +258,7 @@ export function CreateGroupDialog({
                                         <Input
                                             placeholder="Ex: Voisins du Quartier"
                                             {...field}
-                                            className="border-border focus-visible:ring-orange"
+                                            className="border-border focus-visible:ring-black"
                                         />
                                     </FormControl>
                                     <FormMessage />
@@ -230,7 +276,7 @@ export function CreateGroupDialog({
                                         <Textarea
                                             placeholder="Décrivez l'objectif de ce groupe..."
                                             {...field}
-                                            className="border-border focus-visible:ring-orange resize-none h-20"
+                                            className="border-border focus-visible:ring-black resize-none h-20"
                                         />
                                     </FormControl>
                                     <FormMessage />
@@ -288,7 +334,7 @@ export function CreateGroupDialog({
                                             className="flex gap-4"
                                         >
                                             <div className="flex items-center space-x-2">
-                                                <RadioGroupItem value="public" id="public" className="text-orange" />
+                                                <RadioGroupItem value="public" id="public" />
                                                 <FormLabel
                                                     htmlFor="public"
                                                     className="flex items-center cursor-pointer"
@@ -298,7 +344,7 @@ export function CreateGroupDialog({
                                                 </FormLabel>
                                             </div>
                                             <div className="flex items-center space-x-2">
-                                                <RadioGroupItem value="private" id="private" className="text-orange" />
+                                                <RadioGroupItem value="private" id="private" />
                                                 <FormLabel
                                                     htmlFor="private"
                                                     className="flex items-center cursor-pointer"
@@ -334,7 +380,7 @@ export function CreateGroupDialog({
                                         placeholder="Rechercher des personnes..."
                                         value={searchQuery}
                                         onChange={(e) => setSearchQuery(e.target.value)}
-                                        className="pl-10 border-border focus-visible:ring-orange"
+                                        className="pl-10 border-border focus-visible:ring-black"
                                     />
                                 </div>
 
@@ -370,7 +416,7 @@ export function CreateGroupDialog({
 
                                 {/* Search Results */}
                                 {searchQuery && searchQuery.length >= 2 && (
-                                    <div className="mt-2 border border-border rounded-md max-h-40 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+                                    <div className="mt-2 border border-border rounded-md max-h-32 sm:max-h-40 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
                                         {isSearching ? (
                                             <div className="p-3 text-center text-muted-foreground text-sm">
                                                 Recherche en cours...
@@ -415,14 +461,14 @@ export function CreateGroupDialog({
 
                         {/* Information pour les groupes publics */}
                         {selectedGroupType === 'public' && (
-                            <div className="space-y-2 p-4 bg-muted/50 rounded-lg border border-border">
+                            <div className="space-y-2 p-3 sm:p-4 bg-muted/50 rounded-lg border border-border">
                                 <div className="flex items-center text-primary">
-                                    <Globe size={16} className="mr-2" />
-                                    <span className="font-medium">Groupe public</span>
+                                    <Globe size={16} className="mr-2 flex-shrink-0" />
+                                    <span className="font-medium text-sm sm:text-base">Groupe public</span>
                                 </div>
-                                <p className="text-sm text-muted-foreground">
-                                    Les groupes publics sont visibles par tous les membres du quartier. 
-                                    Les utilisateurs peuvent les rejoindre librement via l'onglet "Découvrir".
+                                <p className="text-xs sm:text-sm text-muted-foreground">
+                                    Les groupes publics sont visibles par tous les membres du quartier. Les utilisateurs
+                                    peuvent les rejoindre librement via l'onglet "Découvrir".
                                 </p>
                             </div>
                         )}

@@ -27,8 +27,39 @@ export class MessagingRepository {
      */
     async createGroup(dto: CreateGroupDto): Promise<GroupModel> {
         try {
-            const response = await ApiService.post(`${this.basePath}/groups`, dto);
-            return response.data;
+            // Si une image est fournie, utiliser FormData pour multipart/form-data
+            if (dto.groupImage) {
+                const formData = new FormData();
+                
+                // Ajouter les champs du DTO
+                formData.append('name', dto.name);
+                formData.append('description', dto.description);
+                formData.append('type', dto.type);
+                formData.append('isPrivate', dto.isPrivate.toString());
+                formData.append('neighborhoodId', dto.neighborhoodId.toString());
+                
+                if (dto.tagId) {
+                    formData.append('tagId', dto.tagId.toString());
+                }
+                
+                if (dto.memberIds && dto.memberIds.length > 0) {
+                    dto.memberIds.forEach(id => formData.append('memberIds', id.toString()));
+                }
+                
+                // Ajouter le fichier image
+                formData.append('groupImage', dto.groupImage);
+                
+                const response = await ApiService.post(`${this.basePath}/groups`, formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                    },
+                });
+                return response.data;
+            } else {
+                // Pas d'image, utiliser JSON classique
+                const response = await ApiService.post(`${this.basePath}/groups`, dto);
+                return response.data;
+            }
         } catch (error: any) {
             if (error.response?.status === 400) {
                 throw new ApiError(400, 'Données invalides pour la création du groupe');

@@ -114,6 +114,8 @@ export default function ChatPanel({ onClose }: { onClose: () => void }) {
             tagId: group.tagId,
             // Seuls les groupes privés peuvent avoir des invitations
             memberIds: group.type === 'private' ? group.members.map((m: any) => m.id) : [],
+            // Ajouter l'image du groupe si elle existe
+            groupImage: group.groupImage,
         };
 
         const newGroup = await chat.createAndSelectGroup(groupData);
@@ -202,6 +204,12 @@ export default function ChatPanel({ onClose }: { onClose: () => void }) {
                                         user={chat.activeConversationData.members?.find((m) => m.id !== user?.id)}
                                         className="w-8 h-8"
                                     />
+                                ) : chat.activeConversationData?.imageUrl ? (
+                                    <img 
+                                        src={chat.activeConversationData.imageUrl} 
+                                        alt={chat.activeConversationData.name}
+                                        className="w-8 h-8 rounded-full object-cover"
+                                    />
                                 ) : (
                                     <div className="w-8 h-8 rounded-full overflow-hidden bg-secondary flex items-center justify-center text-white font-bold">
                                         {chat.activeConversationData?.name[0]?.toUpperCase()}
@@ -231,7 +239,7 @@ export default function ChatPanel({ onClose }: { onClose: () => void }) {
                 ) : (
                     <h3 className="font-bold text-lg">Messages</h3>
                 )}
-                {chat.activeConversation && chat.activeConversationData?.type !== GroupType.PRIVATE_CHAT ? (
+                {chat.activeConversation && chat.activeConversationData?.type !== GroupType.PRIVATE_CHAT && (
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             <Button variant="default" size="icon" className="text-white hover:bg-primary/80">
@@ -272,11 +280,6 @@ export default function ChatPanel({ onClose }: { onClose: () => void }) {
                             )}
                         </DropdownMenuContent>
                     </DropdownMenu>
-                ) : (
-                    <Button variant="default" size="icon" className="text-white hover:bg-primary/80">
-                        <MoreVertical size={20} />
-                        <span className="sr-only">Options</span>
-                    </Button>
                 )}
             </div>
 
@@ -463,6 +466,12 @@ export default function ChatPanel({ onClose }: { onClose: () => void }) {
                                                     <AvatarComponent
                                                         user={conversation.members?.find((m) => m.id !== user?.id)}
                                                         className="w-12 h-12"
+                                                    />
+                                                ) : conversation.imageUrl ? (
+                                                    <img 
+                                                        src={conversation.imageUrl} 
+                                                        alt={conversation.name}
+                                                        className="w-12 h-12 rounded-full object-cover"
                                                     />
                                                 ) : (
                                                     <div className="w-12 h-12 rounded-full overflow-hidden bg-secondary flex items-center justify-center text-white font-bold">

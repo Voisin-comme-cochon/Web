@@ -14,7 +14,7 @@ export interface UserSummaryModel {
     id: number;
     firstName: string;
     lastName: string;
-    avatarUrl?: string;
+    profileImageUrl?: string;
     online?: boolean;
 }
 
@@ -50,6 +50,7 @@ export interface GroupModel {
     memberCount: number;
     lastMessage?: GroupMessageModel;
     members?: GroupMembershipModel[];
+    imageUrl?: string;
 }
 
 export interface CreateGroupDto {
@@ -60,6 +61,7 @@ export interface CreateGroupDto {
     neighborhoodId: number;
     tagId?: number;
     memberIds?: number[];
+    groupImage?: File;
 }
 
 export interface CreatePrivateChatDto {
