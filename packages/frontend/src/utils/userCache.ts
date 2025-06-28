@@ -52,6 +52,7 @@ class UserCache {
   clear(): void {
     this.cache.clear();
   }
+
 }
 
 export const userCache = new UserCache();

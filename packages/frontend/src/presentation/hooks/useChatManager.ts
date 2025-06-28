@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState, useRef, useMemo } from 'react';
 import { useMessaging } from './useMessaging';
 import { useWebSocket } from './useWebSocket';
 import { GroupMessageModel, GroupModel } from '../../domain/models/messaging.model';
+import { userCache } from '@/utils/userCache';
 
 interface UseChatManagerProps {
     neighborhoodId?: number;
@@ -21,6 +22,11 @@ export function useChatManager({ neighborhoodId, currentUserId }: UseChatManager
     // Gestion des messages reçus via WebSocket
     const handleMessageReceived = useCallback(
         (message: GroupMessageModel) => {
+            // Mettre en cache l'utilisateur du message
+            if (message.user) {
+                userCache.set(message.user);
+            }
+
             messaging.setMessages((prev) => ({
                 ...prev,
                 [message.groupId]: [...(prev[message.groupId] || []), message],

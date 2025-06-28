@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo, useCallback } from 'react';
 import { MessagingUc } from '@/domain/use-cases/messagingUc.ts';
 import { MessagingRepository } from '@/infrastructure/repositories/MessagingRepository.ts';
 import { GroupModel, GroupMessageModel, UserSummaryModel, CreateGroupDto } from '@/domain/models/messaging.model.ts';
+import { userCache } from '@/utils/userCache';
 
 export function useMessaging(neighborhoodId?: number, currentUserId?: number) {
     const [groups, setGroups] = useState<GroupModel[]>([]);
@@ -99,6 +100,13 @@ export function useMessaging(neighborhoodId?: number, currentUserId?: number) {
                 const sortedMessages = result.data.sort(
                     (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
                 );
+
+                // Mettre en cache les utilisateurs des messages
+                sortedMessages.forEach(message => {
+                    if (message.user) {
+                        userCache.set(message.user);
+                    }
+                });
 
                 setMessages((prev) => ({
                     ...prev,

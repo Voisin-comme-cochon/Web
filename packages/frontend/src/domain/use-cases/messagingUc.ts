@@ -131,7 +131,12 @@ export class MessagingUc {
                 throw new Error("L'ID du groupe est requis");
             }
 
-            return await this.messagingRepository.getGroupMembers({ groupId });
+            const members = await this.messagingRepository.getGroupMembers({ groupId });
+            
+            // Pré-charger les utilisateurs dans le cache
+            userCache.preloadGroupMembers(members);
+            
+            return members;
         } catch (error) {
             if (error instanceof Error) {
                 throw new Error(error.message);

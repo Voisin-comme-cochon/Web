@@ -207,6 +207,9 @@ export default function ChatPanel({ onClose }: { onClose: () => void }) {
                                             chat.activeConversationData.members?.find((m) => m.id !== user?.id)?.user
                                                 ?.profileImageUrl
                                         }
+                                        userId={
+                                            chat.activeConversationData.members?.find((m) => m.id !== user?.id)?.userId
+                                        }
                                         className="w-8 h-8"
                                     />
                                 ) : chat.activeConversationData?.imageUrl ? (
@@ -348,9 +351,9 @@ export default function ChatPanel({ onClose }: { onClose: () => void }) {
                                             <div className="flex items-center">
                                                 <div className="mr-1">
                                                     <AvatarComponent
-                                                        image={
-                                                            (message.user as UserModel)?.profileImageUrl || undefined
-                                                        }
+                                                        image={message.user?.profileImageUrl}
+                                                        userId={message.userId}
+                                                        className="w-8 h-8"
                                                     />
                                                 </div>
                                                 <span className="text-xs font-medium text-primary/70">
@@ -487,7 +490,10 @@ export default function ChatPanel({ onClose }: { onClose: () => void }) {
                                                     <AvatarComponent
                                                         image={
                                                             conversation.members?.find((m) => m.id !== user?.id)?.user
-                                                                ?.profileImageUrl || undefined
+                                                                ?.profileImageUrl
+                                                        }
+                                                        userId={
+                                                            conversation.members?.find((m) => m.id !== user?.id)?.userId
                                                         }
                                                         className="w-12 h-12"
                                                     />

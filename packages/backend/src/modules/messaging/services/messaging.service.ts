@@ -266,7 +266,17 @@ export class MessagingService {
             userId,
             groupId,
         };
-        return await this.messageRepository.create(messageData);
+        const message = await this.messageRepository.create(messageData);
+        
+        // Convertir l'URL de profil de l'utilisateur si présente
+        if (message.user?.profileImageUrl) {
+            message.user.profileImageUrl = await this.objectStorageService.getFileLink(
+                message.user.profileImageUrl, 
+                BucketType.PROFILE_IMAGES
+            );
+        }
+        
+        return message;
     }
 
     async getUserGroups(

@@ -201,6 +201,13 @@ export class MessagingGateway implements OnGatewayInit, OnGatewayConnection, OnG
 
             const message = await this.messagingService.sendMessage(client.userId, content, groupId);
 
+            // S'assurer que l'utilisateur est présent dans le message
+            if (!message.user) {
+                this.logger.error(`Message created without user data for user ${client.userId}`);
+                client.emit('error', { message: 'Failed to send message: missing user data' });
+                return;
+            }
+
             const roomName = `group-${groupId}`;
             const messageEvent: MessageSentEvent = {
                 id: message.id,
@@ -208,7 +215,7 @@ export class MessagingGateway implements OnGatewayInit, OnGatewayConnection, OnG
                 userId: message.userId,
                 groupId: message.groupId,
                 createdAt: message.createdAt,
-                user: message.user ?? { id: 0, firstName: 'Unknown', lastName: 'User' },
+                user: message.user,
             };
 
             this.server.to(roomName).emit('message-sent', messageEvent);
