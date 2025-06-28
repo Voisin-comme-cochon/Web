@@ -260,6 +260,48 @@ export class MessagingRepository {
         }
     }
 
+    /**
+     * Inviter des utilisateurs dans un groupe privé
+     */
+    async inviteToGroup(groupId: number, userIds: number[]): Promise<{ success: boolean }> {
+        try {
+            const payload = {
+                groupId,
+                userIds,
+            };
+            const response = await ApiService.post(`${this.basePath}/groups/invite`, payload);
+            return response.data;
+        } catch (error: any) {
+            if (error.response?.status === 400) {
+                throw new ApiError(400, 'Requête invalide pour inviter des utilisateurs');
+            }
+            if (error.response?.status === 403) {
+                throw new ApiError(403, "Vous n'êtes pas autorisé à inviter des utilisateurs dans ce groupe");
+            }
+            throw new ApiError(500, "Erreur lors de l'envoi des invitations");
+        }
+    }
+
+    /**
+     * Révoquer une invitation (supprimer une membership en attente ou refusée)
+     */
+    async revokeInvitation(membershipId: number): Promise<{ success: boolean }> {
+        try {
+            const response = await ApiService.delete(
+                `${this.basePath}/groups/invitations/${membershipId}`
+            );
+            return response.data;
+        } catch (error: any) {
+            if (error.response?.status === 404) {
+                throw new ApiError(404, "Invitation introuvable");
+            }
+            if (error.response?.status === 403) {
+                throw new ApiError(403, "Vous n'êtes pas autorisé à révoquer cette invitation");
+            }
+            throw new ApiError(500, "Erreur lors de la révocation de l'invitation");
+        }
+    }
+
     // ===== RECHERCHE D'UTILISATEURS =====
 
     /**

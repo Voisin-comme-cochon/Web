@@ -7,7 +7,7 @@ export enum GroupType {
 export enum MembershipStatus {
     PENDING = 'pending',
     ACTIVE = 'active',
-    REJECTED = 'rejected',
+    DECLINED = 'declined',
 }
 
 export interface UserSummaryModel {

@@ -318,6 +318,16 @@ export class MessagingController {
         return { success: true };
     }
 
+    // ========== INVITATIONS ==========
+
+    @Delete('groups/invitations/:membershipId')
+    async revokeInvitation(
+        @Request() req: { user: { id: number } },
+        @Param('membershipId') membershipId: number
+    ): Promise<{ success: boolean }> {
+        return await this.messagingService.revokeInvitation(req.user.id, Number(membershipId));
+    }
+
     // ========== MESSAGING ==========
 
     @Post('messages')

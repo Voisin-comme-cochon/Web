@@ -171,6 +171,26 @@ export class MessagingUc {
         }
     }
 
+    // ===== INVITATIONS =====
+
+    async revokeInvitation(membershipId: number): Promise<{ success: boolean }> {
+        return await this.messagingRepository.revokeInvitation(membershipId);
+    }
+
+    async inviteToGroup(groupId: number, userIds: number[]): Promise<{ success: boolean }> {
+        try {
+            if (!groupId || userIds.length === 0) {
+                throw new Error('GroupId et userIds requis');
+            }
+            return await this.messagingRepository.inviteToGroup(groupId, userIds);
+        } catch (error) {
+            if (error instanceof Error) {
+                throw new Error(error.message);
+            }
+            throw new Error("Erreur lors de l'envoi des invitations");
+        }
+    }
+
     // ===== MESSAGERIE =====
 
     async sendMessage(content: string, groupId: number): Promise<GroupMessageModel> {

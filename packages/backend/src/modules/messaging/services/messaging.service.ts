@@ -31,7 +31,7 @@ export class MessagingService {
         private readonly usersService: UsersService,
         private readonly objectStorageService: ObjectStorageService,
         private readonly tagRepository: TagsRepository
-    ) {}
+    ) { }
 
     async createPrivateChat(userId: number, targetUserId: number, neighborhoodId: number): Promise<Group> {
         // Check si les deux sont dans le quartier
@@ -267,15 +267,15 @@ export class MessagingService {
             groupId,
         };
         const message = await this.messageRepository.create(messageData);
-        
+
         // Convertir l'URL de profil de l'utilisateur si présente
         if (message.user?.profileImageUrl) {
             message.user.profileImageUrl = await this.objectStorageService.getFileLink(
-                message.user.profileImageUrl, 
+                message.user.profileImageUrl,
                 BucketType.PROFILE_IMAGES
             );
         }
-        
+
         return message;
     }
 
@@ -580,6 +580,31 @@ export class MessagingService {
         return { success: true };
     }
 
+    async revokeInvitation(userId: number, membershipId: number): Promise<{ success: boolean }> {
+        // Vérifier que la membership existe
+        const membership = await this.membershipRepository.findById(membershipId);
+        if (!membership) {
+            throw new CochonError('invitation_not_found', "Invitation introuvable", 404, { membershipId });
+        }
+
+        // Vérifier que l'utilisateur appelant est owner du groupe
+        const callerMembership = await this.membershipRepository.findByUserAndGroup(userId, membership.groupId);
+        if (!callerMembership || !callerMembership.isOwner) {
+            throw new CochonError('not_group_owner', "Vous n'êtes pas propriétaire du groupe", 403, {
+                userId,
+                groupId: membership.groupId,
+            });
+        }
+
+        // On ne supprime que les invitations non encore acceptées
+        if (membership.status === MembershipStatus.ACTIVE) {
+            throw new CochonError('cannot_revoke_active_member', 'Impossible de révoquer un membre actif', 400);
+        }
+
+        await this.membershipRepository.delete(membershipId);
+        return { success: true };
+    }
+
     async getGroupMembers(userId: number, groupId: number): Promise<GroupMembership[]> {
         // Vérifier l'accès au groupe
         const membership = await this.membershipRepository.findByUserAndGroup(userId, groupId);
@@ -591,7 +616,11 @@ export class MessagingService {
             });
         }
 
-        const memberships = await this.membershipRepository.findActiveByGroupId(groupId);
+        // Si l'utilisateur est propriétaire du groupe, on renvoie tous les statuts (active, pending, declined)
+        // Sinon, on reste limité aux membres actifs uniquement.
+        const memberships = membership.isOwner
+            ? await this.membershipRepository.findByGroupId(groupId)
+            : await this.membershipRepository.findActiveByGroupId(groupId);
 
         // Recup les user depuis le service pour profiter de la logique métier réalisé (pas envoyer le pwd, le bon lien d'image, ...)
         const uniqueUserIds = Array.from(new Set(memberships.map((m) => m.userId)));

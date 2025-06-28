@@ -27,11 +27,11 @@ import { cn } from '@/lib/utils';
 import { CreateGroupDialog } from './create-group-dialog';
 import { Group, JoinGroupDialog } from './join-group-dialog';
 import { LeaveGroupDialog } from './leave-group-dialog';
+import { ManageMembersDialog } from './manage-members-dialog';
 import { useChatManager } from '@/presentation/hooks/useChatManager.ts';
 import { useHeaderData } from '@/presentation/hooks/UseHeaderData.tsx';
 import { GroupType } from '@/domain/models/messaging.model.ts';
 import AvatarComponent from '@/components/AvatarComponent/AvatarComponent';
-import { UserModel } from '@/domain/models/user.model.ts';
 import { useToast } from '@/presentation/hooks/useToast.ts';
 import { formatMessageTime } from '@/utils/dateUtils';
 
@@ -42,6 +42,7 @@ export default function ChatPanel({ onClose }: { onClose: () => void }) {
     const [createGroupOpen, setCreateGroupOpen] = useState(false);
     const [joinGroupOpen, setJoinGroupOpen] = useState(false);
     const [leaveGroupDialogOpen, setLeaveGroupDialogOpen] = useState(false);
+    const [manageMembersOpen, setManageMembersOpen] = useState(false);
     const { showSuccess } = useToast();
 
     // Ref pour le conteneur de messages pour le scroll
@@ -268,10 +269,7 @@ export default function ChatPanel({ onClose }: { onClose: () => void }) {
                                     <>
                                         <DropdownMenuSeparator />
                                         <DropdownMenuItem
-                                            onClick={() => {
-                                                /* TODO: implémenter */
-                                            }}
-                                            disabled
+                                            onClick={() => setManageMembersOpen(true)}
                                         >
                                             <UserPlus className="mr-2 h-4 w-4" />
                                             Gérer les membres
@@ -579,6 +577,18 @@ export default function ChatPanel({ onClose }: { onClose: () => void }) {
                 availableGroups={chat.availableGroups as unknown as Group[]}
                 invitedGroups={chat.invitedGroups as unknown as Group[]}
                 loading={chat.loading}
+            />
+
+            <ManageMembersDialog
+                open={manageMembersOpen}
+                onOpenChange={setManageMembersOpen}
+                group={chat.activeConversationData}
+                neighborhoodId={Number(neighborhoodId)}
+                onMembersUpdated={async () => {
+                    if (chat.activeConversation) {
+                        await chat.loadGroupMembers(chat.activeConversation);
+                    }
+                }}
             />
 
             <LeaveGroupDialog
