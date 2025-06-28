@@ -94,12 +94,12 @@ export function useMessaging(neighborhoodId?: number, currentUserId?: number) {
             setError(null);
             try {
                 const result = await messagingUc.getMessages(groupId, page);
-                
+
                 // Trier les messages par date croissante (du plus ancien au plus récent)
-                const sortedMessages = result.data.sort((a, b) => 
-                    new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+                const sortedMessages = result.data.sort(
+                    (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
                 );
-                
+
                 setMessages((prev) => ({
                     ...prev,
                     [groupId]: page === 1 ? sortedMessages : [...(prev[groupId] || []), ...sortedMessages],
@@ -195,6 +195,28 @@ export function useMessaging(neighborhoodId?: number, currentUserId?: number) {
         [messagingUc, neighborhoodId]
     );
 
+    const declineGroupInvitation = useCallback(
+        async (groupId: number): Promise<boolean> => {
+            setLoading(true);
+            setError(null);
+            try {
+                await messagingUc.declineGroupInvitation(groupId);
+
+                // Recharger les invitations pour mettre à jour la liste
+                const updatedInvitations = await messagingUc.getGroupInvitations();
+                setInvitedGroups(updatedInvitations);
+
+                return true;
+            } catch (err) {
+                setError(err instanceof Error ? err.message : "Erreur lors du déclin de l'invitation");
+                return false;
+            } finally {
+                setLoading(false);
+            }
+        },
+        [messagingUc]
+    );
+
     const sendMessage = useCallback(
         async (content: string, groupId: number): Promise<boolean> => {
             setLoading(true);
@@ -263,6 +285,7 @@ export function useMessaging(neighborhoodId?: number, currentUserId?: number) {
         createGroup,
         createPrivateChat,
         joinGroup,
+        declineGroupInvitation,
         sendMessage,
 
         getUserDisplayName: messagingUc.getUserDisplayName,

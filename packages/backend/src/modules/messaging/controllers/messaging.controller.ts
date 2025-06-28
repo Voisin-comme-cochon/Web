@@ -155,6 +155,26 @@ export class MessagingController {
         return await this.messagingService.joinGroup(req.user.id, joinGroupDto.groupId);
     }
 
+    @Post('groups/decline')
+    @ApiOperation({
+        summary: 'Décliner une invitation de groupe',
+        description: 'Permet à un utilisateur de décliner une invitation à rejoindre un groupe',
+    })
+    @ApiOkResponse({ description: 'Invitation déclinée avec succès' })
+    @ApiBadRequestResponse({ description: "L'invitation n'est pas en attente" })
+    @ApiForbiddenResponse({ description: 'Utilisateur non membre du quartier' })
+    @ApiNotFoundResponse({ description: 'Groupe non trouvé ou aucune invitation trouvée' })
+    @ApiUnauthorizedResponse({ description: 'Token JWT manquant ou invalide' })
+    async declineGroupInvitation(
+        @Request()
+        req: {
+            user: { id: number };
+        },
+        @Body() declineGroupDto: ByGroupDto
+    ): Promise<{ success: boolean }> {
+        return await this.messagingService.declineGroupInvitation(req.user.id, declineGroupDto.groupId);
+    }
+
     @Post('groups/leave')
     @ApiOperation({
         summary: 'Quitter un groupe',

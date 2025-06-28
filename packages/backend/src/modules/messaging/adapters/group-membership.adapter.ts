@@ -31,6 +31,8 @@ export class GroupMembershipAdapter {
                 return MembershipStatusEntity.PENDING;
             case MembershipStatus.ACTIVE:
                 return MembershipStatusEntity.ACTIVE;
+            case MembershipStatus.DECLINED:
+                return MembershipStatusEntity.DECLINED;
         }
     }
 
@@ -40,6 +42,8 @@ export class GroupMembershipAdapter {
                 return MembershipStatus.PENDING;
             case MembershipStatusEntity.ACTIVE:
                 return MembershipStatus.ACTIVE;
+            case MembershipStatusEntity.DECLINED:
+                return MembershipStatus.DECLINED;
         }
     }
 }

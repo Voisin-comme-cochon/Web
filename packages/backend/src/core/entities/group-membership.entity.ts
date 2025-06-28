@@ -5,6 +5,7 @@ import { GroupEntity } from './group.entity';
 export enum MembershipStatusEntity {
     PENDING = 'pending',
     ACTIVE = 'active',
+    DECLINED = 'declined',
 }
 
 @Entity('group-memberships')

@@ -456,6 +456,40 @@ export class MessagingService {
         );
     }
 
+    async declineGroupInvitation(userId: number, groupId: number): Promise<{ success: boolean }> {
+        const group = await this.groupRepository.findById(groupId);
+
+        if (isNull(group)) {
+            throw new CochonError('group_not_found', 'Groupe non trouvé', 404, {
+                userId,
+                groupId,
+            });
+        }
+
+        await this.validateUserInNeighborhood(userId, group.neighborhoodId);
+
+        const existingMembership = await this.membershipRepository.findByUserAndGroup(userId, groupId);
+
+        if (isNull(existingMembership)) {
+            throw new CochonError('no_invitation_found', 'Aucune invitation trouvée pour ce groupe', 404, {
+                userId,
+                groupId,
+            });
+        }
+
+        if (existingMembership.status !== MembershipStatus.PENDING) {
+            throw new CochonError('invitation_not_pending', "L'invitation n'est pas en attente", 400, {
+                userId,
+                groupId,
+                currentStatus: existingMembership.status,
+            });
+        }
+
+        await this.membershipRepository.updateStatus(existingMembership.id, MembershipStatus.DECLINED);
+
+        return { success: true };
+    }
+
     async leaveGroup(userId: number, groupId: number): Promise<{ success: boolean }> {
         const group = await this.groupRepository.findById(groupId);
 

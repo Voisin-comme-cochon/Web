@@ -11,6 +11,7 @@ import { useHeaderData } from '@/presentation/hooks/UseHeaderData.tsx';
 import { GroupType } from '@/domain/models/messaging.model.ts';
 import AvatarComponent from '@/components/AvatarComponent/AvatarComponent';
 import { UserModel } from '@/domain/models/user.model.ts';
+import { useToast } from '@/presentation/hooks/useToast.ts';
 
 export default function ChatPanel({ onClose }: { onClose: () => void }) {
     const [newMessage, setNewMessage] = useState('');
@@ -18,6 +19,7 @@ export default function ChatPanel({ onClose }: { onClose: () => void }) {
     const [activeTab, setActiveTab] = useState('messages');
     const [createGroupOpen, setCreateGroupOpen] = useState(false);
     const [joinGroupOpen, setJoinGroupOpen] = useState(false);
+    const { showSuccess } = useToast();
 
     // Ref pour le conteneur de messages pour le scroll
     const messagesContainerRef = useRef<HTMLDivElement>(null);
@@ -97,6 +99,7 @@ export default function ChatPanel({ onClose }: { onClose: () => void }) {
     // Gestionnaire de rejoindre un groupe
     const handleJoinGroup = async (group: any) => {
         const success = await chat.joinAndSelectGroup(group.id);
+        showSuccess(`Vous avez rejoint le groupe ${group.name} avec succès.`);
         if (success) {
             setActiveTab('messages');
         }
@@ -104,10 +107,11 @@ export default function ChatPanel({ onClose }: { onClose: () => void }) {
 
     // Gestionnaire de refuser une invitation
     const handleDeclineInvitation = async (group: any) => {
-        console.log('Invitation déclinée pour le groupe:', group.name);
-        // TODO: Implémenter l'API pour décliner une invitation
-        // Pour l'instant, on recharge juste les invitations
-        chat.loadGroupInvitations();
+        const success = await chat.declineGroupInvitation(group.id);
+        showSuccess(`Invitation déclinée pour le groupe ${group.name}.`);
+        if (success) {
+            console.log('Invitation déclinée avec succès pour le groupe:', group.name);
+        }
     };
 
     // Messages de la conversation active
@@ -351,8 +355,7 @@ export default function ChatPanel({ onClose }: { onClose: () => void }) {
                     )}
 
                     {/* Conversations */}
-                    <div className="flex-1 overflow-y-auto"
-                         style={{ minHeight: 0 }}>
+                    <div className="flex-1 overflow-y-auto" style={{ minHeight: 0 }}>
                         {chat.loading && filteredConversations.length === 0 ? (
                             <div className="p-6 text-center text-muted-foreground">Chargement...</div>
                         ) : filteredConversations.length > 0 ? (

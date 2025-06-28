@@ -110,7 +110,7 @@ export class UpdateGroupDto {
         required: false,
     })
     @IsOptional()
-    groupImage?: any;
+    groupImage?: Express.Multer.File;
 }
 
 export class CreatePrivateChatDto {

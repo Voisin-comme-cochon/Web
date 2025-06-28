@@ -1,6 +1,7 @@
 export enum MembershipStatus {
     PENDING = 'pending',
     ACTIVE = 'active',
+    DECLINED = 'declined',
 }
 
 export class GroupMembership {

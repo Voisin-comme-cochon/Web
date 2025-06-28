@@ -103,6 +103,27 @@ export class MessagingRepository {
     }
 
     /**
+     * Décliner une invitation de groupe
+     */
+    async declineGroupInvitation(dto: JoinGroupDto): Promise<{ success: boolean }> {
+        try {
+            const response = await ApiService.post(`${this.basePath}/groups/decline`, dto);
+            return response.data;
+        } catch (error: any) {
+            if (error.response?.status === 400) {
+                throw new ApiError(400, "L'invitation n'est pas en attente");
+            }
+            if (error.response?.status === 403) {
+                throw new ApiError(403, "Vous n'êtes pas membre de ce quartier");
+            }
+            if (error.response?.status === 404) {
+                throw new ApiError(404, 'Groupe non trouvé ou aucune invitation trouvée');
+            }
+            throw new ApiError(500, "Erreur lors du déclin de l'invitation");
+        }
+    }
+
+    /**
      * Récupérer les membres d'un groupe
      */
     async getGroupMembers(dto: GetGroupMembersDto): Promise<GroupMembershipModel[]> {

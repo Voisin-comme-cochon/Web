@@ -93,6 +93,21 @@ export class MessagingUc {
         }
     }
 
+    async declineGroupInvitation(groupId: number): Promise<{ success: boolean }> {
+        try {
+            if (!groupId) {
+                throw new Error("L'ID du groupe est requis");
+            }
+
+            return await this.messagingRepository.declineGroupInvitation({ groupId });
+        } catch (error) {
+            if (error instanceof Error) {
+                throw new Error(error.message);
+            }
+            throw new Error("Erreur lors du déclin de l'invitation");
+        }
+    }
+
     async getGroupMembers(groupId: number): Promise<GroupMembershipModel[]> {
         try {
             if (!groupId) {
