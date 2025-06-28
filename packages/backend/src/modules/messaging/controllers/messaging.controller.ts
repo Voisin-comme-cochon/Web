@@ -257,6 +257,22 @@ export class MessagingController {
         return await this.messagingService.getAvailableGroups(req.user.id, Number(query.neighborhoodId));
     }
 
+    @Get('groups/invite')
+    @ApiOperation({
+        summary: 'Récupérer les invitations de groupes',
+        description: "Récupère tous les groupes pour lesquels l'utilisateur a des invitations en attente",
+    })
+    @ApiOkResponse({ description: 'Liste des groupes avec invitations récupérée avec succès', type: [GroupDto] })
+    @ApiUnauthorizedResponse({ description: 'Token JWT manquant ou invalide' })
+    async getGroupInvitations(
+        @Request()
+        req: {
+            user: { id: number };
+        }
+    ): Promise<GroupDto[]> {
+        return await this.messagingService.getGroupInvitations(req.user.id);
+    }
+
     @Post('groups/invite')
     @ApiOperation({
         summary: 'Inviter des utilisateurs à un groupe',

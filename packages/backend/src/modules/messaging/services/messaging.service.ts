@@ -665,6 +665,72 @@ export class MessagingService {
         return await this.messageRepository.getAmountOfMessage();
     }
 
+    async getGroupInvitations(userId: number): Promise<Group[]> {
+        const pendingMemberships = await this.membershipRepository.findByUserId(userId);
+
+        const pendingInvitations = pendingMemberships.filter(
+            (membership) => membership.status === MembershipStatus.PENDING
+        );
+
+        if (pendingInvitations.length === 0) {
+            return [];
+        }
+
+        const groupIds = pendingInvitations.map((membership) => membership.groupId);
+        const groups = await Promise.all(groupIds.map((groupId) => this.groupRepository.findById(groupId)));
+
+        const validGroups = groups.filter((group): group is Group => group !== null);
+
+        const lastMessageUserIds = validGroups
+            .map((group) => group.lastMessage?.userId)
+            .filter((uid): uid is number => uid !== undefined);
+
+        if (lastMessageUserIds.length > 0) {
+            const uniqueUserIds = Array.from(new Set(lastMessageUserIds));
+            const users = await Promise.all(uniqueUserIds.map((uid) => this.usersService.getUserById(uid)));
+            const userMap = new Map(users.map((user) => [user.id, user]));
+
+            return await Promise.all(
+                validGroups.map(async (group) => {
+                    const newGroup = Object.assign({}, group);
+
+                    if (isNotNull(newGroup.imageUrl)) {
+                        newGroup.imageUrl = await this.replaceGroupImageUrl(newGroup.imageUrl);
+                    }
+
+                    if (group.lastMessage) {
+                        const userInfo = userMap.get(group.lastMessage.userId);
+                        const lastMessageCopy = Object.assign({}, group.lastMessage);
+
+                        if (userInfo) {
+                            lastMessageCopy.user = {
+                                id: userInfo.id,
+                                firstName: userInfo.firstName,
+                                lastName: userInfo.lastName,
+                                profileImageUrl: userInfo.profileImageUrl,
+                            };
+                        }
+
+                        newGroup.lastMessage = lastMessageCopy;
+                    }
+
+                    return newGroup;
+                })
+            );
+        }
+
+        return await Promise.all(
+            validGroups.map(async (group) => {
+                if (isNotNull(group.imageUrl)) {
+                    const groupCopy = Object.assign({}, group);
+                    groupCopy.imageUrl = await this.replaceGroupImageUrl(group.imageUrl);
+                    return groupCopy;
+                }
+                return group;
+            })
+        );
+    }
+
     async inviteToGroup(userId: number, data: InviteGroupMembership): Promise<void> {
         const { groupId, userIds } = data;
 
