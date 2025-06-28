@@ -151,13 +151,14 @@ export class MessagingService {
         };
         await this.membershipRepository.create(creatorMembership);
 
-        // Ajouter les autres membres si spécifiés
-        if (options?.memberIds?.length) {
+        // Ajouter les autres membres si spécifiés (en tant qu'invitations)
+        // Uniquement pour les groupes privés - les groupes publics n'ont pas de système d'invitation
+        if (options?.memberIds?.length && group.type === GroupType.PRIVATE_GROUP) {
             const additionalMemberships = options.memberIds.map(
                 (memberId): CreateGroupMembership => ({
                     userId: memberId,
                     groupId: group.id,
-                    status: MembershipStatus.ACTIVE,
+                    status: MembershipStatus.PENDING,
                     isOwner: false,
                 })
             );

@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Search, Plus, Lock, Globe, X } from 'lucide-react';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import AvatarComponent from '@/components/AvatarComponent/AvatarComponent';
@@ -76,6 +76,12 @@ export function CreateGroupDialog({
     const messagingUc = useMemo(() => new MessagingUc(new MessagingRepository()), []);
     const tagUc = useMemo(() => new TagUc(new TagRepository()), []);
 
+    // Surveiller le type de groupe sélectionné
+    const selectedGroupType = useWatch({
+        control: form.control,
+        name: 'type',
+    });
+
     // Chargement des tags disponibles
     useEffect(() => {
         const loadTags = async () => {
@@ -130,6 +136,14 @@ export function CreateGroupDialog({
         );
     }, [selectedMembers, form]);
 
+    // Reset selected members when switching to public group
+    useEffect(() => {
+        if (selectedGroupType === 'public') {
+            setSelectedMembers([]);
+            setSearchQuery('');
+        }
+    }, [selectedGroupType]);
+
     const handleAddMember = (user: User) => {
         setSelectedMembers([...selectedMembers, user]);
         setSearchQuery('');
@@ -150,7 +164,7 @@ export function CreateGroupDialog({
                 description: values.description,
                 type: values.type,
                 tagId: values.tagId && values.tagId !== '' ? parseInt(values.tagId, 10) : undefined,
-                members: selectedMembers,
+                members: values.type === 'private' ? selectedMembers : [], // Only include members for private groups
                 createdAt: new Date().toISOString(),
                 avatar: '/placeholder.svg?height=40&width=40',
             };
@@ -304,94 +318,114 @@ export function CreateGroupDialog({
                                 </FormItem>
                             )}
                         />
-                        <div className="space-y-2">
-                            <Label className="text-primary">Ajouter des membres</Label>
-                            <div className="relative">
-                                <Search
-                                    className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground"
-                                    size={16}
-                                />
-                                <Input
-                                    placeholder="Rechercher des personnes..."
-                                    value={searchQuery}
-                                    onChange={(e) => setSearchQuery(e.target.value)}
-                                    className="pl-10 border-border focus-visible:ring-orange"
-                                />
-                            </div>
-
-                            {/* Selected Members */}
-                            {selectedMembers.length > 0 && (
-                                <div className="flex flex-wrap gap-2 mt-2">
-                                    {selectedMembers.map((member) => (
-                                        <div
-                                            key={member.id}
-                                            className="flex items-center bg-muted rounded-full pl-1 pr-2 py-1"
-                                        >
-                                            <AvatarComponent
-                                                user={{
-                                                    id: member.id,
-                                                    firstName: member.firstName || '',
-                                                    lastName: member.lastName || '',
-                                                    profileImageUrl: member.avatar,
-                                                }}
-                                                className="w-5 h-5 mr-1"
-                                            />
-                                            <span className="text-xs text-primary">{member.name}</span>
-                                            <button
-                                                onClick={() => handleRemoveMember(member.id)}
-                                                className="ml-1 text-muted-foreground hover:text-primary"
-                                            >
-                                                <X size={14} />
-                                                <span className="sr-only">Retirer {member.name}</span>
-                                            </button>
-                                        </div>
-                                    ))}
+                        {/* Section d'ajout de membres - uniquement pour les groupes privés */}
+                        {selectedGroupType === 'private' && (
+                            <div className="space-y-2">
+                                <Label className="text-primary">Ajouter des membres</Label>
+                                <p className="text-xs text-muted-foreground">
+                                    Invitez des personnes à rejoindre votre groupe privé
+                                </p>
+                                <div className="relative">
+                                    <Search
+                                        className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground"
+                                        size={16}
+                                    />
+                                    <Input
+                                        placeholder="Rechercher des personnes..."
+                                        value={searchQuery}
+                                        onChange={(e) => setSearchQuery(e.target.value)}
+                                        className="pl-10 border-border focus-visible:ring-orange"
+                                    />
                                 </div>
-                            )}
 
-                            {/* Search Results */}
-                            {searchQuery && searchQuery.length >= 2 && (
-                                <div className="mt-2 border border-border rounded-md max-h-40 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
-                                    {isSearching ? (
-                                        <div className="p-3 text-center text-muted-foreground text-sm">
-                                            Recherche en cours...
-                                        </div>
-                                    ) : searchResults.length > 0 ? (
-                                        searchResults.map((user) => (
+                                {/* Selected Members */}
+                                {selectedMembers.length > 0 && (
+                                    <div className="flex flex-wrap gap-2 mt-2">
+                                        {selectedMembers.map((member) => (
                                             <div
-                                                key={user.id}
-                                                onClick={() => handleAddMember(user)}
-                                                className="flex items-center p-2 hover:bg-muted cursor-pointer"
+                                                key={member.id}
+                                                className="flex items-center bg-muted rounded-full pl-1 pr-2 py-1"
                                             >
-                                                <div className="mr-2">
-                                                    <AvatarComponent
-                                                        user={{
-                                                            id: user.id,
-                                                            firstName: user.firstName || '',
-                                                            lastName: user.lastName || '',
-                                                            profileImageUrl: user.avatar,
-                                                        }}
-                                                        className="w-8 h-8"
-                                                    />
-                                                </div>
-                                                <span className="text-sm text-primary">{user.name}</span>
-                                                <Plus size={16} className="ml-auto text-orange" />
+                                                <AvatarComponent
+                                                    user={{
+                                                        id: member.id,
+                                                        firstName: member.firstName || '',
+                                                        lastName: member.lastName || '',
+                                                        profileImageUrl: member.avatar,
+                                                    }}
+                                                    className="w-5 h-5 mr-1"
+                                                />
+                                                <span className="text-xs text-primary">{member.name}</span>
+                                                <button
+                                                    onClick={() => handleRemoveMember(member.id)}
+                                                    className="ml-1 text-muted-foreground hover:text-primary"
+                                                >
+                                                    <X size={14} />
+                                                    <span className="sr-only">Retirer {member.name}</span>
+                                                </button>
                                             </div>
-                                        ))
-                                    ) : (
-                                        <div className="p-3 text-center text-muted-foreground text-sm">
-                                            Aucun utilisateur trouvé
-                                        </div>
-                                    )}
-                                </div>
-                            )}
+                                        ))}
+                                    </div>
+                                )}
 
-                            {searchQuery && searchQuery.length > 0 && searchQuery.length < 2 && (
-                                <div className="mt-2 p-2 text-xs text-muted-foreground">
-                                    Tapez au moins 2 caractères pour rechercher
+                                {/* Search Results */}
+                                {searchQuery && searchQuery.length >= 2 && (
+                                    <div className="mt-2 border border-border rounded-md max-h-40 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+                                        {isSearching ? (
+                                            <div className="p-3 text-center text-muted-foreground text-sm">
+                                                Recherche en cours...
+                                            </div>
+                                        ) : searchResults.length > 0 ? (
+                                            searchResults.map((user) => (
+                                                <div
+                                                    key={user.id}
+                                                    onClick={() => handleAddMember(user)}
+                                                    className="flex items-center p-2 hover:bg-muted cursor-pointer"
+                                                >
+                                                    <div className="mr-2">
+                                                        <AvatarComponent
+                                                            user={{
+                                                                id: user.id,
+                                                                firstName: user.firstName || '',
+                                                                lastName: user.lastName || '',
+                                                                profileImageUrl: user.avatar,
+                                                            }}
+                                                            className="w-8 h-8"
+                                                        />
+                                                    </div>
+                                                    <span className="text-sm text-primary">{user.name}</span>
+                                                    <Plus size={16} className="ml-auto text-orange" />
+                                                </div>
+                                            ))
+                                        ) : (
+                                            <div className="p-3 text-center text-muted-foreground text-sm">
+                                                Aucun utilisateur trouvé
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+
+                                {searchQuery && searchQuery.length > 0 && searchQuery.length < 2 && (
+                                    <div className="mt-2 p-2 text-xs text-muted-foreground">
+                                        Tapez au moins 2 caractères pour rechercher
+                                    </div>
+                                )}
+                            </div>
+                        )}
+
+                        {/* Information pour les groupes publics */}
+                        {selectedGroupType === 'public' && (
+                            <div className="space-y-2 p-4 bg-muted/50 rounded-lg border border-border">
+                                <div className="flex items-center text-primary">
+                                    <Globe size={16} className="mr-2" />
+                                    <span className="font-medium">Groupe public</span>
                                 </div>
-                            )}
-                        </div>
+                                <p className="text-sm text-muted-foreground">
+                                    Les groupes publics sont visibles par tous les membres du quartier. 
+                                    Les utilisateurs peuvent les rejoindre librement via l'onglet "Découvrir".
+                                </p>
+                            </div>
+                        )}
                         <DialogFooter>
                             <Button
                                 type="button"

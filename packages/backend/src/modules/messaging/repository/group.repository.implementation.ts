@@ -61,7 +61,7 @@ export class GroupRepositoryImplementation extends GroupRepository {
     ): Promise<[Group[], number]> {
         const queryBuilder = this.groupEntityRepository
             .createQueryBuilder('group')
-            .leftJoinAndSelect(
+            .innerJoinAndSelect(
                 'group.memberships',
                 'membership',
                 'membership.userId = :userId AND membership.status = :status',
@@ -73,7 +73,6 @@ export class GroupRepositoryImplementation extends GroupRepository {
                 qb.where('membershipCount.status = :status', { status: 'active' })
             )
             .where('group.neighborhoodId = :neighborhoodId', { neighborhoodId })
-            .andWhere('(group.type = :publicType OR membership.id IS NOT NULL)', { publicType: GroupType.PUBLIC })
             .orderBy('lastMessage.createdAt', 'DESC')
             .skip((page - 1) * limit)
             .take(limit);

@@ -112,7 +112,8 @@ export default function ChatPanel({ onClose }: { onClose: () => void }) {
             isPrivate: groupType !== GroupType.PUBLIC,
             neighborhoodId: neighborhoodId!,
             tagId: group.tagId,
-            memberIds: group.members.map((m: any) => m.id),
+            // Seuls les groupes privés peuvent avoir des invitations
+            memberIds: group.type === 'private' ? group.members.map((m: any) => m.id) : [],
         };
 
         const newGroup = await chat.createAndSelectGroup(groupData);
