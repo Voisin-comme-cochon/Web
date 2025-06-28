@@ -11,6 +11,7 @@ import {
     LogOut,
     Settings,
     UserPlus,
+    X,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -32,6 +33,7 @@ import { GroupType } from '@/domain/models/messaging.model.ts';
 import AvatarComponent from '@/components/AvatarComponent/AvatarComponent';
 import { UserModel } from '@/domain/models/user.model.ts';
 import { useToast } from '@/presentation/hooks/useToast.ts';
+import { formatMessageTime } from '@/utils/dateUtils';
 
 export default function ChatPanel({ onClose }: { onClose: () => void }) {
     const [newMessage, setNewMessage] = useState('');
@@ -183,7 +185,7 @@ export default function ChatPanel({ onClose }: { onClose: () => void }) {
     }, [chat.activeConversation, activeMessages]);
 
     return (
-        <div className="bg-white rounded-lg shadow-xl w-[350px] h-[500px] flex flex-col overflow-hidden border border-border">
+        <div className="bg-white md:rounded-lg md:shadow-xl w-full md:w-[350px] h-full md:h-[500px] flex flex-col overflow-hidden md:border border-border">
             {/* Header */}
             <div className="bg-primary text-white p-4 flex items-center justify-between">
                 {chat.activeConversation ? (
@@ -201,12 +203,15 @@ export default function ChatPanel({ onClose }: { onClose: () => void }) {
                             <div className="mr-2">
                                 {chat.activeConversationData?.type === GroupType.PRIVATE_CHAT ? (
                                     <AvatarComponent
-                                        user={chat.activeConversationData.members?.find((m) => m.id !== user?.id)}
+                                        image={
+                                            chat.activeConversationData.members?.find((m) => m.id !== user?.id)?.user
+                                                ?.profileImageUrl
+                                        }
                                         className="w-8 h-8"
                                     />
                                 ) : chat.activeConversationData?.imageUrl ? (
-                                    <img 
-                                        src={chat.activeConversationData.imageUrl} 
+                                    <img
+                                        src={chat.activeConversationData.imageUrl}
                                         alt={chat.activeConversationData.name}
                                         className="w-8 h-8 rounded-full object-cover"
                                     />
@@ -239,48 +244,60 @@ export default function ChatPanel({ onClose }: { onClose: () => void }) {
                 ) : (
                     <h3 className="font-bold text-lg">Messages</h3>
                 )}
-                {chat.activeConversation && chat.activeConversationData?.type !== GroupType.PRIVATE_CHAT && (
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button variant="default" size="icon" className="text-white hover:bg-primary/80">
-                                <MoreVertical size={20} />
-                                <span className="sr-only">Options</span>
-                            </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-48">
-                            <DropdownMenuItem
-                                onClick={() => setLeaveGroupDialogOpen(true)}
-                                className="text-red-600 focus:text-red-600"
-                            >
-                                <LogOut className="mr-2 h-4 w-4" />
-                                Quitter le groupe
-                            </DropdownMenuItem>
-                            {isCurrentUserOwner() && (
-                                <>
-                                    <DropdownMenuSeparator />
-                                    <DropdownMenuItem
-                                        onClick={() => {
-                                            /* TODO: implémenter */
-                                        }}
-                                        disabled
-                                    >
-                                        <UserPlus className="mr-2 h-4 w-4" />
-                                        Gérer les membres
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem
-                                        onClick={() => {
-                                            /* TODO: implémenter */
-                                        }}
-                                        disabled
-                                    >
-                                        <Settings className="mr-2 h-4 w-4" />
-                                        Gérer le groupe
-                                    </DropdownMenuItem>
-                                </>
-                            )}
-                        </DropdownMenuContent>
-                    </DropdownMenu>
-                )}
+                <div className="flex items-center gap-2">
+                    {chat.activeConversation && chat.activeConversationData?.type !== GroupType.PRIVATE_CHAT && (
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button variant="default" size="icon" className="text-white hover:bg-primary/80">
+                                    <MoreVertical size={20} />
+                                    <span className="sr-only">Options</span>
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="w-48">
+                                <DropdownMenuItem
+                                    onClick={() => setLeaveGroupDialogOpen(true)}
+                                    className="text-red-600 focus:text-red-600"
+                                >
+                                    <LogOut className="mr-2 h-4 w-4" />
+                                    Quitter le groupe
+                                </DropdownMenuItem>
+                                {isCurrentUserOwner() && (
+                                    <>
+                                        <DropdownMenuSeparator />
+                                        <DropdownMenuItem
+                                            onClick={() => {
+                                                /* TODO: implémenter */
+                                            }}
+                                            disabled
+                                        >
+                                            <UserPlus className="mr-2 h-4 w-4" />
+                                            Gérer les membres
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem
+                                            onClick={() => {
+                                                /* TODO: implémenter */
+                                            }}
+                                            disabled
+                                        >
+                                            <Settings className="mr-2 h-4 w-4" />
+                                            Gérer le groupe
+                                        </DropdownMenuItem>
+                                    </>
+                                )}
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    )}
+                    {/* Bouton de fermeture général - toujours visible */}
+                    <Button
+                        variant="default"
+                        size="icon"
+                        className="text-white hover:bg-primary/80"
+                        onClick={onClose}
+                        aria-label="Fermer le chat"
+                    >
+                        <X size={20} />
+                    </Button>
+                </div>
             </div>
 
             {/* État de connexion WebSocket */}
@@ -330,7 +347,11 @@ export default function ChatPanel({ onClose }: { onClose: () => void }) {
                                         message.userId !== user?.id && (
                                             <div className="flex items-center">
                                                 <div className="mr-1">
-                                                    <AvatarComponent user={message.user as UserModel} />
+                                                    <AvatarComponent
+                                                        image={
+                                                            (message.user as UserModel)?.profileImageUrl || undefined
+                                                        }
+                                                    />
                                                 </div>
                                                 <span className="text-xs font-medium text-primary/70">
                                                     {chat.getUserDisplayName(message.user)}
@@ -354,7 +375,7 @@ export default function ChatPanel({ onClose }: { onClose: () => void }) {
                                         )}
                                     >
                                         <span className="text-muted-foreground">
-                                            {chat.formatMessageTime(message.createdAt)}
+                                            {formatMessageTime(message.createdAt)}
                                         </span>
                                     </div>
                                 </div>
@@ -464,12 +485,15 @@ export default function ChatPanel({ onClose }: { onClose: () => void }) {
                                             <div className="mr-3">
                                                 {conversation.type === GroupType.PRIVATE_CHAT ? (
                                                     <AvatarComponent
-                                                        user={conversation.members?.find((m) => m.id !== user?.id)}
+                                                        image={
+                                                            conversation.members?.find((m) => m.id !== user?.id)?.user
+                                                                ?.profileImageUrl || undefined
+                                                        }
                                                         className="w-12 h-12"
                                                     />
                                                 ) : conversation.imageUrl ? (
-                                                    <img 
-                                                        src={conversation.imageUrl} 
+                                                    <img
+                                                        src={conversation.imageUrl}
                                                         alt={conversation.name}
                                                         className="w-12 h-12 rounded-full object-cover"
                                                     />
@@ -496,7 +520,7 @@ export default function ChatPanel({ onClose }: { onClose: () => void }) {
                                                 </h4>
                                                 <span className="text-xs text-muted-foreground">
                                                     {conversation.lastMessage
-                                                        ? chat.formatMessageTime(conversation.lastMessage.createdAt)
+                                                        ? formatMessageTime(conversation.lastMessage.createdAt)
                                                         : ''}
                                                 </span>
                                             </div>

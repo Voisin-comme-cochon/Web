@@ -1,9 +1,9 @@
 import DashboardHeader from '@/components/Header/DashboardHeader.tsx';
-import { withHeaderData } from '@/containers/Wrapper/Wrapper.tsx';
+import { withNeighborhoodLayout } from '@/containers/Wrapper/NeighborhoodWrapper';
 import { HomeUc } from '@/domain/use-cases/homeUc.ts';
 import { UserModel } from '@/domain/models/user.model.ts';
 
-function NeighborhoodMaterialsPage({ user, uc }: { user: UserModel; uc: HomeUc }) {
+function NeighborhoodMaterialsPage({ user, neighborhoodId, uc }: { user: UserModel; neighborhoodId: string; uc: HomeUc }) {
     return (
         <>
             <DashboardHeader />
@@ -12,5 +12,4 @@ function NeighborhoodMaterialsPage({ user, uc }: { user: UserModel; uc: HomeUc }
     );
 }
 
-const NeighborhoodMaterialsPageWithHeader = withHeaderData(NeighborhoodMaterialsPage);
-export default NeighborhoodMaterialsPageWithHeader;
+export default withNeighborhoodLayout(NeighborhoodMaterialsPage);

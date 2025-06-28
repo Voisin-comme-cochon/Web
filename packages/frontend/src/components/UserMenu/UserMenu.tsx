@@ -27,7 +27,7 @@ export default function UserMenu({ user }: { user: UserModel | null }) {
         <DropdownMenu>
             <DropdownMenuTrigger>
                 <div className="cursor-pointer">
-                    <AvatarComponent user={user as UserModel} />
+                    <AvatarComponent image={(user as UserModel)?.profileImageUrl || undefined} />
                 </div>
             </DropdownMenuTrigger>{' '}
             <DropdownMenuContent className="w-56">

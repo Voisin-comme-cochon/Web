@@ -1,12 +1,12 @@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar.tsx';
-import { UserModel } from '@/domain/models/user.model.ts';
+import { User } from 'lucide-react';
 
-export default function AvatarComponent({ user, className }: { user: UserModel | null; className?: string }) {
+export default function AvatarComponent({ image, className }: { image?: string; className?: string }) {
     return (
         <Avatar className={className}>
-            <AvatarImage src={user?.profileImageUrl ?? ''} className="object-cover" />
+            <AvatarImage src={image ?? ''} className="object-cover" />
             <AvatarFallback>
-                {user?.firstName[0]}.{user?.lastName[0]}
+                <User className="w-6 h-6" />
             </AvatarFallback>
         </Avatar>
     );

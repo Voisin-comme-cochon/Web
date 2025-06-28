@@ -7,6 +7,8 @@ import {
     UserSummaryModel,
     CreateGroupDto,
 } from '../models/messaging.model';
+import { formatMessageTime } from '@/utils/dateUtils';
+import { userCache } from '@/utils/userCache';
 
 export class MessagingUc {
     constructor(private messagingRepository: MessagingRepository) {}
@@ -252,20 +254,6 @@ export class MessagingUc {
     }
 
     formatMessageTime(dateString: string): string {
-        const date = new Date(dateString);
-        const now = new Date();
-        const diffInHours = (now.getTime() - date.getTime()) / (1000 * 60 * 60);
-
-        if (diffInHours < 1) {
-            return date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
-        } else if (diffInHours < 24) {
-            return date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
-        } else if (diffInHours < 48) {
-            return 'Hier';
-        } else if (diffInHours < 168) {
-            return date.toLocaleDateString('fr-FR', { weekday: 'short' });
-        } else {
-            return date.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' });
-        }
+        return formatMessageTime(dateString);
     }
 }

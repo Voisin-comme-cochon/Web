@@ -393,12 +393,7 @@ export function CreateGroupDialog({
                                                 className="flex items-center bg-muted rounded-full pl-1 pr-2 py-1"
                                             >
                                                 <AvatarComponent
-                                                    user={{
-                                                        id: member.id,
-                                                        firstName: member.firstName || '',
-                                                        lastName: member.lastName || '',
-                                                        profileImageUrl: member.avatar,
-                                                    }}
+                                                    image={member.avatar}
                                                     className="w-5 h-5 mr-1"
                                                 />
                                                 <span className="text-xs text-primary">{member.name}</span>
@@ -430,12 +425,7 @@ export function CreateGroupDialog({
                                                 >
                                                     <div className="mr-2">
                                                         <AvatarComponent
-                                                            user={{
-                                                                id: user.id,
-                                                                firstName: user.firstName || '',
-                                                                lastName: user.lastName || '',
-                                                                profileImageUrl: user.avatar,
-                                                            }}
+                                                            image={user.avatar}
                                                             className="w-8 h-8"
                                                         />
                                                     </div>
