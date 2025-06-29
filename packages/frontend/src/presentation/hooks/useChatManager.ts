@@ -40,7 +40,7 @@ export function useChatManager({ neighborhoodId, currentUserId }: UseChatManager
         [messaging]
     );
 
-    // Hook WebSocket (sans gestion du typing)
+    // Hook WebSocket
     const webSocket = useWebSocket({
         onMessageReceived: handleMessageReceived,
     });
@@ -66,8 +66,6 @@ export function useChatManager({ neighborhoodId, currentUserId }: UseChatManager
                     setTimeout(() => {
                         if (webSocket.connected) {
                             webSocket.joinGroup(groupId);
-                        } else {
-                            console.warn('ChatManager: WebSocket toujours non connecté après timeout');
                         }
                     }, 1000);
                 } else {

@@ -40,7 +40,7 @@ export function useMessaging(neighborhoodId?: number, currentUserId?: number) {
                             verifiedGroups.push(group);
                         }
                     } catch (error) {
-                        console.error(`Messaging: Erreur lors de la vérification du groupe ${group.name}:`, error);
+                        // Ignore les groupes en erreur sans logs (permission refusée)
                     }
                 }
 
@@ -52,7 +52,6 @@ export function useMessaging(neighborhoodId?: number, currentUserId?: number) {
 
             setGroups(memberGroups);
         } catch (err) {
-            console.error('Messaging: Erreur lors du chargement des groupes:', err);
             setError(err instanceof Error ? err.message : 'Erreur lors du chargement des groupes');
         } finally {
             setLoading(false);
@@ -261,7 +260,6 @@ export function useMessaging(neighborhoodId?: number, currentUserId?: number) {
                 
                 return members;
             } catch (err) {
-                console.error('Erreur lors du chargement des membres:', err);
                 return [];
             }
         },

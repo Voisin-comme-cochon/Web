@@ -7,13 +7,10 @@ interface WebSocketEvents {
     'joined-group': { groupId: number };
     'left-group': { groupId: number };
     'message-sent': GroupMessageModel;
-    'user-typing': { userId: number; groupId: number; isTyping: boolean };
 
     'join-group': { groupId: number };
     'leave-group': { groupId: number };
     'send-message': { groupId: number; content: string };
-    'typing-start': { groupId: number };
-    'typing-stop': { groupId: number };
 }
 
 interface UseWebSocketProps {
@@ -57,7 +54,6 @@ export function useWebSocket({ onMessageReceived, onConnected }: UseWebSocketPro
             });
 
             socket.on('disconnect', (reason) => {
-                console.log('WebSocket déconnecté:', reason);
                 setConnected(false);
                 joinedGroupsRef.current.clear();
             });
@@ -130,21 +126,6 @@ export function useWebSocket({ onMessageReceived, onConnected }: UseWebSocketPro
         return true;
     }, []);
 
-    const startTyping = useCallback((groupId: number) => {
-        if (!socketRef.current?.connected || !joinedGroupsRef.current.has(groupId)) {
-            return;
-        }
-
-        socketRef.current.emit('typing-start', { groupId });
-    }, []);
-
-    const stopTyping = useCallback((groupId: number) => {
-        if (!socketRef.current?.connected || !joinedGroupsRef.current.has(groupId)) {
-            return;
-        }
-
-        socketRef.current.emit('typing-stop', { groupId });
-    }, []);
 
     const disconnect = useCallback(() => {
         if (socketRef.current) {
@@ -183,8 +164,6 @@ export function useWebSocket({ onMessageReceived, onConnected }: UseWebSocketPro
         joinGroup,
         leaveGroup,
         sendMessage,
-        startTyping,
-        stopTyping,
 
         clearError: () => setError(null),
         isGroupJoined: (groupId: number) => joinedGroupsRef.current.has(groupId),
