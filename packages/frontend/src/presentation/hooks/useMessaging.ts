@@ -354,5 +354,11 @@ export function useMessaging(neighborhoodId?: number, currentUserId?: number) {
                 setMessages({});
             }
         },
+        forceRefresh: () => {
+            setGroupsVerified(false);
+            if (neighborhoodId) {
+                loadGroups();
+            }
+        },
     };
 }

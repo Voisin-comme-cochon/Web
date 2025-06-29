@@ -102,3 +102,12 @@ export interface GetAvailableGroupsDto {
 export interface GetGroupMembersDto {
     groupId: number;
 }
+
+export interface UpdateGroupDto {
+    name?: string;
+    description?: string;
+    type?: GroupType;
+    isPrivate?: boolean;
+    tagId?: number;
+    groupImage?: File;
+}

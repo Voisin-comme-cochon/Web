@@ -28,6 +28,7 @@ import { CreateGroupDialog } from './create-group-dialog';
 import { Group, JoinGroupDialog } from './join-group-dialog';
 import { LeaveGroupDialog } from './leave-group-dialog';
 import { ManageMembersDialog } from './manage-members-dialog';
+import { EditGroupDialog } from './edit-group-dialog';
 import { useChatManager } from '@/presentation/hooks/useChatManager.ts';
 import { useHeaderData } from '@/presentation/hooks/UseHeaderData.tsx';
 import { GroupType } from '@/domain/models/messaging.model.ts';
@@ -43,6 +44,7 @@ export default function ChatPanel({ onClose }: { onClose: () => void }) {
     const [joinGroupOpen, setJoinGroupOpen] = useState(false);
     const [leaveGroupDialogOpen, setLeaveGroupDialogOpen] = useState(false);
     const [manageMembersOpen, setManageMembersOpen] = useState(false);
+    const [editGroupOpen, setEditGroupOpen] = useState(false);
     const { showSuccess } = useToast();
 
     // Ref pour le conteneur de messages pour le scroll
@@ -149,10 +151,8 @@ export default function ChatPanel({ onClose }: { onClose: () => void }) {
         if (!chat.activeConversationData || !user || !chat.activeConversationData.members) {
             return false;
         }
-        
-        return chat.activeConversationData.members.some((member) => 
-            member.userId === user.id && member.isOwner
-        );
+
+        return chat.activeConversationData.members.some((member) => member.userId === user.id && member.isOwner);
     };
 
     // Gestionnaire pour quitter le groupe
@@ -165,6 +165,19 @@ export default function ChatPanel({ onClose }: { onClose: () => void }) {
             chat.selectConversation(null); // Retourner à la liste des conversations
         }
         setLeaveGroupDialogOpen(false);
+    };
+
+    // Gestionnaire pour la mise à jour du groupe
+    const handleGroupUpdated = async () => {
+        if (chat.activeConversation) {
+            // Fermer la conversation actuelle et retourner à la liste
+            setActiveTab('messages'); // Retourner à l'onglet messages
+            chat.selectConversation(null); // Fermer la conversation actuelle
+
+            // Forcer le rechargement complet de toutes les données
+            chat.forceRefresh(); // Force la réinitialisation du cache et recharge les groupes
+            chat.loadAvailableGroups(); // Recharge les groupes disponibles
+        }
     };
 
     // Messages de la conversation active
@@ -258,6 +271,22 @@ export default function ChatPanel({ onClose }: { onClose: () => void }) {
                                 </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end" className="w-48">
+                                {isCurrentUserOwner() && (
+                                    <>
+                                        <DropdownMenuItem onClick={() => setEditGroupOpen(true)}>
+                                            <Settings className="mr-2 h-4 w-4" />
+                                            Modifier le groupe
+                                        </DropdownMenuItem>
+                                        {/* Gérer les membres - seulement pour les groupes privés */}
+                                        {chat.activeConversationData?.isPrivate && (
+                                            <DropdownMenuItem onClick={() => setManageMembersOpen(true)}>
+                                                <UserPlus className="mr-2 h-4 w-4" />
+                                                Gérer les membres
+                                            </DropdownMenuItem>
+                                        )}
+                                        <DropdownMenuSeparator />
+                                    </>
+                                )}
                                 <DropdownMenuItem
                                     onClick={() => setLeaveGroupDialogOpen(true)}
                                     className="text-red-600 focus:text-red-600"
@@ -265,26 +294,6 @@ export default function ChatPanel({ onClose }: { onClose: () => void }) {
                                     <LogOut className="mr-2 h-4 w-4" />
                                     Quitter le groupe
                                 </DropdownMenuItem>
-                                {isCurrentUserOwner() && (
-                                    <>
-                                        <DropdownMenuSeparator />
-                                        <DropdownMenuItem
-                                            onClick={() => setManageMembersOpen(true)}
-                                        >
-                                            <UserPlus className="mr-2 h-4 w-4" />
-                                            Gérer les membres
-                                        </DropdownMenuItem>
-                                        <DropdownMenuItem
-                                            onClick={() => {
-                                                /* TODO: implémenter */
-                                            }}
-                                            disabled
-                                        >
-                                            <Settings className="mr-2 h-4 w-4" />
-                                            Gérer le groupe
-                                        </DropdownMenuItem>
-                                    </>
-                                )}
                             </DropdownMenuContent>
                         </DropdownMenu>
                     )}
@@ -596,6 +605,13 @@ export default function ChatPanel({ onClose }: { onClose: () => void }) {
                 onOpenChange={setLeaveGroupDialogOpen}
                 onConfirm={handleLeaveGroup}
                 groupName={chat.activeConversationData?.name}
+            />
+
+            <EditGroupDialog
+                open={editGroupOpen}
+                onOpenChange={setEditGroupOpen}
+                group={chat.activeConversationData}
+                onGroupUpdated={handleGroupUpdated}
             />
         </div>
     );
