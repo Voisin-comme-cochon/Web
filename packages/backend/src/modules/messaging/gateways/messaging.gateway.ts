@@ -56,8 +56,13 @@ interface UserJoinedGroupEvent {
 @Injectable()
 @WebSocketGateway({
     cors: {
-        // TODO: Vérifier la configuration CORS
-        origin: '*',
+        origin: [
+            'http://localhost:8080',
+            'https://voisincommecochon.fr',
+            'https://back.voisincommecochon.fr',
+            'https://38.242.223.232:8080',
+            'http://localhost:5173',
+        ],
         credentials: true,
     },
     namespace: '/messaging',
