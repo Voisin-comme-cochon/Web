@@ -1,4 +1,3 @@
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar.tsx';
 import { UserModel } from '@/domain/models/user.model.ts';
 import {
     DropdownMenu,
@@ -9,6 +8,7 @@ import {
 } from '@/components/ui/dropdown-menu.tsx';
 import { useAppNavigation } from '@/presentation/state/navigate.ts';
 import { useToast } from '@/presentation/hooks/useToast.ts';
+import AvatarComponent from '@/components/AvatarComponent/AvatarComponent.tsx';
 
 export default function UserMenu({ user }: { user: UserModel | null }) {
     const { goLanding } = useAppNavigation();
@@ -25,14 +25,11 @@ export default function UserMenu({ user }: { user: UserModel | null }) {
 
     return (
         <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-                <Avatar className={'cursor-pointer'}>
-                    <AvatarImage src={user?.profileImageUrl ?? ''} />
-                    <AvatarFallback>
-                        {user?.firstName[0]}.{user?.lastName[0]}
-                    </AvatarFallback>
-                </Avatar>
-            </DropdownMenuTrigger>
+            <DropdownMenuTrigger>
+                <div className="cursor-pointer">
+                    <AvatarComponent image={(user as UserModel)?.profileImageUrl || undefined} />
+                </div>
+            </DropdownMenuTrigger>{' '}
             <DropdownMenuContent className="w-56">
                 <DropdownMenuItem className={'cursor-pointer'}>Profil</DropdownMenuItem>
                 <DropdownMenuItem className={'cursor-pointer'}>Paramètres</DropdownMenuItem>

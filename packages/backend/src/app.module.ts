@@ -8,8 +8,8 @@ import { ObjectStorageModule } from './modules/objectStorage/objectStorage.modul
 import { TicketsModule } from './modules/tickets/tickets.module';
 import { TagsModule } from './modules/tags/tags.module';
 import { EventsModule } from './modules/events/events.module';
-import { GroupsModule } from './modules/groups/groups.module';
 import { SalesModule } from './modules/sales/sales.module';
+import { MessagingModule } from './modules/messaging/messaging.module';
 import {JavaModule} from './modules/java/java.modules';
 
 @Module({
@@ -21,10 +21,10 @@ import {JavaModule} from './modules/java/java.modules';
         TicketsModule,
         NeighborhoodModule,
         MailerModule,
-        GroupsModule,
         SalesModule,
         ObjectStorageModule,
         JavaModule,
+        MessagingModule,
         TypeOrmModule.forRoot({
             type: 'postgres',
             host: process.env.VCC_DATABASE_HOST,

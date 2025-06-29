@@ -1,12 +1,27 @@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar.tsx';
-import { UserModel } from '@/domain/models/user.model.ts';
+import { User } from 'lucide-react';
+import { userCache } from '@/utils/userCache';
 
-export default function AvatarComponent({ user }: { user: UserModel | null }) {
+interface AvatarComponentProps {
+    userId?: number;
+    image?: string;
+    className?: string;
+}
+
+export default function AvatarComponent({ userId, image, className }: AvatarComponentProps) {
+    // Priorité : image fournie > cache > fallback
+    let finalImage = image;
+    
+    if (!finalImage && userId) {
+        const cachedUser = userCache.get(userId);
+        finalImage = cachedUser?.profileImageUrl;
+    }
+    
     return (
-        <Avatar>
-            <AvatarImage src={user?.profileImageUrl ?? ''} />
+        <Avatar className={className}>
+            <AvatarImage src={finalImage ?? ''} className="object-cover" />
             <AvatarFallback>
-                {user?.firstName[0]}.{user?.lastName[0]}
+                <User className="w-6 h-6" />
             </AvatarFallback>
         </Avatar>
     );

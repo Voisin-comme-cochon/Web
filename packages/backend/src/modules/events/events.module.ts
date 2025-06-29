@@ -35,7 +35,14 @@ import { EventsController } from './controllers/events.controller';
                 mailerService: MailerService,
                 neighborhoodService: NeighborhoodService,
                 tagsService: TagsService
-            ) => new EventsService(eventsRepository, objectStorageService, neighborhoodService, tagsService, mailerService),
+            ) =>
+                new EventsService(
+                    eventsRepository,
+                    objectStorageService,
+                    neighborhoodService,
+                    tagsService,
+                    mailerService
+                ),
         },
     ],
     exports: [EventsRepository, EventsService],

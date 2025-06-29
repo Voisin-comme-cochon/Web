@@ -36,6 +36,8 @@ export abstract class NeighborhoodUserRepository {
 
     abstract addUserToNeighborhood(neighborhoodUser: NeighborhoodUserEntity): Promise<NeighborhoodUserEntity>;
 
+    abstract isUserMemberOfNeighborhood(userId: number, neighborhoodId: number): Promise<boolean>;
+
     abstract removeUserFromNeighborhood(userId: number, neighborhoodId: number): Promise<void>;
 
     abstract updateMemberInNeighborhood(
