@@ -78,6 +78,24 @@ export class RequestNeighborhoodDto {
     geo!: string;
 }
 
+export class RequestUpdateNeighborhoodDto {
+    @ApiProperty({
+        example: 'Quartier des Lilas',
+        description: 'The name of the Neighborhood',
+    })
+    @IsString()
+    @IsOptional()
+    name?: string;
+
+    @ApiProperty({
+        example: 'Quartier des Lilas de la ville de Villeurbanne',
+        description: 'The description of the Neighborhood',
+    })
+    @IsString()
+    @IsOptional()
+    description?: string;
+}
+
 export class GetNeighborhoodQueryParamsDto {
     @ApiProperty({
         example: 'waiting',

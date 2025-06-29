@@ -94,8 +94,12 @@ function JoinNeighborhood({ uc, user }: { uc: HomeUc; user: UserModel }) {
                     <span className="text-orange font-bold">Rejoindre</span> votre quartier
                 </h1>
                 <p className="mb-6 text-gray-600 text-center">
-                    Plusieurs quartiers sont disponibles pour votre adresse, vous pouvez en rejoindre autant que vous
-                    voulez.
+                    Plusieurs quartiers peuvent être disponibles pour votre adresse, vous pouvez en rejoindre autant que
+                    vous voulez.
+                </p>
+                <p className="mb-6 text-xs text-gray-600 text-center">
+                    Si vous avez fait une demande de création de quartier et que vous voyez cette page c'est qu'elle est
+                    en train d'être examinée par le staff.
                 </p>
 
                 {/* Search Bar */}

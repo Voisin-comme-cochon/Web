@@ -14,4 +14,6 @@ export abstract class NeighborhoodRepository {
     abstract createNeighborhood(neighborhood: NeighborhoodEntity): Promise<Neighborhood>;
 
     abstract setNeighborhoodStatus(id: number, status: NeighborhoodStatusEntity): Promise<Neighborhood | null>;
+
+    abstract updateNeighborhood(id: number, name?: string, description?: string): Promise<Neighborhood | null>;
 }

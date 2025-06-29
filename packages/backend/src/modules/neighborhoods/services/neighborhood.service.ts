@@ -18,6 +18,7 @@ import { NeighborhoodStatusEntity } from '../../../core/entities/neighborhood-st
 import { MailerService } from '../../mailer/services/mailer.service';
 import { Templates } from '../../mailer/domain/templates.enum';
 import { UsersService } from '../../users/services/users.service';
+import { NeighborhoodsAdapter } from '../adapters/neighborhoods.adapter';
 
 @Injectable()
 export class NeighborhoodService {
@@ -116,7 +117,7 @@ export class NeighborhoodService {
                         template: Templates.DELETE_NEIGHBORHOOD,
                         context: {
                             neighborhoodName: neighborhood.name,
-                            userName: user.firstName,
+                            userName: user.firstName + ' ' + user.lastName,
                             supportEmail: process.env.VCC_SUPPORT_EMAIL,
                             reason: reason,
                         },
@@ -140,7 +141,7 @@ export class NeighborhoodService {
                         template: Templates.REOPENED_NEIGHBORHOOD,
                         context: {
                             neighborhoodName: neighborhood.name,
-                            userName: user.firstName,
+                            userName: user.firstName + ' ' + user.lastName,
                             supportEmail: process.env.VCC_SUPPORT_EMAIL,
                         },
                     });
@@ -160,7 +161,7 @@ export class NeighborhoodService {
                         template: Templates.ACCEPTED_NEIGHBORHOOD,
                         context: {
                             neighborhoodName: neighborhood.name,
-                            userName: user.firstName,
+                            userName: user.firstName + ' ' + user.lastName,
                             supportEmail: process.env.VCC_SUPPORT_EMAIL,
                         },
                     });
@@ -178,7 +179,7 @@ export class NeighborhoodService {
                         template: Templates.REFUSED_NEIGHBORHOOD,
                         context: {
                             neighborhoodName: neighborhood.name,
-                            userName: user.firstName,
+                            userName: user.firstName + ' ' + user.lastName,
                             supportEmail: process.env.VCC_SUPPORT_EMAIL,
                             reason: reason,
                         },
@@ -187,6 +188,39 @@ export class NeighborhoodService {
             );
         }
         return neighborhood;
+    }
+
+    async updateNeighborhood({
+        id,
+        name,
+        description,
+        userId,
+    }: {
+        id: number;
+        name?: string;
+        description?: string;
+        userId: number;
+    }): Promise<ResponseNeighborhoodDto> {
+        const neighborhood = await this.neighborhoodRepository.getNeighborhoodById(id);
+        if (!neighborhood) {
+            throw new CochonError('neighborhood_not_found', 'Neighborhood not found', 404);
+        }
+
+        const isAdmin = neighborhood.neighborhood_users?.some(
+            (user) => user.userId === userId && user.role === NeighborhoodUserRole.ADMIN
+        );
+
+        if (!isAdmin) {
+            throw new CochonError('not_authorized', 'You are not authorized to update this neighborhood', 403);
+        }
+
+        const updatedNeighborhood = await this.neighborhoodRepository.updateNeighborhood(id, name, description);
+
+        if (!updatedNeighborhood) {
+            throw new CochonError('neighborhood_update_failed', 'Failed to update neighborhood', 500);
+        }
+        console.log('Updated neighborhood:', updatedNeighborhood);
+        return NeighborhoodsAdapter.domainToDto(updatedNeighborhood);
     }
 
     private parseGeo(geo: string): Geography {

@@ -11,6 +11,8 @@ import { SelectedAddress } from '@/domain/models/SelectedAddress.ts';
 import { NeighborhoodMemberManageModel } from '@/domain/models/NeighborhoodUser.model.ts';
 import { Roles } from '@/domain/models/Roles.ts';
 import { UserStatus } from '@/domain/models/UserStatus.ts';
+import { EventManageModel } from '@/domain/models/EventManageModel.ts';
+import { InvitationModel } from '@/domain/models/invitation.model.ts';
 
 export class HomeUc {
     constructor(
@@ -19,6 +21,17 @@ export class HomeUc {
         private eventRepository: EventRepository,
         private tagRepository: TagRepository
     ) {}
+
+    async deleteInvitation(invitationId: number): Promise<void> {
+        try {
+            await this.neighborhoodRepository.deleteInvitation(invitationId);
+        } catch (error) {
+            if (error instanceof Error) {
+                throw new Error(error.message);
+            }
+            throw new Error("Une erreur est survenue lors de la suppression de l'invitation");
+        }
+    }
 
     async isUserRegistered(eventId: number, userId: number): Promise<boolean> {
         try {
@@ -29,6 +42,28 @@ export class HomeUc {
                 throw new Error(error.message);
             }
             throw new Error("Une erreur est survenue lors de la vérification de l'inscription");
+        }
+    }
+
+    async sendInviteEmails(neighborhoodId: string, emails: string[], durationInDays: number): Promise<void> {
+        try {
+            await this.neighborhoodRepository.sendInviteEmails(neighborhoodId, emails, durationInDays);
+        } catch (error) {
+            if (error instanceof Error) {
+                throw new Error(error.message);
+            }
+            throw new Error("Une erreur est survenue lors de l'envoi des invitations par email");
+        }
+    }
+
+    async getInvitationsByNeighborhoodId(neighborhoodId: string | number): Promise<InvitationModel[]> {
+        try {
+            return await this.neighborhoodRepository.getInvitationsByNeighborhoodId(neighborhoodId);
+        } catch (error) {
+            if (error instanceof Error) {
+                throw new Error(error.message);
+            }
+            throw new Error('Une erreur est survenue lors de la récupération des invitations');
         }
     }
 
@@ -115,11 +150,9 @@ export class HomeUc {
         try {
             const users = await this.neighborhoodRepository.getUsersInNeighborhood(neighborhoodId);
             const user = users.find((user) => user.userId === userId);
-            console.log('User in neighborhood:', users, 'User ID:', userId, 'Neighborhood ID:', neighborhoodId);
             if (!user) {
                 throw new Error('Utilisateur non trouvé dans le quartier');
             }
-            console.log('User neighborhood role:', user.neighborhoodRole);
             return user.neighborhoodRole === 'admin';
         } catch (error) {
             if (error instanceof Error) {
@@ -132,6 +165,27 @@ export class HomeUc {
     async getNeighborhoodEvents(neighborhoodId: number, limit: number, page: number): Promise<EventModel[]> {
         try {
             return await this.eventRepository.getNeighborhoodEvents(neighborhoodId, limit, page);
+        } catch (error) {
+            if (error instanceof Error) {
+                throw new Error(error.message);
+            }
+            throw new Error('Une erreur est survenue lors de la récupération des événements du quartier');
+        }
+    }
+
+    async getNeighborhoodManageEvents(neighborhoodId: number): Promise<EventManageModel[]> {
+        try {
+            const events = await this.eventRepository.getNeighborhoodEvents(neighborhoodId, 2000, 1);
+            return events.map((event) => ({
+                id: event.id,
+                name: event.name,
+                createdAt: event.createdAt.toISOString(),
+                dateStart: event.dateStart.toISOString(),
+                dateEnd: event.dateEnd.toISOString(),
+                registeredUsers: event.registeredUsers,
+                max: event.max,
+                tag: event.tag,
+            }));
         } catch (error) {
             if (error instanceof Error) {
                 throw new Error(error.message);
@@ -247,6 +301,32 @@ export class HomeUc {
             await this.neighborhoodRepository.updateNeighborhoodMemberStatus(neighborhoodId, userId, status);
         } catch (error) {
             throw new Error((error as ApiGlobalError).response.data.message);
+        }
+    }
+
+    async getNeighborhoodById(neighborhoodId: number): Promise<FrontNeighborhood> {
+        try {
+            return await this.neighborhoodRepository.getNeighborhoodById(neighborhoodId);
+        } catch (error) {
+            if (error instanceof Error) {
+                throw new Error(error.message);
+            }
+            throw new Error('Une erreur est survenue lors de la récupération du quartier');
+        }
+    }
+
+    async updateNeighborhoodManage(
+        name: string,
+        description: string,
+        neighborhoodId: number
+    ): Promise<FrontNeighborhood> {
+        try {
+            return await this.neighborhoodRepository.updateNeighborhoodManage(name, description, neighborhoodId);
+        } catch (error) {
+            if (error instanceof Error) {
+                throw new Error(error.message);
+            }
+            throw new Error('Une erreur est survenue lors de la mise à jour du quartier');
         }
     }
 }

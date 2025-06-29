@@ -1,8 +1,10 @@
 import { UserCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { useAppNavigation } from '@/presentation/state/navigate.ts';
 
 export function AlreadyMember() {
+    const { goMyNeighborhood } = useAppNavigation();
     return (
         <div className="min-h-screen bg-[#f2f5f8] font-sans flex items-center justify-center p-4">
             <Card className="w-full max-w-md">
@@ -19,8 +21,8 @@ export function AlreadyMember() {
                         <Button asChild className="bg-[#e36f4c] hover:bg-[#d15e3b] text-white w-full">
                             <a href="/dashboard">Accéder à mon quartier</a>
                         </Button>
-                        <Button asChild variant="outline" className="w-full">
-                            <a href="/">Retour à l'accueil</a>
+                        <Button asChild variant="outline" className="w-full" onClick={() => goMyNeighborhood()}>
+                            Retour à l'accueil
                         </Button>
                     </div>
                 </CardContent>

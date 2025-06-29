@@ -35,13 +35,13 @@ export default function DashboardHeader() {
         setPage(page.split('?')[0]);
     }, []);
 
+    const uc = new HomeUc(
+        new UserFrontRepository(),
+        new NeighborhoodFrontRepository(),
+        new EventRepository(),
+        new TagRepository()
+    );
     useEffect(() => {
-        const uc = new HomeUc(
-            new UserFrontRepository(),
-            new NeighborhoodFrontRepository(),
-            new EventRepository(),
-            new TagRepository()
-        );
         const fetchData = async () => {
             setLoading(true);
             const token = localStorage.getItem('jwt');
@@ -115,7 +115,7 @@ export default function DashboardHeader() {
         menuItems.push({
             id: 5,
             icon: 'settings',
-            label: 'Gérer le quartier',
+            label: 'Gestion',
             action: goManageNeighborhood,
             path: ['neighborhood-manage'],
         });
@@ -154,7 +154,7 @@ export default function DashboardHeader() {
                 {loading ? (
                     <div className="w-10 h-10 bg-gray-100 rounded-full animate-pulse" />
                 ) : (
-                    user && <UserMenu user={user} />
+                    user && <UserMenu user={user} uc={uc} />
                 )}
             </div>
         </header>

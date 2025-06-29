@@ -114,9 +114,9 @@ export class NeighborhoodUserService {
                     template: Templates.NEIGHBORHOOD_JOIN_REQUEST,
                     context: {
                         neighborhoodName: neighborhood.name,
-                        requesterName: user.firstName,
+                        requesterName: user.firstName + ' ' + user.lastName,
                         requesterEmail: user.email,
-                        neighborhoodLink: `${process.env.VCC_FRONT_URL}/admin-neighborhood/${neighborhoodId}`,
+                        neighborhoodLink: `http://localhost:8080/neighborhood-manage?tab=members`,
                         supportEmail: process.env.VCC_SUPPORT_EMAIL,
                     },
                 })
@@ -251,6 +251,23 @@ export class NeighborhoodUserService {
             });
         }
 
+        if (isNotNull(role) && neighborhoodUser.role == 'admin' && role !== NeighborhoodUserRole.ADMIN) {
+            const nbAdmin = await this.neighborhoodUserRepository.getUsersByRoleInNeighborhoodId(
+                neighborhoodId,
+                NeighborhoodUserRole.ADMIN
+            );
+            if (!nbAdmin || nbAdmin.length === 1) {
+                throw new CochonError(
+                    'cant-update_role',
+                    'Merci de mettre une autre personne admin avant de changer votre role',
+                    400,
+                    {
+                        neighborhoodId,
+                    }
+                );
+            }
+        }
+
         return this.neighborhoodUserRepository.updateMemberInNeighborhood(neighborhoodId, memberId, role, status);
     }
 
@@ -268,7 +285,7 @@ export class NeighborhoodUserService {
         }
 
         const checkAdmin = await this.neighborhoodUserRepository.getUserInNeighborhood(neighborhoodId, adminId);
-        if (isNull(checkAdmin) || checkAdmin.role !== NeighborhoodUserRole.ADMIN.toString()) {
+        if (isNull(checkAdmin)) {
             throw new CochonError(
                 'not_authorized',
                 'You are not authorized to manage users in this neighborhood',

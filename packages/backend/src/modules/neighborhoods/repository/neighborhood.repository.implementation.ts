@@ -83,4 +83,21 @@ export class NeighborhoodRepositoryImplementation implements NeighborhoodReposit
         }
         return NeighborhoodsAdapter.databaseToDomain(updatedNeighborhood);
     }
+
+    async updateNeighborhood(id: number, name?: string, description?: string): Promise<Neighborhood | null> {
+        const query = this.dataSource.getRepository(NeighborhoodEntity);
+        const neighborhood = await query.findOne({ where: { id: id } });
+        if (!neighborhood) {
+            return null;
+        }
+        if (name) {
+            neighborhood.name = name;
+        }
+        if (description) {
+            neighborhood.description = description;
+        }
+        const updatedNeighborhood = await query.save(neighborhood);
+        updatedNeighborhood.neighborhood_users = [];
+        return NeighborhoodsAdapter.databaseToDomain(updatedNeighborhood);
+    }
 }
