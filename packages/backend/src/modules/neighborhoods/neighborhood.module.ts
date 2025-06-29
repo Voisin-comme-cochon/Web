@@ -90,6 +90,6 @@ import { NeighborhoodUserRepositoryImplementation } from './repository/neighborh
                 ),
         },
     ],
-    exports: [NeighborhoodService],
+    exports: [NeighborhoodService, NeighborhoodUserRepository, NeighborhoodRepository],
 })
 export class NeighborhoodModule {}

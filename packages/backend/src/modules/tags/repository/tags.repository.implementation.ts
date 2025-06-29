@@ -5,6 +5,7 @@ import { Tag, UpsertTag } from '../domain/tags.model';
 import { TagsAdapter } from '../adapters/tags.adapter';
 import { UserEntity } from '../../../core/entities/user.entity';
 import { UserTagEntity } from '../../../core/entities/user-tag.entity';
+import { CochonError } from '../../../utils/CochonError';
 
 export class TagsRepositoryImplementation implements TagsRepository {
     constructor(private readonly dataSource: DataSource) {}
@@ -50,12 +51,12 @@ export class TagsRepositoryImplementation implements TagsRepository {
         const userRepository = this.dataSource.getRepository(UserEntity);
         const user = await userRepository.findOne({ where: { id: userId } });
         if (!user) {
-            throw new Error(`User with ID ${userId} not found`);
+            throw new CochonError('user_not_found', 'User not found', 404);
         }
 
         const tags = await this.dataSource.getRepository(TagEntity).findBy({ id: In(tagIds) });
         if (tags.length !== tagIds.length) {
-            throw new Error('One or more tags not found');
+            throw new CochonError('one_or_more_tags_not_found', 'One or more tags not found', 404);
         }
 
         await userTagRepository.delete({ userId });

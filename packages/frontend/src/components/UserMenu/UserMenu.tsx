@@ -1,4 +1,3 @@
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar.tsx';
 import { UserModel } from '@/domain/models/user.model.ts';
 import {
     DropdownMenu,
@@ -17,6 +16,7 @@ import { useState } from 'react';
 import { HomeUc } from '@/domain/use-cases/homeUc.ts';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group.tsx';
 import { Textarea } from '@/components/ui/textarea.tsx';
+import AvatarComponent from '@/components/AvatarComponent/AvatarComponent.tsx';
 
 export default function UserMenu({ user, uc }: { user: UserModel | null; uc: HomeUc }) {
     const { goLanding, goUserProfile, goCreateNeighborhood } = useAppNavigation();
@@ -71,14 +71,11 @@ export default function UserMenu({ user, uc }: { user: UserModel | null; uc: Hom
     return (
         <>
             <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                    <Avatar className="cursor-pointer">
-                        <AvatarImage src={user?.profileImageUrl ?? ''} />
-                        <AvatarFallback>
-                            {user?.firstName[0]}.{user?.lastName[0]}
-                        </AvatarFallback>
-                    </Avatar>
-                </DropdownMenuTrigger>
+                <DropdownMenuTrigger>
+                <div className="cursor-pointer">
+                    <AvatarComponent image={(user as UserModel)?.profileImageUrl || undefined} />
+                </div>
+            </DropdownMenuTrigger>{' '}
 
                 <DropdownMenuContent className="w-56">
                     <DropdownMenuItem className="cursor-pointer" onClick={() => goUserProfile(user.id)}>

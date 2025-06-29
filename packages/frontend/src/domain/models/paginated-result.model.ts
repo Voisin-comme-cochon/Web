@@ -10,6 +10,6 @@ export interface PaginatedResultModel<T> {
             self: string;
             next: string | null;
             previous: string | null;
-        }
-    }
+        };
+    };
 }

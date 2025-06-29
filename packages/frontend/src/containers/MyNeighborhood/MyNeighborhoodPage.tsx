@@ -12,45 +12,19 @@ import { EventRepository } from '@/infrastructure/repositories/EventRepository.t
 import { HomeUc } from '@/domain/use-cases/homeUc.ts';
 import DashboardHeader from '@/components/Header/DashboardHeader.tsx';
 import { TagRepository } from '@/infrastructure/repositories/TagRepository.ts';
+import { withNeighborhoodLayoutUserCheck } from '@/containers/Wrapper/NeighborhoodWrapper';
 
-export default function MyNeighborhoodPage() {
+function MyNeighborhoodPage({ user, uc }: { user: UserModel | null; uc: HomeUc }) {
     const [events, setEvents] = useState<EventModel[]>([]);
     const { goNeighborhoodEvents } = useAppNavigation();
-    const [user, setUser] = useState<UserModel | null>(null);
     const neighborhoodId = localStorage.getItem('neighborhoodId');
-    const uc = useMemo(
-        () =>
-            new HomeUc(
-                new UserFrontRepository(),
-                new NeighborhoodFrontRepository(),
-                new EventRepository(),
-                new TagRepository()
-            ),
-        []
-    );
-    useEffect(() => {
-        const fetchConnectedData = async () => {
-            const token = localStorage.getItem('jwt');
-            if (token) {
-                try {
-                    const decoded: DecodedUser = jwtDecode(token);
-                    const fetchedUser = await uc.getUserById(decoded.id);
-                    setUser(fetchedUser);
-                } catch (error) {
-                    console.error('Failed to fetch user :', error);
-                }
-            } else {
-                console.log('No JWT token found in localStorage.');
-            }
-        };
-
-        fetchConnectedData();
-    }, []);
 
     useEffect(() => {
         const fetchEvents = async () => {
-            const events = await uc.getNeighborhoodEvents(Number(neighborhoodId), 3, 1);
-            setEvents(events);
+            if (neighborhoodId) {
+                const events = await uc.getNeighborhoodEvents(Number(neighborhoodId), 3, 1);
+                setEvents(events);
+            }
         };
         fetchEvents();
     }, [neighborhoodId, uc]);
@@ -75,7 +49,7 @@ export default function MyNeighborhoodPage() {
                         <img
                             src={user.profileImageUrl ?? undefined}
                             alt="User Profile"
-                            className="w-14 h-14 rounded-full"
+                            className="w-14 h-14 rounded-full object-cover"
                         />
                     </div>
                 ) : (
@@ -106,3 +80,5 @@ export default function MyNeighborhoodPage() {
         </div>
     );
 }
+
+export default withNeighborhoodLayoutUserCheck(MyNeighborhoodPage);
