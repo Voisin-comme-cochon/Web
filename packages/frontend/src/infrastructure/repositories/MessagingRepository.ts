@@ -15,6 +15,7 @@ import {
     GetMessagesDto,
     GetAvailableGroupsDto,
     GetGroupMembersDto,
+    UpdateGroupDto,
 } from '../../domain/models/messaging.model';
 
 export class MessagingRepository {
@@ -68,6 +69,50 @@ export class MessagingRepository {
                 throw new ApiError(403, "Vous n'êtes pas membre de ce quartier");
             }
             throw new ApiError(500, 'Erreur lors de la création du groupe');
+        }
+    }
+
+    /**
+     * Modifier un groupe existant
+     */
+    async updateGroup(groupId: number, dto: UpdateGroupDto): Promise<GroupModel> {
+        try {
+            // Si une image est fournie, utiliser FormData pour multipart/form-data
+            if (dto.groupImage) {
+                const formData = new FormData();
+                
+                // Ajouter les champs du DTO seulement s'ils sont définis
+                if (dto.name !== undefined) formData.append('name', dto.name);
+                if (dto.description !== undefined) formData.append('description', dto.description);
+                if (dto.type !== undefined) formData.append('type', dto.type);
+                if (dto.isPrivate !== undefined) formData.append('isPrivate', dto.isPrivate.toString());
+                if (dto.tagId !== undefined) formData.append('tagId', dto.tagId.toString());
+                
+                // Ajouter le fichier image
+                formData.append('groupImage', dto.groupImage);
+                
+                const response = await ApiService.patch(`${this.basePath}/groups/${groupId}`, formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                    },
+                });
+                return response.data;
+            } else {
+                // Pas d'image, utiliser JSON classique
+                const response = await ApiService.patch(`${this.basePath}/groups/${groupId}`, dto);
+                return response.data;
+            }
+        } catch (error: any) {
+            if (error.response?.status === 400) {
+                throw new ApiError(400, 'Données invalides pour la modification du groupe');
+            }
+            if (error.response?.status === 403) {
+                throw new ApiError(403, "Seul le propriétaire peut modifier le groupe");
+            }
+            if (error.response?.status === 404) {
+                throw new ApiError(404, 'Groupe non trouvé');
+            }
+            throw new ApiError(500, 'Erreur lors de la modification du groupe');
         }
     }
 

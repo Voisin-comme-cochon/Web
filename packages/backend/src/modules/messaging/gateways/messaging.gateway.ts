@@ -117,8 +117,6 @@ export class MessagingGateway implements OnGatewayInit, OnGatewayConnection, OnG
                 userSockets.add(client.id);
             }
 
-            this.logger.log(`User ${userId} connected with socket ${client.id}`);
-
             client.emit('connected', { userId, socketId: client.id });
         } catch (error) {
             this.logger.error(`Authentication failed for client ${client.id}:`, error);
@@ -135,7 +133,6 @@ export class MessagingGateway implements OnGatewayInit, OnGatewayConnection, OnG
                     this.connectedUsers.delete(client.userId);
                 }
             }
-            this.logger.log(`User ${client.userId} disconnected (socket ${client.id})`);
         }
     }
 
@@ -165,7 +162,6 @@ export class MessagingGateway implements OnGatewayInit, OnGatewayConnection, OnG
             const roomName = `group-${groupId}`;
             await client.join(roomName);
 
-            this.logger.log(`User ${client.userId} joined group ${groupId}`);
             client.emit('joined-group', { groupId });
         } catch (error) {
             this.logger.error(`Error joining group:`, error);
@@ -186,7 +182,6 @@ export class MessagingGateway implements OnGatewayInit, OnGatewayConnection, OnG
         const roomName = `group-${groupId}`;
         await client.leave(roomName);
 
-        this.logger.log(`User ${client.userId} left group ${groupId}`);
         client.emit('left-group', { groupId });
     }
 
@@ -202,7 +197,6 @@ export class MessagingGateway implements OnGatewayInit, OnGatewayConnection, OnG
 
         try {
             const { groupId, content } = payload;
-            this.logger.log(`User ${client.userId} sending message to group ${groupId}: ${content}`);
 
             const message = await this.messagingService.sendMessage(client.userId, content, groupId);
 
@@ -224,7 +218,6 @@ export class MessagingGateway implements OnGatewayInit, OnGatewayConnection, OnG
             };
 
             this.server.to(roomName).emit('message-sent', messageEvent);
-            this.logger.log(`Message sent to group ${groupId} by user ${client.userId}`);
         } catch (error) {
             this.logger.error(`Error sending message:`, error);
             client.emit('error', {
@@ -233,37 +226,6 @@ export class MessagingGateway implements OnGatewayInit, OnGatewayConnection, OnG
         }
     }
 
-    @SubscribeMessage('typing-start')
-    handleTypingStart(@ConnectedSocket() client: AuthenticatedSocket, @MessageBody() payload: JoinGroupPayload): void {
-        if (!client.userId) {
-            return;
-        }
-
-        const { groupId } = payload;
-        const roomName = `group-${groupId}`;
-
-        client.to(roomName).emit('user-typing', {
-            userId: client.userId,
-            groupId,
-            isTyping: true,
-        });
-    }
-
-    @SubscribeMessage('typing-stop')
-    handleTypingStop(@ConnectedSocket() client: AuthenticatedSocket, @MessageBody() payload: JoinGroupPayload): void {
-        if (!client.userId) {
-            return;
-        }
-
-        const { groupId } = payload;
-        const roomName = `group-${groupId}`;
-
-        client.to(roomName).emit('user-typing', {
-            userId: client.userId,
-            groupId,
-            isTyping: false,
-        });
-    }
 
     notifyUserJoinedGroup(groupId: number, user: UserJoinedGroupEvent['user']): void {
         const roomName = `group-${groupId}`;
@@ -273,7 +235,6 @@ export class MessagingGateway implements OnGatewayInit, OnGatewayConnection, OnG
         };
 
         this.server.to(roomName).emit('user-joined-group', event);
-        this.logger.log(`Notified group ${groupId} that user ${user.id} joined`);
     }
 
     getConnectedUserIds(): number[] {

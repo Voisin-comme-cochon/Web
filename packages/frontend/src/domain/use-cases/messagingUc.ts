@@ -6,6 +6,7 @@ import {
     GroupMembershipModel,
     UserSummaryModel,
     CreateGroupDto,
+    UpdateGroupDto,
 } from '../models/messaging.model';
 import { formatMessageTime } from '@/utils/dateUtils';
 import { userCache } from '@/utils/userCache';
@@ -33,6 +34,29 @@ export class MessagingUc {
                 throw new Error(error.message);
             }
             throw new Error('Erreur lors de la création du groupe');
+        }
+    }
+
+    async updateGroup(groupId: number, dto: UpdateGroupDto): Promise<GroupModel> {
+        try {
+            if (!groupId) {
+                throw new Error("L'ID du groupe est requis");
+            }
+            
+            if (dto.name !== undefined && !dto.name.trim()) {
+                throw new Error('Le nom du groupe ne peut pas être vide');
+            }
+            
+            if (dto.description !== undefined && !dto.description.trim()) {
+                throw new Error('La description du groupe ne peut pas être vide');
+            }
+
+            return await this.messagingRepository.updateGroup(groupId, dto);
+        } catch (error) {
+            if (error instanceof Error) {
+                throw new Error(error.message);
+            }
+            throw new Error('Erreur lors de la modification du groupe');
         }
     }
 

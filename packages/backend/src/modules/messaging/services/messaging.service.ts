@@ -11,6 +11,7 @@ import { GroupRepository } from '../domain/group.abstract.repository';
 import { GroupMessageRepository } from '../domain/group-message.abstract.repository';
 import { GroupMembershipRepository } from '../domain/group-membership.abstract.repository';
 import { NeighborhoodUserRepository } from '../../neighborhoods/domain/neighborhood-user.abstract.repository';
+import { NeighborhoodUserStatus } from '../../../core/entities/neighborhood-user.entity';
 import { UsersService } from '../../users/services/users.service';
 import { UserSummaryDto } from '../controllers/dto/messaging.dto';
 import { CochonError } from '../../../utils/CochonError';
@@ -673,7 +674,11 @@ export class MessagingService {
     ): Promise<UserSummaryDto[]> {
         await this.validateUserInNeighborhood(userId, neighborhoodId);
 
-        const [usersWithRole] = await this.neighborhoodUserRepository.getUsersByNeighborhood(neighborhoodId, 1, 100);
+        // Utiliser getUsersInNeighborhoodByStatus avec ACCEPTED pour exclure les utilisateurs en attente
+        const [usersWithRole] = await this.neighborhoodUserRepository.getUsersInNeighborhoodByStatus(
+            neighborhoodId, 
+            NeighborhoodUserStatus.ACCEPTED
+        );
 
         const uniqueUserIds = Array.from(new Set(usersWithRole.map((userWithRole) => userWithRole.user.id))).filter(
             (id) => id !== userId

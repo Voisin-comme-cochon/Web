@@ -1,9 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Search, Plus, Lock, Globe, X, CloudUpload, Paperclip } from 'lucide-react';
-import { useForm, useWatch } from 'react-hook-form';
+import { Lock, Globe, CloudUpload, Paperclip } from 'lucide-react';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-
-import AvatarComponent from '@/components/AvatarComponent/AvatarComponent';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -22,56 +20,40 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { FileInput, FileUploader, FileUploaderContent, FileUploaderItem } from '@/components/ui/file-input';
 import { TagModel } from '@/domain/models/tag.model';
+import { GroupModel, GroupType } from '@/domain/models/messaging.model';
 import { MessagingUc } from '@/domain/use-cases/messagingUc';
 import { TagUc } from '@/domain/use-cases/tagUc';
 import { MessagingRepository } from '@/infrastructure/repositories/MessagingRepository';
 import { TagRepository } from '@/infrastructure/repositories/TagRepository';
-import { createGroupFormSchema, CreateGroupFormValues } from './create-group-dialog.schema';
+import { editGroupFormSchema, EditGroupFormValues } from './edit-group-dialog.schema';
+import { useToast } from '@/presentation/hooks/useToast';
 
-type User = {
-    id: number;
-    name: string;
-    avatar?: string;
-    firstName?: string;
-    lastName?: string;
-};
-
-export function CreateGroupDialog({
-    open,
-    onOpenChange,
-    onCreateGroup,
-    neighborhoodId,
-}: {
+interface EditGroupDialogProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
-    onCreateGroup: (group: {
-        id: string;
-        name: string;
-        description: string;
-        type: 'public' | 'private';
-        members: User[];
-        avatar: string;
-        groupImage?: File;
-    }) => void;
-    neighborhoodId?: number;
-}) {
-    const [searchQuery, setSearchQuery] = useState('');
-    const [selectedMembers, setSelectedMembers] = useState<User[]>([]);
-    const [searchResults, setSearchResults] = useState<User[]>([]);
+    group: GroupModel | null;
+    onGroupUpdated?: () => void;
+}
+
+export function EditGroupDialog({
+    open,
+    onOpenChange,
+    group,
+    onGroupUpdated,
+}: EditGroupDialogProps) {
     const [availableTags, setAvailableTags] = useState<TagModel[]>([]);
-    const [isSearching, setIsSearching] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [groupImageFiles, setGroupImageFiles] = useState<File[]>([]);
+    const { showSuccess, showError } = useToast();
 
     // Configuration du formulaire avec validation
-    const form = useForm<CreateGroupFormValues>({
-        resolver: zodResolver(createGroupFormSchema),
+    const form = useForm<EditGroupFormValues>({
+        resolver: zodResolver(editGroupFormSchema),
         defaultValues: {
             name: '',
             description: '',
             type: 'public',
             tagId: '',
-            memberIds: [],
         },
     });
 
@@ -79,11 +61,18 @@ export function CreateGroupDialog({
     const messagingUc = useMemo(() => new MessagingUc(new MessagingRepository()), []);
     const tagUc = useMemo(() => new TagUc(new TagRepository()), []);
 
-    // Surveiller le type de groupe sélectionné
-    const selectedGroupType = useWatch({
-        control: form.control,
-        name: 'type',
-    });
+    // Charger les données du groupe dans le formulaire
+    useEffect(() => {
+        if (group && open) {
+            form.reset({
+                name: group.name,
+                description: group.description,
+                type: group.type === GroupType.PUBLIC ? 'public' : 'private',
+                tagId: group.tagId?.toString() || '',
+            });
+            setGroupImageFiles([]);
+        }
+    }, [group, open, form]);
 
     // Chargement des tags disponibles
     useEffect(() => {
@@ -96,92 +85,39 @@ export function CreateGroupDialog({
             }
         };
 
-        void loadTags();
-    }, [tagUc]);
-
-    // Recherche d'utilisateurs
-    useEffect(() => {
-        const searchUsers = async () => {
-            if (!neighborhoodId || !searchQuery.trim() || searchQuery.length < 2) {
-                setSearchResults([]);
-                return;
-            }
-
-            setIsSearching(true);
-            try {
-                const users = await messagingUc.searchUsers(neighborhoodId, searchQuery);
-                const convertedUsers: User[] = users
-                    .filter((user) => !selectedMembers.some((member) => member.id === user.id))
-                    .map((user) => ({
-                        id: user.id,
-                        name: `${user.firstName} ${user.lastName}`,
-                        avatar: user.profileImageUrl,
-                        firstName: user.firstName,
-                        lastName: user.lastName,
-                    }));
-                setSearchResults(convertedUsers);
-            } catch (error) {
-                console.error("Erreur lors de la recherche d'utilisateurs:", error);
-                setSearchResults([]);
-            } finally {
-                setIsSearching(false);
-            }
-        };
-
-        const timeoutId = setTimeout(searchUsers, 300); // Debounce de 300ms
-        return () => clearTimeout(timeoutId);
-    }, [searchQuery, neighborhoodId, selectedMembers, messagingUc]);
-
-    useEffect(() => {
-        form.setValue(
-            'memberIds',
-            selectedMembers.map((member) => member.id)
-        );
-    }, [selectedMembers, form]);
-
-    // Reset selected members when switching to public group
-    useEffect(() => {
-        if (selectedGroupType === 'public') {
-            setSelectedMembers([]);
-            setSearchQuery('');
+        if (open) {
+            void loadTags();
         }
-    }, [selectedGroupType]);
+    }, [tagUc, open]);
 
-    const handleAddMember = (user: User) => {
-        setSelectedMembers([...selectedMembers, user]);
-        setSearchQuery('');
-    };
-
-    const handleRemoveMember = (userId: number) => {
-        setSelectedMembers(selectedMembers.filter((member) => member.id !== userId));
-    };
-
-    const onSubmit = async (values: CreateGroupFormValues) => {
-        if (isSubmitting) return;
+    const onSubmit = async (values: EditGroupFormValues) => {
+        if (isSubmitting || !group) return;
 
         setIsSubmitting(true);
         try {
-            const newGroup = {
-                id: `group-${Date.now()}`,
+            // Mapper les types du formulaire vers les types de l'API
+            const groupType = values.type === 'public' ? GroupType.PUBLIC : GroupType.PRIVATE_GROUP;
+            
+            const updateData = {
                 name: values.name,
                 description: values.description,
-                type: values.type,
+                type: groupType,
+                isPrivate: groupType !== GroupType.PUBLIC,
                 tagId: values.tagId && values.tagId !== '' ? parseInt(values.tagId, 10) : undefined,
-                members: values.type === 'private' ? selectedMembers : [], // Only include members for private groups
-                createdAt: new Date().toISOString(),
-                avatar: '/placeholder.svg?height=40&width=40',
-                groupImage: groupImageFiles[0], // Add the uploaded image
+                groupImage: groupImageFiles[0], // Nouvelle image si uploadée
             };
 
-            onCreateGroup(newGroup);
+            await messagingUc.updateGroup(group.id, updateData);
+            
+            showSuccess('Groupe modifié avec succès');
+            onGroupUpdated?.();
             onOpenChange(false);
 
             form.reset();
-            setSelectedMembers([]);
-            setSearchQuery('');
             setGroupImageFiles([]);
         } catch (error) {
-            console.error('Erreur lors de la création du groupe:', error);
+            console.error('Erreur lors de la modification du groupe:', error);
+            showError('Erreur lors de la modification du groupe');
         } finally {
             setIsSubmitting(false);
         }
@@ -190,20 +126,20 @@ export function CreateGroupDialog({
     const handleDialogClose = (open: boolean) => {
         if (!open && !isSubmitting) {
             form.reset();
-            setSelectedMembers([]);
-            setSearchQuery('');
             setGroupImageFiles([]);
         }
         onOpenChange(open);
     };
 
+    if (!group) return null;
+
     return (
         <Dialog open={open} onOpenChange={handleDialogClose}>
-            <DialogContent className="sm:max-w-[700px] lg:max-w-[700px] max-h-[90vh] overflow-y-auto w-[95vw] sm:w-[700px] sm:min-w-[700px]">
+            <DialogContent className="sm:max-w-[600px] lg:max-w-[700px] max-h-[90vh] overflow-y-auto w-[95vw] sm:w-auto sm:min-w-[500px]">
                 <DialogHeader>
-                    <DialogTitle className="text-primary">Créer un nouveau groupe</DialogTitle>
+                    <DialogTitle className="text-primary">Modifier le groupe</DialogTitle>
                     <DialogDescription>
-                        Créez un canal de discussion pour échanger avec plusieurs personnes.
+                        Modifiez les informations de votre groupe.
                     </DialogDescription>
                 </DialogHeader>
                 <Form {...form}>
@@ -244,8 +180,18 @@ export function CreateGroupDialog({
                                 </FileUploaderContent>
                             </FileUploader>
                             <p className="text-xs text-muted-foreground">
-                                Ajoutez une image pour représenter votre groupe (optionnel)
+                                {group.imageUrl ? 'Téléchargez une nouvelle image pour remplacer l\'actuelle (optionnel)' : 'Ajoutez une image pour représenter votre groupe (optionnel)'}
                             </p>
+                            {group.imageUrl && groupImageFiles.length === 0 && (
+                                <div className="flex items-center space-x-2">
+                                    <img
+                                        src={group.imageUrl}
+                                        alt={group.name}
+                                        className="w-12 h-12 rounded-full object-cover border"
+                                    />
+                                    <span className="text-sm text-muted-foreground">Image actuelle</span>
+                                </div>
+                            )}
                         </div>
 
                         <FormField
@@ -334,9 +280,9 @@ export function CreateGroupDialog({
                                             className="flex gap-4"
                                         >
                                             <div className="flex items-center space-x-2">
-                                                <RadioGroupItem value="public" id="public" />
+                                                <RadioGroupItem value="public" id="edit-public" />
                                                 <FormLabel
-                                                    htmlFor="public"
+                                                    htmlFor="edit-public"
                                                     className="flex items-center cursor-pointer"
                                                 >
                                                     <Globe size={16} className="mr-1 text-muted-foreground" />
@@ -344,9 +290,9 @@ export function CreateGroupDialog({
                                                 </FormLabel>
                                             </div>
                                             <div className="flex items-center space-x-2">
-                                                <RadioGroupItem value="private" id="private" />
+                                                <RadioGroupItem value="private" id="edit-private" />
                                                 <FormLabel
-                                                    htmlFor="private"
+                                                    htmlFor="edit-private"
                                                     className="flex items-center cursor-pointer"
                                                 >
                                                     <Lock size={16} className="mr-1 text-muted-foreground" />
@@ -360,108 +306,17 @@ export function CreateGroupDialog({
                                             ? 'Tout le monde peut trouver et rejoindre ce groupe.'
                                             : 'Seules les personnes invitées peuvent rejoindre ce groupe.'}
                                     </p>
+                                    <div className="mt-2 p-3 bg-orange/10 rounded-lg border border-orange/20">
+                                        <p className="text-xs text-orange-600">
+                                            <strong>Note:</strong> Changer le type du groupe affectera qui peut rejoindre le groupe à l'avenir. 
+                                            Les membres actuels restent dans le groupe.
+                                        </p>
+                                    </div>
                                     <FormMessage />
                                 </FormItem>
                             )}
                         />
-                        {/* Section d'ajout de membres - uniquement pour les groupes privés */}
-                        {selectedGroupType === 'private' && (
-                            <div className="space-y-2">
-                                <Label className="text-primary">Ajouter des membres</Label>
-                                <p className="text-xs text-muted-foreground">
-                                    Invitez des personnes à rejoindre votre groupe privé
-                                </p>
-                                <div className="relative">
-                                    <Search
-                                        className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground"
-                                        size={16}
-                                    />
-                                    <Input
-                                        placeholder="Rechercher des personnes..."
-                                        value={searchQuery}
-                                        onChange={(e) => setSearchQuery(e.target.value)}
-                                        className="pl-10 border-border focus-visible:ring-black"
-                                    />
-                                </div>
 
-                                {/* Selected Members */}
-                                {selectedMembers.length > 0 && (
-                                    <div className="flex flex-wrap gap-2 mt-2">
-                                        {selectedMembers.map((member) => (
-                                            <div
-                                                key={member.id}
-                                                className="flex items-center bg-muted rounded-full pl-1 pr-2 py-1"
-                                            >
-                                                <AvatarComponent
-                                                    image={member.avatar}
-                                                    className="w-5 h-5 mr-1"
-                                                />
-                                                <span className="text-xs text-primary">{member.name}</span>
-                                                <button
-                                                    onClick={() => handleRemoveMember(member.id)}
-                                                    className="ml-1 text-muted-foreground hover:text-primary"
-                                                >
-                                                    <X size={14} />
-                                                    <span className="sr-only">Retirer {member.name}</span>
-                                                </button>
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
-
-                                {/* Search Results */}
-                                {searchQuery && searchQuery.length >= 2 && (
-                                    <div className="mt-2 border border-border rounded-md max-h-32 sm:max-h-40 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
-                                        {isSearching ? (
-                                            <div className="p-3 text-center text-muted-foreground text-sm">
-                                                Recherche en cours...
-                                            </div>
-                                        ) : searchResults.length > 0 ? (
-                                            searchResults.map((user) => (
-                                                <div
-                                                    key={user.id}
-                                                    onClick={() => handleAddMember(user)}
-                                                    className="flex items-center p-2 hover:bg-muted cursor-pointer"
-                                                >
-                                                    <div className="mr-2">
-                                                        <AvatarComponent
-                                                            image={user.avatar}
-                                                            className="w-8 h-8"
-                                                        />
-                                                    </div>
-                                                    <span className="text-sm text-primary">{user.name}</span>
-                                                    <Plus size={16} className="ml-auto text-orange" />
-                                                </div>
-                                            ))
-                                        ) : (
-                                            <div className="p-3 text-center text-muted-foreground text-sm">
-                                                Aucun utilisateur trouvé
-                                            </div>
-                                        )}
-                                    </div>
-                                )}
-
-                                {searchQuery && searchQuery.length > 0 && searchQuery.length < 2 && (
-                                    <div className="mt-2 p-2 text-xs text-muted-foreground">
-                                        Tapez au moins 2 caractères pour rechercher
-                                    </div>
-                                )}
-                            </div>
-                        )}
-
-                        {/* Information pour les groupes publics */}
-                        {selectedGroupType === 'public' && (
-                            <div className="space-y-2 p-3 sm:p-4 bg-muted/50 rounded-lg border border-border">
-                                <div className="flex items-center text-primary">
-                                    <Globe size={16} className="mr-2 flex-shrink-0" />
-                                    <span className="font-medium text-sm sm:text-base">Groupe public</span>
-                                </div>
-                                <p className="text-xs sm:text-sm text-muted-foreground">
-                                    Les groupes publics sont visibles par tous les membres du quartier. Les utilisateurs
-                                    peuvent les rejoindre librement via l'onglet "Découvrir".
-                                </p>
-                            </div>
-                        )}
                         <DialogFooter>
                             <Button
                                 type="button"
@@ -477,7 +332,7 @@ export function CreateGroupDialog({
                                 disabled={isSubmitting}
                                 className="bg-orange hover:bg-orange-hover text-white"
                             >
-                                {isSubmitting ? 'Création...' : 'Créer le groupe'}
+                                {isSubmitting ? 'Modification...' : 'Modifier le groupe'}
                             </Button>
                         </DialogFooter>
                     </form>
