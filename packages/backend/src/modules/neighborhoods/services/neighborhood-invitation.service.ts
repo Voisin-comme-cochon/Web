@@ -212,6 +212,28 @@ export class NeighborhoodInvitationService {
         return await this.neighborhoodInvitationRepository.getInvitationsByNeighborhoodId(neighborhoodId);
     }
 
+    async deleteInvitation(invitationId: number, userId: number): Promise<void> {
+        const invitation = await this.neighborhoodInvitationRepository.getInvitationById(invitationId);
+        if (isNull(invitation)) {
+            throw new CochonError('invitation_not_found', 'Invitation not found', 404);
+        }
+
+        const neighborhood = await this.neighborhoodService.getNeighborhoodById(invitation.neighborhoodId);
+        if (isNull(neighborhood)) {
+            throw new CochonError('neighborhood_not_found', 'Neighborhood not found', 404);
+        }
+
+        const isAdmin = neighborhood.neighborhood_users?.some(
+            (user) => user.userId === userId && user.role === NeighborhoodUserRole.ADMIN
+        );
+
+        if (!isAdmin) {
+            throw new CochonError('not_authorized', 'You are not authorized to delete this invitation', 403);
+        }
+
+        await this.neighborhoodInvitationRepository.deleteInvitation(invitationId);
+    }
+
     private generateInvitationToken(userId: number, neighborhoodId: number, durationInDays: number): string {
         const payload = { userId, neighborhoodId };
         return this.jwtService.sign(payload, {

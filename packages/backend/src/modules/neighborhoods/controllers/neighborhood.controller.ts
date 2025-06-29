@@ -445,4 +445,16 @@ export class NeighborhoodController {
     ): Promise<NeighborhoodInvitation[]> {
         return this.neighborhoodInvitationService.getInvitationsByNeighborhoodId(neighborhoodId);
     }
+
+    @Delete('invitations/:invitationId')
+    @UseGuards(IsLoginGuard)
+    @ApiOperation({ summary: 'Delete a neighborhood invitation' })
+    @ApiOkResponse({ description: 'Invitation deleted' })
+    @ApiNotFoundResponse({ description: 'Invitation not found' })
+    async deleteInvitation(
+        @Param('invitationId') invitationId: number,
+        @Request() req: { user: { id: number } }
+    ): Promise<void> {
+        await this.neighborhoodInvitationService.deleteInvitation(invitationId, req.user.id);
+    }
 }

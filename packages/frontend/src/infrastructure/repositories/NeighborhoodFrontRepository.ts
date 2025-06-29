@@ -15,8 +15,17 @@ export class NeighborhoodFrontRepository {
         return paging.data;
     }
 
+    async deleteInvitation(invitationId: number): Promise<void> {
+        await ApiService.delete(`/neighborhoods/invitations/${invitationId}`);
+    }
+
     async sendInviteEmails(neighborhoodId: string, emails: string[], durationInDays: number): Promise<void> {
         await ApiService.post(`/neighborhoods/invitations`, { emails, neighborhoodId, durationInDays });
+    }
+
+    async getInvitationsByNeighborhoodId(neighborhoodId: string | number): Promise<InvitationModel[]> {
+        const response = await ApiService.get(`/neighborhoods/${neighborhoodId}/invitations`);
+        return response.data;
     }
 
     async updateNeighborhoodManage(

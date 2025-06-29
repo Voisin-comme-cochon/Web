@@ -12,6 +12,7 @@ import { NeighborhoodMemberManageModel } from '@/domain/models/NeighborhoodUser.
 import { Roles } from '@/domain/models/Roles.ts';
 import { UserStatus } from '@/domain/models/UserStatus.ts';
 import { EventManageModel } from '@/domain/models/EventManageModel.ts';
+import { InvitationModel } from '@/domain/models/invitation.model.ts';
 
 export class HomeUc {
     constructor(
@@ -20,6 +21,17 @@ export class HomeUc {
         private eventRepository: EventRepository,
         private tagRepository: TagRepository
     ) {}
+
+    async deleteInvitation(invitationId: number): Promise<void> {
+        try {
+            await this.neighborhoodRepository.deleteInvitation(invitationId);
+        } catch (error) {
+            if (error instanceof Error) {
+                throw new Error(error.message);
+            }
+            throw new Error("Une erreur est survenue lors de la suppression de l'invitation");
+        }
+    }
 
     async isUserRegistered(eventId: number, userId: number): Promise<boolean> {
         try {
@@ -41,6 +53,17 @@ export class HomeUc {
                 throw new Error(error.message);
             }
             throw new Error("Une erreur est survenue lors de l'envoi des invitations par email");
+        }
+    }
+
+    async getInvitationsByNeighborhoodId(neighborhoodId: string | number): Promise<InvitationModel[]> {
+        try {
+            return await this.neighborhoodRepository.getInvitationsByNeighborhoodId(neighborhoodId);
+        } catch (error) {
+            if (error instanceof Error) {
+                throw new Error(error.message);
+            }
+            throw new Error('Une erreur est survenue lors de la récupération des invitations');
         }
     }
 
@@ -156,9 +179,9 @@ export class HomeUc {
             return events.map((event) => ({
                 id: event.id,
                 name: event.name,
-                createdAt: event.createdAt,
-                dateStart: event.dateStart,
-                dateEnd: event.dateEnd,
+                createdAt: event.createdAt.toISOString(),
+                dateStart: event.dateStart.toISOString(),
+                dateEnd: event.dateEnd.toISOString(),
                 registeredUsers: event.registeredUsers,
                 max: event.max,
                 tag: event.tag,

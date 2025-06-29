@@ -14,6 +14,29 @@ export class NeighborhoodInvitationRepositoryImplementation implements Neighborh
         return NeighborhoodsInvitationAdapter.entityToDomain(createdInvitation);
     }
 
+    async getInvitationById(id: number): Promise<NeighborhoodInvitation | null> {
+        const invitation = await this.dataSource.getRepository(NeighborhoodInvitationEntity).findOne({
+            where: { id },
+        });
+
+        if (isNull(invitation)) {
+            return null;
+        }
+
+        return NeighborhoodsInvitationAdapter.entityToDomain(invitation);
+    }
+
+    async deleteInvitation(invitationId: number): Promise<void> {
+        const invitationRepository = this.dataSource.getRepository(NeighborhoodInvitationEntity);
+        const invitation = await invitationRepository.findOne({ where: { id: invitationId } });
+
+        if (isNull(invitation)) {
+            throw new CochonError('invitation_not_found', 'Invitation not found', 404);
+        }
+
+        await invitationRepository.remove(invitation);
+    }
+
     async findInvitationByToken(token: string): Promise<NeighborhoodInvitation | null> {
         const invitation = await this.dataSource.getRepository(NeighborhoodInvitationEntity).findOne({
             where: { token },
