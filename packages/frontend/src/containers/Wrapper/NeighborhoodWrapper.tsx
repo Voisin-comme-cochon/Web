@@ -2,7 +2,6 @@ import DashboardHeader from '@/components/Header/DashboardHeader';
 import { useHeaderData } from '@/presentation/hooks/UseHeaderData';
 import { UserModel } from '@/domain/models/user.model.ts';
 import { HomeUc } from '@/domain/use-cases/homeUc.ts';
-import GlobalChatManager from '@/components/Messaging/global-chat-manager';
 
 export function withNeighborhoodLayout<P>(
     WrappedComponent: React.ComponentType<
@@ -28,10 +27,7 @@ export function withNeighborhoodLayout<P>(
         }
 
         return (
-            <>
-                <WrappedComponent {...props} user={user} neighborhoodId={neighborhoodId} uc={uc} />
-                <GlobalChatManager />
-            </>
+            <WrappedComponent {...props} user={user} neighborhoodId={neighborhoodId} uc={uc} />
         );
     };
 }
@@ -59,11 +55,7 @@ export function withNeighborhoodLayoutUserCheck<P>(
         }
 
         return (
-            <>
-                <WrappedComponent {...props} user={user} uc={uc} />
-                {/* Only show chat if user is in a neighborhood */}
-                {neighborhoodId && <GlobalChatManager />}
-            </>
+            <WrappedComponent {...props} user={user} uc={uc} />
         );
     };
 }
