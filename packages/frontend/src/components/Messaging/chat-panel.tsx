@@ -205,7 +205,7 @@ export default function ChatPanel({ onClose }: { onClose: () => void }) {
                 {chat.activeConversation ? (
                     <>
                         <Button
-                            variant="ghost"
+                            variant="default"
                             size="icon"
                             className="text-white hover:bg-primary/80 -ml-2"
                             onClick={() => chat.selectConversation(null)}

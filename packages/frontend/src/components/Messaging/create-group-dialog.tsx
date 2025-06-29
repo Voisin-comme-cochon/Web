@@ -199,7 +199,7 @@ export function CreateGroupDialog({
 
     return (
         <Dialog open={open} onOpenChange={handleDialogClose}>
-            <DialogContent className="sm:max-w-[600px] lg:max-w-[700px] max-h-[90vh] overflow-y-auto w-[95vw] sm:w-auto sm:min-w-[500px]">
+            <DialogContent className="sm:max-w-[700px] lg:max-w-[700px] max-h-[90vh] overflow-y-auto w-[95vw] sm:w-[700px] sm:min-w-[700px]">
                 <DialogHeader>
                     <DialogTitle className="text-primary">Créer un nouveau groupe</DialogTitle>
                     <DialogDescription>
