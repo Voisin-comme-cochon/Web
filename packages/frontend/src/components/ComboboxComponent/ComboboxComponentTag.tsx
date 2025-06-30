@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
@@ -16,8 +17,15 @@ const ComboboxComponentTag = React.forwardRef<
     }
 >(({ tags = [], value, onChange, handleSetTag }, ref) => {
     const [open, setOpen] = React.useState(false);
+    const [search, setSearch] = React.useState('');
 
     const selectedValue = value !== undefined && value !== null ? value.toString() : '';
+
+    useEffect(() => {
+        if (!open) {
+            setSearch('');
+        }
+    }, [open]);
 
     const handleSelect = (currentId: string) => {
         if (currentId === selectedValue) {
@@ -31,6 +39,9 @@ const ComboboxComponentTag = React.forwardRef<
     };
 
     const selectedName = tags.find((n) => n.id.toString() === selectedValue)?.name || 'Choisir un tag';
+
+    // Filtrer les tags selon la recherche
+    const filteredTags = tags.filter((tag) => tag.name.toLowerCase().includes(search.toLowerCase()));
 
     return (
         <Popover open={open} onOpenChange={setOpen}>
@@ -47,12 +58,12 @@ const ComboboxComponentTag = React.forwardRef<
                 </Button>
             </PopoverTrigger>
             <PopoverContent className="w-[200px] p-0">
-                <Command>
-                    <CommandInput placeholder="Chercher un quartier" />
+                <Command shouldFilter={false}>
+                    <CommandInput placeholder="Chercher un tag" value={search} onValueChange={setSearch} />
                     <CommandList>
-                        <CommandEmpty>Aucun quartier trouvé.</CommandEmpty>
+                        <CommandEmpty>Aucun tag trouvé.</CommandEmpty>
                         <CommandGroup>
-                            {tags.map((tag) => (
+                            {filteredTags.map((tag) => (
                                 <CommandItem
                                     key={tag.id}
                                     value={tag.id.toString()}

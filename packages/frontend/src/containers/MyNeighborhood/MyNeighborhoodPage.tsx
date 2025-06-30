@@ -1,17 +1,11 @@
 import { EventModel } from '@/domain/models/event.model.ts';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import PreviewEvent from '@/components/PreviewEvent/PreviewEvent.tsx';
 import NotCreatedEvent from '@/components/PreviewEvent/NotCreatedEvent.tsx';
 import { useAppNavigation } from '@/presentation/state/navigate.ts';
-import { DecodedUser } from '@/domain/models/DecodedUser.ts';
-import { jwtDecode } from 'jwt-decode';
 import { UserModel } from '@/domain/models/user.model.ts';
-import { UserFrontRepository } from '@/infrastructure/repositories/UserFrontRepository.ts';
-import { NeighborhoodFrontRepository } from '@/infrastructure/repositories/NeighborhoodFrontRepository.ts';
-import { EventRepository } from '@/infrastructure/repositories/EventRepository.ts';
 import { HomeUc } from '@/domain/use-cases/homeUc.ts';
 import DashboardHeader from '@/components/Header/DashboardHeader.tsx';
-import { TagRepository } from '@/infrastructure/repositories/TagRepository.ts';
 import { withNeighborhoodLayoutUserCheck } from '@/containers/Wrapper/NeighborhoodWrapper';
 
 function MyNeighborhoodPage({ user, uc }: { user: UserModel | null; uc: HomeUc }) {
@@ -71,7 +65,7 @@ function MyNeighborhoodPage({ user, uc }: { user: UserModel | null; uc: HomeUc }
                 </div>
                 <div className="grid grid-cols-3 gap-4 mt-4">
                     {events.length > 0 ? (
-                        events.map((event: EventModel) => <PreviewEvent key={event.id} event={event} user={user} />)
+                        events.map((event: EventModel) => <PreviewEvent key={event.id} event={event} />)
                     ) : (
                         <NotCreatedEvent />
                     )}

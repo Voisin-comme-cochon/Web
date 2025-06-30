@@ -116,7 +116,7 @@ export class NeighborhoodUserService {
                         neighborhoodName: neighborhood.name,
                         requesterName: user.firstName + ' ' + user.lastName,
                         requesterEmail: user.email,
-                        neighborhoodLink: `http://localhost:8080/neighborhood-manage?tab=members`,
+                        neighborhoodLink: `${process.env.VCC_FRONT_URL}/my-neighborhood`,
                         supportEmail: process.env.VCC_SUPPORT_EMAIL,
                     },
                 })
@@ -267,8 +267,76 @@ export class NeighborhoodUserService {
                 );
             }
         }
+        const prevStatus = await this.neighborhoodUserRepository.getUserStatusInNeighborhood(neighborhoodId, memberId);
 
-        return this.neighborhoodUserRepository.updateMemberInNeighborhood(neighborhoodId, memberId, role, status);
+        if (isNull(prevStatus)) {
+            throw new CochonError('user_not_in_neighborhood', 'User is not in this neighborhood', 400, {
+                userId: memberId,
+                neighborhoodId,
+            });
+        }
+
+        const newUser = await this.neighborhoodUserRepository.updateMemberInNeighborhood(
+            neighborhoodId,
+            memberId,
+            role,
+            status
+        );
+
+        const newStatus = newUser.status as NeighborhoodUserStatus;
+        if (newStatus === NeighborhoodUserStatus.ACCEPTED && prevStatus !== NeighborhoodUserStatus.ACCEPTED) {
+            const user = await this.userService.getUserById(newUser.userId);
+            if (isNull(user)) {
+                throw new CochonError('user_not_found', 'User not found', 404, { userId: newUser.userId });
+            }
+
+            await this.mailerService.sendRawEmail({
+                to: [user.email],
+                subject: 'Bienvenue dans votre quartier !',
+                template: Templates.ACCEPTED_USER_IN_NEIGHBORHOOD,
+                context: {
+                    neighborhoodName: neighborhood.name,
+                    neighborhoodLink: `${process.env.VCC_FRONT_URL}/my-neighborhood`,
+                    supportEmail: process.env.VCC_SUPPORT_EMAIL,
+                },
+            });
+        }
+
+        if (newStatus === NeighborhoodUserStatus.REJECTED && prevStatus === NeighborhoodUserStatus.PENDING) {
+            const user = await this.userService.getUserById(newUser.userId);
+            if (isNull(user)) {
+                throw new CochonError('user_not_found', 'User not found', 404, { userId: newUser.userId });
+            }
+
+            await this.mailerService.sendRawEmail({
+                to: [user.email],
+                subject: "Votre demande d'adhésion a été refusée",
+                template: Templates.REFUSED_USER_IN_NEIGHBORHOOD,
+                context: {
+                    neighborhoodName: neighborhood.name,
+                    supportEmail: process.env.VCC_SUPPORT_EMAIL,
+                    reason: "Votre demande d'adhésion a été refusée par un administrateur.",
+                },
+            });
+        } else if (newStatus === NeighborhoodUserStatus.REJECTED && prevStatus === NeighborhoodUserStatus.ACCEPTED) {
+            const user = await this.userService.getUserById(newUser.userId);
+            if (isNull(user)) {
+                throw new CochonError('user_not_found', 'User not found', 404, { userId: newUser.userId });
+            }
+
+            await this.mailerService.sendRawEmail({
+                to: [user.email],
+                subject: 'Vous avez été retiré de votre quartier',
+                template: Templates.REFUSED_USER_IN_NEIGHBORHOOD,
+                context: {
+                    neighborhoodName: neighborhood.name,
+                    supportEmail: process.env.VCC_SUPPORT_EMAIL,
+                    reason: 'Vous avez été retiré de votre quartier par un administrateur.',
+                },
+            });
+        }
+
+        return newUser;
     }
 
     async getManageUsersInNeighborhood(

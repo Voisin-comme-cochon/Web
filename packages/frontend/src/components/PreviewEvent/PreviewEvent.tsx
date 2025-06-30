@@ -1,9 +1,8 @@
 import { EventModel } from '@/domain/models/event.model.ts';
-import { UserModel } from '@/domain/models/user.model.ts';
 import { useAppNavigation } from '@/presentation/state/navigate.ts';
 import TagComponent from '@/components/TagComponent/TagComponent.tsx';
 
-export default function PreviewEvent({ event, user }: { event: EventModel; user: UserModel }) {
+export default function PreviewEvent({ event }: { event: EventModel }) {
     const { goEventDetail } = useAppNavigation();
     return (
         <div
@@ -21,7 +20,7 @@ export default function PreviewEvent({ event, user }: { event: EventModel; user:
                 </div>
                 <div className="flex flex-row justify-between items-center">
                     <p className="text-gray-600 text-sm">
-                        Par {user.firstName} {user.lastName}
+                        Par {event.creator.firstName} {event.creator.lastName}
                     </p>
                     <p className="text-xs text-gray-600">
                         {event.registeredUsers.toString().padStart(2, '0')}/{event.max.toString().padStart(2, '0')}

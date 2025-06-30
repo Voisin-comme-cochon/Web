@@ -37,6 +37,15 @@ export class NeighborhoodUserRepositoryImplementation implements NeighborhoodUse
         return [usersWithRoles, count];
     }
 
+    async getUserStatusInNeighborhood(neighborhoodId: number, userId: number): Promise<NeighborhoodUserStatus | null> {
+        const neighborhoodUser = await this.dataSource.getRepository(NeighborhoodUserEntity).findOne({
+            where: { neighborhoodId, userId },
+            select: ['status'],
+        });
+
+        return neighborhoodUser ? (neighborhoodUser.status as NeighborhoodUserStatus) : null;
+    }
+
     async getMemberUsersByNeighborhood(
         neighborhoodId: number,
         roleFilter?: NeighborhoodUserRole,

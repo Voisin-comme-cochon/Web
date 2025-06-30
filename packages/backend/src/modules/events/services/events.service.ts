@@ -11,6 +11,7 @@ import { MailerService } from '../../mailer/services/mailer.service';
 import { NeighborhoodService } from '../../neighborhoods/services/neighborhood.service';
 import { TagsService } from '../../tags/services/tags.service';
 import { isNull } from '../../../utils/tools';
+import { Templates } from '../../mailer/domain/templates.enum';
 
 export class EventsService {
     constructor(
@@ -58,7 +59,7 @@ export class EventsService {
                 this.mailerService.sendRawEmail({
                     to: [user.email],
                     subject: 'Évènement annulé',
-                    template: 'deleted-event-email',
+                    template: Templates.DELETED_EVENT,
                     context: {
                         eventName: event.name,
                         eventDate: event.dateStart.toLocaleDateString() + ' à ' + event.dateStart.toLocaleTimeString(),

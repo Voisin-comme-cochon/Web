@@ -179,9 +179,9 @@ export class HomeUc {
             return events.map((event) => ({
                 id: event.id,
                 name: event.name,
-                createdAt: event.createdAt.toISOString(),
-                dateStart: event.dateStart.toISOString(),
-                dateEnd: event.dateEnd.toISOString(),
+                createdAt: event.createdAt,
+                dateStart: event.dateStart,
+                dateEnd: event.dateEnd,
                 registeredUsers: event.registeredUsers,
                 max: event.max,
                 tag: event.tag,

@@ -46,4 +46,9 @@ export abstract class NeighborhoodUserRepository {
         role?: NeighborhoodUserRole,
         status?: NeighborhoodUserStatus
     ): Promise<NeighborhoodUserEntity>;
+
+    abstract getUserStatusInNeighborhood(
+        neighborhoodId: number,
+        userId: number
+    ): Promise<NeighborhoodUserStatus | null>;
 }

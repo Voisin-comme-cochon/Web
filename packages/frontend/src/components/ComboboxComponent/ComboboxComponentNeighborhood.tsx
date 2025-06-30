@@ -18,6 +18,7 @@ export default function ComboboxComponentNeighborhood({
 }) {
     const [open, setOpen] = React.useState(false);
     const [value, setValue] = React.useState<string>('');
+    const [search, setSearch] = React.useState('');
 
     useEffect(() => {
         if (typeof window !== 'undefined') {
@@ -28,6 +29,14 @@ export default function ComboboxComponentNeighborhood({
         }
     }, [neighborhoods]);
 
+    useEffect(() => {
+        if (!open) {
+            setSearch('');
+        }
+    }, [open]);
+
+    const filteredNeighborhoods = neighborhoods.filter((n) => n.name.toLowerCase().includes(search.toLowerCase()));
+
     const handleSelect = (currentId: string) => {
         if (currentId === value) {
             setValue('');
@@ -37,9 +46,7 @@ export default function ComboboxComponentNeighborhood({
             localStorage.setItem(LOCALSTORAGE_KEY, currentId);
         }
         setOpen(false);
-        if (onNeighborhoodChange) {
-            onNeighborhoodChange();
-        }
+        onNeighborhoodChange?.();
     };
 
     const selectedName = neighborhoods.find((n) => n.id.toString() === value)?.name || 'Choisir un quartier';
@@ -53,12 +60,12 @@ export default function ComboboxComponentNeighborhood({
                 </Button>
             </PopoverTrigger>
             <PopoverContent className="w-[200px] p-0">
-                <Command>
-                    <CommandInput placeholder="Chercher un quartier" />
+                <Command shouldFilter={false}>
+                    <CommandInput placeholder="Chercher un quartier" value={search} onValueChange={setSearch} />
                     <CommandList>
                         <CommandEmpty>Aucun quartier trouvé.</CommandEmpty>
                         <CommandGroup>
-                            {neighborhoods.map((neighborhood) => (
+                            {filteredNeighborhoods.map((neighborhood) => (
                                 <CommandItem
                                     key={neighborhood.id}
                                     value={neighborhood.id.toString()}

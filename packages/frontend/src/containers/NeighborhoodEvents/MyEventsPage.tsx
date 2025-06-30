@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { HomeUc } from '@/domain/use-cases/homeUc.ts';
-import { UserModel } from '@/domain/models/user.model.ts';
 import PreviewEvent from '@/components/PreviewEvent/PreviewEvent.tsx';
 import { EventModel } from '@/domain/models/event.model.ts';
 import MultiSelectTagComponent from '@/components/SelectComponent/MultiSelectTagComponent.tsx';
@@ -8,15 +7,7 @@ import { TagModel } from '@/domain/models/tag.model.ts';
 import { Button } from '@/components/ui/button.tsx';
 import { useAppNavigation } from '@/presentation/state/navigate.ts';
 
-export default function MyEventsPage({
-    uc,
-    neighborhoodId,
-    user,
-}: {
-    uc: HomeUc;
-    neighborhoodId: string;
-    user: UserModel;
-}) {
+export default function MyEventsPage({ uc, neighborhoodId }: { uc: HomeUc; neighborhoodId: string }) {
     const [events, setEvents] = useState<EventModel[]>([]);
     const [tagFilter, setTagFilter] = useState<string[]>([]);
     const [tags, setTags] = useState<TagModel[]>([]);
@@ -69,7 +60,7 @@ export default function MyEventsPage({
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 {filteredEvents.map((event) => (
-                    <PreviewEvent key={event.id} event={event} user={user} />
+                    <PreviewEvent key={event.id} event={event} />
                 ))}
             </div>
         </div>
