@@ -5,6 +5,7 @@ import { Type } from 'class-transformer';
 import { ResponseUserDto } from '../../../users/controllers/dto/users.dto';
 import { ResponseNeighborhoodDto } from '../../../neighborhoods/controllers/dto/neighborhood.dto';
 import { TagDto } from '../../../tags/controllers/dto/tags.dto';
+import { EventType } from '../../domain/events.model';
 
 export class ResponseEventDto {
     @ApiProperty({
@@ -59,6 +60,14 @@ export class ResponseEventDto {
     })
     @IsISO8601()
     dateEnd?: Date;
+
+    @ApiProperty({
+        example: 'event',
+        description: 'The type of the event',
+        enum: EventType,
+    })
+    @IsString()
+    type!: EventType;
 
     @ApiProperty({
         description: 'The tag of the event',
@@ -159,6 +168,14 @@ export class ResponseEventWithUsersDto {
     })
     @IsISO8601()
     dateEnd?: Date;
+
+    @ApiProperty({
+        example: 'event',
+        description: 'The type of the event',
+        enum: EventType,
+    })
+    @IsString()
+    type!: EventType;
 
     @ApiProperty({
         description: 'The tag of the event',
@@ -290,6 +307,14 @@ export class CreateEventDto {
     @Type(() => Number)
     @IsNumber()
     max!: number;
+
+    @ApiProperty({
+        example: 'event',
+        description: 'The type of the event',
+        required: true,
+        enum: EventType,
+    })
+    type!: EventType;
 
     @ApiProperty({
         example: 1,

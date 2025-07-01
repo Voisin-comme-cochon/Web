@@ -259,12 +259,14 @@ export class EventsController {
             user: { id: string };
         }
     ): Promise<ResponseEventDto> {
+        console.log('Creating event with body:', body);
         const createdEvent = await this.eventsService.createEvent({
             name: body.name,
             description: body.description,
             neighborhoodId: body.neighborhoodId,
             tagId: body.tagId,
             addressStart: body.addressStart ?? null,
+            type: body.type,
             addressEnd: body.addressEnd ?? null,
             createdBy: parseInt(req.user.id, 10),
             photo: file,

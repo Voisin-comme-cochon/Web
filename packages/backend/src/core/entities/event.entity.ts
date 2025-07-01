@@ -1,4 +1,5 @@
 import { Column, Entity, Geography, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { EventType } from '../../modules/events/domain/events.model';
 import { UserEntity } from './user.entity';
 import { NeighborhoodEntity } from './neighborhood.entity';
 import { TagEntity } from './tag.entity';
@@ -41,6 +42,13 @@ export class EventEntity {
 
     @Column()
     photo!: string;
+
+    @Column({
+        type: 'enum',
+        enum: EventType,
+        default: 'event',
+    })
+    type!: EventType;
 
     @Column({
         type: 'geography',
