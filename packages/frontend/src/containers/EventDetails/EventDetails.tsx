@@ -23,6 +23,7 @@ import type { EventModelWithUser } from '@/domain/models/event.model.ts';
 import type { UserModel } from '@/domain/models/user.model.ts';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card.tsx';
 import TagComponent from '@/components/TagComponent/TagComponent.tsx';
+import { useAppNavigation } from '@/presentation/state/navigate.ts';
 
 type ChangeCategory = 'description' | 'inscrits' | 'lieu';
 
@@ -36,6 +37,7 @@ const EventDetails: FC<{ user: UserModel; uc: HomeUc }> = ({ user, uc }) => {
     const [popUpVisible, setPopUpVisible] = useState(false);
     const [reason, setReason] = useState('');
     const { showError, showSuccess } = useToast();
+    const { goUserProfile } = useAppNavigation();
 
     useEffect(() => {
         if (!eventId) return;
@@ -128,7 +130,7 @@ const EventDetails: FC<{ user: UserModel; uc: HomeUc }> = ({ user, uc }) => {
             </Dialog>
 
             <Card className="max-w-3xl mx-auto mt-8">
-                <CardHeader className="flex flex-row justify-between items-center">
+                <CardHeader className="flex flex-row justify-between items-center pt-6 pl-6 pr-6 pb-2">
                     <div className={'flex gap-4 items-center'}>
                         <CardTitle className="text-2xl">{event.name}</CardTitle>
                         <TagComponent tag={event.tag} />
@@ -139,18 +141,31 @@ const EventDetails: FC<{ user: UserModel; uc: HomeUc }> = ({ user, uc }) => {
                 </CardHeader>
 
                 {new Date(event.dateStart).toLocaleDateString() === new Date(event.dateEnd).toLocaleDateString() ? (
-                    <p className="px-6 mb-2">
-                        Le {new Date(event.dateStart).toLocaleDateString()} de{' '}
-                        {new Date(event.dateStart).toLocaleTimeString([], {
-                            hour: '2-digit',
-                            minute: '2-digit',
-                        })}{' '}
-                        à{' '}
-                        {new Date(event.dateEnd).toLocaleTimeString([], {
-                            hour: '2-digit',
-                            minute: '2-digit',
-                        })}
-                    </p>
+                    <div>
+                        {event.type === 'service' && (
+                            <p className={'px-6'}>
+                                Demandé par{' '}
+                                <span
+                                    className={'hover:underline cursor-pointer'}
+                                    onClick={() => goUserProfile(event?.creator.id)}
+                                >
+                                    {event.creator.firstName} {event.creator.lastName}
+                                </span>
+                            </p>
+                        )}
+                        <p className="px-6 mb-2">
+                            Le {new Date(event.dateStart).toLocaleDateString()} de{' '}
+                            {new Date(event.dateStart).toLocaleTimeString([], {
+                                hour: '2-digit',
+                                minute: '2-digit',
+                            })}{' '}
+                            à{' '}
+                            {new Date(event.dateEnd).toLocaleTimeString([], {
+                                hour: '2-digit',
+                                minute: '2-digit',
+                            })}
+                        </p>
+                    </div>
                 ) : (
                     <p className="px-6">
                         du {new Date(event.dateStart).toLocaleDateString()} à{' '}
@@ -228,7 +243,11 @@ const EventDetails: FC<{ user: UserModel; uc: HomeUc }> = ({ user, uc }) => {
                             Se désinscrire
                         </Button>
                     ) : (
-                        <Button variant="default" onClick={registerEvent}>
+                        <Button
+                            variant="default"
+                            onClick={registerEvent}
+                            disabled={event.registeredUsers.length >= event.max}
+                        >
                             S'inscrire
                         </Button>
                     )}
