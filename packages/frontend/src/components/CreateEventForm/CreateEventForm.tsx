@@ -19,6 +19,7 @@ import { TagModel } from '@/domain/models/tag.model.ts';
 import ComboboxComponentTag from '@/components/ComboboxComponent/ComboboxComponentTag.tsx';
 import { HomeUc } from '@/domain/use-cases/homeUc.ts';
 import { useToast } from '@/presentation/hooks/useToast.ts';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 const formSchema = z.object({
     file_event_input: z.array(z.instanceof(File)).max(1, 'Maximum 1 fichier'),
@@ -34,7 +35,6 @@ const formSchema = z.object({
     end_address: z.string().optional(),
     date_start_event_input: z.date(),
     date_end_event_input: z.date(),
-    min_users_event_input: z.number().min(1, 'Au moins 1 participant'),
     max_users_event_input: z.number().min(1, 'Au moins 1 participant'),
 });
 
@@ -48,6 +48,7 @@ export default function CreateEventForm({ uc, neighborhoodId }: { uc: HomeUc; ne
     const [selectedEndAddress, setSelectedEndAddress] = useState<SelectedAddress | null>(null);
     const [tags, setTags] = useState<TagModel[] | null>(null);
     const [tag, setTag] = useState<number | null>(null);
+    const [type, setType] = useState<'event' | 'service'>('event');
     const { showSuccess, showError } = useToast();
 
     const handleSetTag = (selectedTag: number | null) => {
@@ -79,12 +80,13 @@ export default function CreateEventForm({ uc, neighborhoodId }: { uc: HomeUc; ne
                 payload.description_event_input,
                 payload.date_start_event_input,
                 payload.date_end_event_input ?? payload.date_start_event_input,
-                payload.min_users_event_input ?? 1,
+                1,
                 payload.max_users_event_input ?? 1,
                 payload.tag_input ?? 0,
                 selectedAddress,
                 selectedEndAddress,
-                files[0]
+                files[0],
+                type
             );
             showSuccess('Évènement créé avec succès !');
             window.history.back();
@@ -111,6 +113,20 @@ export default function CreateEventForm({ uc, neighborhoodId }: { uc: HomeUc; ne
     return (
         <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 max-w-3xl mx-auto">
+                {/* Select pour choisir entre service et event */}
+                <div>
+                    <label className="block mb-1 font-medium">Type</label>
+                    <Select value={type} onValueChange={(v) => setType(v as 'event' | 'service')}>
+                        <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Choisir un type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="event">Évènement</SelectItem>
+                            <SelectItem value="service">Service</SelectItem>
+                        </SelectContent>
+                    </Select>
+                </div>
+
                 <FormField
                     control={form.control}
                     name="file_event_input"
@@ -294,27 +310,6 @@ export default function CreateEventForm({ uc, neighborhoodId }: { uc: HomeUc; ne
                         )}
                     </>
                 )}
-
-                <FormField
-                    control={form.control}
-                    name="min_users_event_input"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Participants minimums</FormLabel>
-                            <FormControl>
-                                <Input
-                                    placeholder="1"
-                                    type="number"
-                                    value={field.value ?? ''}
-                                    onChange={(e) =>
-                                        field.onChange(e.target.value === '' ? undefined : Number(e.target.value))
-                                    }
-                                />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
 
                 <FormField
                     control={form.control}

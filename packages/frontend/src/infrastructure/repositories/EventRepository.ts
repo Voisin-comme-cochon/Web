@@ -26,7 +26,8 @@ export class EventRepository {
         tagId: number,
         addressStart: SelectedAddress,
         addressEnd: SelectedAddress | null,
-        eventImage: File
+        eventImage: File,
+        type: 'event' | 'service'
     ): Promise<EventModel> {
         const formData = new FormData();
         formData.append('neighborhoodId', neighborhoodId.toString());
@@ -37,6 +38,7 @@ export class EventRepository {
         formData.append('min', min.toString());
         formData.append('max', max.toString());
         formData.append('tagId', tagId.toString());
+        formData.append('type', type);
         if (addressStart) {
             formData.append(
                 'addressStart',

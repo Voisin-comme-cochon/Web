@@ -259,7 +259,6 @@ export class EventsController {
             user: { id: string };
         }
     ): Promise<ResponseEventDto> {
-        console.log('Creating event with body:', body);
         const createdEvent = await this.eventsService.createEvent({
             name: body.name,
             description: body.description,
