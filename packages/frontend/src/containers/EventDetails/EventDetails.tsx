@@ -220,7 +220,11 @@ const EventDetails: FC<{ user: UserModel; uc: HomeUc }> = ({ user, uc }) => {
 
                 <CardFooter className="flex space-x-2 px-6">
                     {isRegistered ? (
-                        <Button variant="destructive" onClick={unRegisterEvent} disabled={event.creator.id === user.id}>
+                        <Button
+                            variant="destructive"
+                            onClick={unRegisterEvent}
+                            disabled={event.creator.id === user.id && event.type == 'event'}
+                        >
                             Se désinscrire
                         </Button>
                     ) : (

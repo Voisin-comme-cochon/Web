@@ -1,5 +1,5 @@
 import { Geography } from 'typeorm';
-import { CreateEventInput, Event } from '../domain/events.model';
+import { CreateEventInput, Event, EventType } from '../domain/events.model';
 import { EventsAdapter } from '../adapters/events.adapter';
 import { EventsRepository } from '../domain/events.abstract.repository';
 import { User } from '../../users/domain/user.model';
@@ -151,8 +151,8 @@ export class EventsService {
             createdBy,
             dateStart,
             dateEnd,
-            min,
             max,
+            type,
             photo,
         } = event;
 
@@ -188,9 +188,10 @@ export class EventsService {
         eventEntity.dateStart = dateStart;
         eventEntity.dateEnd = dateEnd;
         eventEntity.tagId = tagId;
-        eventEntity.min = min;
+        eventEntity.min = 1;
         eventEntity.max = max;
         eventEntity.photo = photoUrl;
+        eventEntity.type = type;
 
         if (addressStart) {
             eventEntity.addressStart = this.parseGeo(addressStart);
@@ -200,7 +201,10 @@ export class EventsService {
         }
 
         const createdEvent = await this.eventRepository.createEvent(eventEntity);
-        this.eventRepository.registerUserForEvent(createdEvent.id, createdEvent.createdBy);
+        if (eventEntity.type === EventType.EVENT) {
+            this.eventRepository.registerUserForEvent(createdEvent.id, createdEvent.createdBy);
+        }
+
         const newEvent = await this.eventRepository.getEventById(createdEvent.id);
         if (!newEvent) {
             throw new CochonError('event_creation_error', 'Event creation failed, event not found', 500);

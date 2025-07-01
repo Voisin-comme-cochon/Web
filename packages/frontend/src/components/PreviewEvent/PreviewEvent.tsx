@@ -12,6 +12,13 @@ export default function PreviewEvent({ event }: { event: EventModel }) {
             <div className={'absolute top-2 left-2 z-10'}>
                 <TagComponent tag={event.tag} />
             </div>
+            <div className={'absolute top-2 right-2 z-10 bg-white rounded-full px-2 py-1 text-xs text-gray-600'}>
+                {event.type === 'event' ? (
+                    <span className="material-symbols-outlined">event</span>
+                ) : (
+                    <span className="material-symbols-outlined">volunteer_activism</span>
+                )}
+            </div>
             <img src={event.photo} alt={event.name} className="w-full h-40 object-cover" />
             <div className="absolute bottom-0 left-0 w-full bg-white rounded-b-2xl flex flex-col gap-2 p-4 z-10">
                 <div className="flex flex-row justify-between items-center">

@@ -265,6 +265,7 @@ export class EventsController {
             neighborhoodId: body.neighborhoodId,
             tagId: body.tagId,
             addressStart: body.addressStart ?? null,
+            type: body.type,
             addressEnd: body.addressEnd ?? null,
             createdBy: parseInt(req.user.id, 10),
             photo: file,

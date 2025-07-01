@@ -216,7 +216,8 @@ export class HomeUc {
         tagId: number,
         addressStart: SelectedAddress,
         addressEnd: SelectedAddress | null,
-        eventImage: File
+        eventImage: File,
+        type: 'event' | 'service' = 'event'
     ): Promise<EventModel> {
         try {
             return await this.eventRepository.createEvent(
@@ -230,7 +231,8 @@ export class HomeUc {
                 tagId,
                 addressStart,
                 addressEnd,
-                eventImage
+                eventImage,
+                type
             );
         } catch (error) {
             if (error instanceof Error) {

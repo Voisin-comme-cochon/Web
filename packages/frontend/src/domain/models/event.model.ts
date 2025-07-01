@@ -11,6 +11,7 @@ export interface EventModel {
     description: string;
     createdAt: Date;
     dateStart: Date;
+    type: 'event' | 'service';
     dateEnd: Date;
     tag: TagModel;
     min: number;
@@ -31,6 +32,7 @@ export interface EventModelWithUser {
     dateStart: Date;
     dateEnd: Date;
     tag: TagModel;
+    type: 'event' | 'service';
     min: number;
     max: number;
     photo: string;
