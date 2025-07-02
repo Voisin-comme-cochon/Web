@@ -10,7 +10,9 @@ import { TagsModule } from './modules/tags/tags.module';
 import { EventsModule } from './modules/events/events.module';
 import { SalesModule } from './modules/sales/sales.module';
 import { MessagingModule } from './modules/messaging/messaging.module';
-import {JavaModule} from './modules/java/java.modules';
+import { JavaModule } from './modules/java/java.modules';
+import { Neo4jModule } from './neo4j/neo4j.module';
+import { UserEntitySubscriber } from './subscribers/my-entity.subscriber';
 
 @Module({
     imports: [
@@ -35,9 +37,11 @@ import {JavaModule} from './modules/java/java.modules';
             logging: false,
             synchronize: process.env.VCC_DATABASE_SYNCHRONIZE === 'true' || true,
             entities: [__dirname + '/**/*.entity{.ts,.js}'],
+            subscribers: [UserEntitySubscriber],
             autoLoadEntities: true,
         }),
+        Neo4jModule,
     ],
-    providers: [],
+    providers: [UserEntitySubscriber],
 })
 export class AppModule {}
