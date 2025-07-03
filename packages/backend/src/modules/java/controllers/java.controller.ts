@@ -1,4 +1,13 @@
-import { Body, Controller, Get, Post, UploadedFile, UseInterceptors, UseGuards, BadRequestException } from '@nestjs/common';
+import {
+    Body,
+    Controller,
+    Get,
+    Post,
+    UploadedFile,
+    UseInterceptors,
+    UseGuards,
+    BadRequestException,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiBody, ApiConsumes, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { IsLoginGuard } from 'src/middleware/is-login.middleware';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -9,7 +18,6 @@ import { IsSuperAdminGuard } from '../../../middleware/is-super-admin.middleware
 @ApiTags('Java')
 @Controller('java')
 export class JavaController {
-    objectStorageService: any;
     constructor(private readonly javaService: JavaService) {}
 
     @Get('version')

@@ -3,12 +3,12 @@ import { DataSource } from 'typeorm';
 import { IsLoginGuard } from '../../middleware/is-login.middleware';
 import { IsSuperAdminGuard } from '../../middleware/is-super-admin.middleware';
 import { AuthModule } from '../auth/auth.module';
+import { ObjectStorageModule } from '../objectStorage/objectStorage.module';
+import { ObjectStorageService } from '../objectStorage/services/objectStorage.service';
 import { JavaRepository } from './domain/java.abstract.repository';
 import { JavaController } from './controllers/java.controller';
 import { JavaService } from './services/java.service';
 import { JavaRepositoryImplementation } from './repository/java.repository.implementation';
-import { ObjectStorageModule } from '../objectStorage/objectStorage.module';
-import { ObjectStorageService } from '../objectStorage/services/objectStorage.service';
 
 @Module({
     imports: [AuthModule, ObjectStorageModule],
@@ -23,7 +23,8 @@ import { ObjectStorageService } from '../objectStorage/services/objectStorage.se
         {
             provide: JavaService,
             inject: [JavaRepository, ObjectStorageService],
-            useFactory: (javaRepository: JavaRepository, objectStorageService: ObjectStorageService) => new JavaService(javaRepository, objectStorageService),
+            useFactory: (javaRepository: JavaRepository, objectStorageService: ObjectStorageService) =>
+                new JavaService(javaRepository, objectStorageService),
         },
         IsLoginGuard,
         IsSuperAdminGuard,

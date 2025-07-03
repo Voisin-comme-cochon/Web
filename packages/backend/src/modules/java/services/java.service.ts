@@ -19,11 +19,16 @@ export class JavaService {
             version: version.version,
             fileName: version.fileName,
             fileUrl: fileUrl,
-            uploadedAt: version.uploadedAt
+            uploadedAt: version.uploadedAt,
         };
     }
 
-    public async createVersion(version: string, fileName: string, fileBuffer: Buffer, originalName: string): Promise<JavaDto> {
+    public async createVersion(
+        version: string,
+        fileName: string,
+        fileBuffer: Buffer,
+        originalName: string
+    ): Promise<JavaDto> {
         const fileKey = await this.objectStorageService.uploadFile(fileBuffer, originalName, BucketType.JAVA_VERSION);
         const javaVersion = await this.javaRepository.createVersion(version, fileKey);
         return {
@@ -31,7 +36,7 @@ export class JavaService {
             version: javaVersion.version,
             fileName: javaVersion.fileName,
             fileUrl: await this.objectStorageService.getFileLink(fileKey, BucketType.JAVA_VERSION),
-            uploadedAt: javaVersion.uploadedAt
+            uploadedAt: javaVersion.uploadedAt,
         };
     }
 }
