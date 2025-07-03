@@ -10,7 +10,9 @@ import {
     UseGuards,
     UseInterceptors,
     Request,
+    UploadedFile,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import {
     ApiBearerAuth,
     ApiOperation,
@@ -20,6 +22,7 @@ import {
     ApiCreatedResponse,
     ApiForbiddenResponse,
     ApiBadRequestResponse,
+    ApiConsumes,
 } from '@nestjs/swagger';
 import { DecodedToken } from '../../auth/domain/auth.model';
 import { IsLoginGuard } from '../../../middleware/is-login.middleware';
@@ -77,15 +80,18 @@ export class ItemsController {
     }
 
     @Post()
+    @UseInterceptors(FileInterceptor('image'))
+    @ApiConsumes('multipart/form-data')
     @ApiOperation({ summary: 'Create a new item' })
     @ApiCreatedResponse({ description: 'Item created', type: ResponseItemDto })
     @ApiBadRequestResponse({ description: 'Invalid input' })
     async createItem(
         @Body() createItemDto: CreateItemDto,
-        @Request() req: { user: DecodedToken }
+        @Request() req: { user: DecodedToken },
+        @UploadedFile() image?: Express.Multer.File
     ): Promise<ResponseItemDto> {
         const ownerId = req.user.id;
-        return await this.itemsService.createItem(createItemDto, ownerId);
+        return await this.itemsService.createItem(createItemDto, ownerId, image);
     }
 
     @Put('/:id')

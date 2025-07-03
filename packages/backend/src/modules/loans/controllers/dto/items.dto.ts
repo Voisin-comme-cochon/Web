@@ -19,10 +19,13 @@ export class CreateItemDto {
     @IsOptional()
     category?: string;
 
-    @ApiProperty({ example: 'https://example.com/image.jpg', description: 'Image URL', required: false })
-    @IsString()
-    @IsOptional()
-    image_url?: string;
+    @ApiProperty({ 
+        type: 'string', 
+        format: 'binary', 
+        description: 'Item image file', 
+        required: false 
+    })
+    image?: Express.Multer.File;
 
     @ApiProperty({ example: 1, description: 'Neighborhood ID' })
     @IsInt()
@@ -45,11 +48,6 @@ export class UpdateItemDto {
     @IsString()
     @IsOptional()
     category?: string;
-
-    @ApiProperty({ example: 'https://example.com/image.jpg', description: 'Image URL', required: false })
-    @IsString()
-    @IsOptional()
-    image_url?: string;
 }
 
 export class CreateItemAvailabilityDto {

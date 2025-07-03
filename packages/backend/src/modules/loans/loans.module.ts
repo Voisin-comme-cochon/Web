@@ -7,6 +7,8 @@ import { AuthModule } from '../auth/auth.module';
 import { NeighborhoodModule } from '../neighborhoods/neighborhood.module';
 import { NeighborhoodRepository } from '../neighborhoods/domain/neighborhood.abstract.repository';
 import { NeighborhoodUserRepository } from '../neighborhoods/domain/neighborhood-user.abstract.repository';
+import { ObjectStorageModule } from '../objectStorage/objectStorage.module';
+import { ObjectStorageService } from '../objectStorage/services/objectStorage.service';
 import { ItemsRepository } from './domain/items.abstract.repository';
 import { LoanRequestsRepository } from './domain/loan-requests.abstract.repository';
 import { LoansRepository } from './domain/loans.abstract.repository';
@@ -23,7 +25,7 @@ import { ItemsController } from './controllers/items.controller';
 import { LoansController } from './controllers/loans.controller';
 
 @Module({
-    imports: [UsersModule, AuthModule, NeighborhoodModule],
+    imports: [UsersModule, AuthModule, NeighborhoodModule, ObjectStorageModule],
     controllers: [ItemsController, LoansController],
     exports: [
         ItemsRepository,
@@ -51,12 +53,19 @@ import { LoansController } from './controllers/loans.controller';
         },
         {
             provide: ItemsService,
-            inject: [ItemsRepository, NeighborhoodRepository, NeighborhoodUserRepository],
+            inject: [ItemsRepository, NeighborhoodRepository, NeighborhoodUserRepository, ObjectStorageService],
             useFactory: (
                 itemsRepository: ItemsRepository,
                 neighborhoodRepository: NeighborhoodRepository,
-                neighborhoodUserRepository: NeighborhoodUserRepository
-            ) => new ItemsService(itemsRepository, neighborhoodRepository, neighborhoodUserRepository),
+                neighborhoodUserRepository: NeighborhoodUserRepository,
+                objectStorageService: ObjectStorageService
+            ) =>
+                new ItemsService(
+                    itemsRepository,
+                    neighborhoodRepository,
+                    neighborhoodUserRepository,
+                    objectStorageService
+                ),
         },
         {
             provide: LoanRequestsService,

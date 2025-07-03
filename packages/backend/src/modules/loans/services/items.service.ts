@@ -4,12 +4,15 @@ import { CochonError } from '../../../utils/CochonError';
 import { NeighborhoodRepository } from '../../neighborhoods/domain/neighborhood.abstract.repository';
 import { NeighborhoodUserRepository } from '../../neighborhoods/domain/neighborhood-user.abstract.repository';
 import { isNull } from '../../../utils/tools';
+import { ObjectStorageService } from '../../objectStorage/services/objectStorage.service';
+import { BucketType } from '../../objectStorage/domain/bucket-type.enum';
 
 export class ItemsService {
     constructor(
         private readonly itemsRepository: ItemsRepository,
         private readonly neighborhoodRepository: NeighborhoodRepository,
-        private readonly neighborhoodUserRepository: NeighborhoodUserRepository
+        private readonly neighborhoodUserRepository: NeighborhoodUserRepository,
+        private readonly objectStorageService: ObjectStorageService
     ) {}
 
     async getItemsByNeighborhood(
@@ -30,12 +33,12 @@ export class ItemsService {
         const offset = (page - 1) * limit;
         const [items, count] = await this.itemsRepository.getItemsByNeighborhood(neighborhoodId, limit, offset);
         return [
-            items.map((item) => ({
+            await Promise.all(items.map(async (item) => ({
                 id: item.id,
                 name: item.name,
                 description: item.description,
                 category: item.category,
-                image_url: item.image_url,
+                image_url: item.image_url ? await this.objectStorageService.getFileLink(item.image_url, BucketType.ITEM_IMAGES) : undefined,
                 owner_id: item.owner_id,
                 neighborhood_id: item.neighborhood_id,
                 created_at: item.created_at,
@@ -47,7 +50,7 @@ export class ItemsService {
                     status: av.status,
                     created_at: av.created_at,
                 })),
-            })),
+            }))),
             count,
         ];
     }
@@ -60,10 +63,13 @@ export class ItemsService {
 
         await this.validateUserInNeighborhood(userId, item.neighborhood_id);
 
-        return item;
+        return {
+            ...item,
+            image_url: item.image_url ? await this.objectStorageService.getFileLink(item.image_url, BucketType.ITEM_IMAGES) : undefined,
+        };
     }
 
-    async createItem(item: CreateItemRequest, ownerId: number): Promise<Item> {
+    async createItem(item: CreateItemRequest, ownerId: number, image?: Express.Multer.File): Promise<Item> {
         const neighborhoodExists = await this.neighborhoodRepository.getNeighborhoodById(item.neighborhood_id);
         if (isNull(neighborhoodExists)) {
             throw new CochonError('neighborhood_not_found', 'Quartier non trouvé', 404, {
@@ -73,13 +79,31 @@ export class ItemsService {
 
         await this.validateUserInNeighborhood(ownerId, item.neighborhood_id);
 
-        const createdItem = await this.itemsRepository.createItem(item, ownerId);
+        let imageFileName: string | undefined;
+        if (image) {
+            try {
+                imageFileName = await this.objectStorageService.uploadFile(
+                    image.buffer,
+                    image.originalname,
+                    BucketType.ITEM_IMAGES
+                );
+            } catch {
+                throw new CochonError('image_upload_failed', 'Échec du téléchargement de l\'image', 500);
+            }
+        }
+
+        const itemData = {
+            ...item,
+            image_url: imageFileName ?? item.image_url,
+        };
+
+        const createdItem = await this.itemsRepository.createItem(itemData, ownerId);
         return {
             id: createdItem.id,
             name: createdItem.name,
             description: createdItem.description,
             category: createdItem.category,
-            image_url: createdItem.image_url,
+            image_url: createdItem.image_url ? await this.objectStorageService.getFileLink(createdItem.image_url, BucketType.ITEM_IMAGES) : undefined,
             owner_id: createdItem.owner_id,
             neighborhood_id: createdItem.neighborhood_id,
             created_at: createdItem.created_at,
