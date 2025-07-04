@@ -33,24 +33,28 @@ export class ItemsService {
         const offset = (page - 1) * limit;
         const [items, count] = await this.itemsRepository.getItemsByNeighborhood(neighborhoodId, limit, offset);
         return [
-            await Promise.all(items.map(async (item) => ({
-                id: item.id,
-                name: item.name,
-                description: item.description,
-                category: item.category,
-                image_url: item.image_url ? await this.objectStorageService.getFileLink(item.image_url, BucketType.ITEM_IMAGES) : undefined,
-                owner_id: item.owner_id,
-                neighborhood_id: item.neighborhood_id,
-                created_at: item.created_at,
-                availabilities: item.availabilities?.map((av) => ({
-                    id: av.id,
-                    item_id: av.item_id,
-                    start_date: av.start_date,
-                    end_date: av.end_date,
-                    status: av.status,
-                    created_at: av.created_at,
-                })),
-            }))),
+            await Promise.all(
+                items.map(async (item) => ({
+                    id: item.id,
+                    name: item.name,
+                    description: item.description,
+                    category: item.category,
+                    image_url: item.image_url
+                        ? await this.objectStorageService.getFileLink(item.image_url, BucketType.ITEM_IMAGES)
+                        : undefined,
+                    owner_id: item.owner_id,
+                    neighborhood_id: item.neighborhood_id,
+                    created_at: item.created_at,
+                    availabilities: item.availabilities?.map((av) => ({
+                        id: av.id,
+                        item_id: av.item_id,
+                        start_date: av.start_date,
+                        end_date: av.end_date,
+                        status: av.status,
+                        created_at: av.created_at,
+                    })),
+                }))
+            ),
             count,
         ];
     }
@@ -65,7 +69,9 @@ export class ItemsService {
 
         return {
             ...item,
-            image_url: item.image_url ? await this.objectStorageService.getFileLink(item.image_url, BucketType.ITEM_IMAGES) : undefined,
+            image_url: item.image_url
+                ? await this.objectStorageService.getFileLink(item.image_url, BucketType.ITEM_IMAGES)
+                : undefined,
         };
     }
 
@@ -88,7 +94,7 @@ export class ItemsService {
                     BucketType.ITEM_IMAGES
                 );
             } catch {
-                throw new CochonError('image_upload_failed', 'Échec du téléchargement de l\'image', 500);
+                throw new CochonError('image_upload_failed', "Échec du téléchargement de l'image", 500);
             }
         }
 
@@ -103,14 +109,21 @@ export class ItemsService {
             name: createdItem.name,
             description: createdItem.description,
             category: createdItem.category,
-            image_url: createdItem.image_url ? await this.objectStorageService.getFileLink(createdItem.image_url, BucketType.ITEM_IMAGES) : undefined,
+            image_url: createdItem.image_url
+                ? await this.objectStorageService.getFileLink(createdItem.image_url, BucketType.ITEM_IMAGES)
+                : undefined,
             owner_id: createdItem.owner_id,
             neighborhood_id: createdItem.neighborhood_id,
             created_at: createdItem.created_at,
         };
     }
 
-    async updateItem(id: number, item: Partial<CreateItemRequest>, ownerId: number): Promise<void> {
+    async updateItem(
+        id: number,
+        item: Partial<CreateItemRequest>,
+        ownerId: number,
+        image?: Express.Multer.File
+    ): Promise<void> {
         const existingItem = await this.itemsRepository.getItemById(id);
         if (isNull(existingItem)) {
             throw new CochonError('item_not_found', 'Item not found', 404);
@@ -120,7 +133,25 @@ export class ItemsService {
             throw new CochonError('forbidden_update', 'You can only update your own items', 403);
         }
 
-        await this.itemsRepository.updateItem(id, item);
+        let imageFileName: string | undefined;
+        if (image) {
+            try {
+                imageFileName = await this.objectStorageService.uploadFile(
+                    image.buffer,
+                    image.originalname,
+                    BucketType.ITEM_IMAGES
+                );
+            } catch {
+                throw new CochonError('image_upload_failed', "Échec du téléchargement de l'image", 500);
+            }
+        }
+
+        const updateData = {
+            ...item,
+            ...(imageFileName && { image_url: imageFileName }),
+        };
+
+        await this.itemsRepository.updateItem(id, updateData);
     }
 
     async deleteItem(id: number, ownerId: number): Promise<void> {

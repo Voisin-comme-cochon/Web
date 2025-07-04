@@ -75,27 +75,30 @@ import { LoansController } from './controllers/loans.controller';
                 ItemsRepository,
                 UsersRepository,
                 NeighborhoodUserRepository,
+                ObjectStorageService,
             ],
             useFactory: (
                 loanRequestsRepository: LoanRequestsRepository,
                 loansRepository: LoansRepository,
                 itemsRepository: ItemsRepository,
                 usersRepository: UsersRepository,
-                neighborhoodUserRepository: NeighborhoodUserRepository
+                neighborhoodUserRepository: NeighborhoodUserRepository,
+                objectStorageService: ObjectStorageService
             ) =>
                 new LoanRequestsService(
                     loanRequestsRepository,
                     loansRepository,
                     itemsRepository,
                     usersRepository,
-                    neighborhoodUserRepository
+                    neighborhoodUserRepository,
+                    objectStorageService
                 ),
         },
         {
             provide: LoansService,
-            inject: [LoansRepository, ItemsRepository],
-            useFactory: (loansRepository: LoansRepository, itemsRepository: ItemsRepository) =>
-                new LoansService(loansRepository, itemsRepository),
+            inject: [LoansRepository, ItemsRepository, ObjectStorageService],
+            useFactory: (loansRepository: LoansRepository, itemsRepository: ItemsRepository, objectStorageService: ObjectStorageService) =>
+                new LoansService(loansRepository, itemsRepository, objectStorageService),
         },
     ],
 })

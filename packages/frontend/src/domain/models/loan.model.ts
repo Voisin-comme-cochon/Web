@@ -1,6 +1,10 @@
-import { LoanStatus } from '../../../core/entities/loan.entity';
+export enum LoanStatus {
+    ACTIVE = 'active',
+    RETURNED = 'returned',
+    OVERDUE = 'overdue'
+}
 
-export interface Loan {
+export interface LoanModel {
     id: number;
     loan_request_id: number;
     item_id: number;

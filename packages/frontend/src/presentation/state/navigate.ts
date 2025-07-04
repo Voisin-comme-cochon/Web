@@ -21,6 +21,13 @@ export const useAppNavigation = () => {
     };
     const goUserProfile = (userId: number | string) => navigate(`/user/${userId}`);
     const goManageNeighborhood = () => navigate('/neighborhood-manage');
+    
+    // Items navigation
+    const goItems = () => navigate('/items');
+    const goItemDetails = (itemId: number) => navigate(`/items/${itemId}`);
+    const goAddItem = () => navigate('/items/new');
+    const goEditItem = (itemId: number) => navigate(`/items/${itemId}/edit`);
+    const goMyLoans = () => navigate('/my-loans');
 
     return {
         goLogin,
@@ -39,5 +46,10 @@ export const useAppNavigation = () => {
         goNeighborhoodDetails,
         goManageNeighborhood,
         goUserProfile,
+        goItems,
+        goItemDetails,
+        goAddItem,
+        goEditItem,
+        goMyLoans,
     };
 };

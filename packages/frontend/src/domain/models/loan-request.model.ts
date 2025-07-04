@@ -1,14 +1,18 @@
-import { LoanStatus } from '../../../core/entities/loan.entity';
+export enum LoanRequestStatus {
+    PENDING = 'pending',
+    ACCEPTED = 'accepted',
+    REJECTED = 'rejected',
+    CANCELLED = 'cancelled'
+}
 
-export interface Loan {
+export interface LoanRequestModel {
     id: number;
-    loan_request_id: number;
     item_id: number;
     borrower_id: number;
     start_date: Date;
     end_date: Date;
-    actual_return_date?: Date;
-    status: LoanStatus;
+    status: LoanRequestStatus;
+    message?: string;
     created_at: Date;
     item?: {
         id: number;
@@ -24,23 +28,16 @@ export interface Loan {
         lastName: string;
         profileImageUrl?: string;
     };
-    owner?: {
-        id: number;
-        firstName: string;
-        lastName: string;
-        profileImageUrl?: string;
-    };
 }
 
-export interface CreateLoanRequest {
-    loan_request_id: number;
+export interface CreateLoanRequestRequest {
     item_id: number;
-    borrower_id: number;
     start_date: Date;
     end_date: Date;
+    message?: string;
 }
 
-export interface ReturnLoanRequest {
+export interface UpdateLoanRequestStatusRequest {
     id: number;
-    actual_return_date?: Date;
+    status: LoanRequestStatus;
 }

@@ -95,6 +95,8 @@ export class ItemsController {
     }
 
     @Put('/:id')
+    @UseInterceptors(FileInterceptor('image'))
+    @ApiConsumes('multipart/form-data')
     @ApiOperation({ summary: 'Update an item' })
     @ApiOkResponse({ description: 'Item updated' })
     @ApiNotFoundResponse({ description: 'Item not found' })
@@ -102,10 +104,11 @@ export class ItemsController {
     async updateItem(
         @Param() params: GetItemByIdDto,
         @Body() updateItemDto: UpdateItemDto,
-        @Request() req: { user: DecodedToken }
+        @Request() req: { user: DecodedToken },
+        @UploadedFile() image?: Express.Multer.File
     ): Promise<{ success: boolean }> {
         const ownerId = req.user.id;
-        await this.itemsService.updateItem(params.id, updateItemDto, ownerId);
+        await this.itemsService.updateItem(params.id, updateItemDto, ownerId, image);
         return {
             success: true,
         };

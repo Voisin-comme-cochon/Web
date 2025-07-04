@@ -23,7 +23,7 @@ export default function DashboardHeader() {
         goMyNeighborhood,
         goNeighborhoodEvents,
         goNeighborhoodJournal,
-        goNeighborhoodMat,
+        goItems,
         goJoinNeighborhood,
         goManageNeighborhood,
     } = useAppNavigation();
@@ -104,10 +104,10 @@ export default function DashboardHeader() {
         },
         {
             id: 4,
-            icon: 'emoji_objects',
+            icon: 'inventory_2',
             label: 'Matériel',
-            action: goNeighborhoodMat,
-            path: ['neighborhood-materials'],
+            action: goItems,
+            path: ['items', 'my-loans'],
         },
     ];
 

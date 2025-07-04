@@ -21,11 +21,16 @@ export class LoansRepositoryImplementation implements LoansRepository {
     }
 
     async getLoansByBorrower(borrowerId: number): Promise<Loan[]> {
-        const loans = await this.dataSource.getRepository(LoanEntity).find({
-            where: { borrower_id: borrowerId },
-            relations: ['loan_request', 'item', 'borrower'],
-            order: { created_at: 'DESC' },
-        });
+        const loans = await this.dataSource
+            .getRepository(LoanEntity)
+            .createQueryBuilder('loan')
+            .leftJoinAndSelect('loan.loan_request', 'request')
+            .leftJoinAndSelect('loan.item', 'item')
+            .leftJoinAndSelect('loan.borrower', 'borrower')
+            .leftJoinAndSelect('item.owner', 'owner')
+            .where('loan.borrower_id = :borrowerId', { borrowerId })
+            .orderBy('loan.created_at', 'DESC')
+            .getMany();
 
         return loans.map((loan) => LoansAdapter.entityToDomain(loan));
     }
@@ -37,6 +42,7 @@ export class LoansRepositoryImplementation implements LoansRepository {
             .leftJoinAndSelect('loan.loan_request', 'request')
             .leftJoinAndSelect('loan.item', 'item')
             .leftJoinAndSelect('loan.borrower', 'borrower')
+            .leftJoinAndSelect('item.owner', 'owner')
             .where('item.owner_id = :ownerId', { ownerId })
             .orderBy('loan.created_at', 'DESC')
             .getMany();

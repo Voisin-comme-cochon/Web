@@ -7,11 +7,22 @@ import { UserModel } from '@/domain/models/user.model.ts';
 import { HomeUc } from '@/domain/use-cases/homeUc.ts';
 import DashboardHeader from '@/components/Header/DashboardHeader.tsx';
 import { withNeighborhoodLayoutUserCheck } from '@/containers/Wrapper/NeighborhoodWrapper';
+import { useLoanRequests } from '@/presentation/hooks/useLoanRequests';
+import { useLoans } from '@/presentation/hooks/useLoans';
+import { LoanRequestStatus } from '@/domain/models/loan-request.model';
+import { LoanStatus } from '@/domain/models/loan.model';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 
 function MyNeighborhoodPage({ user, uc }: { user: UserModel | null; uc: HomeUc }) {
     const [events, setEvents] = useState<EventModel[]>([]);
-    const { goNeighborhoodEvents } = useAppNavigation();
+    const { goNeighborhoodEvents, goMyLoans, goItems, goAddItem } = useAppNavigation();
     const neighborhoodId = localStorage.getItem('neighborhoodId');
+    
+    // Hooks pour les prêts et emprunts
+    const { receivedRequests } = useLoanRequests();
+    const { myLoans, lentItems } = useLoans();
 
     useEffect(() => {
         const fetchEvents = async () => {
@@ -59,6 +70,24 @@ function MyNeighborhoodPage({ user, uc }: { user: UserModel | null; uc: HomeUc }
                 </div>
             </div>
             <div className={'px-32 relative -mt-24'}>
+                {/* Actions rapides */}
+                <div className="mb-8">
+                    <div className="flex gap-4 mb-6">
+                        <Button onClick={goItems} variant="outline" className="flex-1">
+                            <span className="material-symbols-outlined text-sm mr-2">inventory_2</span>
+                            Voir les objets
+                        </Button>
+                        <Button onClick={goAddItem} className="flex-1">
+                            <span className="material-symbols-outlined text-sm mr-2">add</span>
+                            Partager un objet
+                        </Button>
+                        <Button onClick={goMyLoans} variant="outline" className="flex-1">
+                            <span className="material-symbols-outlined text-sm mr-2">handshake</span>
+                            Mes emprunts
+                        </Button>
+                    </div>
+                </div>
+                
                 <div className={'flex items-center gap-2 cursor-pointer'} onClick={goNeighborhoodEvents}>
                     <p>Prochains évènements</p>
                     <span className="material-symbols-outlined text-base">chevron_right</span>
@@ -69,6 +98,101 @@ function MyNeighborhoodPage({ user, uc }: { user: UserModel | null; uc: HomeUc }
                     ) : (
                         <NotCreatedEvent />
                     )}
+                </div>
+                
+                {/* Section Mes emprunts */}
+                <div className="mt-12">
+                    <div className={'flex items-center gap-2 cursor-pointer'} onClick={goMyLoans}>
+                        <p>Mes prêts et emprunts</p>
+                        <span className="material-symbols-outlined text-base">chevron_right</span>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+                        {/* Demandes reçues */}
+                        <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={goMyLoans}>
+                            <CardHeader className="pb-3">
+                                <div className="flex items-center gap-2">
+                                    <span className="material-symbols-outlined text-green-600">inbox</span>
+                                    <CardTitle className="text-lg">Demandes reçues</CardTitle>
+                                </div>
+                            </CardHeader>
+                            <CardContent>
+                                {receivedRequests.filter(r => r.status === LoanRequestStatus.PENDING).length > 0 ? (
+                                    <div className="space-y-2">
+                                        <div className="flex items-center gap-2">
+                                            <Badge variant="default" className="text-sm">
+                                                {receivedRequests.filter(r => r.status === LoanRequestStatus.PENDING).length} en attente
+                                            </Badge>
+                                        </div>
+                                        <p className="text-sm text-gray-600">
+                                            Vous avez des demandes d'emprunt à traiter
+                                        </p>
+                                    </div>
+                                ) : (
+                                    <p className="text-sm text-gray-600">Aucune demande en attente</p>
+                                )}
+                            </CardContent>
+                        </Card>
+
+                        {/* Mes emprunts en cours */}
+                        <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={goMyLoans}>
+                            <CardHeader className="pb-3">
+                                <div className="flex items-center gap-2">
+                                    <span className="material-symbols-outlined text-blue-600">inventory_2</span>
+                                    <CardTitle className="text-lg">Mes emprunts</CardTitle>
+                                </div>
+                            </CardHeader>
+                            <CardContent>
+                                {myLoans.filter(l => l.status === LoanStatus.ACTIVE).length > 0 ? (
+                                    <div className="space-y-2">
+                                        <div className="flex items-center gap-2">
+                                            <Badge variant="outline" className="text-sm">
+                                                {myLoans.filter(l => l.status === LoanStatus.ACTIVE).length} en cours
+                                            </Badge>
+                                        </div>
+                                        <p className="text-sm text-gray-600">
+                                            Objets que vous empruntez actuellement
+                                        </p>
+                                    </div>
+                                ) : (
+                                    <p className="text-sm text-gray-600">Aucun emprunt en cours</p>
+                                )}
+                            </CardContent>
+                        </Card>
+
+                        {/* Mes prêts en cours */}
+                        <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={goMyLoans}>
+                            <CardHeader className="pb-3">
+                                <div className="flex items-center gap-2">
+                                    <span className="material-symbols-outlined text-orange-600">handshake</span>
+                                    <CardTitle className="text-lg">Mes prêts</CardTitle>
+                                </div>
+                            </CardHeader>
+                            <CardContent>
+                                {lentItems.filter(l => l.status === LoanStatus.ACTIVE).length > 0 ? (
+                                    <div className="space-y-2">
+                                        <div className="flex items-center gap-2">
+                                            <Badge variant="outline" className="text-sm">
+                                                {lentItems.filter(l => l.status === LoanStatus.ACTIVE).length} en cours
+                                            </Badge>
+                                        </div>
+                                        <p className="text-sm text-gray-600">
+                                            Objets que vous prêtez actuellement
+                                        </p>
+                                    </div>
+                                ) : (
+                                    <p className="text-sm text-gray-600">Aucun prêt en cours</p>
+                                )}
+                            </CardContent>
+                        </Card>
+                    </div>
+                    
+                    <div className="mt-4 text-center">
+                        <Button variant="outline" onClick={goMyLoans} className="w-full sm:w-auto">
+                            <span className="material-symbols-outlined text-sm mr-2">open_in_new</span>
+                            Voir tous mes prêts et emprunts
+                        </Button>
+                    </div>
                 </div>
             </div>
         </div>

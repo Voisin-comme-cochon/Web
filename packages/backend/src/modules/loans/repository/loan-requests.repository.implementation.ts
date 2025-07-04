@@ -8,10 +8,13 @@ export class LoanRequestsRepositoryImplementation implements LoanRequestsReposit
     constructor(private readonly dataSource: DataSource) {}
 
     async getLoanRequestById(id: number): Promise<LoanRequest | null> {
-        const loanRequest = await this.dataSource.getRepository(LoanRequestEntity).findOne({
-            where: { id },
-            relations: ['item', 'borrower'],
-        });
+        const loanRequest = await this.dataSource
+            .getRepository(LoanRequestEntity)
+            .createQueryBuilder('request')
+            .leftJoinAndSelect('request.item', 'item')
+            .leftJoinAndSelect('request.borrower', 'borrower')
+            .where('request.id = :id', { id })
+            .getOne();
 
         if (!loanRequest) {
             return null;
@@ -21,11 +24,14 @@ export class LoanRequestsRepositoryImplementation implements LoanRequestsReposit
     }
 
     async getLoanRequestsByBorrower(borrowerId: number): Promise<LoanRequest[]> {
-        const loanRequests = await this.dataSource.getRepository(LoanRequestEntity).find({
-            where: { borrower_id: borrowerId },
-            relations: ['item', 'borrower'],
-            order: { created_at: 'DESC' },
-        });
+        const loanRequests = await this.dataSource
+            .getRepository(LoanRequestEntity)
+            .createQueryBuilder('request')
+            .leftJoinAndSelect('request.item', 'item')
+            .leftJoinAndSelect('request.borrower', 'borrower')
+            .where('request.borrower_id = :borrowerId', { borrowerId })
+            .orderBy('request.created_at', 'DESC')
+            .getMany();
 
         return loanRequests.map((request) => LoanRequestsAdapter.entityToDomain(request));
     }
@@ -39,6 +45,7 @@ export class LoanRequestsRepositoryImplementation implements LoanRequestsReposit
             .where('item.owner_id = :ownerId', { ownerId })
             .orderBy('request.created_at', 'DESC')
             .getMany();
+
 
         return loanRequests.map((request) => LoanRequestsAdapter.entityToDomain(request));
     }

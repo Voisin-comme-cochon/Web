@@ -9,6 +9,20 @@ export interface LoanRequest {
     status: LoanRequestStatus;
     message?: string;
     created_at: Date;
+    item?: {
+        id: number;
+        name: string;
+        description?: string;
+        image_url?: string;
+        owner_id: number;
+        category?: string;
+    };
+    borrower?: {
+        id: number;
+        firstName: string;
+        lastName: string;
+        profileImageUrl?: string;
+    };
 }
 
 export interface CreateLoanRequestRequest {

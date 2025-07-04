@@ -19,7 +19,7 @@ import { Textarea } from '@/components/ui/textarea.tsx';
 import AvatarComponent from '@/components/AvatarComponent/AvatarComponent.tsx';
 
 export default function UserMenu({ user, uc }: { user: UserModel | null; uc: HomeUc }) {
-    const { goLanding, goUserProfile, goCreateNeighborhood } = useAppNavigation();
+    const { goLanding, goUserProfile, goCreateNeighborhood, goMyLoans } = useAppNavigation();
     const [duration, setDuration] = useState<number>(7);
     const [maxUses, setMaxUses] = useState<number>(1);
     const [inviteLink, setInviteLink] = useState<string>('');
@@ -79,9 +79,19 @@ export default function UserMenu({ user, uc }: { user: UserModel | null; uc: Hom
 
                 <DropdownMenuContent className="w-56">
                     <DropdownMenuItem className="cursor-pointer" onClick={() => goUserProfile(user.id)}>
+                        <span className="material-symbols-outlined text-sm mr-2">person</span>
                         Profil
                     </DropdownMenuItem>
-                    <DropdownMenuItem className="cursor-pointer">Paramètres</DropdownMenuItem>
+                    
+                    <DropdownMenuItem className="cursor-pointer" onClick={() => goMyLoans()}>
+                        <span className="material-symbols-outlined text-sm mr-2">handshake</span>
+                        Mes prêts
+                    </DropdownMenuItem>
+                    
+                    <DropdownMenuItem className="cursor-pointer">
+                        <span className="material-symbols-outlined text-sm mr-2">settings</span>
+                        Paramètres
+                    </DropdownMenuItem>
 
                     <DropdownMenuItem
                         className="cursor-pointer"
@@ -90,6 +100,7 @@ export default function UserMenu({ user, uc }: { user: UserModel | null; uc: Hom
                             setIsDialogOpen(true);
                         }}
                     >
+                        <span className="material-symbols-outlined text-sm mr-2">person_add</span>
                         Inviter des membres
                     </DropdownMenuItem>
 
@@ -99,6 +110,7 @@ export default function UserMenu({ user, uc }: { user: UserModel | null; uc: Hom
                             goCreateNeighborhood();
                         }}
                     >
+                        <span className="material-symbols-outlined text-sm mr-2">add_home</span>
                         Créer un quartier
                     </DropdownMenuItem>
 

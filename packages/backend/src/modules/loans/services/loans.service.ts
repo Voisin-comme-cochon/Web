@@ -3,12 +3,15 @@ import { ItemsRepository } from '../domain/items.abstract.repository';
 import { Loan } from '../domain/loan.model';
 import { LoanStatus } from '../../../core/entities/loan.entity';
 import { CochonError } from '../../../utils/CochonError';
+import { ObjectStorageService } from '../../objectStorage/services/objectStorage.service';
+import { BucketType } from '../../objectStorage/domain/bucket-type.enum';
 import { isNull } from '../../../utils/tools';
 
 export class LoansService {
     constructor(
         private readonly loansRepository: LoansRepository,
-        private readonly itemsRepository: ItemsRepository
+        private readonly itemsRepository: ItemsRepository,
+        private readonly objectStorageService: ObjectStorageService
     ) {}
 
     async getLoanById(id: number, userId: number): Promise<Loan> {
@@ -35,7 +38,8 @@ export class LoansService {
                 borrowerId,
             });
         }
-        return this.loansRepository.getLoansByBorrower(borrowerId);
+        const loans = await this.loansRepository.getLoansByBorrower(borrowerId);
+        return this.processImageUrls(loans);
     }
 
     async getLoansByOwner(ownerId: number, requestingUserId: number): Promise<Loan[]> {
@@ -45,7 +49,8 @@ export class LoansService {
                 ownerId,
             });
         }
-        return this.loansRepository.getLoansByOwner(ownerId);
+        const loans = await this.loansRepository.getLoansByOwner(ownerId);
+        return this.processImageUrls(loans);
     }
 
     async returnLoan(id: number, userId: number, returnDate?: Date): Promise<void> {
@@ -86,6 +91,32 @@ export class LoansService {
             }
         }
 
-        return userOverdueLoans;
+        return this.processImageUrls(userOverdueLoans);
+    }
+
+    private async processImageUrls(loans: Loan[]): Promise<Loan[]> {
+        return Promise.all(
+            loans.map(async (loan) => ({
+                ...loan,
+                item: loan.item ? {
+                    ...loan.item,
+                    image_url: loan.item.image_url
+                        ? await this.objectStorageService.getFileLink(loan.item.image_url, BucketType.ITEM_IMAGES)
+                        : undefined,
+                } : undefined,
+                borrower: loan.borrower ? {
+                    ...loan.borrower,
+                    profileImageUrl: loan.borrower.profileImageUrl
+                        ? await this.objectStorageService.getFileLink(loan.borrower.profileImageUrl, BucketType.PROFILE_IMAGES)
+                        : undefined,
+                } : undefined,
+                owner: loan.owner ? {
+                    ...loan.owner,
+                    profileImageUrl: loan.owner.profileImageUrl
+                        ? await this.objectStorageService.getFileLink(loan.owner.profileImageUrl, BucketType.PROFILE_IMAGES)
+                        : undefined,
+                } : undefined,
+            }))
+        );
     }
 }

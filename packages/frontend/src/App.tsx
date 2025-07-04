@@ -15,6 +15,11 @@ import JoinNeighborhood from '@/containers/JoinNeighborhood/JoinNeighborhood.tsx
 import NeighborhoodDetails from '@/containers/NeighborhoodDetails/NeighborhoodDetails.tsx';
 import ManageNeighborhood from '@/containers/ManageNeighborhood/ManageNeighborhood.tsx';
 import ProfilPage from '@/containers/ProfilPage/ProfilPage.tsx';
+import ItemsPage from '@/containers/Items/ItemsPage.tsx';
+import ItemDetailsPage from '@/containers/Items/ItemDetailsPage.tsx';
+import AddItemPage from '@/containers/Items/AddItemPage.tsx';
+import EditItemPage from '@/containers/Items/EditItemPage.tsx';
+import MyLoansPage from '@/containers/Loans/MyLoansPage.tsx';
 
 export default function App() {
     return (
@@ -36,6 +41,11 @@ export default function App() {
                 <Route path={'/neighborhood/details/:neighborhoodId'} element={<NeighborhoodDetails />} />
                 <Route path={'/neighborhood-manage'} element={<ManageNeighborhood />} />
                 <Route path={'/user/:userId'} element={<ProfilPage />} />
+                <Route path={'/items'} element={<ItemsPage />} />
+                <Route path={'/items/new'} element={<AddItemPage />} />
+                <Route path={'/items/:itemId'} element={<ItemDetailsPage />} />
+                <Route path={'/items/:itemId/edit'} element={<EditItemPage />} />
+                <Route path={'/my-loans'} element={<MyLoansPage />} />
             </Routes>
         </Router>
     );

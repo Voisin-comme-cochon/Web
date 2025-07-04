@@ -6,6 +6,8 @@ import { LoanRequestStatus } from '../../../core/entities/loan-request.entity';
 import { CochonError } from '../../../utils/CochonError';
 import { UsersRepository } from '../../users/domain/users.abstract.repository';
 import { NeighborhoodUserRepository } from '../../neighborhoods/domain/neighborhood-user.abstract.repository';
+import { ObjectStorageService } from '../../objectStorage/services/objectStorage.service';
+import { BucketType } from '../../objectStorage/domain/bucket-type.enum';
 import { isNull } from '../../../utils/tools';
 
 export class LoanRequestsService {
@@ -14,7 +16,8 @@ export class LoanRequestsService {
         private readonly loansRepository: LoansRepository,
         private readonly itemsRepository: ItemsRepository,
         private readonly usersRepository: UsersRepository,
-        private readonly neighborhoodUserRepository: NeighborhoodUserRepository
+        private readonly neighborhoodUserRepository: NeighborhoodUserRepository,
+        private readonly objectStorageService: ObjectStorageService
     ) {}
 
     async getLoanRequestById(id: number, userId: number): Promise<LoanRequest> {
@@ -31,7 +34,8 @@ export class LoanRequestsService {
             });
         }
 
-        return loanRequest;
+        const processedLoanRequests = await this.processImageUrls([loanRequest]);
+        return processedLoanRequests[0];
     }
 
     async getLoanRequestsByBorrower(borrowerId: number, requestingUserId: number): Promise<LoanRequest[]> {
@@ -41,7 +45,8 @@ export class LoanRequestsService {
                 borrowerId,
             });
         }
-        return this.loanRequestsRepository.getLoanRequestsByBorrower(borrowerId);
+        const loanRequests = await this.loanRequestsRepository.getLoanRequestsByBorrower(borrowerId);
+        return this.processImageUrls(loanRequests);
     }
 
     async getLoanRequestsByOwner(ownerId: number, requestingUserId: number): Promise<LoanRequest[]> {
@@ -51,7 +56,8 @@ export class LoanRequestsService {
                 ownerId,
             });
         }
-        return this.loanRequestsRepository.getLoanRequestsByOwner(ownerId);
+        const loanRequests = await this.loanRequestsRepository.getLoanRequestsByOwner(ownerId);
+        return this.processImageUrls(loanRequests);
     }
 
     async createLoanRequest(
@@ -197,5 +203,25 @@ export class LoanRequestsService {
                 neighborhoodId,
             });
         }
+    }
+
+    private async processImageUrls(loanRequests: LoanRequest[]): Promise<LoanRequest[]> {
+        return Promise.all(
+            loanRequests.map(async (loanRequest) => ({
+                ...loanRequest,
+                item: loanRequest.item ? {
+                    ...loanRequest.item,
+                    image_url: loanRequest.item.image_url
+                        ? await this.objectStorageService.getFileLink(loanRequest.item.image_url, BucketType.ITEM_IMAGES)
+                        : undefined,
+                } : undefined,
+                borrower: loanRequest.borrower ? {
+                    ...loanRequest.borrower,
+                    profileImageUrl: loanRequest.borrower.profileImageUrl
+                        ? await this.objectStorageService.getFileLink(loanRequest.borrower.profileImageUrl, BucketType.PROFILE_IMAGES)
+                        : undefined,
+                } : undefined,
+            }))
+        );
     }
 }
