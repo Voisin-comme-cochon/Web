@@ -1,23 +1,28 @@
 import { LoanRequestsRepository } from '../domain/loan-requests.abstract.repository';
 import { LoansRepository } from '../domain/loans.abstract.repository';
 import { ItemsRepository } from '../domain/items.abstract.repository';
+import { ItemAvailabilitySlotsRepository } from '../domain/item-availability-slots.abstract.repository';
 import { LoanRequest, CreateLoanRequestRequest } from '../domain/loan-request.model';
 import { LoanRequestStatus } from '../../../core/entities/loan-request.entity';
+import { ItemAvailabilitySlotStatus } from '../../../core/entities/item-availability-slot.entity';
 import { CochonError } from '../../../utils/CochonError';
 import { UsersRepository } from '../../users/domain/users.abstract.repository';
 import { NeighborhoodUserRepository } from '../../neighborhoods/domain/neighborhood-user.abstract.repository';
 import { ObjectStorageService } from '../../objectStorage/services/objectStorage.service';
 import { BucketType } from '../../objectStorage/domain/bucket-type.enum';
 import { isNull } from '../../../utils/tools';
+import { LoansService } from './loans.service';
 
 export class LoanRequestsService {
     constructor(
         private readonly loanRequestsRepository: LoanRequestsRepository,
         private readonly loansRepository: LoansRepository,
         private readonly itemsRepository: ItemsRepository,
+        private readonly itemAvailabilitySlotsRepository: ItemAvailabilitySlotsRepository,
         private readonly usersRepository: UsersRepository,
         private readonly neighborhoodUserRepository: NeighborhoodUserRepository,
-        private readonly objectStorageService: ObjectStorageService
+        private readonly objectStorageService: ObjectStorageService,
+        private readonly loansService: LoansService
     ) {}
 
     async getLoanRequestById(id: number, userId: number): Promise<LoanRequest> {
@@ -129,7 +134,7 @@ export class LoanRequestsService {
             throw new CochonError('request_not_pending', 'Loan request is no longer pending', 400);
         }
 
-        const item = await this.itemsRepository.getItemById(loanRequest.item_id);
+        let item = await this.itemsRepository.getItemById(loanRequest.item_id);
         if (isNull(item) || item.owner_id !== ownerId) {
             throw new CochonError('forbidden_accept', 'You can only accept requests for your own items', 403);
         }
@@ -148,9 +153,27 @@ export class LoanRequestsService {
             );
         }
 
+        item = await this.itemsRepository.getItemById(loanRequest.item_id);
+        const coveringAvailability = item?.availabilities?.find(
+            (availability) =>
+                availability.start_date <= loanRequest.start_date && availability.end_date >= loanRequest.end_date
+        );
+
+        if (!coveringAvailability) {
+            throw new CochonError('no_covering_availability', 'No availability period covers the requested dates', 400);
+        }
+
+        await this.itemAvailabilitySlotsRepository.createSlot({
+            availability_id: coveringAvailability.id,
+            start_date: loanRequest.start_date,
+            end_date: loanRequest.end_date,
+            status: ItemAvailabilitySlotStatus.RESERVED,
+            loan_request_id: id,
+        });
+
         await this.loanRequestsRepository.updateLoanRequestStatus(id, LoanRequestStatus.ACCEPTED);
 
-        await this.loansRepository.createLoan({
+        await this.loansService.createLoan({
             loan_request_id: id,
             item_id: loanRequest.item_id,
             borrower_id: loanRequest.borrower_id,
@@ -174,6 +197,11 @@ export class LoanRequestsService {
             throw new CochonError('forbidden_reject', 'You can only reject requests for your own items', 403);
         }
 
+        const slots = await this.itemAvailabilitySlotsRepository.getSlotsByLoanRequestId(id);
+        for (const slot of slots) {
+            await this.itemAvailabilitySlotsRepository.deleteSlot(slot.id);
+        }
+
         await this.loanRequestsRepository.updateLoanRequestStatus(id, LoanRequestStatus.REJECTED);
     }
 
@@ -189,6 +217,11 @@ export class LoanRequestsService {
 
         if (loanRequest.status !== LoanRequestStatus.PENDING) {
             throw new CochonError('cannot_cancel_non_pending', 'You can only cancel pending requests', 400);
+        }
+
+        const slots = await this.itemAvailabilitySlotsRepository.getSlotsByLoanRequestId(id);
+        for (const slot of slots) {
+            await this.itemAvailabilitySlotsRepository.deleteSlot(slot.id);
         }
 
         await this.loanRequestsRepository.updateLoanRequestStatus(id, LoanRequestStatus.CANCELLED);
@@ -209,18 +242,28 @@ export class LoanRequestsService {
         return Promise.all(
             loanRequests.map(async (loanRequest) => ({
                 ...loanRequest,
-                item: loanRequest.item ? {
-                    ...loanRequest.item,
-                    image_url: loanRequest.item.image_url
-                        ? await this.objectStorageService.getFileLink(loanRequest.item.image_url, BucketType.ITEM_IMAGES)
-                        : undefined,
-                } : undefined,
-                borrower: loanRequest.borrower ? {
-                    ...loanRequest.borrower,
-                    profileImageUrl: loanRequest.borrower.profileImageUrl
-                        ? await this.objectStorageService.getFileLink(loanRequest.borrower.profileImageUrl, BucketType.PROFILE_IMAGES)
-                        : undefined,
-                } : undefined,
+                item: loanRequest.item
+                    ? {
+                          ...loanRequest.item,
+                          image_url: loanRequest.item.image_url
+                              ? await this.objectStorageService.getFileLink(
+                                    loanRequest.item.image_url,
+                                    BucketType.ITEM_IMAGES
+                                )
+                              : undefined,
+                      }
+                    : undefined,
+                borrower: loanRequest.borrower
+                    ? {
+                          ...loanRequest.borrower,
+                          profileImageUrl: loanRequest.borrower.profileImageUrl
+                              ? await this.objectStorageService.getFileLink(
+                                    loanRequest.borrower.profileImageUrl,
+                                    BucketType.PROFILE_IMAGES
+                                )
+                              : undefined,
+                      }
+                    : undefined,
             }))
         );
     }

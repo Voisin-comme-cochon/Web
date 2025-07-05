@@ -1,6 +1,7 @@
 import { DataSource } from 'typeorm';
 import { ItemEntity } from '../../../core/entities/item.entity';
 import { ItemAvailabilityEntity } from '../../../core/entities/item-availability.entity';
+import { ItemAvailabilitySlotEntity } from '../../../core/entities/item-availability-slot.entity';
 import { ItemsRepository } from '../domain/items.abstract.repository';
 import {
     Item,
@@ -26,6 +27,7 @@ export class ItemsRepositoryImplementation implements ItemsRepository {
             .leftJoinAndSelect('item.owner', 'owner')
             .leftJoinAndSelect('item.neighborhood', 'neighborhood')
             .leftJoinAndSelect('item.availabilities', 'availabilities')
+            .leftJoinAndSelect('availabilities.slots', 'slots')
             .where('item.neighborhood_id = :neighborhoodId', { neighborhoodId })
             .orderBy('item.created_at', 'DESC')
             .take(limit)
@@ -56,7 +58,7 @@ export class ItemsRepositoryImplementation implements ItemsRepository {
     async getItemById(id: number): Promise<Item | null> {
         const item = await this.dataSource.getRepository(ItemEntity).findOne({
             where: { id },
-            relations: ['owner', 'neighborhood', 'availabilities'],
+            relations: ['owner', 'neighborhood', 'availabilities', 'availabilities.slots'],
         });
 
         if (!item) {
@@ -86,6 +88,7 @@ export class ItemsRepositoryImplementation implements ItemsRepository {
     async getItemAvailabilities(itemId: number): Promise<ItemAvailability[]> {
         const availabilities = await this.dataSource.getRepository(ItemAvailabilityEntity).find({
             where: { item_id: itemId },
+            relations: ['slots'],
             order: { start_date: 'ASC' },
         });
 
@@ -95,6 +98,7 @@ export class ItemsRepositoryImplementation implements ItemsRepository {
     async getAvailabilityById(id: number): Promise<ItemAvailability | null> {
         const availability = await this.dataSource.getRepository(ItemAvailabilityEntity).findOne({
             where: { id },
+            relations: ['slots'],
         });
 
         if (!availability) {
@@ -118,15 +122,34 @@ export class ItemsRepositoryImplementation implements ItemsRepository {
     }
 
     async checkItemAvailability(itemId: number, startDate: Date, endDate: Date): Promise<boolean> {
+        // First, check if there's an availability period that covers the requested dates
         const availability = await this.dataSource
             .getRepository(ItemAvailabilityEntity)
             .createQueryBuilder('availability')
             .where('availability.item_id = :itemId', { itemId })
-            .andWhere('availability.status = :status', { status: 'available' })
+            .andWhere('availability.status != :unavailableStatus', { unavailableStatus: 'unavailable' })
             .andWhere('availability.start_date <= :startDate', { startDate })
             .andWhere('availability.end_date >= :endDate', { endDate })
             .getOne();
 
-        return !!availability;
+        if (!availability) {
+            return false;
+        }
+
+        // Then, check if there are any conflicting slots within that availability period
+        const conflictingSlot = await this.dataSource
+            .getRepository(ItemAvailabilitySlotEntity)
+            .createQueryBuilder('slot')
+            .where('slot.availability_id = :availabilityId', { availabilityId: availability.id })
+            .andWhere('slot.status IN (:...conflictingStatuses)', { 
+                conflictingStatuses: ['reserved', 'occupied'] 
+            })
+            .andWhere('(slot.start_date < :endDate AND slot.end_date > :startDate)', {
+                startDate,
+                endDate,
+            })
+            .getOne();
+
+        return !conflictingSlot;
     }
 }

@@ -1,5 +1,5 @@
 import { ItemEntity } from '../../../core/entities/item.entity';
-import { ItemAvailabilityEntity, ItemAvailabilityStatus } from '../../../core/entities/item-availability.entity';
+import { ItemAvailabilityEntity } from '../../../core/entities/item-availability.entity';
 import { Item, ItemAvailability, CreateItemRequest, CreateItemAvailabilityRequest, ItemFilters } from './item.model';
 
 export abstract class ItemsRepository {

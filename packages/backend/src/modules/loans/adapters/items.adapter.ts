@@ -1,6 +1,7 @@
 import { ItemEntity } from '../../../core/entities/item.entity';
 import { ItemAvailabilityEntity } from '../../../core/entities/item-availability.entity';
 import { Item, ItemAvailability } from '../domain/item.model';
+import { ItemAvailabilitySlotsAdapter } from './item-availability-slots.adapter';
 
 export class ItemsAdapter {
     public static entityToDomain(item: ItemEntity): Item {
@@ -29,6 +30,7 @@ export class ItemsAdapter {
             end_date: availability.end_date,
             status: availability.status,
             created_at: availability.created_at,
+            slots: availability.slots?.map((slot) => ItemAvailabilitySlotsAdapter.entityToDomain(slot)),
         };
     }
 

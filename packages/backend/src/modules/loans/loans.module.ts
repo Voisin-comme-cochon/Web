@@ -12,10 +12,12 @@ import { ObjectStorageService } from '../objectStorage/services/objectStorage.se
 import { ItemsRepository } from './domain/items.abstract.repository';
 import { LoanRequestsRepository } from './domain/loan-requests.abstract.repository';
 import { LoansRepository } from './domain/loans.abstract.repository';
+import { ItemAvailabilitySlotsRepository } from './domain/item-availability-slots.abstract.repository';
 
 import { ItemsRepositoryImplementation } from './repository/items.repository.implementation';
 import { LoanRequestsRepositoryImplementation } from './repository/loan-requests.repository.implementation';
 import { LoansRepositoryImplementation } from './repository/loans.repository.implementation';
+import { ItemAvailabilitySlotsRepositoryImplementation } from './repository/item-availability-slots.repository.implementation';
 
 import { ItemsService } from './services/items.service';
 import { LoanRequestsService } from './services/loan-requests.service';
@@ -31,6 +33,7 @@ import { LoansController } from './controllers/loans.controller';
         ItemsRepository,
         LoanRequestsRepository,
         LoansRepository,
+        ItemAvailabilitySlotsRepository,
         ItemsService,
         LoanRequestsService,
         LoansService,
@@ -50,6 +53,11 @@ import { LoansController } from './controllers/loans.controller';
             provide: LoansRepository,
             inject: [DataSource],
             useFactory: (dataSource: DataSource) => new LoansRepositoryImplementation(dataSource),
+        },
+        {
+            provide: ItemAvailabilitySlotsRepository,
+            inject: [DataSource],
+            useFactory: (dataSource: DataSource) => new ItemAvailabilitySlotsRepositoryImplementation(dataSource),
         },
         {
             provide: ItemsService,
@@ -73,32 +81,38 @@ import { LoansController } from './controllers/loans.controller';
                 LoanRequestsRepository,
                 LoansRepository,
                 ItemsRepository,
+                ItemAvailabilitySlotsRepository,
                 UsersRepository,
                 NeighborhoodUserRepository,
                 ObjectStorageService,
+                LoansService,
             ],
             useFactory: (
                 loanRequestsRepository: LoanRequestsRepository,
                 loansRepository: LoansRepository,
                 itemsRepository: ItemsRepository,
+                itemAvailabilitySlotsRepository: ItemAvailabilitySlotsRepository,
                 usersRepository: UsersRepository,
                 neighborhoodUserRepository: NeighborhoodUserRepository,
-                objectStorageService: ObjectStorageService
+                objectStorageService: ObjectStorageService,
+                loansService: LoansService
             ) =>
                 new LoanRequestsService(
                     loanRequestsRepository,
                     loansRepository,
                     itemsRepository,
+                    itemAvailabilitySlotsRepository,
                     usersRepository,
                     neighborhoodUserRepository,
-                    objectStorageService
+                    objectStorageService,
+                    loansService
                 ),
         },
         {
             provide: LoansService,
-            inject: [LoansRepository, ItemsRepository, ObjectStorageService],
-            useFactory: (loansRepository: LoansRepository, itemsRepository: ItemsRepository, objectStorageService: ObjectStorageService) =>
-                new LoansService(loansRepository, itemsRepository, objectStorageService),
+            inject: [LoansRepository, ItemsRepository, ItemAvailabilitySlotsRepository, ObjectStorageService],
+            useFactory: (loansRepository: LoansRepository, itemsRepository: ItemsRepository, itemAvailabilitySlotsRepository: ItemAvailabilitySlotsRepository, objectStorageService: ObjectStorageService) =>
+                new LoansService(loansRepository, itemsRepository, itemAvailabilitySlotsRepository, objectStorageService),
         },
     ],
 })

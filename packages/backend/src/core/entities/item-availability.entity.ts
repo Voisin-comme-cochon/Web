@@ -1,5 +1,6 @@
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { ItemEntity } from './item.entity';
+import { ItemAvailabilitySlotEntity } from './item-availability-slot.entity';
 
 export enum ItemAvailabilityStatus {
     AVAILABLE = 'available',
@@ -35,4 +36,7 @@ export class ItemAvailabilityEntity {
     @ManyToOne(() => ItemEntity, (item) => item.availabilities, { onDelete: 'CASCADE' })
     @JoinColumn({ name: 'item_id' })
     item!: ItemEntity;
+
+    @OneToMany(() => ItemAvailabilitySlotEntity, (slot) => slot.availability)
+    slots!: ItemAvailabilitySlotEntity[];
 }

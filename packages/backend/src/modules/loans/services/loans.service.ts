@@ -1,7 +1,9 @@
 import { LoansRepository } from '../domain/loans.abstract.repository';
 import { ItemsRepository } from '../domain/items.abstract.repository';
-import { Loan } from '../domain/loan.model';
+import { ItemAvailabilitySlotsRepository } from '../domain/item-availability-slots.abstract.repository';
+import { Loan, CreateLoanRequest } from '../domain/loan.model';
 import { LoanStatus } from '../../../core/entities/loan.entity';
+import { ItemAvailabilitySlotStatus } from '../../../core/entities/item-availability-slot.entity';
 import { CochonError } from '../../../utils/CochonError';
 import { ObjectStorageService } from '../../objectStorage/services/objectStorage.service';
 import { BucketType } from '../../objectStorage/domain/bucket-type.enum';
@@ -11,6 +13,7 @@ export class LoansService {
     constructor(
         private readonly loansRepository: LoansRepository,
         private readonly itemsRepository: ItemsRepository,
+        private readonly itemAvailabilitySlotsRepository: ItemAvailabilitySlotsRepository,
         private readonly objectStorageService: ObjectStorageService
     ) {}
 
@@ -53,6 +56,19 @@ export class LoansService {
         return this.processImageUrls(loans);
     }
 
+    async createLoan(loanData: CreateLoanRequest): Promise<void> {
+        await this.loansRepository.createLoan(loanData);
+
+        const slots = await this.itemAvailabilitySlotsRepository.getSlotsByLoanRequestId(loanData.loan_request_id);
+        for (const slot of slots) {
+            if (slot.status === ItemAvailabilitySlotStatus.RESERVED) {
+                await this.itemAvailabilitySlotsRepository.updateSlot(slot.id, {
+                    status: ItemAvailabilitySlotStatus.OCCUPIED,
+                });
+            }
+        }
+    }
+
     async returnLoan(id: number, userId: number, returnDate?: Date): Promise<void> {
         const loan = await this.loansRepository.getLoanById(id);
         if (isNull(loan)) {
@@ -71,6 +87,14 @@ export class LoansService {
         const canReturn = loan.borrower_id === userId || item.owner_id === userId;
         if (!canReturn) {
             throw new CochonError('forbidden_return', 'You can only return loans for items you borrowed or own', 403);
+        }
+
+        // Free the occupied slots for this loan
+        const slots = await this.itemAvailabilitySlotsRepository.getSlotsByLoanRequestId(loan.loan_request_id);
+        for (const slot of slots) {
+            if (slot.status === ItemAvailabilitySlotStatus.OCCUPIED) {
+                await this.itemAvailabilitySlotsRepository.deleteSlot(slot.id);
+            }
         }
 
         await this.loansRepository.returnLoan(id, returnDate);
@@ -98,24 +122,36 @@ export class LoansService {
         return Promise.all(
             loans.map(async (loan) => ({
                 ...loan,
-                item: loan.item ? {
-                    ...loan.item,
-                    image_url: loan.item.image_url
-                        ? await this.objectStorageService.getFileLink(loan.item.image_url, BucketType.ITEM_IMAGES)
-                        : undefined,
-                } : undefined,
-                borrower: loan.borrower ? {
-                    ...loan.borrower,
-                    profileImageUrl: loan.borrower.profileImageUrl
-                        ? await this.objectStorageService.getFileLink(loan.borrower.profileImageUrl, BucketType.PROFILE_IMAGES)
-                        : undefined,
-                } : undefined,
-                owner: loan.owner ? {
-                    ...loan.owner,
-                    profileImageUrl: loan.owner.profileImageUrl
-                        ? await this.objectStorageService.getFileLink(loan.owner.profileImageUrl, BucketType.PROFILE_IMAGES)
-                        : undefined,
-                } : undefined,
+                item: loan.item
+                    ? {
+                          ...loan.item,
+                          image_url: loan.item.image_url
+                              ? await this.objectStorageService.getFileLink(loan.item.image_url, BucketType.ITEM_IMAGES)
+                              : undefined,
+                      }
+                    : undefined,
+                borrower: loan.borrower
+                    ? {
+                          ...loan.borrower,
+                          profileImageUrl: loan.borrower.profileImageUrl
+                              ? await this.objectStorageService.getFileLink(
+                                    loan.borrower.profileImageUrl,
+                                    BucketType.PROFILE_IMAGES
+                                )
+                              : undefined,
+                      }
+                    : undefined,
+                owner: loan.owner
+                    ? {
+                          ...loan.owner,
+                          profileImageUrl: loan.owner.profileImageUrl
+                              ? await this.objectStorageService.getFileLink(
+                                    loan.owner.profileImageUrl,
+                                    BucketType.PROFILE_IMAGES
+                                )
+                              : undefined,
+                      }
+                    : undefined,
             }))
         );
     }

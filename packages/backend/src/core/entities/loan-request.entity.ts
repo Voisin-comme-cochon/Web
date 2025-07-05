@@ -2,6 +2,7 @@ import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColum
 import { ItemEntity } from './item.entity';
 import { UserEntity } from './user.entity';
 import { LoanEntity } from './loan.entity';
+import { ItemAvailabilitySlotEntity } from './item-availability-slot.entity';
 
 export enum LoanRequestStatus {
     PENDING = 'pending',
@@ -51,4 +52,7 @@ export class LoanRequestEntity {
 
     @OneToMany(() => LoanEntity, (loan) => loan.loan_request, { cascade: true })
     loans?: LoanEntity[];
+
+    @OneToMany(() => ItemAvailabilitySlotEntity, (slot) => slot.loan_request)
+    slots?: ItemAvailabilitySlotEntity[];
 }

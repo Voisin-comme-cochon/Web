@@ -1,4 +1,5 @@
 import { ItemAvailabilityStatus } from '../../../core/entities/item-availability.entity';
+import { ItemAvailabilitySlot } from './item-availability-slot.model';
 
 export interface Item {
     id: number;
@@ -19,6 +20,7 @@ export interface ItemAvailability {
     end_date: Date;
     status: ItemAvailabilityStatus;
     created_at: Date;
+    slots?: ItemAvailabilitySlot[];
 }
 
 export interface CreateItemRequest {

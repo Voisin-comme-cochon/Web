@@ -12,6 +12,7 @@ export class LoanRequestsAdapter {
             status: loanRequest.status,
             message: loanRequest.message,
             created_at: loanRequest.created_at,
+            // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
             item: loanRequest.item ? {
                 id: loanRequest.item.id,
                 name: loanRequest.item.name,
@@ -20,6 +21,7 @@ export class LoanRequestsAdapter {
                 owner_id: loanRequest.item.owner_id,
                 category: loanRequest.item.category
             } : undefined,
+            // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
             borrower: loanRequest.borrower ? {
                 id: loanRequest.borrower.id,
                 firstName: loanRequest.borrower.firstName,
