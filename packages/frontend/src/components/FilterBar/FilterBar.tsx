@@ -31,8 +31,8 @@ const CATEGORIES = [
 
 const STATUS_OPTIONS = [
     { value: ItemAvailabilityStatus.AVAILABLE, label: 'Disponible' },
-    { value: ItemAvailabilityStatus.OCCUPIED, label: 'Occupé' },
-    { value: ItemAvailabilityStatus.PARTIALLY_AVAILABLE, label: 'Partiellement disponible' }
+    { value: ItemAvailabilityStatus.UNAVAILABLE, label: 'Non disponible' },
+    { value: ItemAvailabilityStatus.PARTIALLY_BOOKED, label: 'Partiellement réservé' }
 ];
 
 const FilterBar = React.memo(function FilterBar({

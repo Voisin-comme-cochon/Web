@@ -44,7 +44,10 @@ export class ItemsRepositoryImplementation implements ItemsRepository {
         }
 
         if (filters?.status) {
-            queryBuilder.andWhere('availabilities.status = :status', { status: filters.status });
+            queryBuilder.andWhere(
+                'EXISTS (SELECT 1 FROM item_availabilities ia WHERE ia.item_id = item.id AND ia.status = :status)',
+                { status: filters.status }
+            );
         }
 
         return queryBuilder.getManyAndCount();
