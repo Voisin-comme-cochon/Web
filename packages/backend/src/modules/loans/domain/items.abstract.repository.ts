@@ -1,12 +1,13 @@
 import { ItemEntity } from '../../../core/entities/item.entity';
-import { ItemAvailabilityEntity } from '../../../core/entities/item-availability.entity';
-import { Item, ItemAvailability, CreateItemRequest, CreateItemAvailabilityRequest } from './item.model';
+import { ItemAvailabilityEntity, ItemAvailabilityStatus } from '../../../core/entities/item-availability.entity';
+import { Item, ItemAvailability, CreateItemRequest, CreateItemAvailabilityRequest, ItemFilters } from './item.model';
 
 export abstract class ItemsRepository {
     abstract getItemsByNeighborhood(
         neighborhoodId: number,
         limit: number,
-        offset: number
+        offset: number,
+        filters?: ItemFilters
     ): Promise<[ItemEntity[], number]>;
 
     abstract getItemById(id: number): Promise<Item | null>;

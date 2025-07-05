@@ -34,3 +34,9 @@ export interface CreateItemAvailabilityRequest {
     start_date: Date;
     end_date: Date;
 }
+
+export interface ItemFilters {
+    search?: string;
+    category?: string;
+    status?: ItemAvailabilityStatus;
+}

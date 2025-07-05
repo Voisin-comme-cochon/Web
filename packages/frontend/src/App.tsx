@@ -19,7 +19,6 @@ import ItemsPage from '@/containers/Items/ItemsPage.tsx';
 import ItemDetailsPage from '@/containers/Items/ItemDetailsPage.tsx';
 import AddItemPage from '@/containers/Items/AddItemPage.tsx';
 import EditItemPage from '@/containers/Items/EditItemPage.tsx';
-import MyLoansPage from '@/containers/Loans/MyLoansPage.tsx';
 
 export default function App() {
     return (
@@ -45,7 +44,6 @@ export default function App() {
                 <Route path={'/items/new'} element={<AddItemPage />} />
                 <Route path={'/items/:itemId'} element={<ItemDetailsPage />} />
                 <Route path={'/items/:itemId/edit'} element={<EditItemPage />} />
-                <Route path={'/my-loans'} element={<MyLoansPage />} />
             </Routes>
         </Router>
     );

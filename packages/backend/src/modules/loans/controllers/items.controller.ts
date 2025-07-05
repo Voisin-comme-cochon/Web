@@ -62,7 +62,12 @@ export class ItemsController {
             query.neighborhoodId,
             userId,
             pagination.page,
-            pagination.limit
+            pagination.limit,
+            {
+                search: query.search,
+                category: query.category,
+                status: query.status
+            }
         );
         return new Paginated(items as ResponseItemDto[], pagination, count);
     }

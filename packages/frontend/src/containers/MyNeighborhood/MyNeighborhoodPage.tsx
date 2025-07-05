@@ -17,7 +17,7 @@ import { Button } from '@/components/ui/button';
 
 function MyNeighborhoodPage({ user, uc }: { user: UserModel | null; uc: HomeUc }) {
     const [events, setEvents] = useState<EventModel[]>([]);
-    const { goNeighborhoodEvents, goMyLoans, goItems, goAddItem } = useAppNavigation();
+    const { goNeighborhoodEvents, goItems, goAddItem } = useAppNavigation();
     const neighborhoodId = localStorage.getItem('neighborhoodId');
     
     // Hooks pour les prêts et emprunts
@@ -70,23 +70,6 @@ function MyNeighborhoodPage({ user, uc }: { user: UserModel | null; uc: HomeUc }
                 </div>
             </div>
             <div className={'px-32 relative -mt-24'}>
-                {/* Actions rapides */}
-                <div className="mb-8">
-                    <div className="flex gap-4 mb-6">
-                        <Button onClick={goItems} variant="outline" className="flex-1">
-                            <span className="material-symbols-outlined text-sm mr-2">inventory_2</span>
-                            Voir les objets
-                        </Button>
-                        <Button onClick={goAddItem} className="flex-1">
-                            <span className="material-symbols-outlined text-sm mr-2">add</span>
-                            Partager un objet
-                        </Button>
-                        <Button onClick={goMyLoans} variant="outline" className="flex-1">
-                            <span className="material-symbols-outlined text-sm mr-2">handshake</span>
-                            Mes emprunts
-                        </Button>
-                    </div>
-                </div>
                 
                 <div className={'flex items-center gap-2 cursor-pointer'} onClick={goNeighborhoodEvents}>
                     <p>Prochains évènements</p>
@@ -102,14 +85,14 @@ function MyNeighborhoodPage({ user, uc }: { user: UserModel | null; uc: HomeUc }
                 
                 {/* Section Mes emprunts */}
                 <div className="mt-12">
-                    <div className={'flex items-center gap-2 cursor-pointer'} onClick={goMyLoans}>
+                    <div className={'flex items-center gap-2 cursor-pointer'} onClick={goItems}>
                         <p>Mes prêts et emprunts</p>
                         <span className="material-symbols-outlined text-base">chevron_right</span>
                     </div>
                     
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
                         {/* Demandes reçues */}
-                        <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={goMyLoans}>
+                        <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={goItems}>
                             <CardHeader className="pb-3">
                                 <div className="flex items-center gap-2">
                                     <span className="material-symbols-outlined text-green-600">inbox</span>
@@ -135,7 +118,7 @@ function MyNeighborhoodPage({ user, uc }: { user: UserModel | null; uc: HomeUc }
                         </Card>
 
                         {/* Mes emprunts en cours */}
-                        <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={goMyLoans}>
+                        <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={goItems}>
                             <CardHeader className="pb-3">
                                 <div className="flex items-center gap-2">
                                     <span className="material-symbols-outlined text-blue-600">inventory_2</span>
@@ -161,7 +144,7 @@ function MyNeighborhoodPage({ user, uc }: { user: UserModel | null; uc: HomeUc }
                         </Card>
 
                         {/* Mes prêts en cours */}
-                        <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={goMyLoans}>
+                        <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={goItems}>
                             <CardHeader className="pb-3">
                                 <div className="flex items-center gap-2">
                                     <span className="material-symbols-outlined text-orange-600">handshake</span>
@@ -188,7 +171,7 @@ function MyNeighborhoodPage({ user, uc }: { user: UserModel | null; uc: HomeUc }
                     </div>
                     
                     <div className="mt-4 text-center">
-                        <Button variant="outline" onClick={goMyLoans} className="w-full sm:w-auto">
+                        <Button variant="outline" onClick={goItems} className="w-full sm:w-auto">
                             <span className="material-symbols-outlined text-sm mr-2">open_in_new</span>
                             Voir tous mes prêts et emprunts
                         </Button>

@@ -2,7 +2,13 @@ import { DataSource } from 'typeorm';
 import { ItemEntity } from '../../../core/entities/item.entity';
 import { ItemAvailabilityEntity } from '../../../core/entities/item-availability.entity';
 import { ItemsRepository } from '../domain/items.abstract.repository';
-import { Item, ItemAvailability, CreateItemRequest, CreateItemAvailabilityRequest } from '../domain/item.model';
+import {
+    Item,
+    ItemAvailability,
+    CreateItemRequest,
+    CreateItemAvailabilityRequest,
+    ItemFilters,
+} from '../domain/item.model';
 import { ItemsAdapter } from '../adapters/items.adapter';
 
 export class ItemsRepositoryImplementation implements ItemsRepository {
@@ -11,15 +17,37 @@ export class ItemsRepositoryImplementation implements ItemsRepository {
     async getItemsByNeighborhood(
         neighborhoodId: number,
         limit: number,
-        offset: number
+        offset: number,
+        filters?: ItemFilters
     ): Promise<[ItemEntity[], number]> {
-        return this.dataSource.getRepository(ItemEntity).findAndCount({
-            where: { neighborhood_id: neighborhoodId },
-            relations: ['owner', 'neighborhood', 'availabilities'],
-            take: limit,
-            skip: offset,
-            order: { created_at: 'DESC' },
-        });
+        const queryBuilder = this.dataSource
+            .getRepository(ItemEntity)
+            .createQueryBuilder('item')
+            .leftJoinAndSelect('item.owner', 'owner')
+            .leftJoinAndSelect('item.neighborhood', 'neighborhood')
+            .leftJoinAndSelect('item.availabilities', 'availabilities')
+            .where('item.neighborhood_id = :neighborhoodId', { neighborhoodId })
+            .orderBy('item.created_at', 'DESC')
+            .take(limit)
+            .skip(offset);
+
+        // Apply filters if provided
+        if (filters?.search) {
+            queryBuilder.andWhere(
+                '(LOWER(item.name) LIKE LOWER(:search) OR LOWER(item.description) LIKE LOWER(:search))',
+                { search: `%${filters.search}%` }
+            );
+        }
+
+        if (filters?.category) {
+            queryBuilder.andWhere('LOWER(item.category) = LOWER(:category)', { category: filters.category });
+        }
+
+        if (filters?.status) {
+            queryBuilder.andWhere('availabilities.status = :status', { status: filters.status });
+        }
+
+        return queryBuilder.getManyAndCount();
     }
 
     async getItemById(id: number): Promise<Item | null> {

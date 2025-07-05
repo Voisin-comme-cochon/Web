@@ -27,7 +27,6 @@ export const useAppNavigation = () => {
     const goItemDetails = (itemId: number) => navigate(`/items/${itemId}`);
     const goAddItem = () => navigate('/items/new');
     const goEditItem = (itemId: number) => navigate(`/items/${itemId}/edit`);
-    const goMyLoans = () => navigate('/my-loans');
 
     return {
         goLogin,
@@ -50,6 +49,5 @@ export const useAppNavigation = () => {
         goItemDetails,
         goAddItem,
         goEditItem,
-        goMyLoans,
     };
 };

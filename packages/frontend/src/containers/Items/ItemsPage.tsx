@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { UserModel } from '@/domain/models/user.model';
 import { HomeUc } from '@/domain/use-cases/homeUc';
-import { GetItemsFilters } from '@/domain/models/item.model';
+import { GetItemsFilters, ItemAvailabilityStatus } from '@/domain/models/item.model';
 import { useItems } from '@/presentation/hooks/useItems';
 import { useLoanRequests } from '@/presentation/hooks/useLoanRequests';
 import { useLoans } from '@/presentation/hooks/useLoans';
@@ -71,9 +71,26 @@ function ItemsPage({ user, neighborhoodId }: ItemsPageProps) {
 
     const { items, loading, error, pagination, fetchItems } = useItems();
 
+    // Debounce search
+    const [debouncedSearch, setDebouncedSearch] = useState(filters.search);
+    
     useEffect(() => {
-        fetchItems(filters);
-    }, [filters]);
+        const timer = setTimeout(() => {
+            setDebouncedSearch(filters.search);
+        }, 300);
+        
+        return () => clearTimeout(timer);
+    }, [filters.search]);
+    
+    // Fetch items when relevant filters change
+    useEffect(() => {
+        const finalFilters = {
+            ...filters,
+            search: debouncedSearch
+        };
+        fetchItems(finalFilters);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [filters.neighborhoodId, filters.category, filters.status, filters.page, filters.limit, debouncedSearch]);
 
     useEffect(() => {
         refetchRequests();
@@ -110,19 +127,19 @@ function ItemsPage({ user, neighborhoodId }: ItemsPageProps) {
         }
     };
 
-    const handleSearchChange = (search: string) => {
+    const handleSearchChange = useCallback((search: string) => {
         setFilters(prev => ({ ...prev, search, page: 1 }));
-    };
+    }, []);
 
-    const handleCategoryChange = (category: string) => {
+    const handleCategoryChange = useCallback((category: string) => {
         setFilters(prev => ({ ...prev, category: category === 'all' ? '' : category, page: 1 }));
-    };
+    }, []);
 
-    const handleStatusChange = (status: string) => {
-        setFilters(prev => ({ ...prev, status: status === 'all' ? undefined : status, page: 1 }));
-    };
+    const handleStatusChange = useCallback((status: string) => {
+        setFilters(prev => ({ ...prev, status: status === 'all' ? undefined : status as ItemAvailabilityStatus, page: 1 }));
+    }, []);
 
-    const handleClearFilters = () => {
+    const handleClearFilters = useCallback(() => {
         setFilters(prev => ({
             ...prev,
             search: '',
@@ -130,16 +147,33 @@ function ItemsPage({ user, neighborhoodId }: ItemsPageProps) {
             status: undefined,
             page: 1
         }));
-    };
+    }, []);
 
-    const handlePageChange = (page: number) => {
+    const handlePageChange = useCallback((page: number) => {
         setFilters(prev => ({ ...prev, page }));
-    };
+    }, []);
 
     const renderPagination = () => {
         if (pagination.totalPages <= 1) return null;
 
-        const pages = Array.from({ length: pagination.totalPages }, (_, i) => i + 1);
+        // Afficher seulement quelques pages autour de la page courante pour éviter trop de boutons
+        const getVisiblePages = () => {
+            const totalPages = pagination.totalPages;
+            const currentPage = pagination.page;
+            const maxVisiblePages = 5;
+            
+            if (totalPages <= maxVisiblePages) {
+                return Array.from({ length: totalPages }, (_, i) => i + 1);
+            }
+            
+            const start = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+            const end = Math.min(totalPages, start + maxVisiblePages - 1);
+            const adjustedStart = Math.max(1, end - maxVisiblePages + 1);
+            
+            return Array.from({ length: end - adjustedStart + 1 }, (_, i) => adjustedStart + i);
+        };
+
+        const visiblePages = getVisiblePages();
         
         return (
             <div className="flex items-center justify-center gap-2 mt-8">
@@ -152,7 +186,21 @@ function ItemsPage({ user, neighborhoodId }: ItemsPageProps) {
                     <span className="material-symbols-outlined text-sm">chevron_left</span>
                 </Button>
                 
-                {pages.map(page => (
+                {pagination.page > 3 && pagination.totalPages > 5 && (
+                    <>
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handlePageChange(1)}
+                            disabled={loading}
+                        >
+                            1
+                        </Button>
+                        {pagination.page > 4 && <span className="text-gray-400">...</span>}
+                    </>
+                )}
+                
+                {visiblePages.map(page => (
                     <Button
                         key={page}
                         variant={page === pagination.page ? "default" : "outline"}
@@ -163,6 +211,20 @@ function ItemsPage({ user, neighborhoodId }: ItemsPageProps) {
                         {page}
                     </Button>
                 ))}
+                
+                {pagination.page < pagination.totalPages - 2 && pagination.totalPages > 5 && (
+                    <>
+                        {pagination.page < pagination.totalPages - 3 && <span className="text-gray-400">...</span>}
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handlePageChange(pagination.totalPages)}
+                            disabled={loading}
+                        >
+                            {pagination.totalPages}
+                        </Button>
+                    </>
+                )}
                 
                 <Button
                     variant="outline"
@@ -257,16 +319,18 @@ function ItemsPage({ user, neighborhoodId }: ItemsPageProps) {
 
                     <TabsContent value="items" className="mt-6">
                         {/* Filters */}
-                        <FilterBar
-                            searchTerm={filters.search || ''}
-                            onSearchChange={handleSearchChange}
-                            selectedCategory={filters.category || 'all'}
-                            onCategoryChange={handleCategoryChange}
-                            selectedStatus={filters.status || 'all'}
-                            onStatusChange={handleStatusChange}
-                            onClearFilters={handleClearFilters}
-                            loading={loading}
-                        />
+                        <div key={`filter-${filters.neighborhoodId}`}>
+                            <FilterBar
+                                searchTerm={filters.search || ''}
+                                onSearchChange={handleSearchChange}
+                                selectedCategory={filters.category || 'all'}
+                                onCategoryChange={handleCategoryChange}
+                                selectedStatus={filters.status || 'all'}
+                                onStatusChange={handleStatusChange}
+                                onClearFilters={handleClearFilters}
+                                loading={loading}
+                            />
+                        </div>
 
                         {/* Stats */}
                         <div className="flex items-center gap-4 mt-6 mb-6">
@@ -326,13 +390,13 @@ function ItemsPage({ user, neighborhoodId }: ItemsPageProps) {
                                     Aucun objet trouvé
                                 </h3>
                                 <p className="text-gray-600 mb-6">
-                                    {filters.search || (filters.category && filters.category !== '') || (filters.status && filters.status !== undefined) ? 
+                                    {filters.search || (filters.category && filters.category !== '') || filters.status ? 
                                         'Aucun objet ne correspond à vos critères de recherche.' :
                                         'Soyez le premier à partager un objet dans votre quartier !'
                                     }
                                 </p>
                                 
-                                {filters.search || (filters.category && filters.category !== '') || (filters.status && filters.status !== undefined) ? (
+                                {filters.search || (filters.category && filters.category !== '') || filters.status ? (
                                     <Button variant="outline" onClick={handleClearFilters}>
                                         <span className="material-symbols-outlined text-sm mr-2">clear_all</span>
                                         Effacer les filtres

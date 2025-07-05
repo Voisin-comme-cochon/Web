@@ -1,5 +1,11 @@
 import { ItemsRepository } from '../domain/items.abstract.repository';
-import { Item, ItemAvailability, CreateItemRequest, CreateItemAvailabilityRequest } from '../domain/item.model';
+import {
+    Item,
+    ItemAvailability,
+    CreateItemRequest,
+    CreateItemAvailabilityRequest,
+    ItemFilters,
+} from '../domain/item.model';
 import { CochonError } from '../../../utils/CochonError';
 import { NeighborhoodRepository } from '../../neighborhoods/domain/neighborhood.abstract.repository';
 import { NeighborhoodUserRepository } from '../../neighborhoods/domain/neighborhood-user.abstract.repository';
@@ -19,7 +25,8 @@ export class ItemsService {
         neighborhoodId: number,
         userId: number,
         page: number,
-        limit: number
+        limit: number,
+        filters?: ItemFilters
     ): Promise<[Item[], number]> {
         const neighborhoodExists = await this.neighborhoodRepository.getNeighborhoodById(neighborhoodId);
         if (isNull(neighborhoodExists)) {
@@ -31,7 +38,12 @@ export class ItemsService {
         await this.validateUserInNeighborhood(userId, neighborhoodId);
 
         const offset = (page - 1) * limit;
-        const [items, count] = await this.itemsRepository.getItemsByNeighborhood(neighborhoodId, limit, offset);
+        const [items, count] = await this.itemsRepository.getItemsByNeighborhood(
+            neighborhoodId,
+            limit,
+            offset,
+            filters
+        );
         return [
             await Promise.all(
                 items.map(async (item) => ({

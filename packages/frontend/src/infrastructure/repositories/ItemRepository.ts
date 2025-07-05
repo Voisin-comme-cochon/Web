@@ -23,10 +23,10 @@ export class ItemRepository {
         const response = await ApiService.get(`/items?${params.toString()}`);
         return {
             data: response.data.data.map(this.mapItem),
-            total: response.data.total,
-            page: response.data.page,
-            limit: response.data.limit,
-            totalPages: response.data.totalPages
+            total: response.data.metadata?.totalCount || 0,
+            page: response.data.metadata?.page || 1,
+            limit: response.data.metadata?.limit || 10,
+            totalPages: response.data.metadata?.totalPages || 0
         };
     }
 

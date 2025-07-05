@@ -87,6 +87,26 @@ export class GetItemsQueryDto {
     @IsInt()
     @Type(() => Number)
     neighborhoodId!: number;
+
+    @ApiProperty({ example: 'perceuse', description: 'Search term for item name or description', required: false })
+    @IsString()
+    @IsOptional()
+    search?: string;
+
+    @ApiProperty({ example: 'Outils', description: 'Filter by category', required: false })
+    @IsString()
+    @IsOptional()
+    category?: string;
+
+    @ApiProperty({ 
+        example: 'available', 
+        description: 'Filter by availability status', 
+        enum: ItemAvailabilityStatus,
+        required: false 
+    })
+    @IsEnum(ItemAvailabilityStatus)
+    @IsOptional()
+    status?: ItemAvailabilityStatus;
 }
 
 export class GetItemByIdDto {

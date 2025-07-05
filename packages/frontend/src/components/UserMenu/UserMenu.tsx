@@ -19,7 +19,7 @@ import { Textarea } from '@/components/ui/textarea.tsx';
 import AvatarComponent from '@/components/AvatarComponent/AvatarComponent.tsx';
 
 export default function UserMenu({ user, uc }: { user: UserModel | null; uc: HomeUc }) {
-    const { goLanding, goUserProfile, goCreateNeighborhood, goMyLoans } = useAppNavigation();
+    const { goLanding, goUserProfile, goCreateNeighborhood, goItems } = useAppNavigation();
     const [duration, setDuration] = useState<number>(7);
     const [maxUses, setMaxUses] = useState<number>(1);
     const [inviteLink, setInviteLink] = useState<string>('');
@@ -83,9 +83,9 @@ export default function UserMenu({ user, uc }: { user: UserModel | null; uc: Hom
                         Profil
                     </DropdownMenuItem>
                     
-                    <DropdownMenuItem className="cursor-pointer" onClick={() => goMyLoans()}>
-                        <span className="material-symbols-outlined text-sm mr-2">handshake</span>
-                        Mes prêts
+                    <DropdownMenuItem className="cursor-pointer" onClick={() => goItems()}>
+                        <span className="material-symbols-outlined text-sm mr-2">inventory_2</span>
+                        Matériel
                     </DropdownMenuItem>
                     
                     <DropdownMenuItem className="cursor-pointer">

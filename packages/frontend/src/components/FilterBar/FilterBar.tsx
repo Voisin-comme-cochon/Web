@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -35,7 +35,7 @@ const STATUS_OPTIONS = [
     { value: ItemAvailabilityStatus.PARTIALLY_AVAILABLE, label: 'Partiellement disponible' }
 ];
 
-export default function FilterBar({
+const FilterBar = React.memo(function FilterBar({
     searchTerm,
     onSearchChange,
     selectedCategory,
@@ -45,7 +45,16 @@ export default function FilterBar({
     onClearFilters,
     loading = false
 }: FilterBarProps) {
+    const searchInputRef = useRef<HTMLInputElement>(null);
     const hasActiveFilters = searchTerm || (selectedCategory && selectedCategory !== 'all') || (selectedStatus && selectedStatus !== 'all');
+    
+    // Maintenir le focus sur l'input de recherche
+    useEffect(() => {
+        if (searchInputRef.current && document.activeElement === searchInputRef.current) {
+            // Ne rien faire si l'input a déjà le focus
+            return;
+        }
+    }, [searchTerm]);
 
     return (
         <div className="bg-white p-4 rounded-lg border shadow-sm space-y-4">
@@ -63,11 +72,12 @@ export default function FilterBar({
                         search
                     </span>
                     <Input
+                        ref={searchInputRef}
                         placeholder="Rechercher un objet..."
                         value={searchTerm}
                         onChange={(e) => onSearchChange(e.target.value)}
                         className="pl-10"
-                        disabled={loading}
+                        autoComplete="off"
                     />
                 </div>
 
@@ -149,4 +159,6 @@ export default function FilterBar({
             )}
         </div>
     );
-}
+});
+
+export default FilterBar;
