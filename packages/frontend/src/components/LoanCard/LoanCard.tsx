@@ -20,18 +20,18 @@ export default function LoanCard({
     currentUserId,
     onReturn,
     returnLoading = false,
-    showActions = true
+    showActions = true,
 }: LoanCardProps) {
-    const { 
-        getStatusLabel, 
-        getStatusColor, 
-        canReturnLoan, 
+    const {
+        getStatusLabel,
+        getStatusColor,
+        canReturnLoan,
         isLoanOverdue,
         getDaysUntilReturn,
         getDaysOverdue,
-        formatLoanDuration
+        formatLoanDuration,
     } = useLoanStatus();
-    
+
     const { canReturn } = canReturnLoan(loan, currentUserId);
     const isOverdue = isLoanOverdue(loan);
     const daysUntilReturn = getDaysUntilReturn(loan);
@@ -50,15 +50,18 @@ export default function LoanCard({
             return {
                 type: 'error',
                 message: `En retard de ${daysOverdue} jour${daysOverdue > 1 ? 's' : ''}`,
-                icon: 'warning'
+                icon: 'warning',
             };
         } else if (daysUntilReturn <= 2) {
             return {
                 type: 'warning',
-                message: daysUntilReturn === 0 ? 'À rendre aujourd\'hui' : 
-                        daysUntilReturn === 1 ? 'À rendre demain' : 
-                        `À rendre dans ${daysUntilReturn} jours`,
-                icon: 'schedule'
+                message:
+                    daysUntilReturn === 0
+                        ? "À rendre aujourd'hui"
+                        : daysUntilReturn === 1
+                          ? 'À rendre demain'
+                          : `À rendre dans ${daysUntilReturn} jours`,
+                icon: 'schedule',
             };
         }
 
@@ -72,16 +75,14 @@ export default function LoanCard({
             <CardHeader className="pb-3">
                 <div className="flex items-start justify-between">
                     <div className="flex-1">
-                        <h3 className="font-semibold text-lg">
-                            {loan.item?.name || 'Objet supprimé'}
-                        </h3>
+                        <h3 className="font-semibold text-lg">{loan.item?.name || 'Objet supprimé'}</h3>
                         {loan.item?.category && (
-                            <Badge variant="secondary" className="text-xs mt-1">
+                            <Badge hover={false} variant="secondary" className="text-xs mt-1">
                                 {loan.item.category}
                             </Badge>
                         )}
                     </div>
-                    <Badge className={`${getStatusColor(loan.status)} ml-2`}>
+                    <Badge hover={false} className={`${getStatusColor(loan.status)} ml-2`}>
                         {getStatusLabel(loan.status)}
                     </Badge>
                 </div>
@@ -91,11 +92,7 @@ export default function LoanCard({
                 {/* Item image */}
                 {loan.item?.image_url && (
                     <div className="w-full h-32 bg-gray-100 rounded-lg overflow-hidden">
-                        <img
-                            src={loan.item.image_url}
-                            alt={loan.item.name}
-                            className="w-full h-full object-cover"
-                        />
+                        <img src={loan.item.image_url} alt={loan.item.name} className="w-full h-full object-cover" />
                     </div>
                 )}
 
@@ -110,66 +107,52 @@ export default function LoanCard({
                             />
                         ) : (
                             <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
-                                <span className="material-symbols-outlined text-sm text-gray-600">
-                                    person
-                                </span>
+                                <span className="material-symbols-outlined text-sm text-gray-600">person</span>
                             </div>
                         )
+                    ) : loan.borrower?.profileImageUrl ? (
+                        <img
+                            src={loan.borrower.profileImageUrl}
+                            alt={`${loan.borrower.firstName} ${loan.borrower.lastName}`}
+                            className="w-8 h-8 rounded-full object-cover"
+                        />
                     ) : (
-                        loan.borrower?.profileImageUrl ? (
-                            <img
-                                src={loan.borrower.profileImageUrl}
-                                alt={`${loan.borrower.firstName} ${loan.borrower.lastName}`}
-                                className="w-8 h-8 rounded-full object-cover"
-                            />
-                        ) : (
-                            <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
-                                <span className="material-symbols-outlined text-sm text-gray-600">
-                                    person
-                                </span>
-                            </div>
-                        )
+                        <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
+                            <span className="material-symbols-outlined text-sm text-gray-600">person</span>
+                        </div>
                     )}
                     <div>
                         <p className="font-medium text-sm">
-                            {isBorrower ? (
-                                loan.owner ? `${loan.owner.firstName} ${loan.owner.lastName}` : 'Propriétaire inconnu'
-                            ) : (
-                                loan.borrower ? `${loan.borrower.firstName} ${loan.borrower.lastName}` : 'Emprunteur inconnu'
-                            )}
+                            {isBorrower
+                                ? loan.owner
+                                    ? `${loan.owner.firstName} ${loan.owner.lastName}`
+                                    : 'Propriétaire inconnu'
+                                : loan.borrower
+                                  ? `${loan.borrower.firstName} ${loan.borrower.lastName}`
+                                  : 'Emprunteur inconnu'}
                         </p>
-                        <p className="text-xs text-gray-600">
-                            {isBorrower ? 'Propriétaire' : 'Emprunteur'}
-                        </p>
+                        <p className="text-xs text-gray-600">{isBorrower ? 'Propriétaire' : 'Emprunteur'}</p>
                     </div>
                 </div>
 
                 {/* Urgency alert */}
                 {urgencyInfo && (
                     <Alert variant={urgencyInfo.type === 'error' ? 'destructive' : 'default'}>
-                        <span className="material-symbols-outlined text-sm">
-                            {urgencyInfo.icon}
-                        </span>
-                        <AlertDescription>
-                            {urgencyInfo.message}
-                        </AlertDescription>
+                        <span className="material-symbols-outlined text-sm">{urgencyInfo.icon}</span>
+                        <AlertDescription>{urgencyInfo.message}</AlertDescription>
                     </Alert>
                 )}
 
                 {/* Date range */}
                 <div className="space-y-2">
                     <div className="flex items-center gap-2 text-sm">
-                        <span className="material-symbols-outlined text-sm text-gray-600">
-                            calendar_today
-                        </span>
+                        <span className="material-symbols-outlined text-sm text-gray-600">calendar_today</span>
                         <span>
                             Du {formatDate(loan.start_date)} au {formatDate(loan.end_date)}
                         </span>
                     </div>
                     <div className="flex items-center gap-2 text-sm text-gray-600">
-                        <span className="material-symbols-outlined text-sm">
-                            schedule
-                        </span>
+                        <span className="material-symbols-outlined text-sm">schedule</span>
                         <span>Durée : {formatLoanDuration(loan)}</span>
                     </div>
                 </div>
@@ -177,12 +160,8 @@ export default function LoanCard({
                 {/* Return date */}
                 {loan.actual_return_date && (
                     <div className="flex items-center gap-2 text-sm text-green-700">
-                        <span className="material-symbols-outlined text-sm">
-                            check_circle
-                        </span>
-                        <span>
-                            Rendu le {formatDate(loan.actual_return_date)}
-                        </span>
+                        <span className="material-symbols-outlined text-sm">check_circle</span>
+                        <span>Rendu le {formatDate(loan.actual_return_date)}</span>
                     </div>
                 )}
 
@@ -194,24 +173,15 @@ export default function LoanCard({
                 {/* Actions */}
                 {showActions && canReturn && loan.status === LoanStatus.ACTIVE && onReturn && (
                     <div className="pt-2 border-t">
-                        <Button
-                            size="sm"
-                            onClick={() => onReturn(loan.id)}
-                            disabled={returnLoading}
-                            className="w-full"
-                        >
+                        <Button size="sm" onClick={() => onReturn(loan.id)} disabled={returnLoading} className="w-full">
                             {returnLoading ? (
                                 <>
-                                    <span className="material-symbols-outlined animate-spin text-sm mr-2">
-                                        refresh
-                                    </span>
+                                    <span className="material-symbols-outlined animate-spin text-sm mr-2">refresh</span>
                                     Marquage en cours...
                                 </>
                             ) : (
                                 <>
-                                    <span className="material-symbols-outlined text-sm mr-2">
-                                        assignment_return
-                                    </span>
+                                    <span className="material-symbols-outlined text-sm mr-2">assignment_return</span>
                                     Marquer comme rendu
                                 </>
                             )}

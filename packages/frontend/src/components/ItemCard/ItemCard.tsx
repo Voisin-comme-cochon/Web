@@ -19,17 +19,13 @@ export default function ItemCard({ item, currentUserId, onItemClick }: ItemCardP
         }
 
         const now = new Date();
-        const activeAvailabilities = item.availabilities.filter(
-            a => a.start_date <= now && a.end_date >= now
-        );
+        const activeAvailabilities = item.availabilities.filter((a) => a.start_date <= now && a.end_date >= now);
 
         if (activeAvailabilities.length === 0) {
             return { status: 'Non disponible', color: 'bg-red-100 text-red-800' };
         }
 
-        const availableCount = activeAvailabilities.filter(
-            a => a.status === ItemAvailabilityStatus.AVAILABLE
-        ).length;
+        const availableCount = activeAvailabilities.filter((a) => a.status === ItemAvailabilityStatus.AVAILABLE).length;
 
         if (availableCount === activeAvailabilities.length) {
             return { status: 'Disponible', color: 'bg-green-100 text-green-800' };
@@ -56,16 +52,10 @@ export default function ItemCard({ item, currentUserId, onItemClick }: ItemCardP
             <CardContent className="p-4">
                 <div className="aspect-square mb-3 bg-gray-100 rounded-lg overflow-hidden">
                     {item.image_url ? (
-                        <img
-                            src={item.image_url}
-                            alt={item.name}
-                            className="w-full h-full object-cover"
-                        />
+                        <img src={item.image_url} alt={item.name} className="w-full h-full object-cover" />
                     ) : (
                         <div className="w-full h-full flex items-center justify-center">
-                            <span className="material-symbols-outlined text-4xl text-gray-400">
-                                inventory_2
-                            </span>
+                            <span className="material-symbols-outlined text-4xl text-gray-400">inventory_2</span>
                         </div>
                     )}
                 </div>
@@ -74,20 +64,16 @@ export default function ItemCard({ item, currentUserId, onItemClick }: ItemCardP
                     <div className="flex items-start justify-between">
                         <h3 className="font-semibold text-lg leading-tight">{item.name}</h3>
                         {isOwner && (
-                            <Badge variant="outline" className="text-xs">
+                            <Badge hover={false} variant="outline" className="text-xs">
                                 Votre objet
                             </Badge>
                         )}
                     </div>
 
-                    {item.description && (
-                        <p className="text-sm text-gray-600 line-clamp-2">
-                            {item.description}
-                        </p>
-                    )}
+                    {item.description && <p className="text-sm text-gray-600 line-clamp-2">{item.description}</p>}
 
                     {item.category && (
-                        <Badge variant="secondary" className="text-xs">
+                        <Badge hover={false} variant="secondary" className="text-xs">
                             {item.category}
                         </Badge>
                     )}
@@ -107,9 +93,7 @@ export default function ItemCard({ item, currentUserId, onItemClick }: ItemCardP
                                     />
                                 ) : (
                                     <div className="w-6 h-6 bg-gray-200 rounded-full flex items-center justify-center">
-                                        <span className="material-symbols-outlined text-sm text-gray-600">
-                                            person
-                                        </span>
+                                        <span className="material-symbols-outlined text-sm text-gray-600">person</span>
                                     </div>
                                 )}
                                 <span className="text-xs text-gray-600">
@@ -123,7 +107,7 @@ export default function ItemCard({ item, currentUserId, onItemClick }: ItemCardP
 
             <CardFooter className="p-4 pt-0">
                 <Button
-                    variant={isOwner ? "outline" : "default"}
+                    variant={isOwner ? 'outline' : 'default'}
                     size="sm"
                     className="w-full"
                     onClick={(e) => {

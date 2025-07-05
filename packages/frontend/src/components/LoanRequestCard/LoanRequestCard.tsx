@@ -28,10 +28,10 @@ export default function LoanRequestCard({
     acceptLoading = false,
     rejectLoading = false,
     cancelLoading = false,
-    showActions = true
+    showActions = true,
 }: LoanRequestCardProps) {
     const { getStatusLabel, getStatusColor, canManageRequest } = useLoanRequestStatus();
-    
+
     const { canManage, isOwner, isBorrower } = canManageRequest(loanRequest, currentUserId);
     const isPending = loanRequest.status === LoanRequestStatus.PENDING;
 
@@ -44,7 +44,7 @@ export default function LoanRequestCard({
         const end = new Date(loanRequest.end_date);
         const diffTime = end.getTime() - start.getTime();
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-        
+
         if (diffDays === 1) {
             return '1 jour';
         } else if (diffDays < 7) {
@@ -52,9 +52,9 @@ export default function LoanRequestCard({
         } else {
             const weeks = Math.floor(diffDays / 7);
             const remainingDays = diffDays % 7;
-            return remainingDays === 0 ? 
-                `${weeks} semaine${weeks > 1 ? 's' : ''}` : 
-                `${weeks} semaine${weeks > 1 ? 's' : ''} et ${remainingDays} jour${remainingDays > 1 ? 's' : ''}`;
+            return remainingDays === 0
+                ? `${weeks} semaine${weeks > 1 ? 's' : ''}`
+                : `${weeks} semaine${weeks > 1 ? 's' : ''} et ${remainingDays} jour${remainingDays > 1 ? 's' : ''}`;
         }
     };
 
@@ -63,16 +63,14 @@ export default function LoanRequestCard({
             <CardHeader className="pb-3">
                 <div className="flex items-start justify-between">
                     <div className="flex-1">
-                        <h3 className="font-semibold text-lg">
-                            {loanRequest.item?.name || 'Objet supprimé'}
-                        </h3>
+                        <h3 className="font-semibold text-lg">{loanRequest.item?.name || 'Objet supprimé'}</h3>
                         {loanRequest.item?.category && (
-                            <Badge variant="secondary" className="text-xs mt-1">
+                            <Badge hover={false} variant="secondary" className="text-xs mt-1">
                                 {loanRequest.item.category}
                             </Badge>
                         )}
                     </div>
-                    <Badge className={`${getStatusColor(loanRequest.status)} ml-2`}>
+                    <Badge hover={false} className={`${getStatusColor(loanRequest.status)} ml-2`}>
                         {getStatusLabel(loanRequest.status)}
                     </Badge>
                 </div>
@@ -100,39 +98,31 @@ export default function LoanRequestCard({
                         />
                     ) : (
                         <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
-                            <span className="material-symbols-outlined text-sm text-gray-600">
-                                person
-                            </span>
+                            <span className="material-symbols-outlined text-sm text-gray-600">person</span>
                         </div>
                     )}
                     <div>
                         <p className="font-medium text-sm">
-                            {isBorrower ? 'Votre demande' : (
-                                loanRequest.borrower ? 
-                                `${loanRequest.borrower.firstName} ${loanRequest.borrower.lastName}` :
-                                'Utilisateur inconnu'
-                            )}
+                            {isBorrower
+                                ? 'Votre demande'
+                                : loanRequest.borrower
+                                  ? `${loanRequest.borrower.firstName} ${loanRequest.borrower.lastName}`
+                                  : 'Utilisateur inconnu'}
                         </p>
-                        <p className="text-xs text-gray-600">
-                            {isBorrower ? 'Emprunteur' : 'Demandeur'}
-                        </p>
+                        <p className="text-xs text-gray-600">{isBorrower ? 'Emprunteur' : 'Demandeur'}</p>
                     </div>
                 </div>
 
                 {/* Date range */}
                 <div className="space-y-2">
                     <div className="flex items-center gap-2 text-sm">
-                        <span className="material-symbols-outlined text-sm text-gray-600">
-                            calendar_today
-                        </span>
+                        <span className="material-symbols-outlined text-sm text-gray-600">calendar_today</span>
                         <span>
                             Du {formatDate(loanRequest.start_date)} au {formatDate(loanRequest.end_date)}
                         </span>
                     </div>
                     <div className="flex items-center gap-2 text-sm text-gray-600">
-                        <span className="material-symbols-outlined text-sm">
-                            schedule
-                        </span>
+                        <span className="material-symbols-outlined text-sm">schedule</span>
                         <span>Durée : {getDurationText()}</span>
                     </div>
                 </div>
@@ -171,9 +161,7 @@ export default function LoanRequestCard({
                                         </>
                                     ) : (
                                         <>
-                                            <span className="material-symbols-outlined text-sm mr-2">
-                                                close
-                                            </span>
+                                            <span className="material-symbols-outlined text-sm mr-2">close</span>
                                             Rejeter
                                         </>
                                     )}
@@ -193,16 +181,15 @@ export default function LoanRequestCard({
                                         </>
                                     ) : (
                                         <>
-                                            <span className="material-symbols-outlined text-sm mr-2">
-                                                check
-                                            </span>
+                                            <span className="material-symbols-outlined text-sm mr-2">check</span>
                                             Accepter
                                         </>
                                     )}
                                 </Button>
                             </div>
                         ) : (
-                            isBorrower && onCancel && (
+                            isBorrower &&
+                            onCancel && (
                                 <Button
                                     variant="outline"
                                     size="sm"
@@ -219,9 +206,7 @@ export default function LoanRequestCard({
                                         </>
                                     ) : (
                                         <>
-                                            <span className="material-symbols-outlined text-sm mr-2">
-                                                cancel
-                                            </span>
+                                            <span className="material-symbols-outlined text-sm mr-2">cancel</span>
                                             Annuler la demande
                                         </>
                                     )}
@@ -235,12 +220,10 @@ export default function LoanRequestCard({
                 {!isPending && (
                     <Alert>
                         <AlertDescription className="text-sm">
-                            {loanRequest.status === LoanRequestStatus.ACCEPTED && 
+                            {loanRequest.status === LoanRequestStatus.ACCEPTED &&
                                 'Cette demande a été acceptée. Un prêt a été créé.'}
-                            {loanRequest.status === LoanRequestStatus.REJECTED && 
-                                'Cette demande a été rejetée.'}
-                            {loanRequest.status === LoanRequestStatus.CANCELLED && 
-                                'Cette demande a été annulée.'}
+                            {loanRequest.status === LoanRequestStatus.REJECTED && 'Cette demande a été rejetée.'}
+                            {loanRequest.status === LoanRequestStatus.CANCELLED && 'Cette demande a été annulée.'}
                         </AlertDescription>
                     </Alert>
                 )}

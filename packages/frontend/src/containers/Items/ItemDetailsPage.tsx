@@ -54,43 +54,43 @@ function ItemDetailsPage({ user, neighborhoodId }: ItemDetailsPageProps) {
 
     const getItemStatus = () => {
         if (!item?.availabilities || item.availabilities.length === 0) {
-            return { status: 'Pas de disponibilité', color: 'bg-gray-100 text-gray-800', description: 'Aucune période de disponibilité définie.' };
+            return {
+                status: 'Pas de disponibilité',
+                color: 'bg-gray-100 text-gray-800',
+                description: 'Aucune période de disponibilité définie.',
+            };
         }
 
         const now = new Date();
-        const activeAvailabilities = item.availabilities.filter(
-            a => a.start_date <= now && a.end_date >= now
-        );
+        const activeAvailabilities = item.availabilities.filter((a) => a.start_date <= now && a.end_date >= now);
 
         if (activeAvailabilities.length === 0) {
-            return { 
-                status: 'Non disponible', 
+            return {
+                status: 'Non disponible',
                 color: 'bg-red-100 text-red-800',
-                description: 'Aucune disponibilité active pour le moment.'
+                description: 'Aucune disponibilité active pour le moment.',
             };
         }
 
-        const availableCount = activeAvailabilities.filter(
-            a => a.status === ItemAvailabilityStatus.AVAILABLE
-        ).length;
+        const availableCount = activeAvailabilities.filter((a) => a.status === ItemAvailabilityStatus.AVAILABLE).length;
 
         if (availableCount === activeAvailabilities.length) {
-            return { 
-                status: 'Disponible', 
+            return {
+                status: 'Disponible',
                 color: 'bg-green-100 text-green-800',
-                description: 'Cet objet est actuellement disponible à l\'emprunt.'
+                description: "Cet objet est actuellement disponible à l'emprunt.",
             };
         } else if (availableCount > 0) {
-            return { 
-                status: 'Partiellement disponible', 
+            return {
+                status: 'Partiellement disponible',
                 color: 'bg-yellow-100 text-yellow-800',
-                description: 'Cet objet est partiellement disponible.'
+                description: 'Cet objet est partiellement disponible.',
             };
         } else {
-            return { 
-                status: 'Occupé', 
+            return {
+                status: 'Occupé',
                 color: 'bg-orange-100 text-orange-800',
-                description: 'Cet objet est actuellement en cours d\'emprunt.'
+                description: "Cet objet est actuellement en cours d'emprunt.",
             };
         }
     };
@@ -128,9 +128,7 @@ function ItemDetailsPage({ user, neighborhoodId }: ItemDetailsPageProps) {
                 <DashboardHeader />
                 <div className="container mx-auto px-4 py-8">
                     <Alert variant="destructive">
-                        <AlertDescription>
-                            {error || 'Objet non trouvé'}
-                        </AlertDescription>
+                        <AlertDescription>{error || 'Objet non trouvé'}</AlertDescription>
                     </Alert>
                     <Button onClick={goItems} className="mt-4">
                         <span className="material-symbols-outlined text-sm mr-2">arrow_back</span>
@@ -148,15 +146,11 @@ function ItemDetailsPage({ user, neighborhoodId }: ItemDetailsPageProps) {
     return (
         <div>
             <DashboardHeader />
-            
+
             <div className="container mx-auto px-4 py-8">
                 <div className="max-w-4xl mx-auto">
                     {/* Back button */}
-                    <Button
-                        variant="ghost"
-                        onClick={goItems}
-                        className="mb-6"
-                    >
+                    <Button variant="ghost" onClick={goItems} className="mb-6">
                         <span className="material-symbols-outlined text-sm mr-2">arrow_back</span>
                         Retour à la liste
                     </Button>
@@ -166,11 +160,7 @@ function ItemDetailsPage({ user, neighborhoodId }: ItemDetailsPageProps) {
                         <div className="space-y-4">
                             <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden">
                                 {item.image_url ? (
-                                    <img
-                                        src={item.image_url}
-                                        alt={item.name}
-                                        className="w-full h-full object-cover"
-                                    />
+                                    <img src={item.image_url} alt={item.name} className="w-full h-full object-cover" />
                                 ) : (
                                     <div className="w-full h-full flex items-center justify-center">
                                         <span className="material-symbols-outlined text-6xl text-gray-400">
@@ -185,15 +175,9 @@ function ItemDetailsPage({ user, neighborhoodId }: ItemDetailsPageProps) {
                         <div className="space-y-6">
                             <div>
                                 <div className="flex items-start justify-between mb-4">
-                                    <h1 className="text-3xl font-bold text-gray-900">
-                                        {item.name}
-                                    </h1>
+                                    <h1 className="text-3xl font-bold text-gray-900">{item.name}</h1>
                                     {isOwner && (
-                                        <Button
-                                            variant="outline"
-                                            size="sm"
-                                            onClick={() => goEditItem(item.id)}
-                                        >
+                                        <Button variant="outline" size="sm" onClick={() => goEditItem(item.id)}>
                                             <span className="material-symbols-outlined text-sm mr-2">edit</span>
                                             Modifier
                                         </Button>
@@ -201,7 +185,7 @@ function ItemDetailsPage({ user, neighborhoodId }: ItemDetailsPageProps) {
                                 </div>
 
                                 {item.category && (
-                                    <Badge variant="secondary" className="mb-4">
+                                    <Badge hover={false} variant="secondary" className="mb-4">
                                         {item.category}
                                     </Badge>
                                 )}
@@ -239,9 +223,7 @@ function ItemDetailsPage({ user, neighborhoodId }: ItemDetailsPageProps) {
                                                 <p className="font-medium">
                                                     {item.owner.firstName} {item.owner.lastName}
                                                 </p>
-                                                <p className="text-sm text-gray-600">
-                                                    Membre du quartier
-                                                </p>
+                                                <p className="text-sm text-gray-600">Membre du quartier</p>
                                             </div>
                                         </div>
                                     </CardContent>
@@ -255,9 +237,7 @@ function ItemDetailsPage({ user, neighborhoodId }: ItemDetailsPageProps) {
                                         <CardTitle className="text-lg">Description</CardTitle>
                                     </CardHeader>
                                     <CardContent>
-                                        <p className="text-gray-700 whitespace-pre-wrap">
-                                            {item.description}
-                                        </p>
+                                        <p className="text-gray-700 whitespace-pre-wrap">{item.description}</p>
                                     </CardContent>
                                 </Card>
                             )}
@@ -280,16 +260,30 @@ function ItemDetailsPage({ user, neighborhoodId }: ItemDetailsPageProps) {
                                                             calendar_today
                                                         </span>
                                                         <span className="text-sm">
-                                                            Du {format(new Date(availability.start_date), 'dd MMM', { locale: fr })} au{' '}
-                                                            {format(new Date(availability.end_date), 'dd MMM yyyy', { locale: fr })}
+                                                            Du{' '}
+                                                            {format(new Date(availability.start_date), 'dd MMM', {
+                                                                locale: fr,
+                                                            })}{' '}
+                                                            au{' '}
+                                                            {format(new Date(availability.end_date), 'dd MMM yyyy', {
+                                                                locale: fr,
+                                                            })}
                                                         </span>
                                                     </div>
                                                     <Badge
-                                                        variant={availability.status === ItemAvailabilityStatus.AVAILABLE ? 'default' : 'secondary'}
+                                                        hover={false}
+                                                        variant={
+                                                            availability.status === ItemAvailabilityStatus.AVAILABLE
+                                                                ? 'default'
+                                                                : 'secondary'
+                                                        }
                                                         className="text-xs"
                                                     >
-                                                        {availability.status === ItemAvailabilityStatus.AVAILABLE ? 'Libre' : 
-                                                         availability.status === ItemAvailabilityStatus.OCCUPIED ? 'Occupé' : 'Partiel'}
+                                                        {availability.status === ItemAvailabilityStatus.AVAILABLE
+                                                            ? 'Libre'
+                                                            : availability.status === ItemAvailabilityStatus.OCCUPIED
+                                                              ? 'Occupé'
+                                                              : 'Partiel'}
                                                     </Badge>
                                                 </div>
                                             ))}
@@ -299,28 +293,22 @@ function ItemDetailsPage({ user, neighborhoodId }: ItemDetailsPageProps) {
                             )}
 
                             {/* Availability Management for owners */}
-                            {isOwner && (
-                                <AvailabilityManager
-                                    item={item}
-                                    currentUserId={user.id}
-                                />
-                            )}
+                            {isOwner && <AvailabilityManager item={item} currentUserId={user.id} />}
 
                             {/* Action buttons */}
                             <div className="space-y-4">
                                 {isOwner ? (
                                     <Alert>
                                         <AlertDescription>
-                                            Ceci est votre objet. Vous pouvez le modifier ou gérer ses disponibilités ci-dessus.
+                                            Ceci est votre objet. Vous pouvez le modifier ou gérer ses disponibilités
+                                            ci-dessus.
                                         </AlertDescription>
                                     </Alert>
                                 ) : canBorrow ? (
                                     <Dialog open={showLoanRequestForm} onOpenChange={setShowLoanRequestForm}>
                                         <DialogTrigger asChild>
                                             <Button size="lg" className="w-full">
-                                                <span className="material-symbols-outlined text-sm mr-2">
-                                                    send
-                                                </span>
+                                                <span className="material-symbols-outlined text-sm mr-2">send</span>
                                                 Demander à emprunter
                                             </Button>
                                         </DialogTrigger>
@@ -339,9 +327,7 @@ function ItemDetailsPage({ user, neighborhoodId }: ItemDetailsPageProps) {
                                     </Dialog>
                                 ) : (
                                     <Alert variant="destructive">
-                                        <AlertDescription>
-                                            {reason}
-                                        </AlertDescription>
+                                        <AlertDescription>{reason}</AlertDescription>
                                     </Alert>
                                 )}
                             </div>

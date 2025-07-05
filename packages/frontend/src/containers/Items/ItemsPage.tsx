@@ -262,7 +262,7 @@ function ItemsPage({ user, neighborhoodId }: ItemsPageProps) {
                         <TabsTrigger value="my-requests" className="relative">
                             Mes demandes
                             {stats.pendingMy > 0 && (
-                                <Badge variant="secondary" className="ml-2 text-xs">
+                                <Badge hover={false} variant="secondary" className="ml-2 text-xs">
                                     {stats.pendingMy}
                                 </Badge>
                             )}
@@ -270,7 +270,7 @@ function ItemsPage({ user, neighborhoodId }: ItemsPageProps) {
                         <TabsTrigger value="received-requests" className="relative">
                             Demandes reçues
                             {stats.pendingReceived > 0 && (
-                                <Badge variant="default" className="ml-2 text-xs">
+                                <Badge hover={false} variant="default" className="ml-2 text-xs">
                                     {stats.pendingReceived}
                                 </Badge>
                             )}
@@ -278,7 +278,7 @@ function ItemsPage({ user, neighborhoodId }: ItemsPageProps) {
                         <TabsTrigger value="my-loans">
                             Mes emprunts
                             {loanStats.activeLoans > 0 && (
-                                <Badge variant="outline" className="ml-2 text-xs">
+                                <Badge hover={false} variant="outline" className="ml-2 text-xs">
                                     {loanStats.activeLoans}
                                 </Badge>
                             )}
@@ -286,7 +286,7 @@ function ItemsPage({ user, neighborhoodId }: ItemsPageProps) {
                         <TabsTrigger value="lent-items">
                             Mes prêts
                             {loanStats.activeLentItems > 0 && (
-                                <Badge variant="outline" className="ml-2 text-xs">
+                                <Badge hover={false} variant="outline" className="ml-2 text-xs">
                                     {loanStats.activeLentItems}
                                 </Badge>
                             )}
