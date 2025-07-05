@@ -76,7 +76,7 @@ export function useChatManager({ neighborhoodId, currentUserId }: UseChatManager
                 messaging.loadMessages(groupId);
 
                 // Charger les membres du groupe pour vérifier si l'utilisateur est propriétaire
-                const group = messaging.groups.find(g => g.id === groupId);
+                const group = messaging.groups.find((g) => g.id === groupId);
                 if (group && (!group.members || group.members.length === 0)) {
                     messaging.loadGroupMembers(groupId);
                 }

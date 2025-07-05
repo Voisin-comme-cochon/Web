@@ -1,12 +1,12 @@
 import { ItemRepository } from '@/infrastructure/repositories/ItemRepository';
-import { 
-    ItemModel, 
-    ItemAvailabilityModel, 
-    CreateItemRequest, 
-    UpdateItemRequest, 
-    CreateItemAvailabilityRequest, 
+import {
+    ItemModel,
+    ItemAvailabilityModel,
+    CreateItemRequest,
+    UpdateItemRequest,
+    CreateItemAvailabilityRequest,
     UpdateItemAvailabilityRequest,
-    GetItemsFilters
+    GetItemsFilters,
 } from '@/domain/models/item.model';
 import { PaginatedResultModel } from '@/domain/models/paginated-result.model';
 
@@ -27,17 +27,17 @@ export class ItemsUc {
 
     async createItem(item: CreateItemRequest): Promise<ItemModel> {
         if (!item.name.trim()) {
-            throw new Error('Le nom de l\'objet est requis');
+            throw new Error("Le nom de l'objet est requis");
         }
         if (!item.neighborhood_id) {
-            throw new Error('L\'ID du quartier est requis');
+            throw new Error("L'ID du quartier est requis");
         }
         return await this.itemRepository.createItem(item);
     }
 
     async updateItem(id: number, item: UpdateItemRequest): Promise<void> {
         if (item.name !== undefined && !item.name.trim()) {
-            throw new Error('Le nom de l\'objet ne peut pas être vide');
+            throw new Error("Le nom de l'objet ne peut pas être vide");
         }
         return await this.itemRepository.updateItem(id, item);
     }
@@ -50,7 +50,10 @@ export class ItemsUc {
         return await this.itemRepository.getItemAvailabilities(itemId);
     }
 
-    async createItemAvailability(itemId: number, availability: CreateItemAvailabilityRequest): Promise<ItemAvailabilityModel> {
+    async createItemAvailability(
+        itemId: number,
+        availability: CreateItemAvailabilityRequest
+    ): Promise<ItemAvailabilityModel> {
         if (availability.start_date >= availability.end_date) {
             throw new Error('La date de début doit être antérieure à la date de fin');
         }
@@ -79,7 +82,7 @@ export class ItemsUc {
         if (item.owner_id === currentUserId) {
             return { canBorrow: false, reason: 'Vous ne pouvez pas emprunter votre propre objet' };
         }
-        
+
         const hasAvailability = item.availabilities && item.availabilities.length > 0;
         if (!hasAvailability) {
             return { canBorrow: false, reason: 'Aucune disponibilité définie pour cet objet' };

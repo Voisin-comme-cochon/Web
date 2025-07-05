@@ -1,9 +1,9 @@
 import ApiService from '@/infrastructure/api/ApiService';
-import { 
-    LoanRequestModel, 
-    CreateLoanRequestRequest, 
+import {
+    LoanRequestModel,
+    CreateLoanRequestRequest,
     UpdateLoanRequestStatusRequest,
-    LoanRequestStatus
+    LoanRequestStatus,
 } from '@/domain/models/loan-request.model';
 
 export class LoanRequestRepository {
@@ -11,7 +11,7 @@ export class LoanRequestRepository {
         const response = await ApiService.post(`/items/${request.item_id}/loan-requests`, {
             start_date: request.start_date.toISOString(),
             end_date: request.end_date.toISOString(),
-            message: request.message
+            message: request.message,
         });
         return this.mapLoanRequest(response.data);
     }
@@ -53,20 +53,24 @@ export class LoanRequestRepository {
             status: data.status as LoanRequestStatus,
             message: data.message,
             created_at: new Date(data.created_at),
-            item: data.item ? {
-                id: data.item.id,
-                name: data.item.name,
-                description: data.item.description,
-                image_url: data.item.image_url,
-                owner_id: data.item.owner_id,
-                category: data.item.category
-            } : undefined,
-            borrower: data.borrower ? {
-                id: data.borrower.id,
-                firstName: data.borrower.firstName,
-                lastName: data.borrower.lastName,
-                profileImageUrl: data.borrower.profileImageUrl
-            } : undefined
+            item: data.item
+                ? {
+                      id: data.item.id,
+                      name: data.item.name,
+                      description: data.item.description,
+                      image_url: data.item.image_url,
+                      owner_id: data.item.owner_id,
+                      category: data.item.category,
+                  }
+                : undefined,
+            borrower: data.borrower
+                ? {
+                      id: data.borrower.id,
+                      firstName: data.borrower.firstName,
+                      lastName: data.borrower.lastName,
+                      profileImageUrl: data.borrower.profileImageUrl,
+                  }
+                : undefined,
         };
     }
 }

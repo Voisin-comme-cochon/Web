@@ -93,7 +93,7 @@ export default function ItemCard({ item, currentUserId, onItemClick }: ItemCardP
                     )}
 
                     <div className="flex items-center justify-between">
-                        <Badge className={`text-xs ${color}`}>
+                        <Badge className={`text-xs ${color}`} hover={false}>
                             {status}
                         </Badge>
 

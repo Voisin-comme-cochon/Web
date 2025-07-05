@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { UserModel } from '@/domain/models/user.model';
 import { HomeUc } from '@/domain/use-cases/homeUc';
 import { CreateItemRequest } from '@/domain/models/item.model';
@@ -24,7 +23,7 @@ function AddItemPage({ user, neighborhoodId }: AddItemPageProps) {
     const handleSubmit = async (data: CreateItemRequest) => {
         const itemData = {
             ...data,
-            neighborhood_id: parseInt(neighborhoodId)
+            neighborhood_id: parseInt(neighborhoodId),
         };
 
         const result = await createItem(itemData);
@@ -36,26 +35,21 @@ function AddItemPage({ user, neighborhoodId }: AddItemPageProps) {
     return (
         <div>
             <DashboardHeader />
-            
+
             <div className="container mx-auto px-4 py-8">
                 <div className="max-w-2xl mx-auto">
                     {/* Back button */}
-                    <Button
-                        variant="ghost"
-                        onClick={goItems}
-                        className="mb-6"
-                    >
+                    <Button variant="ghost" onClick={goItems} className="mb-6">
                         <span className="material-symbols-outlined text-sm mr-2">arrow_back</span>
                         Retour à la liste
                     </Button>
 
                     {/* Header */}
                     <div className="mb-8">
-                        <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                            Ajouter un objet
-                        </h1>
+                        <h1 className="text-3xl font-bold text-gray-900 mb-2">Ajouter un objet</h1>
                         <p className="text-gray-600">
-                            Partagez un objet avec vos voisins et participez à l'économie collaborative de votre quartier.
+                            Partagez un objet avec vos voisins et participez à l'économie collaborative de votre
+                            quartier.
                         </p>
                     </div>
 
@@ -63,9 +57,7 @@ function AddItemPage({ user, neighborhoodId }: AddItemPageProps) {
                     <Card className="mb-8">
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2">
-                                <span className="material-symbols-outlined text-orange">
-                                    lightbulb
-                                </span>
+                                <span className="material-symbols-outlined text-orange">lightbulb</span>
                                 Conseils pour un bon partage
                             </CardTitle>
                         </CardHeader>
@@ -105,18 +97,16 @@ function AddItemPage({ user, neighborhoodId }: AddItemPageProps) {
                         loading={loading}
                         error={error}
                         initialData={{
-                            neighborhood_id: parseInt(neighborhoodId)
+                            neighborhood_id: parseInt(neighborhoodId),
                         }}
                     />
 
                     {/* Additional info */}
                     <Alert className="mt-6">
-                        <span className="material-symbols-outlined text-sm">
-                            info
-                        </span>
+                        <span className="material-symbols-outlined text-sm">info</span>
                         <AlertDescription>
-                            Une fois votre objet créé, vous pourrez définir ses périodes de disponibilité 
-                            et commencer à recevoir des demandes d'emprunt de vos voisins.
+                            Une fois votre objet créé, vous pourrez définir ses périodes de disponibilité et commencer à
+                            recevoir des demandes d'emprunt de vos voisins.
                         </AlertDescription>
                     </Alert>
                 </div>

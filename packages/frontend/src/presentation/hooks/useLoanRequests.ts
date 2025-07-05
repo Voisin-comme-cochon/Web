@@ -1,11 +1,7 @@
 import { useState, useEffect } from 'react';
 import { LoanRequestRepository } from '@/infrastructure/repositories/LoanRequestRepository';
 import { LoanRequestsUc } from '@/domain/use-cases/loanRequestsUc';
-import { 
-    LoanRequestModel, 
-    CreateLoanRequestRequest, 
-    LoanRequestStatus
-} from '@/domain/models/loan-request.model';
+import { LoanRequestModel, CreateLoanRequestRequest, LoanRequestStatus } from '@/domain/models/loan-request.model';
 import { toast } from '@/hooks/use-toast';
 
 export const useLoanRequests = () => {
@@ -28,7 +24,7 @@ export const useLoanRequests = () => {
             toast({
                 title: 'Erreur',
                 description: errorMessage,
-                variant: 'destructive'
+                variant: 'destructive',
             });
         } finally {
             setLoading(false);
@@ -47,7 +43,7 @@ export const useLoanRequests = () => {
             toast({
                 title: 'Erreur',
                 description: errorMessage,
-                variant: 'destructive'
+                variant: 'destructive',
             });
         } finally {
             setLoading(false);
@@ -69,7 +65,7 @@ export const useLoanRequests = () => {
         error,
         refetchMyRequests: fetchMyRequests,
         refetchReceivedRequests: fetchReceivedRequests,
-        refetchAll: fetchAllRequests
+        refetchAll: fetchAllRequests,
     };
 };
 
@@ -92,7 +88,7 @@ export const useLoanRequest = (id?: number) => {
             toast({
                 title: 'Erreur',
                 description: errorMessage,
-                variant: 'destructive'
+                variant: 'destructive',
             });
         } finally {
             setLoading(false);
@@ -115,7 +111,7 @@ export const useLoanRequest = (id?: number) => {
         loanRequest,
         loading,
         error,
-        refetch
+        refetch,
     };
 };
 
@@ -132,25 +128,27 @@ export const useCreateLoanRequest = () => {
             const result = await loanRequestsUc.createLoanRequest(request);
             toast({
                 title: 'Succès',
-                description: 'Demande d\'emprunt envoyée avec succès'
+                description: "Demande d'emprunt envoyée avec succès",
             });
             return result;
         } catch (err: any) {
             // Extraire le message d'erreur du backend
-            let errorMessage = 'Erreur lors de l\'envoi de la demande';
-            
+            let errorMessage = "Erreur lors de l'envoi de la demande";
+
             if (err?.response?.data?.message) {
                 // Message personnalisé du backend
                 const backendMessage = err.response.data.message;
                 switch (err.response.data.code) {
                     case 'item_not_available':
-                        errorMessage = 'Cet objet n\'est pas disponible pour les dates demandées. Veuillez vérifier les disponibilités et choisir d\'autres dates.';
+                        errorMessage =
+                            "Cet objet n'est pas disponible pour les dates demandées. Veuillez vérifier les disponibilités et choisir d'autres dates.";
                         break;
                     case 'invalid_dates':
-                        errorMessage = 'Les dates sélectionnées ne sont pas valides. La date de fin doit être postérieure à la date de début.';
+                        errorMessage =
+                            'Les dates sélectionnées ne sont pas valides. La date de fin doit être postérieure à la date de début.';
                         break;
                     case 'item_not_found':
-                        errorMessage = 'L\'objet demandé n\'existe plus.';
+                        errorMessage = "L'objet demandé n'existe plus.";
                         break;
                     case 'forbidden':
                         errorMessage = 'Vous ne pouvez pas emprunter votre propre objet.';
@@ -161,12 +159,12 @@ export const useCreateLoanRequest = () => {
             } else if (err?.message) {
                 errorMessage = err.message;
             }
-            
+
             setError(errorMessage);
             toast({
                 title: 'Erreur',
                 description: errorMessage,
-                variant: 'destructive'
+                variant: 'destructive',
             });
             return null;
         } finally {
@@ -177,7 +175,7 @@ export const useCreateLoanRequest = () => {
     return {
         createLoanRequest,
         loading,
-        error
+        error,
     };
 };
 
@@ -196,20 +194,20 @@ export const useLoanRequestActions = () => {
             await loanRequestsUc.acceptLoanRequest(id, currentUserId);
             toast({
                 title: 'Succès',
-                description: 'Demande d\'emprunt acceptée'
+                description: "Demande d'emprunt acceptée",
             });
             return true;
         } catch (err: any) {
-            let errorMessage = 'Erreur lors de l\'acceptation de la demande';
-            
+            let errorMessage = "Erreur lors de l'acceptation de la demande";
+
             if (err?.response?.data?.message) {
                 const backendMessage = err.response.data.message;
                 switch (err.response.data.code) {
                     case 'loan_request_not_found':
-                        errorMessage = 'La demande d\'emprunt n\'existe plus.';
+                        errorMessage = "La demande d'emprunt n'existe plus.";
                         break;
                     case 'forbidden':
-                        errorMessage = 'Vous n\'avez pas l\'autorisation d\'accepter cette demande.';
+                        errorMessage = "Vous n'avez pas l'autorisation d'accepter cette demande.";
                         break;
                     case 'invalid_status':
                         errorMessage = 'Cette demande ne peut plus être acceptée.';
@@ -220,12 +218,12 @@ export const useLoanRequestActions = () => {
             } else if (err?.message) {
                 errorMessage = err.message;
             }
-            
+
             setError(errorMessage);
             toast({
                 title: 'Erreur',
                 description: errorMessage,
-                variant: 'destructive'
+                variant: 'destructive',
             });
             return false;
         } finally {
@@ -240,20 +238,20 @@ export const useLoanRequestActions = () => {
             await loanRequestsUc.rejectLoanRequest(id, currentUserId);
             toast({
                 title: 'Demande rejetée',
-                description: 'La demande d\'emprunt a été rejetée'
+                description: "La demande d'emprunt a été rejetée",
             });
             return true;
         } catch (err: any) {
             let errorMessage = 'Erreur lors du rejet de la demande';
-            
+
             if (err?.response?.data?.message) {
                 const backendMessage = err.response.data.message;
                 switch (err.response.data.code) {
                     case 'loan_request_not_found':
-                        errorMessage = 'La demande d\'emprunt n\'existe plus.';
+                        errorMessage = "La demande d'emprunt n'existe plus.";
                         break;
                     case 'forbidden':
-                        errorMessage = 'Vous n\'avez pas l\'autorisation de rejeter cette demande.';
+                        errorMessage = "Vous n'avez pas l'autorisation de rejeter cette demande.";
                         break;
                     case 'invalid_status':
                         errorMessage = 'Cette demande ne peut plus être rejetée.';
@@ -264,12 +262,12 @@ export const useLoanRequestActions = () => {
             } else if (err?.message) {
                 errorMessage = err.message;
             }
-            
+
             setError(errorMessage);
             toast({
                 title: 'Erreur',
                 description: errorMessage,
-                variant: 'destructive'
+                variant: 'destructive',
             });
             return false;
         } finally {
@@ -284,20 +282,20 @@ export const useLoanRequestActions = () => {
             await loanRequestsUc.cancelLoanRequest(id, currentUserId);
             toast({
                 title: 'Demande annulée',
-                description: 'Votre demande d\'emprunt a été annulée'
+                description: "Votre demande d'emprunt a été annulée",
             });
             return true;
         } catch (err: any) {
-            let errorMessage = 'Erreur lors de l\'annulation de la demande';
-            
+            let errorMessage = "Erreur lors de l'annulation de la demande";
+
             if (err?.response?.data?.message) {
                 const backendMessage = err.response.data.message;
                 switch (err.response.data.code) {
                     case 'loan_request_not_found':
-                        errorMessage = 'La demande d\'emprunt n\'existe plus.';
+                        errorMessage = "La demande d'emprunt n'existe plus.";
                         break;
                     case 'forbidden':
-                        errorMessage = 'Vous n\'avez pas l\'autorisation d\'annuler cette demande.';
+                        errorMessage = "Vous n'avez pas l'autorisation d'annuler cette demande.";
                         break;
                     case 'invalid_status':
                         errorMessage = 'Cette demande ne peut plus être annulée.';
@@ -308,12 +306,12 @@ export const useLoanRequestActions = () => {
             } else if (err?.message) {
                 errorMessage = err.message;
             }
-            
+
             setError(errorMessage);
             toast({
                 title: 'Erreur',
                 description: errorMessage,
-                variant: 'destructive'
+                variant: 'destructive',
             });
             return false;
         } finally {
@@ -328,7 +326,7 @@ export const useLoanRequestActions = () => {
         acceptLoading,
         rejectLoading,
         cancelLoading,
-        error
+        error,
     };
 };
 
@@ -350,6 +348,6 @@ export const useLoanRequestStatus = () => {
     return {
         getStatusLabel,
         getStatusColor,
-        canManageRequest
+        canManageRequest,
     };
 };

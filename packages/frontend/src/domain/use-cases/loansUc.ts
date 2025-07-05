@@ -1,10 +1,5 @@
 import { LoanRepository } from '@/infrastructure/repositories/LoanRepository';
-import { 
-    LoanModel, 
-    CreateLoanRequest, 
-    ReturnLoanRequest,
-    LoanStatus
-} from '@/domain/models/loan.model';
+import { LoanModel, CreateLoanRequest, ReturnLoanRequest, LoanStatus } from '@/domain/models/loan.model';
 
 export class LoansUc {
     private loanRepository: LoanRepository;
@@ -31,12 +26,12 @@ export class LoansUc {
 
     async returnLoan(id: number, currentUserId: number, returnDate?: Date): Promise<void> {
         const loan = await this.loanRepository.getLoanById(id);
-        
+
         const canReturn = this.canReturnLoan(loan, currentUserId);
         if (!canReturn.canReturn) {
             throw new Error(canReturn.reason || 'Vous ne pouvez pas marquer ce prêt comme rendu');
         }
-        
+
         if (loan.status !== LoanStatus.ACTIVE) {
             throw new Error('Seuls les prêts actifs peuvent être marqués comme rendus');
         }
@@ -47,23 +42,26 @@ export class LoansUc {
     canReturnLoan(loan: LoanModel, currentUserId: number): { canReturn: boolean; reason?: string } {
         const isBorrower = loan.borrower_id === currentUserId;
         const isOwner = loan.item?.owner_id === currentUserId;
-        
+
         if (!isBorrower && !isOwner) {
             return { canReturn: false, reason: 'Vous ne pouvez marquer comme rendu que vos propres emprunts ou prêts' };
         }
-        
+
         if (loan.status !== LoanStatus.ACTIVE) {
-            return { canReturn: false, reason: 'Ce prêt n\'est pas actif' };
+            return { canReturn: false, reason: "Ce prêt n'est pas actif" };
         }
 
         return { canReturn: true };
     }
 
-    canManageLoan(loan: LoanModel, currentUserId: number): { canManage: boolean; isOwner: boolean; isBorrower: boolean } {
+    canManageLoan(
+        loan: LoanModel,
+        currentUserId: number
+    ): { canManage: boolean; isOwner: boolean; isBorrower: boolean } {
         const isOwner = loan.item?.owner_id === currentUserId;
         const isBorrower = loan.borrower_id === currentUserId;
         const canManage = isOwner || isBorrower;
-        
+
         return { canManage, isOwner, isBorrower };
     }
 
@@ -113,7 +111,7 @@ export class LoansUc {
     formatLoanDuration(loan: LoanModel): string {
         const diffTime = loan.end_date.getTime() - loan.start_date.getTime();
         const days = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-        
+
         if (days === 1) {
             return '1 jour';
         } else if (days < 7) {

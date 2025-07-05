@@ -1,9 +1,9 @@
 import { LoanRequestRepository } from '@/infrastructure/repositories/LoanRequestRepository';
-import { 
-    LoanRequestModel, 
-    CreateLoanRequestRequest, 
+import {
+    LoanRequestModel,
+    CreateLoanRequestRequest,
     UpdateLoanRequestStatusRequest,
-    LoanRequestStatus
+    LoanRequestStatus,
 } from '@/domain/models/loan-request.model';
 
 export class LoanRequestsUc {
@@ -32,11 +32,11 @@ export class LoanRequestsUc {
 
     async acceptLoanRequest(id: number, currentUserId: number): Promise<void> {
         const loanRequest = await this.loanRequestRepository.getLoanRequestById(id);
-        
+
         if (!loanRequest.item || loanRequest.item.owner_id !== currentUserId) {
             throw new Error('Vous ne pouvez accepter que les demandes pour vos propres objets');
         }
-        
+
         if (loanRequest.status !== LoanRequestStatus.PENDING) {
             throw new Error('Seules les demandes en attente peuvent être acceptées');
         }
@@ -46,11 +46,11 @@ export class LoanRequestsUc {
 
     async rejectLoanRequest(id: number, currentUserId: number): Promise<void> {
         const loanRequest = await this.loanRequestRepository.getLoanRequestById(id);
-        
+
         if (!loanRequest.item || loanRequest.item.owner_id !== currentUserId) {
             throw new Error('Vous ne pouvez rejeter que les demandes pour vos propres objets');
         }
-        
+
         if (loanRequest.status !== LoanRequestStatus.PENDING) {
             throw new Error('Seules les demandes en attente peuvent être rejetées');
         }
@@ -60,11 +60,11 @@ export class LoanRequestsUc {
 
     async cancelLoanRequest(id: number, currentUserId: number): Promise<void> {
         const loanRequest = await this.loanRequestRepository.getLoanRequestById(id);
-        
+
         if (loanRequest.borrower_id !== currentUserId) {
             throw new Error('Vous ne pouvez annuler que vos propres demandes');
         }
-        
+
         if (loanRequest.status !== LoanRequestStatus.PENDING) {
             throw new Error('Seules les demandes en attente peuvent être annulées');
         }
@@ -75,26 +75,29 @@ export class LoanRequestsUc {
     private validateLoanRequestDates(startDate: Date, endDate: Date): void {
         const now = new Date();
         now.setHours(0, 0, 0, 0); // Reset time to beginning of day for comparison
-        
+
         if (startDate < now) {
             throw new Error('La date de début ne peut pas être dans le passé');
         }
-        
+
         if (endDate <= startDate) {
             throw new Error('La date de fin doit être postérieure à la date de début');
         }
-        
+
         const maxDuration = 30 * 24 * 60 * 60 * 1000; // 30 days in milliseconds
         if (endDate.getTime() - startDate.getTime() > maxDuration) {
-            throw new Error('La durée d\'emprunt ne peut pas dépasser 30 jours');
+            throw new Error("La durée d'emprunt ne peut pas dépasser 30 jours");
         }
     }
 
-    canManageLoanRequest(loanRequest: LoanRequestModel, currentUserId: number): { canManage: boolean; isOwner: boolean; isBorrower: boolean } {
+    canManageLoanRequest(
+        loanRequest: LoanRequestModel,
+        currentUserId: number
+    ): { canManage: boolean; isOwner: boolean; isBorrower: boolean } {
         const isOwner = loanRequest.item?.owner_id === currentUserId;
         const isBorrower = loanRequest.borrower_id === currentUserId;
         const canManage = isOwner || isBorrower;
-        
+
         return { canManage, isOwner, isBorrower };
     }
 

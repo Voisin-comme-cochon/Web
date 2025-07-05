@@ -22,20 +22,15 @@ export default function AvailabilityManager({ item, currentUserId }: Availabilit
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
 
-    const {
-        availabilities,
-        loading,
-        error,
-        createAvailability,
-        deleteAvailability,
-        refetch
-    } = useItemAvailabilities(item.id);
+    const { availabilities, loading, error, createAvailability, deleteAvailability, refetch } = useItemAvailabilities(
+        item.id
+    );
 
     const isOwner = item.owner_id === currentUserId;
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        
+
         if (!startDate || !endDate) {
             return;
         }
@@ -43,7 +38,7 @@ export default function AvailabilityManager({ item, currentUserId }: Availabilit
         const request: CreateItemAvailabilityRequest = {
             item_id: item.id,
             start_date: new Date(startDate),
-            end_date: new Date(endDate)
+            end_date: new Date(endDate),
         };
 
         const success = await createAvailability(request);
@@ -112,21 +107,33 @@ export default function AvailabilityManager({ item, currentUserId }: Availabilit
                             {availabilities.map((availability) => {
                                 const { label, color } = getStatusInfo(availability);
                                 return (
-                                    <div key={availability.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                    <div
+                                        key={availability.id}
+                                        className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                                    >
                                         <div className="flex items-center gap-3">
                                             <div>
                                                 <p className="font-medium">
-                                                    Du {format(new Date(availability.start_date), 'dd MMM', { locale: fr })} au{' '}
-                                                    {format(new Date(availability.end_date), 'dd MMM yyyy', { locale: fr })}
+                                                    Du{' '}
+                                                    {format(new Date(availability.start_date), 'dd MMM', {
+                                                        locale: fr,
+                                                    })}{' '}
+                                                    au{' '}
+                                                    {format(new Date(availability.end_date), 'dd MMM yyyy', {
+                                                        locale: fr,
+                                                    })}
                                                 </p>
                                                 <p className="text-sm text-gray-600">
-                                                    {Math.ceil((new Date(availability.end_date).getTime() - new Date(availability.start_date).getTime()) / (1000 * 60 * 60 * 24))} jour(s)
+                                                    {Math.ceil(
+                                                        (new Date(availability.end_date).getTime() -
+                                                            new Date(availability.start_date).getTime()) /
+                                                            (1000 * 60 * 60 * 24)
+                                                    )}{' '}
+                                                    jour(s)
                                                 </p>
                                             </div>
                                         </div>
-                                        <Badge className={color}>
-                                            {label}
-                                        </Badge>
+                                        <Badge className={color} hover={false}>{label}</Badge>
                                     </div>
                                 );
                             })}
@@ -134,9 +141,7 @@ export default function AvailabilityManager({ item, currentUserId }: Availabilit
                     ) : (
                         <div className="text-center py-8">
                             <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
-                                <span className="material-symbols-outlined text-2xl text-gray-400">
-                                    calendar_month
-                                </span>
+                                <span className="material-symbols-outlined text-2xl text-gray-400">calendar_month</span>
                             </div>
                             <p className="text-gray-600">Aucune disponibilité définie</p>
                         </div>
@@ -156,7 +161,7 @@ export default function AvailabilityManager({ item, currentUserId }: Availabilit
                     </CardTitle>
                     <Dialog open={showAddForm} onOpenChange={setShowAddForm}>
                         <DialogTrigger asChild>
-                            <Button size="sm">
+                            <Button variant="orange" size="sm">
                                 <span className="material-symbols-outlined text-sm mr-2">add</span>
                                 Ajouter
                             </Button>
@@ -190,22 +195,30 @@ export default function AvailabilityManager({ item, currentUserId }: Availabilit
                                         />
                                     </div>
                                 </div>
-                                
+
                                 <Alert>
                                     <span className="material-symbols-outlined text-sm">info</span>
                                     <AlertDescription>
-                                        Définissez les périodes pendant lesquelles votre objet sera disponible à l'emprunt.
+                                        Définissez les périodes pendant lesquelles votre objet sera disponible à
+                                        l'emprunt.
                                     </AlertDescription>
                                 </Alert>
 
                                 <div className="flex gap-2">
-                                    <Button type="button" variant="outline" onClick={() => setShowAddForm(false)} className="flex-1">
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        onClick={() => setShowAddForm(false)}
+                                        className="flex-1"
+                                    >
                                         Annuler
                                     </Button>
                                     <Button type="submit" disabled={loading} className="flex-1">
                                         {loading ? (
                                             <>
-                                                <span className="material-symbols-outlined animate-spin text-sm mr-2">refresh</span>
+                                                <span className="material-symbols-outlined animate-spin text-sm mr-2">
+                                                    refresh
+                                                </span>
                                                 Ajout...
                                             </>
                                         ) : (
@@ -233,24 +246,31 @@ export default function AvailabilityManager({ item, currentUserId }: Availabilit
                         {availabilities.map((availability) => {
                             const { label, color } = getStatusInfo(availability);
                             const isPast = new Date(availability.end_date) < new Date();
-                            
+
                             return (
-                                <div key={availability.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                <div
+                                    key={availability.id}
+                                    className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                                >
                                     <div className="flex items-center gap-3">
                                         <div>
                                             <p className="font-medium">
-                                                Du {format(new Date(availability.start_date), 'dd MMM', { locale: fr })} au{' '}
+                                                Du {format(new Date(availability.start_date), 'dd MMM', { locale: fr })}{' '}
+                                                au{' '}
                                                 {format(new Date(availability.end_date), 'dd MMM yyyy', { locale: fr })}
                                             </p>
                                             <p className="text-sm text-gray-600">
-                                                {Math.ceil((new Date(availability.end_date).getTime() - new Date(availability.start_date).getTime()) / (1000 * 60 * 60 * 24))} jour(s)
+                                                {Math.ceil(
+                                                    (new Date(availability.end_date).getTime() -
+                                                        new Date(availability.start_date).getTime()) /
+                                                        (1000 * 60 * 60 * 24)
+                                                )}{' '}
+                                                jour(s)
                                             </p>
                                         </div>
                                     </div>
                                     <div className="flex items-center gap-2">
-                                        <Badge className={color}>
-                                            {label}
-                                        </Badge>
+                                        <Badge className={color} hover={false}>{label}</Badge>
                                         {!isPast && availability.status === ItemAvailabilityStatus.AVAILABLE && (
                                             <Button
                                                 variant="ghost"
@@ -271,9 +291,7 @@ export default function AvailabilityManager({ item, currentUserId }: Availabilit
                 ) : (
                     <div className="text-center py-8">
                         <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
-                            <span className="material-symbols-outlined text-2xl text-gray-400">
-                                calendar_month
-                            </span>
+                            <span className="material-symbols-outlined text-2xl text-gray-400">calendar_month</span>
                         </div>
                         <h3 className="font-semibold text-gray-900 mb-2">Aucune disponibilité</h3>
                         <p className="text-gray-600 mb-4">
@@ -285,8 +303,8 @@ export default function AvailabilityManager({ item, currentUserId }: Availabilit
                 <Alert className="mt-4">
                     <span className="material-symbols-outlined text-sm">lightbulb</span>
                     <AlertDescription>
-                        <strong>Comment ça marche :</strong> Les disponibilités définissent quand votre objet peut être emprunté. 
-                        Quand quelqu'un fait une demande, le créneau devient "occupé" si vous acceptez.
+                        <strong>Comment ça marche :</strong> Les disponibilités définissent quand votre objet peut être
+                        emprunté. Quand quelqu'un fait une demande, le créneau devient "occupé" si vous acceptez.
                     </AlertDescription>
                 </Alert>
             </CardContent>

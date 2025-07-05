@@ -31,65 +31,50 @@ interface ItemsPageProps {
 function ItemsPage({ user, neighborhoodId }: ItemsPageProps) {
     const { goAddItem } = useAppNavigation();
     const [activeTab, setActiveTab] = useState('items');
-    
+
     const [filters, setFilters] = useState<GetItemsFilters>({
         neighborhoodId: parseInt(neighborhoodId),
         category: '',
         search: '',
         status: undefined,
         page: 1,
-        limit: 12
+        limit: 12,
     });
 
-    // Hooks pour les emprunts
     const {
         myRequests,
         receivedRequests,
         loading: requestsLoading,
         error: requestsError,
-        refetchAll: refetchRequests
+        refetchAll: refetchRequests,
     } = useLoanRequests();
 
-    const {
-        myLoans,
-        lentItems,
-        loading: loansLoading,
-        error: loansError,
-        refetchAll: refetchLoans
-    } = useLoans();
+    const { myLoans, lentItems, loading: loansLoading, error: loansError, refetchAll: refetchLoans } = useLoans();
 
-    const {
-        acceptLoanRequest,
-        rejectLoanRequest,
-        cancelLoanRequest,
-        acceptLoading,
-        rejectLoading,
-        cancelLoading
-    } = useLoanRequestActions();
+    const { acceptLoanRequest, rejectLoanRequest, cancelLoanRequest, acceptLoading, rejectLoading, cancelLoading } =
+        useLoanRequestActions();
 
     const { returnLoan, loading: returnLoading } = useReturnLoan();
 
     const { items, loading, error, pagination, fetchItems } = useItems();
 
-    // Debounce search
     const [debouncedSearch, setDebouncedSearch] = useState(filters.search);
-    
+
     useEffect(() => {
         const timer = setTimeout(() => {
             setDebouncedSearch(filters.search);
         }, 300);
-        
+
         return () => clearTimeout(timer);
     }, [filters.search]);
-    
-    // Fetch items when relevant filters change
+
     useEffect(() => {
         const finalFilters = {
             ...filters,
-            search: debouncedSearch
+            search: debouncedSearch,
         };
         fetchItems(finalFilters);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [filters.neighborhoodId, filters.category, filters.status, filters.page, filters.limit, debouncedSearch]);
 
     useEffect(() => {
@@ -97,7 +82,6 @@ function ItemsPage({ user, neighborhoodId }: ItemsPageProps) {
         refetchLoans();
     }, []);
 
-    // Handlers pour les actions des prêts
     const handleAcceptRequest = async (id: number) => {
         const success = await acceptLoanRequest(id, user.id);
         if (success) {
@@ -128,53 +112,56 @@ function ItemsPage({ user, neighborhoodId }: ItemsPageProps) {
     };
 
     const handleSearchChange = useCallback((search: string) => {
-        setFilters(prev => ({ ...prev, search, page: 1 }));
+        setFilters((prev) => ({ ...prev, search, page: 1 }));
     }, []);
 
     const handleCategoryChange = useCallback((category: string) => {
-        setFilters(prev => ({ ...prev, category: category === 'all' ? '' : category, page: 1 }));
+        setFilters((prev) => ({ ...prev, category: category === 'all' ? '' : category, page: 1 }));
     }, []);
 
     const handleStatusChange = useCallback((status: string) => {
-        setFilters(prev => ({ ...prev, status: status === 'all' ? undefined : status as ItemAvailabilityStatus, page: 1 }));
+        setFilters((prev) => ({
+            ...prev,
+            status: status === 'all' ? undefined : (status as ItemAvailabilityStatus),
+            page: 1,
+        }));
     }, []);
 
     const handleClearFilters = useCallback(() => {
-        setFilters(prev => ({
+        setFilters((prev) => ({
             ...prev,
             search: '',
             category: '',
             status: undefined,
-            page: 1
+            page: 1,
         }));
     }, []);
 
     const handlePageChange = useCallback((page: number) => {
-        setFilters(prev => ({ ...prev, page }));
+        setFilters((prev) => ({ ...prev, page }));
     }, []);
 
     const renderPagination = () => {
         if (pagination.totalPages <= 1) return null;
 
-        // Afficher seulement quelques pages autour de la page courante pour éviter trop de boutons
         const getVisiblePages = () => {
             const totalPages = pagination.totalPages;
             const currentPage = pagination.page;
             const maxVisiblePages = 5;
-            
+
             if (totalPages <= maxVisiblePages) {
                 return Array.from({ length: totalPages }, (_, i) => i + 1);
             }
-            
+
             const start = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
             const end = Math.min(totalPages, start + maxVisiblePages - 1);
             const adjustedStart = Math.max(1, end - maxVisiblePages + 1);
-            
+
             return Array.from({ length: end - adjustedStart + 1 }, (_, i) => adjustedStart + i);
         };
 
         const visiblePages = getVisiblePages();
-        
+
         return (
             <div className="flex items-center justify-center gap-2 mt-8">
                 <Button
@@ -185,25 +172,20 @@ function ItemsPage({ user, neighborhoodId }: ItemsPageProps) {
                 >
                     <span className="material-symbols-outlined text-sm">chevron_left</span>
                 </Button>
-                
+
                 {pagination.page > 3 && pagination.totalPages > 5 && (
                     <>
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handlePageChange(1)}
-                            disabled={loading}
-                        >
+                        <Button variant="outline" size="sm" onClick={() => handlePageChange(1)} disabled={loading}>
                             1
                         </Button>
                         {pagination.page > 4 && <span className="text-gray-400">...</span>}
                     </>
                 )}
-                
-                {visiblePages.map(page => (
+
+                {visiblePages.map((page) => (
                     <Button
                         key={page}
-                        variant={page === pagination.page ? "default" : "outline"}
+                        variant={page === pagination.page ? 'default' : 'outline'}
                         size="sm"
                         onClick={() => handlePageChange(page)}
                         disabled={loading}
@@ -211,7 +193,7 @@ function ItemsPage({ user, neighborhoodId }: ItemsPageProps) {
                         {page}
                     </Button>
                 ))}
-                
+
                 {pagination.page < pagination.totalPages - 2 && pagination.totalPages > 5 && (
                     <>
                         {pagination.page < pagination.totalPages - 3 && <span className="text-gray-400">...</span>}
@@ -225,7 +207,7 @@ function ItemsPage({ user, neighborhoodId }: ItemsPageProps) {
                         </Button>
                     </>
                 )}
-                
+
                 <Button
                     variant="outline"
                     size="sm"
@@ -239,16 +221,16 @@ function ItemsPage({ user, neighborhoodId }: ItemsPageProps) {
     };
 
     const getRequestStats = () => {
-        const pendingReceived = receivedRequests.filter(r => r.status === LoanRequestStatus.PENDING).length;
-        const pendingMy = myRequests.filter(r => r.status === LoanRequestStatus.PENDING).length;
-        
+        const pendingReceived = receivedRequests.filter((r) => r.status === LoanRequestStatus.PENDING).length;
+        const pendingMy = myRequests.filter((r) => r.status === LoanRequestStatus.PENDING).length;
+
         return { pendingReceived, pendingMy };
     };
 
     const getLoanStats = () => {
-        const activeLoans = myLoans.filter(l => l.status === LoanStatus.ACTIVE).length;
-        const activeLentItems = lentItems.filter(l => l.status === LoanStatus.ACTIVE).length;
-        
+        const activeLoans = myLoans.filter((l) => l.status === LoanStatus.ACTIVE).length;
+        const activeLentItems = lentItems.filter((l) => l.status === LoanStatus.ACTIVE).length;
+
         return { activeLoans, activeLentItems };
     };
 
@@ -258,20 +240,16 @@ function ItemsPage({ user, neighborhoodId }: ItemsPageProps) {
     return (
         <div>
             <DashboardHeader />
-            
+
             <div className="container mx-auto px-4 py-8">
                 {/* Header */}
                 <div className="flex items-center justify-between mb-8">
                     <div>
-                        <h1 className="text-3xl font-bold text-gray-900">
-                            Matériel du quartier
-                        </h1>
-                        <p className="text-gray-600 mt-2">
-                            Découvrez, empruntez et gérez les objets partagés
-                        </p>
+                        <h1 className="text-3xl font-bold text-gray-900">Matériel du quartier</h1>
+                        <p className="text-gray-600 mt-2">Découvrez, empruntez et gérez les objets partagés</p>
                     </div>
-                    
-                    <Button onClick={goAddItem}>
+
+                    <Button variant={'orange'} onClick={goAddItem}>
                         <span className="material-symbols-outlined text-sm mr-2">add</span>
                         Partager un objet
                     </Button>
@@ -280,9 +258,7 @@ function ItemsPage({ user, neighborhoodId }: ItemsPageProps) {
                 {/* Tabs */}
                 <Tabs value={activeTab} onValueChange={setActiveTab}>
                     <TabsList className="grid w-full grid-cols-5">
-                        <TabsTrigger value="items">
-                            Objets disponibles
-                        </TabsTrigger>
+                        <TabsTrigger value="items">Objets disponibles</TabsTrigger>
                         <TabsTrigger value="my-requests" className="relative">
                             Mes demandes
                             {stats.pendingMy > 0 && (
@@ -336,13 +312,18 @@ function ItemsPage({ user, neighborhoodId }: ItemsPageProps) {
                         <div className="flex items-center gap-4 mt-6 mb-6">
                             <div className="flex items-center gap-2 text-sm text-gray-600">
                                 <span className="material-symbols-outlined text-sm">inventory_2</span>
-                                <span>{pagination.total} objet{pagination.total > 1 ? 's' : ''} trouvé{pagination.total > 1 ? 's' : ''}</span>
+                                <span>
+                                    {pagination.total} objet{pagination.total > 1 ? 's' : ''} trouvé
+                                    {pagination.total > 1 ? 's' : ''}
+                                </span>
                             </div>
-                            
+
                             {pagination.totalPages > 1 && (
                                 <div className="flex items-center gap-2 text-sm text-gray-600">
                                     <span className="material-symbols-outlined text-sm">auto_stories</span>
-                                    <span>Page {pagination.page} sur {pagination.totalPages}</span>
+                                    <span>
+                                        Page {pagination.page} sur {pagination.totalPages}
+                                    </span>
                                 </div>
                             )}
                         </div>
@@ -369,14 +350,10 @@ function ItemsPage({ user, neighborhoodId }: ItemsPageProps) {
                             <>
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                                     {items.map((item) => (
-                                        <ItemCard
-                                            key={item.id}
-                                            item={item}
-                                            currentUserId={user.id}
-                                        />
+                                        <ItemCard key={item.id} item={item} currentUserId={user.id} />
                                     ))}
                                 </div>
-                                
+
                                 {renderPagination()}
                             </>
                         ) : (
@@ -386,16 +363,13 @@ function ItemsPage({ user, neighborhoodId }: ItemsPageProps) {
                                         inventory_2
                                     </span>
                                 </div>
-                                <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                                    Aucun objet trouvé
-                                </h3>
+                                <h3 className="text-lg font-semibold text-gray-900 mb-2">Aucun objet trouvé</h3>
                                 <p className="text-gray-600 mb-6">
-                                    {filters.search || (filters.category && filters.category !== '') || filters.status ? 
-                                        'Aucun objet ne correspond à vos critères de recherche.' :
-                                        'Soyez le premier à partager un objet dans votre quartier !'
-                                    }
+                                    {filters.search || (filters.category && filters.category !== '') || filters.status
+                                        ? 'Aucun objet ne correspond à vos critères de recherche.'
+                                        : 'Soyez le premier à partager un objet dans votre quartier !'}
                                 </p>
-                                
+
                                 {filters.search || (filters.category && filters.category !== '') || filters.status ? (
                                     <Button variant="outline" onClick={handleClearFilters}>
                                         <span className="material-symbols-outlined text-sm mr-2">clear_all</span>
@@ -418,7 +392,7 @@ function ItemsPage({ user, neighborhoodId }: ItemsPageProps) {
                                 <AlertDescription>{requestsError}</AlertDescription>
                             </Alert>
                         )}
-                        
+
                         {requestsLoading ? (
                             <div className="space-y-4">
                                 {Array.from({ length: 3 }).map((_, i) => (
@@ -455,7 +429,7 @@ function ItemsPage({ user, neighborhoodId }: ItemsPageProps) {
                                 <AlertDescription>{requestsError}</AlertDescription>
                             </Alert>
                         )}
-                        
+
                         {requestsLoading ? (
                             <div className="space-y-4">
                                 {Array.from({ length: 3 }).map((_, i) => (
@@ -494,7 +468,7 @@ function ItemsPage({ user, neighborhoodId }: ItemsPageProps) {
                                 <AlertDescription>{loansError}</AlertDescription>
                             </Alert>
                         )}
-                        
+
                         {loansLoading ? (
                             <div className="space-y-4">
                                 {Array.from({ length: 3 }).map((_, i) => (
@@ -516,7 +490,9 @@ function ItemsPage({ user, neighborhoodId }: ItemsPageProps) {
                         ) : (
                             <div className="text-center py-12">
                                 <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
-                                    <span className="material-symbols-outlined text-2xl text-gray-400">inventory_2</span>
+                                    <span className="material-symbols-outlined text-2xl text-gray-400">
+                                        inventory_2
+                                    </span>
                                 </div>
                                 <h3 className="text-lg font-semibold text-gray-900 mb-2">Aucun emprunt</h3>
                                 <p className="text-gray-600">Vous n'avez actuellement aucun objet emprunté.</p>
@@ -531,7 +507,7 @@ function ItemsPage({ user, neighborhoodId }: ItemsPageProps) {
                                 <AlertDescription>{loansError}</AlertDescription>
                             </Alert>
                         )}
-                        
+
                         {loansLoading ? (
                             <div className="space-y-4">
                                 {Array.from({ length: 3 }).map((_, i) => (

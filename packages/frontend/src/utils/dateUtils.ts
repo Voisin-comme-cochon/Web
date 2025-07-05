@@ -14,36 +14,36 @@ export function formatMessageTime(dateString: string): string {
 
     // Options pour la timezone française
     const timeZone = 'Europe/Paris';
-    
+
     if (diffInHours < 1) {
         // Moins d'1h : afficher l'heure (ex: "14:30")
-        return date.toLocaleTimeString('fr-FR', { 
-            hour: '2-digit', 
+        return date.toLocaleTimeString('fr-FR', {
+            hour: '2-digit',
             minute: '2-digit',
-            timeZone 
+            timeZone,
         });
     } else if (diffInHours < 24) {
         // Moins de 24h : afficher l'heure (ex: "14:30")
-        return date.toLocaleTimeString('fr-FR', { 
-            hour: '2-digit', 
+        return date.toLocaleTimeString('fr-FR', {
+            hour: '2-digit',
             minute: '2-digit',
-            timeZone 
+            timeZone,
         });
     } else if (diffInHours < 48) {
         // Entre 24h et 48h : "Hier"
         return 'Hier';
     } else if (diffInHours < 168) {
         // Moins d'une semaine : jour de la semaine (ex: "Lun")
-        return date.toLocaleDateString('fr-FR', { 
+        return date.toLocaleDateString('fr-FR', {
             weekday: 'short',
-            timeZone 
+            timeZone,
         });
     } else {
         // Plus d'une semaine : date courte (ex: "15/03")
-        return date.toLocaleDateString('fr-FR', { 
-            day: '2-digit', 
+        return date.toLocaleDateString('fr-FR', {
+            day: '2-digit',
             month: '2-digit',
-            timeZone 
+            timeZone,
         });
     }
 }
@@ -61,7 +61,7 @@ export function formatFullDate(dateString: string): string {
         day: 'numeric',
         hour: '2-digit',
         minute: '2-digit',
-        timeZone: 'Europe/Paris'
+        timeZone: 'Europe/Paris',
     });
 }
 
@@ -75,18 +75,18 @@ export function formatTime(dateString: string): string {
     return date.toLocaleTimeString('fr-FR', {
         hour: '2-digit',
         minute: '2-digit',
-        timeZone: 'Europe/Paris'
+        timeZone: 'Europe/Paris',
     });
 }
 
 /**
  * Formate une date en français simple
- * @param dateString - String de date ISO ou timestamp  
+ * @param dateString - String de date ISO ou timestamp
  * @returns Date formatée (ex: "15/03/2024")
  */
 export function formatDate(dateString: string): string {
     const date = new Date(dateString);
     return date.toLocaleDateString('fr-FR', {
-        timeZone: 'Europe/Paris'
+        timeZone: 'Europe/Paris',
     });
 }

@@ -1,14 +1,14 @@
 import { useState, useEffect } from 'react';
 import { ItemRepository } from '@/infrastructure/repositories/ItemRepository';
 import { ItemsUc } from '@/domain/use-cases/itemsUc';
-import { 
-    ItemModel, 
-    ItemAvailabilityModel, 
-    CreateItemRequest, 
+import {
+    ItemModel,
+    ItemAvailabilityModel,
+    CreateItemRequest,
     UpdateItemRequest,
     CreateItemAvailabilityRequest,
     UpdateItemAvailabilityRequest,
-    GetItemsFilters
+    GetItemsFilters,
 } from '@/domain/models/item.model';
 import { PaginatedResultModel } from '@/domain/models/paginated-result.model';
 import { toast } from '@/hooks/use-toast';
@@ -21,7 +21,7 @@ export const useItems = (initialFilters?: GetItemsFilters) => {
         total: 0,
         page: 1,
         limit: 10,
-        totalPages: 0
+        totalPages: 0,
     });
 
     const itemsUc = new ItemsUc(new ItemRepository());
@@ -36,7 +36,7 @@ export const useItems = (initialFilters?: GetItemsFilters) => {
                 total: result.total,
                 page: result.page,
                 limit: result.limit,
-                totalPages: result.totalPages
+                totalPages: result.totalPages,
             });
         } catch (err) {
             const errorMessage = err instanceof Error ? err.message : 'Erreur lors du chargement des objets';
@@ -44,7 +44,7 @@ export const useItems = (initialFilters?: GetItemsFilters) => {
             toast({
                 title: 'Erreur',
                 description: errorMessage,
-                variant: 'destructive'
+                variant: 'destructive',
             });
         } finally {
             setLoading(false);
@@ -67,7 +67,7 @@ export const useItems = (initialFilters?: GetItemsFilters) => {
         error,
         pagination,
         refetch,
-        fetchItems
+        fetchItems,
     };
 };
 
@@ -85,12 +85,12 @@ export const useItem = (id?: number) => {
             const result = await itemsUc.getItemById(itemId);
             setItem(result);
         } catch (err) {
-            const errorMessage = err instanceof Error ? err.message : 'Erreur lors du chargement de l\'objet';
+            const errorMessage = err instanceof Error ? err.message : "Erreur lors du chargement de l'objet";
             setError(errorMessage);
             toast({
                 title: 'Erreur',
                 description: errorMessage,
-                variant: 'destructive'
+                variant: 'destructive',
             });
         } finally {
             setLoading(false);
@@ -114,7 +114,7 @@ export const useItem = (id?: number) => {
         loading,
         error,
         refetch,
-        fetchItem
+        fetchItem,
     };
 };
 
@@ -131,16 +131,16 @@ export const useCreateItem = () => {
             const result = await itemsUc.createItem(itemData);
             toast({
                 title: 'Succès',
-                description: 'Objet créé avec succès'
+                description: 'Objet créé avec succès',
             });
             return result;
         } catch (err) {
-            const errorMessage = err instanceof Error ? err.message : 'Erreur lors de la création de l\'objet';
+            const errorMessage = err instanceof Error ? err.message : "Erreur lors de la création de l'objet";
             setError(errorMessage);
             toast({
                 title: 'Erreur',
                 description: errorMessage,
-                variant: 'destructive'
+                variant: 'destructive',
             });
             return null;
         } finally {
@@ -151,7 +151,7 @@ export const useCreateItem = () => {
     return {
         createItem,
         loading,
-        error
+        error,
     };
 };
 
@@ -168,16 +168,16 @@ export const useUpdateItem = () => {
             await itemsUc.updateItem(id, itemData);
             toast({
                 title: 'Succès',
-                description: 'Objet modifié avec succès'
+                description: 'Objet modifié avec succès',
             });
             return true;
         } catch (err) {
-            const errorMessage = err instanceof Error ? err.message : 'Erreur lors de la modification de l\'objet';
+            const errorMessage = err instanceof Error ? err.message : "Erreur lors de la modification de l'objet";
             setError(errorMessage);
             toast({
                 title: 'Erreur',
                 description: errorMessage,
-                variant: 'destructive'
+                variant: 'destructive',
             });
             return false;
         } finally {
@@ -188,7 +188,7 @@ export const useUpdateItem = () => {
     return {
         updateItem,
         loading,
-        error
+        error,
     };
 };
 
@@ -205,16 +205,16 @@ export const useDeleteItem = () => {
             await itemsUc.deleteItem(id);
             toast({
                 title: 'Succès',
-                description: 'Objet supprimé avec succès'
+                description: 'Objet supprimé avec succès',
             });
             return true;
         } catch (err) {
-            const errorMessage = err instanceof Error ? err.message : 'Erreur lors de la suppression de l\'objet';
+            const errorMessage = err instanceof Error ? err.message : "Erreur lors de la suppression de l'objet";
             setError(errorMessage);
             toast({
                 title: 'Erreur',
                 description: errorMessage,
-                variant: 'destructive'
+                variant: 'destructive',
             });
             return false;
         } finally {
@@ -225,7 +225,7 @@ export const useDeleteItem = () => {
     return {
         deleteItem,
         loading,
-        error
+        error,
     };
 };
 
@@ -248,7 +248,7 @@ export const useItemAvailabilities = (itemId?: number) => {
             toast({
                 title: 'Erreur',
                 description: errorMessage,
-                variant: 'destructive'
+                variant: 'destructive',
             });
         } finally {
             setLoading(false);
@@ -266,26 +266,27 @@ export const useItemAvailabilities = (itemId?: number) => {
         setError(null);
         try {
             const result = await itemsUc.createItemAvailability(availability.item_id, availability);
-            setAvailabilities(prev => [...prev, result]);
+            setAvailabilities((prev) => [...prev, result]);
             toast({
                 title: 'Succès',
-                description: 'Disponibilité ajoutée avec succès'
+                description: 'Disponibilité ajoutée avec succès',
             });
             return true;
         } catch (err: any) {
-            let errorMessage = 'Erreur lors de l\'ajout de la disponibilité';
-            
+            let errorMessage = "Erreur lors de l'ajout de la disponibilité";
+
             if (err?.response?.data?.message) {
                 const backendMessage = err.response.data.message;
                 switch (err.response.data.code) {
                     case 'item_not_found':
-                        errorMessage = 'L\'objet n\'existe plus.';
+                        errorMessage = "L'objet n'existe plus.";
                         break;
                     case 'forbidden_availability':
                         errorMessage = 'Vous ne pouvez gérer que les disponibilités de vos propres objets.';
                         break;
                     case 'invalid_dates':
-                        errorMessage = 'Les dates sélectionnées ne sont pas valides. La date de fin doit être postérieure à la date de début.';
+                        errorMessage =
+                            'Les dates sélectionnées ne sont pas valides. La date de fin doit être postérieure à la date de début.';
                         break;
                     case 'past_date':
                         errorMessage = 'La date de début ne peut pas être dans le passé.';
@@ -296,12 +297,12 @@ export const useItemAvailabilities = (itemId?: number) => {
             } else if (err?.message) {
                 errorMessage = err.message;
             }
-            
+
             setError(errorMessage);
             toast({
                 title: 'Erreur',
                 description: errorMessage,
-                variant: 'destructive'
+                variant: 'destructive',
             });
             return false;
         } finally {
@@ -309,7 +310,10 @@ export const useItemAvailabilities = (itemId?: number) => {
         }
     };
 
-    const updateAvailability = async (availabilityId: number, availability: UpdateItemAvailabilityRequest): Promise<boolean> => {
+    const updateAvailability = async (
+        availabilityId: number,
+        availability: UpdateItemAvailabilityRequest
+    ): Promise<boolean> => {
         setLoading(true);
         setError(null);
         try {
@@ -319,16 +323,17 @@ export const useItemAvailabilities = (itemId?: number) => {
             }
             toast({
                 title: 'Succès',
-                description: 'Disponibilité modifiée avec succès'
+                description: 'Disponibilité modifiée avec succès',
             });
             return true;
         } catch (err) {
-            const errorMessage = err instanceof Error ? err.message : 'Erreur lors de la modification de la disponibilité';
+            const errorMessage =
+                err instanceof Error ? err.message : 'Erreur lors de la modification de la disponibilité';
             setError(errorMessage);
             toast({
                 title: 'Erreur',
                 description: errorMessage,
-                variant: 'destructive'
+                variant: 'destructive',
             });
             return false;
         } finally {
@@ -341,19 +346,20 @@ export const useItemAvailabilities = (itemId?: number) => {
         setError(null);
         try {
             await itemsUc.deleteItemAvailability(availabilityId);
-            setAvailabilities(prev => prev.filter(a => a.id !== availabilityId));
+            setAvailabilities((prev) => prev.filter((a) => a.id !== availabilityId));
             toast({
                 title: 'Succès',
-                description: 'Disponibilité supprimée avec succès'
+                description: 'Disponibilité supprimée avec succès',
             });
             return true;
         } catch (err) {
-            const errorMessage = err instanceof Error ? err.message : 'Erreur lors de la suppression de la disponibilité';
+            const errorMessage =
+                err instanceof Error ? err.message : 'Erreur lors de la suppression de la disponibilité';
             setError(errorMessage);
             toast({
                 title: 'Erreur',
                 description: errorMessage,
-                variant: 'destructive'
+                variant: 'destructive',
             });
             return false;
         } finally {
@@ -374,6 +380,6 @@ export const useItemAvailabilities = (itemId?: number) => {
         refetch,
         createAvailability,
         updateAvailability,
-        deleteAvailability
+        deleteAvailability,
     };
 };

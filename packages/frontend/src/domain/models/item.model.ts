@@ -1,7 +1,7 @@
 export enum ItemAvailabilityStatus {
     AVAILABLE = 'available',
     UNAVAILABLE = 'unavailable',
-    PARTIALLY_BOOKED = 'partially_booked'
+    PARTIALLY_BOOKED = 'partially_booked',
 }
 
 export interface ItemModel {

@@ -207,7 +207,7 @@ function ItemDetailsPage({ user, neighborhoodId }: ItemDetailsPageProps) {
                                 )}
 
                                 <div className="flex items-center gap-2 mb-4">
-                                    <Badge className={color}>
+                                    <Badge className={color} hover={false}>
                                         {status}
                                     </Badge>
                                     <span className="text-sm text-gray-600">{description}</span>

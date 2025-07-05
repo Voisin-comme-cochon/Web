@@ -126,7 +126,6 @@ export function useWebSocket({ onMessageReceived, onConnected }: UseWebSocketPro
         return true;
     }, []);
 
-
     const disconnect = useCallback(() => {
         if (socketRef.current) {
             socketRef.current.disconnect();

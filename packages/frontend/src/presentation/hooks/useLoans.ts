@@ -1,10 +1,7 @@
 import { useState, useEffect } from 'react';
 import { LoanRepository } from '@/infrastructure/repositories/LoanRepository';
 import { LoansUc } from '@/domain/use-cases/loansUc';
-import { 
-    LoanModel, 
-    LoanStatus
-} from '@/domain/models/loan.model';
+import { LoanModel, LoanStatus } from '@/domain/models/loan.model';
 import { toast } from '@/hooks/use-toast';
 
 export const useLoans = () => {
@@ -28,7 +25,7 @@ export const useLoans = () => {
             toast({
                 title: 'Erreur',
                 description: errorMessage,
-                variant: 'destructive'
+                variant: 'destructive',
             });
         } finally {
             setLoading(false);
@@ -47,7 +44,7 @@ export const useLoans = () => {
             toast({
                 title: 'Erreur',
                 description: errorMessage,
-                variant: 'destructive'
+                variant: 'destructive',
             });
         } finally {
             setLoading(false);
@@ -66,7 +63,7 @@ export const useLoans = () => {
             toast({
                 title: 'Erreur',
                 description: errorMessage,
-                variant: 'destructive'
+                variant: 'destructive',
             });
         } finally {
             setLoading(false);
@@ -90,7 +87,7 @@ export const useLoans = () => {
         refetchMyLoans: fetchMyLoans,
         refetchLentItems: fetchLentItems,
         refetchOverdueLoans: fetchOverdueLoans,
-        refetchAll: fetchAllLoans
+        refetchAll: fetchAllLoans,
     };
 };
 
@@ -113,7 +110,7 @@ export const useLoan = (id?: number) => {
             toast({
                 title: 'Erreur',
                 description: errorMessage,
-                variant: 'destructive'
+                variant: 'destructive',
             });
         } finally {
             setLoading(false);
@@ -136,7 +133,7 @@ export const useLoan = (id?: number) => {
         loan,
         loading,
         error,
-        refetch
+        refetch,
     };
 };
 
@@ -153,7 +150,7 @@ export const useReturnLoan = () => {
             await loansUc.returnLoan(id, currentUserId, returnDate);
             toast({
                 title: 'Succès',
-                description: 'Prêt marqué comme rendu avec succès'
+                description: 'Prêt marqué comme rendu avec succès',
             });
             return true;
         } catch (err) {
@@ -162,7 +159,7 @@ export const useReturnLoan = () => {
             toast({
                 title: 'Erreur',
                 description: errorMessage,
-                variant: 'destructive'
+                variant: 'destructive',
             });
             return false;
         } finally {
@@ -173,7 +170,7 @@ export const useReturnLoan = () => {
     return {
         returnLoan,
         loading,
-        error
+        error,
     };
 };
 
@@ -220,6 +217,6 @@ export const useLoanStatus = () => {
         isLoanOverdue,
         getDaysUntilReturn,
         getDaysOverdue,
-        formatLoanDuration
+        formatLoanDuration,
     };
 };

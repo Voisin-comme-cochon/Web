@@ -1,12 +1,12 @@
 import ApiService from '@/infrastructure/api/ApiService';
-import { 
-    ItemModel, 
-    ItemAvailabilityModel, 
-    CreateItemRequest, 
-    UpdateItemRequest, 
-    CreateItemAvailabilityRequest, 
+import {
+    ItemModel,
+    ItemAvailabilityModel,
+    CreateItemRequest,
+    UpdateItemRequest,
+    CreateItemAvailabilityRequest,
     UpdateItemAvailabilityRequest,
-    GetItemsFilters 
+    GetItemsFilters,
 } from '@/domain/models/item.model';
 import { PaginatedResultModel } from '@/domain/models/paginated-result.model';
 
@@ -26,7 +26,7 @@ export class ItemRepository {
             total: response.data.metadata?.totalCount || 0,
             page: response.data.metadata?.page || 1,
             limit: response.data.metadata?.limit || 10,
-            totalPages: response.data.metadata?.totalPages || 0
+            totalPages: response.data.metadata?.totalPages || 0,
         };
     }
 
@@ -94,10 +94,13 @@ export class ItemRepository {
         return response.data.map(this.mapItemAvailability);
     }
 
-    async createItemAvailability(itemId: number, availability: CreateItemAvailabilityRequest): Promise<ItemAvailabilityModel> {
+    async createItemAvailability(
+        itemId: number,
+        availability: CreateItemAvailabilityRequest
+    ): Promise<ItemAvailabilityModel> {
         const response = await ApiService.post(`/items/${itemId}/availabilities`, {
             start_date: availability.start_date.toISOString(),
-            end_date: availability.end_date.toISOString()
+            end_date: availability.end_date.toISOString(),
         });
         return this.mapItemAvailability(response.data);
     }
@@ -126,14 +129,16 @@ export class ItemRepository {
             neighborhood_id: data.neighborhood_id,
             created_at: new Date(data.created_at),
             availabilities: data.availabilities?.map(this.mapItemAvailability),
-            owner: data.owner ? {
-                id: data.owner.id,
-                firstName: data.owner.firstName,
-                lastName: data.owner.lastName,
-                profileImageUrl: data.owner.profileImageUrl
-            } : undefined
+            owner: data.owner
+                ? {
+                      id: data.owner.id,
+                      firstName: data.owner.firstName,
+                      lastName: data.owner.lastName,
+                      profileImageUrl: data.owner.profileImageUrl,
+                  }
+                : undefined,
         };
-    }
+    };
 
     private mapItemAvailability = (data: any): ItemAvailabilityModel => {
         return {
@@ -142,7 +147,7 @@ export class ItemRepository {
             start_date: new Date(data.start_date),
             end_date: new Date(data.end_date),
             status: data.status,
-            created_at: new Date(data.created_at)
+            created_at: new Date(data.created_at),
         };
-    }
+    };
 }

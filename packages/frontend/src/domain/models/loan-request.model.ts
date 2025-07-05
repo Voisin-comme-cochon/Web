@@ -2,7 +2,7 @@ export enum LoanRequestStatus {
     PENDING = 'pending',
     ACCEPTED = 'accepted',
     REJECTED = 'rejected',
-    CANCELLED = 'cancelled'
+    CANCELLED = 'cancelled',
 }
 
 export interface LoanRequestModel {
