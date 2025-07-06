@@ -207,12 +207,26 @@ export class ItemsService {
         const startDate = new Date(availability.start_date);
         const endDate = new Date(availability.end_date);
 
-        if (startDate >= endDate) {
-            throw new CochonError('invalid_dates', 'Start date must be before end date', 400);
+        if (startDate > endDate) {
+            throw new CochonError('invalid_dates', 'Start date must be before or equal to end date', 400);
         }
 
         if (startDate < new Date()) {
             throw new CochonError('past_date', 'Start date cannot be in the past', 400);
+        }
+
+        // Vérifier les chevauchements avec les disponibilités existantes
+        const existingAvailabilities = await this.itemsRepository.getItemAvailabilities(itemId);
+        
+        for (const existing of existingAvailabilities) {
+            const existingStart = new Date(existing.start_date);
+            const existingEnd = new Date(existing.end_date);
+            
+            // Vérifier s'il y a chevauchement : 
+            // Nouvelle période commence avant la fin d'une existante ET finit après le début d'une existante
+            if (startDate <= existingEnd && endDate >= existingStart) {
+                throw new CochonError('overlapping_availability', 'This availability period overlaps with an existing one', 400);
+            }
         }
 
         const createdAvailability = await this.itemsRepository.createItemAvailability({
@@ -251,8 +265,8 @@ export class ItemsService {
             const startDate = new Date(availability.start_date);
             const endDate = new Date(availability.end_date);
 
-            if (startDate >= endDate) {
-                throw new CochonError('invalid_dates', 'Start date must be before end date', 400);
+            if (startDate > endDate) {
+                throw new CochonError('invalid_dates', 'Start date must be before or equal to end date', 400);
             }
 
             if (startDate < new Date()) {

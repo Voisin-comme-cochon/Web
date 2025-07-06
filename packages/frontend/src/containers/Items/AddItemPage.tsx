@@ -4,7 +4,7 @@ import { CreateItemRequest } from '@/domain/models/item.model';
 import { useCreateItem } from '@/presentation/hooks/useItems';
 import { useAppNavigation } from '@/presentation/state/navigate';
 import DashboardHeader from '@/components/Header/DashboardHeader';
-import ItemForm from '@/components/ItemForm/ItemForm';
+import ItemForm from '@/components/Items/ItemForm/ItemForm';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';

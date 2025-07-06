@@ -4,6 +4,12 @@ export enum ItemAvailabilityStatus {
     PARTIALLY_BOOKED = 'partially_booked',
 }
 
+export enum ItemAvailabilitySlotStatus {
+    AVAILABLE = 'available',
+    RESERVED = 'reserved',
+    OCCUPIED = 'occupied',
+}
+
 export interface ItemModel {
     id: number;
     name: string;
@@ -22,6 +28,16 @@ export interface ItemModel {
     };
 }
 
+export interface ItemAvailabilitySlotModel {
+    id: number;
+    availability_id: number;
+    start_date: Date;
+    end_date: Date;
+    status: ItemAvailabilitySlotStatus;
+    loan_request_id?: number;
+    created_at: Date;
+}
+
 export interface ItemAvailabilityModel {
     id: number;
     item_id: number;
@@ -29,6 +45,7 @@ export interface ItemAvailabilityModel {
     end_date: Date;
     status: ItemAvailabilityStatus;
     created_at: Date;
+    slots?: ItemAvailabilitySlotModel[];
 }
 
 export interface CreateItemRequest {

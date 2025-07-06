@@ -145,7 +145,7 @@ export const useCreateLoanRequest = () => {
                         break;
                     case 'invalid_dates':
                         errorMessage =
-                            'Les dates sélectionnées ne sont pas valides. La date de fin doit être postérieure à la date de début.';
+                            'Les dates sélectionnées ne sont pas valides. La date de fin doit être postérieure ou égale à la date de début.';
                         break;
                     case 'item_not_found':
                         errorMessage = "L'objet demandé n'existe plus.";

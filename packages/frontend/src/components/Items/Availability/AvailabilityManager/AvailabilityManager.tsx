@@ -1,5 +1,10 @@
 import { useState } from 'react';
-import { ItemModel, ItemAvailabilityModel, CreateItemAvailabilityRequest } from '@/domain/models/item.model';
+import {
+    ItemModel,
+    ItemAvailabilityModel,
+    CreateItemAvailabilityRequest,
+    ItemAvailabilitySlotStatus,
+} from '@/domain/models/item.model';
 import { useItemAvailabilities } from '@/presentation/hooks/useItems';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -8,6 +13,8 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import AvailabilityTimeline from '@/components/Items/Availability/AvailabilityTimeline/AvailabilityTimeline';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { ItemAvailabilityStatus } from '@/domain/models/item.model';
@@ -69,9 +76,9 @@ export default function AvailabilityManager({ item, currentUserId }: Availabilit
             switch (availability.status) {
                 case ItemAvailabilityStatus.AVAILABLE:
                     return { label: 'Libre maintenant', color: 'bg-green-100 text-green-800' };
-                case ItemAvailabilityStatus.OCCUPIED:
+                case ItemAvailabilityStatus.UNAVAILABLE:
                     return { label: 'Occupé', color: 'bg-red-100 text-red-800' };
-                case ItemAvailabilityStatus.PARTIALLY_AVAILABLE:
+                case ItemAvailabilityStatus.PARTIALLY_BOOKED:
                     return { label: 'Partiellement libre', color: 'bg-yellow-100 text-yellow-800' };
                 default:
                     return { label: 'Actuel', color: 'bg-blue-100 text-blue-800' };
@@ -133,7 +140,9 @@ export default function AvailabilityManager({ item, currentUserId }: Availabilit
                                                 </p>
                                             </div>
                                         </div>
-                                        <Badge className={color} hover={false}>{label}</Badge>
+                                        <Badge className={color} hover={false}>
+                                            {label}
+                                        </Badge>
                                     </div>
                                 );
                             })}
@@ -159,13 +168,22 @@ export default function AvailabilityManager({ item, currentUserId }: Availabilit
                         <span className="material-symbols-outlined">calendar_today</span>
                         Mes disponibilités
                     </CardTitle>
-                    <Dialog open={showAddForm} onOpenChange={setShowAddForm}>
-                        <DialogTrigger asChild>
-                            <Button variant="orange" size="sm">
-                                <span className="material-symbols-outlined text-sm mr-2">add</span>
-                                Ajouter
-                            </Button>
-                        </DialogTrigger>
+                    <div className="flex items-center gap-2">
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={refetch}
+                            disabled={loading}
+                        >
+                            <span className="material-symbols-outlined text-sm">refresh</span>
+                        </Button>
+                        <Dialog open={showAddForm} onOpenChange={setShowAddForm}>
+                            <DialogTrigger asChild>
+                                <Button variant="orange" size="sm">
+                                    <span className="material-symbols-outlined text-sm mr-2">add</span>
+                                    Ajouter
+                                </Button>
+                            </DialogTrigger>
                         <DialogContent>
                             <DialogHeader>
                                 <DialogTitle>Ajouter une disponibilité</DialogTitle>
@@ -231,7 +249,8 @@ export default function AvailabilityManager({ item, currentUserId }: Availabilit
                                 </div>
                             </form>
                         </DialogContent>
-                    </Dialog>
+                        </Dialog>
+                    </div>
                 </div>
             </CardHeader>
             <CardContent>
@@ -242,52 +261,110 @@ export default function AvailabilityManager({ item, currentUserId }: Availabilit
                 )}
 
                 {availabilities.length > 0 ? (
-                    <div className="space-y-3">
-                        {availabilities.map((availability) => {
-                            const { label, color } = getStatusInfo(availability);
-                            const isPast = new Date(availability.end_date) < new Date();
+                    <Tabs defaultValue="timeline" className="space-y-4">
+                        <TabsList className="grid w-full grid-cols-2">
+                            <TabsTrigger value="timeline">Vue Calendrier</TabsTrigger>
+                            <TabsTrigger value="list">Vue Liste</TabsTrigger>
+                        </TabsList>
 
-                            return (
-                                <div
+                        <TabsContent value="timeline" className="space-y-4">
+                            {availabilities.map((availability) => (
+                                <AvailabilityTimeline
                                     key={availability.id}
-                                    className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
-                                >
-                                    <div className="flex items-center gap-3">
-                                        <div>
-                                            <p className="font-medium">
-                                                Du {format(new Date(availability.start_date), 'dd MMM', { locale: fr })}{' '}
-                                                au{' '}
-                                                {format(new Date(availability.end_date), 'dd MMM yyyy', { locale: fr })}
-                                            </p>
-                                            <p className="text-sm text-gray-600">
-                                                {Math.ceil(
-                                                    (new Date(availability.end_date).getTime() -
-                                                        new Date(availability.start_date).getTime()) /
-                                                        (1000 * 60 * 60 * 24)
-                                                )}{' '}
-                                                jour(s)
-                                            </p>
+                                    availability={availability}
+                                    onCancelReservation={(slotId) => {
+                                        // TODO: Implémenter l'annulation de slot
+                                    }}
+                                    onModifyAvailability={(availabilityId) => {
+                                        // TODO: Implémenter la modification d'availability
+                                    }}
+                                    canManage={true}
+                                />
+                            ))}
+                        </TabsContent>
+
+                        <TabsContent value="list" className="space-y-3">
+                            {availabilities.map((availability) => {
+                                const { label, color } = getStatusInfo(availability);
+                                const isPast = new Date(availability.end_date) < new Date();
+
+                                return (
+                                    <div
+                                        key={availability.id}
+                                        className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                                    >
+                                        <div className="flex items-center gap-3">
+                                            <div>
+                                                <p className="font-medium">
+                                                    Du{' '}
+                                                    {format(new Date(availability.start_date), 'dd MMM', {
+                                                        locale: fr,
+                                                    })}{' '}
+                                                    au{' '}
+                                                    {format(new Date(availability.end_date), 'dd MMM yyyy', {
+                                                        locale: fr,
+                                                    })}
+                                                </p>
+                                                <p className="text-sm text-gray-600">
+                                                    {Math.ceil(
+                                                        (new Date(availability.end_date).getTime() -
+                                                            new Date(availability.start_date).getTime()) /
+                                                            (1000 * 60 * 60 * 24)
+                                                    )}{' '}
+                                                    jour(s)
+                                                </p>
+                                                {/* Affichage des slots */}
+                                                {availability.slots && availability.slots.length > 0 && (
+                                                    <div className="flex flex-wrap gap-1 mt-2">
+                                                        {availability.slots.map((slot) => (
+                                                            <Badge
+                                                                key={slot.id}
+                                                                hover={false}
+                                                                variant={
+                                                                    slot.status === ItemAvailabilitySlotStatus.OCCUPIED
+                                                                        ? 'destructive'
+                                                                        : slot.status ===
+                                                                            ItemAvailabilitySlotStatus.RESERVED
+                                                                          ? 'secondary'
+                                                                          : 'default'
+                                                                }
+                                                                className="text-xs"
+                                                            >
+                                                                {format(new Date(slot.start_date), 'dd/MM', {
+                                                                    locale: fr,
+                                                                })}{' '}
+                                                                -
+                                                                {format(new Date(slot.end_date), 'dd/MM', {
+                                                                    locale: fr,
+                                                                })}
+                                                            </Badge>
+                                                        ))}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <Badge className={color} hover={false}>
+                                                {label}
+                                            </Badge>
+                                            {!isPast && availability.status === ItemAvailabilityStatus.AVAILABLE && (
+                                                <Button
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    onClick={() => handleDelete(availability.id)}
+                                                    disabled={loading}
+                                                >
+                                                    <span className="material-symbols-outlined text-sm text-red-600">
+                                                        delete
+                                                    </span>
+                                                </Button>
+                                            )}
                                         </div>
                                     </div>
-                                    <div className="flex items-center gap-2">
-                                        <Badge className={color} hover={false}>{label}</Badge>
-                                        {!isPast && availability.status === ItemAvailabilityStatus.AVAILABLE && (
-                                            <Button
-                                                variant="ghost"
-                                                size="sm"
-                                                onClick={() => handleDelete(availability.id)}
-                                                disabled={loading}
-                                            >
-                                                <span className="material-symbols-outlined text-sm text-red-600">
-                                                    delete
-                                                </span>
-                                            </Button>
-                                        )}
-                                    </div>
-                                </div>
-                            );
-                        })}
-                    </div>
+                                );
+                            })}
+                        </TabsContent>
+                    </Tabs>
                 ) : (
                     <div className="text-center py-8">
                         <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">

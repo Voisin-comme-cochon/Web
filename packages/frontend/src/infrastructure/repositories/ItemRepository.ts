@@ -48,8 +48,6 @@ export class ItemRepository {
     }
 
     async updateItem(id: number, item: UpdateItemRequest): Promise<void> {
-        console.log('Update item data:', item);
-
         // S'il y a une image, utiliser FormData (même approche que pour la création)
         if (item.image) {
             const formData = new FormData();
@@ -58,14 +56,6 @@ export class ItemRepository {
             if (item.category !== undefined) formData.append('category', item.category || '');
             formData.append('image', item.image);
 
-            console.log('FormData entries:');
-            for (let [key, value] of formData.entries()) {
-                console.log(`${key}:`, value);
-                if (value instanceof File) {
-                    console.log(`File details - name: ${value.name}, size: ${value.size}, type: ${value.type}`);
-                }
-            }
-
             await ApiService.put(`/items/${id}`, formData);
         } else {
             // Sinon, utiliser JSON
@@ -73,8 +63,6 @@ export class ItemRepository {
             if (item.name !== undefined) updateData.name = item.name;
             if (item.description !== undefined) updateData.description = item.description;
             if (item.category !== undefined) updateData.category = item.category;
-
-            console.log('JSON update data:', updateData);
 
             // Vérifier qu'il y a au moins un champ à mettre à jour
             if (Object.keys(updateData).length === 0) {
@@ -148,6 +136,15 @@ export class ItemRepository {
             end_date: new Date(data.end_date),
             status: data.status,
             created_at: new Date(data.created_at),
+            slots: data.slots?.map((slot: any) => ({
+                id: slot.id,
+                availability_id: slot.availability_id,
+                start_date: new Date(slot.start_date),
+                end_date: new Date(slot.end_date),
+                status: slot.status,
+                loan_request_id: slot.loan_request_id,
+                created_at: new Date(slot.created_at)
+            })) || []
         };
     };
 }

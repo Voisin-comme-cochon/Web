@@ -8,8 +8,8 @@ import { useItem } from '@/presentation/hooks/useItems';
 import { useCreateLoanRequest } from '@/presentation/hooks/useLoanRequests';
 import { useAppNavigation } from '@/presentation/state/navigate';
 import DashboardHeader from '@/components/Header/DashboardHeader';
-import LoanRequestForm from '@/components/LoanRequestForm/LoanRequestForm';
-import AvailabilityManager from '@/components/AvailabilityManager/AvailabilityManager';
+import LoanRequestForm from '@/components/Items/Loans/LoanRequestForm/LoanRequestForm';
+import AvailabilityManager from '@/components/Items/Availability/AvailabilityManager/AvailabilityManager';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -307,12 +307,12 @@ function ItemDetailsPage({ user, neighborhoodId }: ItemDetailsPageProps) {
                                 ) : canBorrow ? (
                                     <Dialog open={showLoanRequestForm} onOpenChange={setShowLoanRequestForm}>
                                         <DialogTrigger asChild>
-                                            <Button size="lg" className="w-full">
+                                            <Button size="lg" className="w-full" variant={'orange'}>
                                                 <span className="material-symbols-outlined text-sm mr-2">send</span>
                                                 Demander à emprunter
                                             </Button>
                                         </DialogTrigger>
-                                        <DialogContent className="max-w-2xl">
+                                        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
                                             <DialogHeader>
                                                 <DialogTitle>Demande d'emprunt</DialogTitle>
                                             </DialogHeader>

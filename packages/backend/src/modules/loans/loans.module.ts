@@ -22,13 +22,15 @@ import { ItemAvailabilitySlotsRepositoryImplementation } from './repository/item
 import { ItemsService } from './services/items.service';
 import { LoanRequestsService } from './services/loan-requests.service';
 import { LoansService } from './services/loans.service';
+import { ItemAvailabilitySlotsService } from './services/item-availability-slots.service';
 
 import { ItemsController } from './controllers/items.controller';
 import { LoansController } from './controllers/loans.controller';
+import { SlotsController } from './controllers/slots.controller';
 
 @Module({
     imports: [UsersModule, AuthModule, NeighborhoodModule, ObjectStorageModule],
-    controllers: [ItemsController, LoansController],
+    controllers: [ItemsController, LoansController, SlotsController],
     exports: [
         ItemsRepository,
         LoanRequestsRepository,
@@ -37,6 +39,7 @@ import { LoansController } from './controllers/loans.controller';
         ItemsService,
         LoanRequestsService,
         LoansService,
+        ItemAvailabilitySlotsService,
     ],
     providers: [
         {
@@ -113,6 +116,12 @@ import { LoansController } from './controllers/loans.controller';
             inject: [LoansRepository, ItemsRepository, ItemAvailabilitySlotsRepository, ObjectStorageService],
             useFactory: (loansRepository: LoansRepository, itemsRepository: ItemsRepository, itemAvailabilitySlotsRepository: ItemAvailabilitySlotsRepository, objectStorageService: ObjectStorageService) =>
                 new LoansService(loansRepository, itemsRepository, itemAvailabilitySlotsRepository, objectStorageService),
+        },
+        {
+            provide: ItemAvailabilitySlotsService,
+            inject: [ItemAvailabilitySlotsRepository, ItemsRepository],
+            useFactory: (itemAvailabilitySlotsRepository: ItemAvailabilitySlotsRepository, itemsRepository: ItemsRepository) =>
+                new ItemAvailabilitySlotsService(itemAvailabilitySlotsRepository, itemsRepository),
         },
     ],
 })

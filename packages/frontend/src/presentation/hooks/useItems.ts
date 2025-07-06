@@ -286,7 +286,7 @@ export const useItemAvailabilities = (itemId?: number) => {
                         break;
                     case 'invalid_dates':
                         errorMessage =
-                            'Les dates sélectionnées ne sont pas valides. La date de fin doit être postérieure à la date de début.';
+                            'Les dates sélectionnées ne sont pas valides. La date de fin doit être postérieure ou égale à la date de début.';
                         break;
                     case 'past_date':
                         errorMessage = 'La date de début ne peut pas être dans le passé.';

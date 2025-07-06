@@ -80,8 +80,8 @@ export class LoanRequestsUc {
             throw new Error('La date de début ne peut pas être dans le passé');
         }
 
-        if (endDate <= startDate) {
-            throw new Error('La date de fin doit être postérieure à la date de début');
+        if (endDate < startDate) {
+            throw new Error('La date de fin doit être postérieure ou égale à la date de début');
         }
 
         const maxDuration = 30 * 24 * 60 * 60 * 1000; // 30 days in milliseconds

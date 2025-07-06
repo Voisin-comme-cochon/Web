@@ -89,8 +89,8 @@ export class LoanRequestsService {
         const startDate = new Date(request.start_date);
         const endDate = new Date(request.end_date);
 
-        if (startDate >= endDate) {
-            throw new CochonError('invalid_dates', 'Start date must be before end date', 400);
+        if (startDate > endDate) {
+            throw new CochonError('invalid_dates', 'Start date must be before or equal to end date', 400);
         }
 
         if (startDate < new Date()) {

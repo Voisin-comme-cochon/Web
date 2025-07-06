@@ -28,34 +28,26 @@ const CATEGORIES = [
     'Véhicules',
     'Livres',
     'Jouets',
-    'Autre'
+    'Autre',
 ];
 
-export default function ItemForm({ 
-    initialData, 
-    onSubmit, 
-    isEditing = false, 
-    loading = false, 
-    error 
-}: ItemFormProps) {
+export default function ItemForm({ initialData, onSubmit, isEditing = false, loading = false, error }: ItemFormProps) {
     const [selectedImage, setSelectedImage] = useState<File | null>(null);
-    const [imagePreview, setImagePreview] = useState<string | null>(
-        initialData?.image_url || null
-    );
+    const [imagePreview, setImagePreview] = useState<string | null>(initialData?.image_url || null);
 
     const {
         register,
         handleSubmit,
         setValue,
         watch,
-        formState: { errors }
+        formState: { errors },
     } = useForm<CreateItemRequest>({
         defaultValues: {
             name: initialData?.name || '',
             description: initialData?.description || '',
             category: initialData?.category || '',
-            neighborhood_id: initialData?.neighborhood_id || 0
-        }
+            neighborhood_id: initialData?.neighborhood_id || 0,
+        },
     });
 
     const selectedCategory = watch('category');
@@ -75,19 +67,16 @@ export default function ItemForm({
     const handleFormSubmit = async (data: CreateItemRequest) => {
         const submitData = {
             ...data,
-            image: selectedImage || undefined
+            image: selectedImage || undefined,
         };
 
-        console.log('Form submit data:', submitData);
         await onSubmit(submitData);
     };
 
     return (
         <Card>
             <CardHeader>
-                <CardTitle>
-                    {isEditing ? 'Modifier l\'objet' : 'Ajouter un nouvel objet'}
-                </CardTitle>
+                <CardTitle>{isEditing ? "Modifier l'objet" : 'Ajouter un nouvel objet'}</CardTitle>
             </CardHeader>
             <CardContent>
                 <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6">
@@ -103,11 +92,7 @@ export default function ItemForm({
                         <div className="flex flex-col items-center gap-4">
                             {imagePreview && (
                                 <div className="w-32 h-32 bg-gray-100 rounded-lg overflow-hidden">
-                                    <img
-                                        src={imagePreview}
-                                        alt="Aperçu"
-                                        className="w-full h-full object-cover"
-                                    />
+                                    <img src={imagePreview} alt="Aperçu" className="w-full h-full object-cover" />
                                 </div>
                             )}
                             <Input
@@ -125,15 +110,13 @@ export default function ItemForm({
                         <Label htmlFor="name">Nom de l'objet *</Label>
                         <Input
                             id="name"
-                            {...register('name', { 
-                                required: 'Le nom de l\'objet est requis',
-                                minLength: { value: 2, message: 'Le nom doit contenir au moins 2 caractères' }
+                            {...register('name', {
+                                required: "Le nom de l'objet est requis",
+                                minLength: { value: 2, message: 'Le nom doit contenir au moins 2 caractères' },
                             })}
                             placeholder="Ex: Perceuse, Livre de cuisine..."
                         />
-                        {errors.name && (
-                            <p className="text-sm text-red-600">{errors.name.message}</p>
-                        )}
+                        {errors.name && <p className="text-sm text-red-600">{errors.name.message}</p>}
                     </div>
 
                     {/* Description */}
@@ -169,16 +152,10 @@ export default function ItemForm({
                     </div>
 
                     {/* Submit Button */}
-                    <Button
-                        type="submit"
-                        className="w-full"
-                        disabled={loading}
-                    >
+                    <Button type="submit" variant={'orange'} className="w-full" disabled={loading}>
                         {loading ? (
                             <>
-                                <span className="material-symbols-outlined animate-spin text-sm mr-2">
-                                    refresh
-                                </span>
+                                <span className="material-symbols-outlined animate-spin text-sm mr-2">refresh</span>
                                 {isEditing ? 'Modification...' : 'Création...'}
                             </>
                         ) : (
@@ -186,7 +163,7 @@ export default function ItemForm({
                                 <span className="material-symbols-outlined text-sm mr-2">
                                     {isEditing ? 'edit' : 'add'}
                                 </span>
-                                {isEditing ? 'Modifier l\'objet' : 'Créer l\'objet'}
+                                {isEditing ? "Modifier l'objet" : "Créer l'objet"}
                             </>
                         )}
                     </Button>

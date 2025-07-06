@@ -73,7 +73,7 @@ export default function ItemCard({ item, currentUserId, onItemClick }: ItemCardP
                     {item.description && <p className="text-sm text-gray-600 line-clamp-2">{item.description}</p>}
 
                     {item.category && (
-                        <Badge hover={false} variant="secondary" className="text-xs">
+                        <Badge hover={false} variant="default" className="text-xs">
                             {item.category}
                         </Badge>
                     )}
