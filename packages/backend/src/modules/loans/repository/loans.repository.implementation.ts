@@ -77,8 +77,15 @@ export class LoansRepositoryImplementation implements LoansRepository {
         await this.dataSource.getRepository(LoanEntity).update(id, updateData);
     }
 
-    async updateLoanStatus(id: number, status: 'active' | 'returned' | 'overdue'): Promise<void> {
+    async updateLoanStatus(id: number, status: 'active' | 'returned' | 'overdue' | 'pending_return'): Promise<void> {
         await this.dataSource.getRepository(LoanEntity).update(id, { status: status as LoanStatus });
+    }
+
+    async updateLoanReturnConfirmation(id: number, userId: number, confirmationDate: Date): Promise<void> {
+        await this.dataSource.getRepository(LoanEntity).update(id, {
+            return_confirmed_by: userId,
+            return_confirmed_at: confirmationDate
+        });
     }
 
     async getOverdueLoans(): Promise<Loan[]> {

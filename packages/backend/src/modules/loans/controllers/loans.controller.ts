@@ -168,11 +168,11 @@ export class LoansController {
     }
 
     @Put('loans/:id/return')
-    @ApiOperation({ summary: 'Mark loan as returned' })
-    @ApiOkResponse({ description: 'Loan returned' })
+    @ApiOperation({ summary: 'Confirm loan return (requires both parties to confirm)' })
+    @ApiOkResponse({ description: 'Loan return confirmed' })
     @ApiNotFoundResponse({ description: 'Loan not found' })
     @ApiForbiddenResponse({ description: 'You can only return loans for items you borrowed or own' })
-    @ApiBadRequestResponse({ description: 'Loan is not active' })
+    @ApiBadRequestResponse({ description: 'Loan is not active, already confirmed by you, or other validation error' })
     async returnLoan(
         @Param() params: GetLoanByIdDto,
         @Body() returnLoanDto: ReturnLoanDto,

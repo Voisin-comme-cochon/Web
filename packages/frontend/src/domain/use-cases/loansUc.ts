@@ -32,8 +32,8 @@ export class LoansUc {
             throw new Error(canReturn.reason || 'Vous ne pouvez pas marquer ce prêt comme rendu');
         }
 
-        if (loan.status !== LoanStatus.ACTIVE) {
-            throw new Error('Seuls les prêts actifs peuvent être marqués comme rendus');
+        if (loan.status !== LoanStatus.ACTIVE && loan.status !== LoanStatus.PENDING_RETURN) {
+            throw new Error('Seuls les prêts actifs ou en attente de confirmation peuvent être marqués comme rendus');
         }
 
         return await this.loanRepository.returnLoan(id, returnDate);
@@ -47,8 +47,15 @@ export class LoansUc {
             return { canReturn: false, reason: 'Vous ne pouvez marquer comme rendu que vos propres emprunts ou prêts' };
         }
 
-        if (loan.status !== LoanStatus.ACTIVE) {
+        if (loan.status !== LoanStatus.ACTIVE && loan.status !== LoanStatus.PENDING_RETURN) {
             return { canReturn: false, reason: "Ce prêt n'est pas actif" };
+        }
+        
+        // Special handling for PENDING_RETURN status
+        if (loan.status === LoanStatus.PENDING_RETURN) {
+            if (loan.return_confirmed_by === currentUserId) {
+                return { canReturn: false, reason: "Vous avez déjà confirmé ce retour" };
+            }
         }
 
         return { canReturn: true };
@@ -86,6 +93,8 @@ export class LoansUc {
         switch (status) {
             case LoanStatus.ACTIVE:
                 return 'Actif';
+            case LoanStatus.PENDING_RETURN:
+                return 'En attente de confirmation';
             case LoanStatus.RETURNED:
                 return 'Rendu';
             case LoanStatus.OVERDUE:
@@ -99,6 +108,8 @@ export class LoansUc {
         switch (status) {
             case LoanStatus.ACTIVE:
                 return 'bg-blue-100 text-blue-800';
+            case LoanStatus.PENDING_RETURN:
+                return 'bg-yellow-100 text-yellow-800';
             case LoanStatus.RETURNED:
                 return 'bg-green-100 text-green-800';
             case LoanStatus.OVERDUE:

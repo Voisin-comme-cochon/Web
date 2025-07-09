@@ -1,5 +1,6 @@
 export enum LoanStatus {
     ACTIVE = 'active',
+    PENDING_RETURN = 'pending_return',
     RETURNED = 'returned',
     OVERDUE = 'overdue',
 }
@@ -12,6 +13,8 @@ export interface LoanModel {
     start_date: Date;
     end_date: Date;
     actual_return_date?: Date;
+    return_confirmed_by?: number;
+    return_confirmed_at?: Date;
     status: LoanStatus;
     created_at: Date;
     item?: {

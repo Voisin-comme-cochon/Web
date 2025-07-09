@@ -148,8 +148,8 @@ function ItemsPage({ user, neighborhoodId }: ItemsPageProps) {
     };
 
     const getLoanStats = () => {
-        const activeLoans = myLoans.filter((l) => l.status === LoanStatus.ACTIVE).length;
-        const activeLentItems = lentItems.filter((l) => l.status === LoanStatus.ACTIVE).length;
+        const activeLoans = myLoans.filter((l) => l.status === LoanStatus.ACTIVE || l.status === LoanStatus.PENDING_RETURN).length;
+        const activeLentItems = lentItems.filter((l) => l.status === LoanStatus.ACTIVE || l.status === LoanStatus.PENDING_RETURN).length;
 
         return { activeLoans, activeLentItems };
     };

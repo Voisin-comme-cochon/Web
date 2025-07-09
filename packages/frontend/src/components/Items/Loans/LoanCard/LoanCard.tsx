@@ -77,7 +77,7 @@ export default function LoanCard({
                     <div className="flex-1">
                         <h3 className="font-semibold text-lg">{loan.item?.name || 'Objet supprimé'}</h3>
                         {loan.item?.category && (
-                            <Badge hover={false} variant="secondary" className="text-xs mt-1">
+                            <Badge hover={false} variant="default" className="text-xs mt-1">
                                 {loan.item.category}
                             </Badge>
                         )}
@@ -170,24 +170,58 @@ export default function LoanCard({
                     Prêt créé le {format(new Date(loan.created_at), 'dd/MM/yyyy à HH:mm', { locale: fr })}
                 </div>
 
-                {/* Actions */}
-                {showActions && canReturn && loan.status === LoanStatus.ACTIVE && onReturn && (
-                    <div className="pt-2 border-t">
-                        <Button size="sm" onClick={() => onReturn(loan.id)} disabled={returnLoading} className="w-full">
-                            {returnLoading ? (
-                                <>
-                                    <span className="material-symbols-outlined animate-spin text-sm mr-2">refresh</span>
-                                    Marquage en cours...
-                                </>
-                            ) : (
-                                <>
-                                    <span className="material-symbols-outlined text-sm mr-2">assignment_return</span>
-                                    Marquer comme rendu
-                                </>
-                            )}
-                        </Button>
+                {/* Confirmation Status */}
+                {loan.status === LoanStatus.PENDING_RETURN && (
+                    <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                        <div className="flex items-center gap-2 text-sm text-yellow-800">
+                            <span className="material-symbols-outlined text-sm">pending</span>
+                            <span>
+                                {loan.return_confirmed_by === currentUserId
+                                    ? "Vous avez confirmé le retour. En attente de confirmation de l'autre partie."
+                                    : "L'autre partie a confirmé le retour. Confirmez-vous aussi le retour ?"}
+                            </span>
+                        </div>
                     </div>
                 )}
+
+                {/* Actions */}
+                {showActions &&
+                    canReturn &&
+                    (loan.status === LoanStatus.ACTIVE || loan.status === LoanStatus.PENDING_RETURN) &&
+                    onReturn && (
+                        <div className="pt-2 border-t">
+                            <Button
+                                size="sm"
+                                onClick={() => onReturn(loan.id)}
+                                disabled={
+                                    returnLoading ||
+                                    (loan.status === LoanStatus.PENDING_RETURN &&
+                                        loan.return_confirmed_by === currentUserId)
+                                }
+                                className="w-full"
+                            >
+                                {returnLoading ? (
+                                    <>
+                                        <span className="material-symbols-outlined animate-spin text-sm mr-2">
+                                            refresh
+                                        </span>
+                                        Confirmation en cours...
+                                    </>
+                                ) : (
+                                    <>
+                                        <span className="material-symbols-outlined text-sm mr-2">
+                                            assignment_return
+                                        </span>
+                                        {loan.status === LoanStatus.PENDING_RETURN
+                                            ? loan.return_confirmed_by === currentUserId
+                                                ? 'En attente de confirmation'
+                                                : 'Confirmer le retour'
+                                            : 'Marquer comme rendu'}
+                                    </>
+                                )}
+                            </Button>
+                        </div>
+                    )}
             </CardContent>
         </Card>
     );

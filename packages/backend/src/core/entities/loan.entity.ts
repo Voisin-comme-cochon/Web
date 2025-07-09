@@ -5,6 +5,7 @@ import { UserEntity } from './user.entity';
 
 export enum LoanStatus {
     ACTIVE = 'active',
+    PENDING_RETURN = 'pending_return',
     RETURNED = 'returned',
     OVERDUE = 'overdue',
 }
@@ -31,6 +32,12 @@ export class LoanEntity {
 
     @Column({ type: 'date', nullable: true })
     actual_return_date?: Date;
+
+    @Column({ nullable: true })
+    return_confirmed_by?: number;
+
+    @Column({ type: 'timestamptz', nullable: true })
+    return_confirmed_at?: Date;
 
     @Column({
         type: 'enum',

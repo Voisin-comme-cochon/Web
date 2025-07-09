@@ -43,6 +43,12 @@ export class ResponseLoanDto {
     @ApiProperty({ example: '2024-01-25', description: 'Actual return date' })
     actual_return_date?: Date;
 
+    @ApiProperty({ example: 1, description: 'User ID who confirmed the return first' })
+    return_confirmed_by?: number;
+
+    @ApiProperty({ example: '2024-01-25T10:00:00Z', description: 'Date when return was first confirmed' })
+    return_confirmed_at?: Date;
+
     @ApiProperty({ example: 'active', description: 'Status', enum: LoanStatus })
     status!: LoanStatus;
 

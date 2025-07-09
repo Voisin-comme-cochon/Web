@@ -39,6 +39,8 @@ export class LoanRepository {
             start_date: new Date(data.start_date),
             end_date: new Date(data.end_date),
             actual_return_date: data.actual_return_date ? new Date(data.actual_return_date) : undefined,
+            return_confirmed_by: data.return_confirmed_by,
+            return_confirmed_at: data.return_confirmed_at ? new Date(data.return_confirmed_at) : undefined,
             status: data.status as LoanStatus,
             created_at: new Date(data.created_at),
             item: data.item

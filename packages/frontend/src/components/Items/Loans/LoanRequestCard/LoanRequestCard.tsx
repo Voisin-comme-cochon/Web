@@ -65,7 +65,7 @@ export default function LoanRequestCard({
                     <div className="flex-1">
                         <h3 className="font-semibold text-lg">{loanRequest.item?.name || 'Objet supprimé'}</h3>
                         {loanRequest.item?.category && (
-                            <Badge hover={false} variant="secondary" className="text-xs mt-1">
+                            <Badge hover={false} variant="default" className="text-xs mt-1">
                                 {loanRequest.item.category}
                             </Badge>
                         )}

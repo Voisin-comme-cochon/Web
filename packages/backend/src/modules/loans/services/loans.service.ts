@@ -75,8 +75,8 @@ export class LoansService {
             throw new CochonError('loan_not_found', 'Loan not found', 404);
         }
 
-        if (loan.status !== LoanStatus.ACTIVE) {
-            throw new CochonError('loan_not_active', 'Loan is not active', 400);
+        if (loan.status !== LoanStatus.ACTIVE && loan.status !== LoanStatus.PENDING_RETURN) {
+            throw new CochonError('loan_not_active', 'Loan is not active or pending return', 400);
         }
 
         const item = await this.itemsRepository.getItemById(loan.item_id);
@@ -89,15 +89,29 @@ export class LoansService {
             throw new CochonError('forbidden_return', 'You can only return loans for items you borrowed or own', 403);
         }
 
-        // Free the occupied slots for this loan
-        const slots = await this.itemAvailabilitySlotsRepository.getSlotsByLoanRequestId(loan.loan_request_id);
-        for (const slot of slots) {
-            if (slot.status === ItemAvailabilitySlotStatus.OCCUPIED) {
-                await this.itemAvailabilitySlotsRepository.deleteSlot(slot.id);
+        // Check if this is the first or second confirmation
+        if (loan.status === LoanStatus.ACTIVE) {
+            // First confirmation - set to PENDING_RETURN
+            await this.loansRepository.updateLoanReturnConfirmation(id, userId, returnDate || new Date());
+            await this.loansRepository.updateLoanStatus(id, LoanStatus.PENDING_RETURN);
+        } else if (loan.status === LoanStatus.PENDING_RETURN) {
+            // Second confirmation - check it's from the other party
+            if (loan.return_confirmed_by === userId) {
+                throw new CochonError('already_confirmed', 'You have already confirmed this return', 400);
+            }
+            
+            // Both parties confirmed - finalize the return
+            await this.loansRepository.updateLoanStatus(id, LoanStatus.RETURNED);
+            await this.loansRepository.returnLoan(id, returnDate || new Date());
+            
+            // Free the occupied slots for this loan
+            const slots = await this.itemAvailabilitySlotsRepository.getSlotsByLoanRequestId(loan.loan_request_id);
+            for (const slot of slots) {
+                if (slot.status === ItemAvailabilitySlotStatus.OCCUPIED) {
+                    await this.itemAvailabilitySlotsRepository.deleteSlot(slot.id);
+                }
             }
         }
-
-        await this.loansRepository.returnLoan(id, returnDate);
     }
 
     async getOverdueLoans(userId: number): Promise<Loan[]> {

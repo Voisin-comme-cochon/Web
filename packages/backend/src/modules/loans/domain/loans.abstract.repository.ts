@@ -12,7 +12,9 @@ export abstract class LoansRepository {
 
     abstract returnLoan(id: number, returnDate?: Date): Promise<void>;
 
-    abstract updateLoanStatus(id: number, status: 'active' | 'returned' | 'overdue'): Promise<void>;
+    abstract updateLoanStatus(id: number, status: 'active' | 'returned' | 'overdue' | 'pending_return'): Promise<void>;
+
+    abstract updateLoanReturnConfirmation(id: number, userId: number, confirmationDate: Date): Promise<void>;
 
     abstract getOverdueLoans(): Promise<Loan[]>;
 }

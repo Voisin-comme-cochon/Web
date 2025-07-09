@@ -8,6 +8,8 @@ export interface Loan {
     start_date: Date;
     end_date: Date;
     actual_return_date?: Date;
+    return_confirmed_by?: number;
+    return_confirmed_at?: Date;
     status: LoanStatus;
     created_at: Date;
     item?: {
@@ -42,5 +44,11 @@ export interface CreateLoanRequest {
 
 export interface ReturnLoanRequest {
     id: number;
+    actual_return_date?: Date;
+}
+
+export interface ConfirmReturnLoanRequest {
+    id: number;
+    user_id: number;
     actual_return_date?: Date;
 }

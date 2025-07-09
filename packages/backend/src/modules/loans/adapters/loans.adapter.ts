@@ -11,6 +11,8 @@ export class LoansAdapter {
             start_date: loan.start_date,
             end_date: loan.end_date,
             actual_return_date: loan.actual_return_date,
+            return_confirmed_by: loan.return_confirmed_by,
+            return_confirmed_at: loan.return_confirmed_at,
             status: loan.status,
             created_at: loan.created_at,
             // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
