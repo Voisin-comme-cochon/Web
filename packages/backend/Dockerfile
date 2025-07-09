@@ -18,6 +18,8 @@ FROM node:20.11-alpine3.19
 
 WORKDIR /app
 
+RUN npm install -g pnpm
+
 COPY --from=builder /app /app
 
 CMD ["pnpm", "run", "start:prod"]
