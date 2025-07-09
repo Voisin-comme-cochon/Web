@@ -48,10 +48,8 @@ const FilterBar = React.memo(function FilterBar({
     const searchInputRef = useRef<HTMLInputElement>(null);
     const hasActiveFilters = searchTerm || (selectedCategory && selectedCategory !== 'all') || (selectedStatus && selectedStatus !== 'all');
     
-    // Maintenir le focus sur l'input de recherche
     useEffect(() => {
         if (searchInputRef.current && document.activeElement === searchInputRef.current) {
-            // Ne rien faire si l'input a déjà le focus
             return;
         }
     }, [searchTerm]);
@@ -66,8 +64,7 @@ const FilterBar = React.memo(function FilterBar({
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                {/* Search */}
-                <div className="relative">
+                    <div className="relative">
                     <span className="material-symbols-outlined absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm">
                         search
                     </span>
@@ -81,7 +78,6 @@ const FilterBar = React.memo(function FilterBar({
                     />
                 </div>
 
-                {/* Category filter */}
                 <Select
                     value={selectedCategory}
                     onValueChange={onCategoryChange}
@@ -100,7 +96,6 @@ const FilterBar = React.memo(function FilterBar({
                     </SelectContent>
                 </Select>
 
-                {/* Status filter */}
                 <Select
                     value={selectedStatus}
                     onValueChange={onStatusChange}
@@ -119,7 +114,6 @@ const FilterBar = React.memo(function FilterBar({
                     </SelectContent>
                 </Select>
 
-                {/* Clear filters */}
                 <Button
                     variant="outline"
                     onClick={onClearFilters}
@@ -133,7 +127,6 @@ const FilterBar = React.memo(function FilterBar({
                 </Button>
             </div>
 
-            {/* Active filters summary */}
             {hasActiveFilters && (
                 <div className="flex flex-wrap gap-2 pt-2 border-t">
                     <span className="text-sm text-gray-600">Filtres actifs :</span>

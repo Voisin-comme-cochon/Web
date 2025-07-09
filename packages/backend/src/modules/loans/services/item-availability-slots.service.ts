@@ -184,7 +184,6 @@ export class ItemAvailabilitySlotsService {
         if (item.owner_id !== userId && slot.loan_request_id) {
             // Check if user is the one who made the loan request
             // This would require checking the loan request, for now we'll assume they can access their own slots
-            // TODO: Add proper loan request ownership check
         }
         
         if (item.owner_id !== userId) {
@@ -211,7 +210,6 @@ export class ItemAvailabilitySlotsService {
     }
 
     private async checkLoanRequestPermission(loanRequestId: number, userId: number): Promise<void> {
-        // TODO: Implement loan request permission check
         // For now, we'll allow access - this should be properly implemented
         return;
     }

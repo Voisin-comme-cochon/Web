@@ -215,15 +215,12 @@ export class ItemsService {
             throw new CochonError('past_date', 'Start date cannot be in the past', 400);
         }
 
-        // Vérifier les chevauchements avec les disponibilités existantes
         const existingAvailabilities = await this.itemsRepository.getItemAvailabilities(itemId);
         
         for (const existing of existingAvailabilities) {
             const existingStart = new Date(existing.start_date);
             const existingEnd = new Date(existing.end_date);
             
-            // Vérifier s'il y a chevauchement : 
-            // Nouvelle période commence avant la fin d'une existante ET finit après le début d'une existante
             if (startDate <= existingEnd && endDate >= existingStart) {
                 throw new CochonError('overlapping_availability', 'This availability period overlaps with an existing one', 400);
             }
@@ -273,17 +270,14 @@ export class ItemsService {
                 throw new CochonError('past_date', 'Start date cannot be in the past', 400);
             }
 
-            // Vérifier les chevauchements avec les autres disponibilités existantes
             const existingAvailabilities = await this.itemsRepository.getItemAvailabilities(currentAvailability.item_id);
             
             for (const existing of existingAvailabilities) {
-                // Ignorer l'availability actuellement mise à jour
                 if (existing.id === id) continue;
                 
                 const existingStart = new Date(existing.start_date);
                 const existingEnd = new Date(existing.end_date);
                 
-                // Vérifier s'il y a chevauchement
                 if (startDate <= existingEnd && endDate >= existingStart) {
                     throw new CochonError('overlapping_availability', 'This availability period overlaps with an existing one', 400);
                 }

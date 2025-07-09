@@ -13,7 +13,6 @@ export const useAppNavigation = () => {
     const goMyNeighborhood = () => navigate('/my-neighborhood');
     const goNeighborhoodEvents = () => navigate('/neighborhood-events');
     const goNeighborhoodJournal = () => navigate('/neighborhood-journal');
-    const goNeighborhoodMat = () => navigate('/neighborhood-materials');
     const goCreateEvent = () => navigate('/events/create');
     const goJoinNeighborhood = () => navigate('/join-neighborhoods');
     const goNeighborhoodDetails = (neighborhoodId: string | number) => {
@@ -40,7 +39,6 @@ export const useAppNavigation = () => {
         goMyNeighborhood,
         goNeighborhoodEvents,
         goNeighborhoodJournal,
-        goNeighborhoodMat,
         goCreateEvent,
         goNeighborhoodDetails,
         goManageNeighborhood,

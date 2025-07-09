@@ -33,8 +33,6 @@ export function useHeaderData() {
                 } catch (error) {
                     console.error('Failed to fetch user :', error);
                 }
-            } else {
-                console.log('No JWT token found in localStorage.');
             }
         };
 

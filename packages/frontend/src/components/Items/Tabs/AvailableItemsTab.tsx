@@ -3,7 +3,7 @@ import { UserModel } from '@/domain/models/user.model';
 import { GetItemsFilters, ItemAvailabilityStatus } from '@/domain/models/item.model';
 import { useAppNavigation } from '@/presentation/state/navigate';
 import ItemCard from '@/components/Items/ItemCard/ItemCard';
-import FilterBar from '@/components/Items/ItemFilter/FilterBar';
+import FilterBar from '@/components/Items/FilterBar/FilterBar';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription } from '@/components/ui/alert';
