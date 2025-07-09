@@ -19,11 +19,11 @@ export class CreateItemDto {
     @IsOptional()
     category?: string;
 
-    @ApiProperty({ 
-        type: 'string', 
-        format: 'binary', 
-        description: 'Item image file', 
-        required: false 
+    @ApiProperty({
+        type: 'string',
+        format: 'binary',
+        description: 'Item image file',
+        required: false,
     })
     image?: Express.Multer.File;
 
@@ -98,11 +98,11 @@ export class GetItemsQueryDto {
     @IsOptional()
     category?: string;
 
-    @ApiProperty({ 
-        example: 'available', 
-        description: 'Filter by availability status', 
+    @ApiProperty({
+        example: 'available',
+        description: 'Filter by availability status',
         enum: ItemAvailabilityStatus,
-        required: false 
+        required: false,
     })
     @IsEnum(ItemAvailabilityStatus)
     @IsOptional()

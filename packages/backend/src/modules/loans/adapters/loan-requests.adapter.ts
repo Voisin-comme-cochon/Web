@@ -13,21 +13,25 @@ export class LoanRequestsAdapter {
             message: loanRequest.message,
             created_at: loanRequest.created_at,
             // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-            item: loanRequest.item ? {
-                id: loanRequest.item.id,
-                name: loanRequest.item.name,
-                description: loanRequest.item.description,
-                image_url: loanRequest.item.image_url,
-                owner_id: loanRequest.item.owner_id,
-                category: loanRequest.item.category
-            } : undefined,
+            item: loanRequest.item
+                ? {
+                      id: loanRequest.item.id,
+                      name: loanRequest.item.name,
+                      description: loanRequest.item.description,
+                      image_url: loanRequest.item.image_url,
+                      owner_id: loanRequest.item.owner_id,
+                      category: loanRequest.item.category,
+                  }
+                : undefined,
             // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-            borrower: loanRequest.borrower ? {
-                id: loanRequest.borrower.id,
-                firstName: loanRequest.borrower.firstName,
-                lastName: loanRequest.borrower.lastName,
-                profileImageUrl: loanRequest.borrower.profileImageUrl
-            } : undefined
+            borrower: loanRequest.borrower
+                ? {
+                      id: loanRequest.borrower.id,
+                      firstName: loanRequest.borrower.firstName,
+                      lastName: loanRequest.borrower.lastName,
+                      profileImageUrl: loanRequest.borrower.profileImageUrl,
+                  }
+                : undefined,
         };
     }
 

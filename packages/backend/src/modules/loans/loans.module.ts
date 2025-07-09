@@ -114,14 +114,26 @@ import { SlotsController } from './controllers/slots.controller';
         {
             provide: LoansService,
             inject: [LoansRepository, ItemsRepository, ItemAvailabilitySlotsRepository, ObjectStorageService],
-            useFactory: (loansRepository: LoansRepository, itemsRepository: ItemsRepository, itemAvailabilitySlotsRepository: ItemAvailabilitySlotsRepository, objectStorageService: ObjectStorageService) =>
-                new LoansService(loansRepository, itemsRepository, itemAvailabilitySlotsRepository, objectStorageService),
+            useFactory: (
+                loansRepository: LoansRepository,
+                itemsRepository: ItemsRepository,
+                itemAvailabilitySlotsRepository: ItemAvailabilitySlotsRepository,
+                objectStorageService: ObjectStorageService
+            ) =>
+                new LoansService(
+                    loansRepository,
+                    itemsRepository,
+                    itemAvailabilitySlotsRepository,
+                    objectStorageService
+                ),
         },
         {
             provide: ItemAvailabilitySlotsService,
             inject: [ItemAvailabilitySlotsRepository, ItemsRepository],
-            useFactory: (itemAvailabilitySlotsRepository: ItemAvailabilitySlotsRepository, itemsRepository: ItemsRepository) =>
-                new ItemAvailabilitySlotsService(itemAvailabilitySlotsRepository, itemsRepository),
+            useFactory: (
+                itemAvailabilitySlotsRepository: ItemAvailabilitySlotsRepository,
+                itemsRepository: ItemsRepository
+            ) => new ItemAvailabilitySlotsService(itemAvailabilitySlotsRepository, itemsRepository),
         },
     ],
 })

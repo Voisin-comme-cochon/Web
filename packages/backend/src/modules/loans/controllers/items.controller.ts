@@ -66,7 +66,7 @@ export class ItemsController {
             {
                 search: query.search,
                 category: query.category,
-                status: query.status
+                status: query.status,
             }
         );
         return new Paginated(items as ResponseItemDto[], pagination, count);

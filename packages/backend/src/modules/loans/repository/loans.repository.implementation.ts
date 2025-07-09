@@ -84,7 +84,7 @@ export class LoansRepositoryImplementation implements LoansRepository {
     async updateLoanReturnConfirmation(id: number, userId: number, confirmationDate: Date): Promise<void> {
         await this.dataSource.getRepository(LoanEntity).update(id, {
             return_confirmed_by: userId,
-            return_confirmed_at: confirmationDate
+            return_confirmed_at: confirmationDate,
         });
     }
 

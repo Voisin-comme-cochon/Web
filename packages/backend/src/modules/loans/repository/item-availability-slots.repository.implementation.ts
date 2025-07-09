@@ -104,10 +104,7 @@ export class ItemAvailabilitySlotsRepositoryImplementation implements ItemAvaila
             .getRepository(ItemAvailabilitySlotEntity)
             .createQueryBuilder('slot')
             .where('slot.availability_id = :availabilityId', { availabilityId })
-            .andWhere(
-                '(slot.start_date < :endDate AND slot.end_date > :startDate)',
-                { startDate, endDate }
-            );
+            .andWhere('(slot.start_date < :endDate AND slot.end_date > :startDate)', { startDate, endDate });
 
         if (excludeSlotId) {
             queryBuilder.andWhere('slot.id != :excludeSlotId', { excludeSlotId });
@@ -129,10 +126,7 @@ export class ItemAvailabilitySlotsRepositoryImplementation implements ItemAvaila
             .leftJoinAndSelect('slot.availability', 'availability')
             .leftJoinAndSelect('slot.loan_request', 'loan_request')
             .where('slot.availability_id = :availabilityId', { availabilityId })
-            .andWhere(
-                '(slot.start_date < :endDate AND slot.end_date > :startDate)',
-                { startDate, endDate }
-            )
+            .andWhere('(slot.start_date < :endDate AND slot.end_date > :startDate)', { startDate, endDate })
             .orderBy('slot.start_date', 'ASC');
 
         if (excludeSlotId) {

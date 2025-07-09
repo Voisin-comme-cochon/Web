@@ -1,4 +1,8 @@
-import { ItemAvailabilityModel, ItemAvailabilitySlotModel, ItemAvailabilitySlotStatus } from '@/domain/models/item.model';
+import {
+    ItemAvailabilityModel,
+    ItemAvailabilitySlotModel,
+    ItemAvailabilitySlotStatus,
+} from '@/domain/models/item.model';
 import { startOfDay, endOfDay, isWithinInterval, differenceInDays, addDays, format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 
@@ -35,22 +39,32 @@ export function getAvailableSlots(
 ): AvailableSlot[] {
     if (!availability.slots || availability.slots.length === 0) {
         // Si pas de slots, toute la période est disponible
-        const start = requestedStart ? new Date(Math.max(requestedStart.getTime(), availability.start_date.getTime())) : availability.start_date;
-        const end = requestedEnd ? new Date(Math.min(requestedEnd.getTime(), availability.end_date.getTime())) : availability.end_date;
-        
+        const start = requestedStart
+            ? new Date(Math.max(requestedStart.getTime(), availability.start_date.getTime()))
+            : availability.start_date;
+        const end = requestedEnd
+            ? new Date(Math.min(requestedEnd.getTime(), availability.end_date.getTime()))
+            : availability.end_date;
+
         if (start <= end) {
-            return [{
-                start_date: start,
-                end_date: end,
-                duration_days: differenceInDays(end, start) + 1
-            }];
+            return [
+                {
+                    start_date: start,
+                    end_date: end,
+                    duration_days: differenceInDays(end, start) + 1,
+                },
+            ];
         }
         return [];
     }
 
     const availableSlots: AvailableSlot[] = [];
     const occupiedSlots = availability.slots
-        .filter(slot => slot.status === ItemAvailabilitySlotStatus.RESERVED || slot.status === ItemAvailabilitySlotStatus.OCCUPIED)
+        .filter(
+            (slot) =>
+                slot.status === ItemAvailabilitySlotStatus.RESERVED ||
+                slot.status === ItemAvailabilitySlotStatus.OCCUPIED
+        )
         .sort((a, b) => a.start_date.getTime() - b.start_date.getTime());
 
     let currentStart = availability.start_date;
@@ -61,14 +75,18 @@ export function getAvailableSlots(
             const slotEnd = new Date(Math.min(slot.start_date.getTime() - 86400000, availability.end_date.getTime())); // -1 jour
             if (currentStart <= slotEnd) {
                 // Appliquer les filtres de date si fournis
-                const filteredStart = requestedStart ? new Date(Math.max(currentStart.getTime(), requestedStart.getTime())) : currentStart;
-                const filteredEnd = requestedEnd ? new Date(Math.min(slotEnd.getTime(), requestedEnd.getTime())) : slotEnd;
-                
+                const filteredStart = requestedStart
+                    ? new Date(Math.max(currentStart.getTime(), requestedStart.getTime()))
+                    : currentStart;
+                const filteredEnd = requestedEnd
+                    ? new Date(Math.min(slotEnd.getTime(), requestedEnd.getTime()))
+                    : slotEnd;
+
                 if (filteredStart <= filteredEnd) {
                     availableSlots.push({
                         start_date: filteredStart,
                         end_date: filteredEnd,
-                        duration_days: differenceInDays(filteredEnd, filteredStart) + 1
+                        duration_days: differenceInDays(filteredEnd, filteredStart) + 1,
                     });
                 }
             }
@@ -78,14 +96,18 @@ export function getAvailableSlots(
 
     // Vérifier s'il y a un créneau libre après le dernier slot
     if (currentStart <= availability.end_date) {
-        const filteredStart = requestedStart ? new Date(Math.max(currentStart.getTime(), requestedStart.getTime())) : currentStart;
-        const filteredEnd = requestedEnd ? new Date(Math.min(availability.end_date.getTime(), requestedEnd.getTime())) : availability.end_date;
-        
+        const filteredStart = requestedStart
+            ? new Date(Math.max(currentStart.getTime(), requestedStart.getTime()))
+            : currentStart;
+        const filteredEnd = requestedEnd
+            ? new Date(Math.min(availability.end_date.getTime(), requestedEnd.getTime()))
+            : availability.end_date;
+
         if (filteredStart <= filteredEnd) {
             availableSlots.push({
                 start_date: filteredStart,
                 end_date: filteredEnd,
-                duration_days: differenceInDays(filteredEnd, filteredStart) + 1
+                duration_days: differenceInDays(filteredEnd, filteredStart) + 1,
             });
         }
     }
@@ -108,7 +130,10 @@ export function getSlotConflicts(
     const normalizedRequestEnd = endOfDay(requestedEnd);
 
     for (const slot of availability.slots) {
-        if (slot.status === ItemAvailabilitySlotStatus.RESERVED || slot.status === ItemAvailabilitySlotStatus.OCCUPIED) {
+        if (
+            slot.status === ItemAvailabilitySlotStatus.RESERVED ||
+            slot.status === ItemAvailabilitySlotStatus.OCCUPIED
+        ) {
             const slotStart = startOfDay(slot.start_date);
             const slotEnd = endOfDay(slot.end_date);
 
@@ -124,7 +149,7 @@ export function getSlotConflicts(
                     requested_start: requestedStart,
                     requested_end: requestedEnd,
                     overlap_start: overlapStart,
-                    overlap_end: overlapEnd
+                    overlap_end: overlapEnd,
                 });
             }
         }
@@ -141,24 +166,25 @@ export function calculateAvailabilityStatus(
     requestedStart?: Date,
     requestedEnd?: Date
 ): AvailabilityStatus {
-    const conflicts = requestedStart && requestedEnd ? 
-        getSlotConflicts(availability, requestedStart, requestedEnd) : [];
-    
+    const conflicts =
+        requestedStart && requestedEnd ? getSlotConflicts(availability, requestedStart, requestedEnd) : [];
+
     const availableSlots = getAvailableSlots(availability, requestedStart, requestedEnd);
-    
-    const totalDays = requestedStart && requestedEnd ? 
-        differenceInDays(requestedEnd, requestedStart) + 1 : 
-        differenceInDays(availability.end_date, availability.start_date) + 1;
-    
+
+    const totalDays =
+        requestedStart && requestedEnd
+            ? differenceInDays(requestedEnd, requestedStart) + 1
+            : differenceInDays(availability.end_date, availability.start_date) + 1;
+
     const availableDays = availableSlots.reduce((sum, slot) => sum + slot.duration_days, 0);
-    
+
     return {
         is_available: conflicts.length === 0 && availableDays === totalDays,
         is_partially_available: availableDays > 0 && availableDays < totalDays,
         available_days: availableDays,
         total_days: totalDays,
         conflicts,
-        available_slots: availableSlots
+        available_slots: availableSlots,
     };
 }
 
@@ -176,7 +202,7 @@ export function suggestAlternativeSlots(
 
     for (const availability of availabilities) {
         const availableSlots = getAvailableSlots(availability);
-        
+
         for (const slot of availableSlots) {
             if (slot.duration_days >= requestedDuration) {
                 // Calculer la distance temporelle avec la demande originale
@@ -184,10 +210,10 @@ export function suggestAlternativeSlots(
                     Math.abs(differenceInDays(slot.start_date, requestedStart)),
                     Math.abs(differenceInDays(slot.end_date, requestedEnd))
                 );
-                
+
                 suggestions.push({
                     ...slot,
-                    distance
+                    distance,
                 });
             }
         }
@@ -206,11 +232,11 @@ export function suggestAlternativeSlots(
 export function formatDateRange(startDate: Date, endDate: Date): string {
     const start = format(startDate, 'dd MMM', { locale: fr });
     const end = format(endDate, 'dd MMM yyyy', { locale: fr });
-    
+
     if (startDate.getTime() === endDate.getTime()) {
         return format(startDate, 'dd MMM yyyy', { locale: fr });
     }
-    
+
     return `Du ${start} au ${end}`;
 }
 
@@ -219,14 +245,14 @@ export function formatDateRange(startDate: Date, endDate: Date): string {
  */
 export function getConflictMessage(conflicts: SlotConflict[]): string {
     if (conflicts.length === 0) return '';
-    
+
     if (conflicts.length === 1) {
         const conflict = conflicts[0];
         const conflictRange = formatDateRange(conflict.conflicting_slot.start_date, conflict.conflicting_slot.end_date);
         const status = conflict.conflicting_slot.status === ItemAvailabilitySlotStatus.RESERVED ? 'réservé' : 'occupé';
         return `Ce créneau se chevauche avec une période déjà ${status} (${conflictRange})`;
     }
-    
+
     return `Ce créneau entre en conflit avec ${conflicts.length} réservations existantes`;
 }
 
@@ -235,20 +261,23 @@ export function getConflictMessage(conflicts: SlotConflict[]): string {
  */
 export function isDateAvailable(availabilities: ItemAvailabilityModel[], date: Date): boolean {
     const targetDate = startOfDay(date);
-    
+
     for (const availability of availabilities) {
         const availStart = startOfDay(availability.start_date);
         const availEnd = endOfDay(availability.end_date);
-        
+
         // Vérifier si la date est dans cette période de disponibilité
         if (isWithinInterval(targetDate, { start: availStart, end: availEnd })) {
             // Vérifier s'il y a des slots qui bloquent cette date
             if (availability.slots) {
                 for (const slot of availability.slots) {
-                    if (slot.status === ItemAvailabilitySlotStatus.RESERVED || slot.status === ItemAvailabilitySlotStatus.OCCUPIED) {
+                    if (
+                        slot.status === ItemAvailabilitySlotStatus.RESERVED ||
+                        slot.status === ItemAvailabilitySlotStatus.OCCUPIED
+                    ) {
                         const slotStart = startOfDay(slot.start_date);
                         const slotEnd = endOfDay(slot.end_date);
-                        
+
                         if (isWithinInterval(targetDate, { start: slotStart, end: slotEnd })) {
                             return false; // Date bloquée par ce slot
                         }
@@ -258,6 +287,6 @@ export function isDateAvailable(availabilities: ItemAvailabilityModel[], date: D
             return true; // Date disponible dans cette availability
         }
     }
-    
+
     return false; // Date pas dans aucune availability
 }

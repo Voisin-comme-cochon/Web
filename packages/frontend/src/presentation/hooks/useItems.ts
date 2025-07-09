@@ -292,7 +292,8 @@ export const useItemAvailabilities = (itemId?: number) => {
                         errorMessage = 'La date de début ne peut pas être dans le passé.';
                         break;
                     case 'overlapping_availability':
-                        errorMessage = 'Cette période chevauche avec une disponibilité existante. Veuillez choisir d\'autres dates.';
+                        errorMessage =
+                            "Cette période chevauche avec une disponibilité existante. Veuillez choisir d'autres dates.";
                         break;
                     default:
                         errorMessage = backendMessage || errorMessage;

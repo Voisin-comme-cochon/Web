@@ -46,7 +46,6 @@ export class LoanRequestsRepositoryImplementation implements LoanRequestsReposit
             .orderBy('request.created_at', 'DESC')
             .getMany();
 
-
         return loanRequests.map((request) => LoanRequestsAdapter.entityToDomain(request));
     }
 

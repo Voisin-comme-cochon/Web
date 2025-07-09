@@ -16,28 +16,34 @@ export class LoansAdapter {
             status: loan.status,
             created_at: loan.created_at,
             // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-            item: loan.item ? {
-                id: loan.item.id,
-                name: loan.item.name,
-                description: loan.item.description,
-                image_url: loan.item.image_url,
-                owner_id: loan.item.owner_id,
-                category: loan.item.category
-            } : undefined,
+            item: loan.item
+                ? {
+                      id: loan.item.id,
+                      name: loan.item.name,
+                      description: loan.item.description,
+                      image_url: loan.item.image_url,
+                      owner_id: loan.item.owner_id,
+                      category: loan.item.category,
+                  }
+                : undefined,
             // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-            borrower: loan.borrower ? {
-                id: loan.borrower.id,
-                firstName: loan.borrower.firstName,
-                lastName: loan.borrower.lastName,
-                profileImageUrl: loan.borrower.profileImageUrl
-            } : undefined,
+            borrower: loan.borrower
+                ? {
+                      id: loan.borrower.id,
+                      firstName: loan.borrower.firstName,
+                      lastName: loan.borrower.lastName,
+                      profileImageUrl: loan.borrower.profileImageUrl,
+                  }
+                : undefined,
             // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-            owner: loan.item.owner ? {
-                id: loan.item.owner.id,
-                firstName: loan.item.owner.firstName,
-                lastName: loan.item.owner.lastName,
-                profileImageUrl: loan.item.owner.profileImageUrl
-            } : undefined,
+            owner: loan.item.owner
+                ? {
+                      id: loan.item.owner.id,
+                      firstName: loan.item.owner.firstName,
+                      lastName: loan.item.owner.lastName,
+                      profileImageUrl: loan.item.owner.profileImageUrl,
+                  }
+                : undefined,
         };
     }
 

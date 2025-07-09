@@ -136,15 +136,16 @@ export class ItemRepository {
             end_date: new Date(data.end_date),
             status: data.status,
             created_at: new Date(data.created_at),
-            slots: data.slots?.map((slot: any) => ({
-                id: slot.id,
-                availability_id: slot.availability_id,
-                start_date: new Date(slot.start_date),
-                end_date: new Date(slot.end_date),
-                status: slot.status,
-                loan_request_id: slot.loan_request_id,
-                created_at: new Date(slot.created_at)
-            })) || []
+            slots:
+                data.slots?.map((slot: any) => ({
+                    id: slot.id,
+                    availability_id: slot.availability_id,
+                    start_date: new Date(slot.start_date),
+                    end_date: new Date(slot.end_date),
+                    status: slot.status,
+                    loan_request_id: slot.loan_request_id,
+                    created_at: new Date(slot.created_at),
+                })) || [],
         };
     };
 }

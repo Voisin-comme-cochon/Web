@@ -216,13 +216,17 @@ export class ItemsService {
         }
 
         const existingAvailabilities = await this.itemsRepository.getItemAvailabilities(itemId);
-        
+
         for (const existing of existingAvailabilities) {
             const existingStart = new Date(existing.start_date);
             const existingEnd = new Date(existing.end_date);
-            
+
             if (startDate <= existingEnd && endDate >= existingStart) {
-                throw new CochonError('overlapping_availability', 'This availability period overlaps with an existing one', 400);
+                throw new CochonError(
+                    'overlapping_availability',
+                    'This availability period overlaps with an existing one',
+                    400
+                );
             }
         }
 
@@ -270,16 +274,22 @@ export class ItemsService {
                 throw new CochonError('past_date', 'Start date cannot be in the past', 400);
             }
 
-            const existingAvailabilities = await this.itemsRepository.getItemAvailabilities(currentAvailability.item_id);
-            
+            const existingAvailabilities = await this.itemsRepository.getItemAvailabilities(
+                currentAvailability.item_id
+            );
+
             for (const existing of existingAvailabilities) {
                 if (existing.id === id) continue;
-                
+
                 const existingStart = new Date(existing.start_date);
                 const existingEnd = new Date(existing.end_date);
-                
+
                 if (startDate <= existingEnd && endDate >= existingStart) {
-                    throw new CochonError('overlapping_availability', 'This availability period overlaps with an existing one', 400);
+                    throw new CochonError(
+                        'overlapping_availability',
+                        'This availability period overlaps with an existing one',
+                        400
+                    );
                 }
             }
         }

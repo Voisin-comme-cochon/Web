@@ -50,11 +50,11 @@ export class LoansUc {
         if (loan.status !== LoanStatus.ACTIVE && loan.status !== LoanStatus.PENDING_RETURN) {
             return { canReturn: false, reason: "Ce prêt n'est pas actif" };
         }
-        
+
         // Special handling for PENDING_RETURN status
         if (loan.status === LoanStatus.PENDING_RETURN) {
             if (loan.return_confirmed_by === currentUserId) {
-                return { canReturn: false, reason: "Vous avez déjà confirmé ce retour" };
+                return { canReturn: false, reason: 'Vous avez déjà confirmé ce retour' };
             }
         }
 

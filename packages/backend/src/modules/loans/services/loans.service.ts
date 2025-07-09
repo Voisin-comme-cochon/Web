@@ -92,18 +92,19 @@ export class LoansService {
         // Check if this is the first or second confirmation
         if (loan.status === LoanStatus.ACTIVE) {
             // First confirmation - set to PENDING_RETURN
-            await this.loansRepository.updateLoanReturnConfirmation(id, userId, returnDate || new Date());
+            await this.loansRepository.updateLoanReturnConfirmation(id, userId, returnDate ?? new Date());
             await this.loansRepository.updateLoanStatus(id, LoanStatus.PENDING_RETURN);
+            // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
         } else if (loan.status === LoanStatus.PENDING_RETURN) {
             // Second confirmation - check it's from the other party
             if (loan.return_confirmed_by === userId) {
                 throw new CochonError('already_confirmed', 'You have already confirmed this return', 400);
             }
-            
+
             // Both parties confirmed - finalize the return
             await this.loansRepository.updateLoanStatus(id, LoanStatus.RETURNED);
-            await this.loansRepository.returnLoan(id, returnDate || new Date());
-            
+            await this.loansRepository.returnLoan(id, returnDate ?? new Date());
+
             // Free the occupied slots for this loan
             const slots = await this.itemAvailabilitySlotsRepository.getSlotsByLoanRequestId(loan.loan_request_id);
             for (const slot of slots) {
@@ -111,6 +112,8 @@ export class LoansService {
                     await this.itemAvailabilitySlotsRepository.deleteSlot(slot.id);
                 }
             }
+        } else {
+            throw new CochonError('invalid_loan_status', 'Loan status is not valid for return confirmation', 400);
         }
     }
 

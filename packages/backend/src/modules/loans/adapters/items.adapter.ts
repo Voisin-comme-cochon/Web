@@ -30,7 +30,7 @@ export class ItemsAdapter {
             end_date: availability.end_date,
             status: availability.status,
             created_at: availability.created_at,
-            slots: availability.slots?.map((slot) => ItemAvailabilitySlotsAdapter.entityToDomain(slot)),
+            slots: availability.slots.map((slot) => ItemAvailabilitySlotsAdapter.entityToDomain(slot)),
         };
     }
 

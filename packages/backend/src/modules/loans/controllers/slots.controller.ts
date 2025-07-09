@@ -31,10 +31,9 @@ export class SlotsController {
 
     @Get('loan-request/:loanRequestId')
     async getSlotsByLoanRequestId(
-        @Param('loanRequestId', ParseIntPipe) loanRequestId: number,
-        @Request() req: { user: DecodedToken }
+        @Param('loanRequestId', ParseIntPipe) loanRequestId: number
     ): Promise<ItemAvailabilitySlot[]> {
-        return this.slotsService.getSlotsByLoanRequestId(loanRequestId, req.user.id);
+        return this.slotsService.getSlotsByLoanRequestId(loanRequestId);
     }
 
     @Get()

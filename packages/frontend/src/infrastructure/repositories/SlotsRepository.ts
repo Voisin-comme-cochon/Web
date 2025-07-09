@@ -1,8 +1,8 @@
 import { ApiResponse } from '@/domain/models/api.model';
-import { 
-    ItemAvailabilitySlotModel, 
-    ItemAvailabilitySlotStatus, 
-    CreateItemAvailabilitySlotRequest 
+import {
+    ItemAvailabilitySlotModel,
+    ItemAvailabilitySlotStatus,
+    CreateItemAvailabilitySlotRequest,
 } from '@/domain/models/item.model';
 import { apiClient } from '@/infrastructure/api/apiClient';
 
@@ -38,23 +38,23 @@ export class SlotsRepository {
 
     async getSlotsWithFilters(filters: SlotFilters): Promise<ItemAvailabilitySlotModel[]> {
         const params = new URLSearchParams();
-        
+
         if (filters.availability_id) {
             params.append('availability_id', filters.availability_id.toString());
         }
-        
+
         if (filters.loan_request_id) {
             params.append('loan_request_id', filters.loan_request_id.toString());
         }
-        
+
         if (filters.status) {
             params.append('status', filters.status);
         }
-        
+
         if (filters.start_date) {
             params.append('start_date', filters.start_date.toISOString());
         }
-        
+
         if (filters.end_date) {
             params.append('end_date', filters.end_date.toISOString());
         }
@@ -66,24 +66,17 @@ export class SlotsRepository {
     }
 
     async createSlot(slotData: CreateItemAvailabilitySlotRequest): Promise<ItemAvailabilitySlotModel> {
-        const response = await apiClient.post<ApiResponse<ItemAvailabilitySlotModel>>(
-            this.baseUrl,
-            slotData
-        );
+        const response = await apiClient.post<ApiResponse<ItemAvailabilitySlotModel>>(this.baseUrl, slotData);
         return response.data.data;
     }
 
     async deleteSlot(id: number): Promise<boolean> {
-        const response = await apiClient.delete<ApiResponse<{ success: boolean }>>(
-            `${this.baseUrl}/${id}`
-        );
+        const response = await apiClient.delete<ApiResponse<{ success: boolean }>>(`${this.baseUrl}/${id}`);
         return response.data.data.success;
     }
 
     async cancelSlot(id: number): Promise<boolean> {
-        const response = await apiClient.post<ApiResponse<{ success: boolean }>>(
-            `${this.baseUrl}/${id}/cancel`
-        );
+        const response = await apiClient.post<ApiResponse<{ success: boolean }>>(`${this.baseUrl}/${id}/cancel`);
         return response.data.data.success;
     }
 
@@ -96,7 +89,7 @@ export class SlotsRepository {
         const params = new URLSearchParams();
         params.append('startDate', startDate.toISOString());
         params.append('endDate', endDate.toISOString());
-        
+
         if (excludeSlotId) {
             params.append('excludeSlotId', excludeSlotId.toString());
         }
@@ -113,11 +106,11 @@ export class SlotsRepository {
         endDate?: Date
     ): Promise<ItemAvailabilitySlotModel[]> {
         const params = new URLSearchParams();
-        
+
         if (startDate) {
             params.append('startDate', startDate.toISOString());
         }
-        
+
         if (endDate) {
             params.append('endDate', endDate.toISOString());
         }

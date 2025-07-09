@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
-import { 
-    ItemAvailabilitySlotModel, 
-    ItemAvailabilitySlotStatus, 
-    CreateItemAvailabilitySlotRequest 
+import {
+    ItemAvailabilitySlotModel,
+    ItemAvailabilitySlotStatus,
+    CreateItemAvailabilitySlotRequest,
 } from '@/domain/models/item.model';
 import { SlotsRepository } from '@/infrastructure/repositories/SlotsRepository';
 
@@ -24,7 +24,7 @@ export const useSlots = (filters?: SlotFilters) => {
     const fetchSlots = useCallback(async () => {
         setLoading(true);
         setError(null);
-        
+
         try {
             const fetchedSlots = await slotsRepository.getSlotsWithFilters(filters || {});
             setSlots(fetchedSlots);
@@ -43,7 +43,7 @@ export const useSlots = (filters?: SlotFilters) => {
         try {
             setLoading(true);
             const newSlot = await slotsRepository.createSlot(slotData);
-            setSlots(prev => [...prev, newSlot]);
+            setSlots((prev) => [...prev, newSlot]);
             return true;
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Failed to create slot');
@@ -58,7 +58,7 @@ export const useSlots = (filters?: SlotFilters) => {
             setLoading(true);
             const success = await slotsRepository.deleteSlot(slotId);
             if (success) {
-                setSlots(prev => prev.filter(slot => slot.id !== slotId));
+                setSlots((prev) => prev.filter((slot) => slot.id !== slotId));
             }
             return success;
         } catch (err) {
@@ -74,7 +74,7 @@ export const useSlots = (filters?: SlotFilters) => {
             setLoading(true);
             const success = await slotsRepository.cancelSlot(slotId);
             if (success) {
-                setSlots(prev => prev.filter(slot => slot.id !== slotId));
+                setSlots((prev) => prev.filter((slot) => slot.id !== slotId));
             }
             return success;
         } catch (err) {
@@ -96,7 +96,7 @@ export const useSlots = (filters?: SlotFilters) => {
         createSlot,
         deleteSlot,
         cancelSlot,
-        refetch
+        refetch,
     };
 };
 
@@ -115,7 +115,7 @@ export const useSlotById = (slotId: number | null) => {
 
         setLoading(true);
         setError(null);
-        
+
         try {
             const fetchedSlot = await slotsRepository.getSlotById(slotId);
             setSlot(fetchedSlot);
@@ -138,7 +138,7 @@ export const useSlotById = (slotId: number | null) => {
         slot,
         loading,
         error,
-        refetch
+        refetch,
     };
 };
 
@@ -157,7 +157,7 @@ export const useSlotsByAvailability = (availabilityId: number | null) => {
 
         setLoading(true);
         setError(null);
-        
+
         try {
             const fetchedSlots = await slotsRepository.getSlotsByAvailabilityId(availabilityId);
             setSlots(fetchedSlots);
@@ -180,7 +180,7 @@ export const useSlotsByAvailability = (availabilityId: number | null) => {
         slots,
         loading,
         error,
-        refetch
+        refetch,
     };
 };
 
@@ -199,7 +199,7 @@ export const useSlotsByLoanRequest = (loanRequestId: number | null) => {
 
         setLoading(true);
         setError(null);
-        
+
         try {
             const fetchedSlots = await slotsRepository.getSlotsByLoanRequestId(loanRequestId);
             setSlots(fetchedSlots);
@@ -222,7 +222,7 @@ export const useSlotsByLoanRequest = (loanRequestId: number | null) => {
         slots,
         loading,
         error,
-        refetch
+        refetch,
     };
 };
 
@@ -241,7 +241,7 @@ export const useSlotConflicts = () => {
     ): Promise<ItemAvailabilitySlotModel[]> => {
         setLoading(true);
         setError(null);
-        
+
         try {
             const conflictingSlots = await slotsRepository.checkSlotConflicts(
                 availabilityId,
@@ -263,7 +263,7 @@ export const useSlotConflicts = () => {
         conflicts,
         loading,
         error,
-        checkConflicts
+        checkConflicts,
     };
 };
 
@@ -281,13 +281,9 @@ export const useAvailableSlots = () => {
     ): Promise<ItemAvailabilitySlotModel[]> => {
         setLoading(true);
         setError(null);
-        
+
         try {
-            const slots = await slotsRepository.getAvailableSlots(
-                availabilityId,
-                startDate,
-                endDate
-            );
+            const slots = await slotsRepository.getAvailableSlots(availabilityId, startDate, endDate);
             setAvailableSlots(slots);
             return slots;
         } catch (err) {
@@ -302,6 +298,6 @@ export const useAvailableSlots = () => {
         availableSlots,
         loading,
         error,
-        fetchAvailableSlots
+        fetchAvailableSlots,
     };
 };

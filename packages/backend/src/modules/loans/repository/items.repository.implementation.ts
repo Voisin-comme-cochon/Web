@@ -141,8 +141,8 @@ export class ItemsRepositoryImplementation implements ItemsRepository {
             .getRepository(ItemAvailabilitySlotEntity)
             .createQueryBuilder('slot')
             .where('slot.availability_id = :availabilityId', { availabilityId: availability.id })
-            .andWhere('slot.status IN (:...conflictingStatuses)', { 
-                conflictingStatuses: ['reserved', 'occupied'] 
+            .andWhere('slot.status IN (:...conflictingStatuses)', {
+                conflictingStatuses: ['reserved', 'occupied'],
             })
             .andWhere('(slot.start_date < :endDate AND slot.end_date > :startDate)', {
                 startDate,
