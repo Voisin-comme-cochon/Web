@@ -31,25 +31,25 @@ export class MessagingRepository {
             // Si une image est fournie, utiliser FormData pour multipart/form-data
             if (dto.groupImage) {
                 const formData = new FormData();
-                
+
                 // Ajouter les champs du DTO
                 formData.append('name', dto.name);
                 formData.append('description', dto.description);
                 formData.append('type', dto.type);
                 formData.append('isPrivate', dto.isPrivate.toString());
                 formData.append('neighborhoodId', dto.neighborhoodId.toString());
-                
+
                 if (dto.tagId) {
                     formData.append('tagId', dto.tagId.toString());
                 }
-                
+
                 if (dto.memberIds && dto.memberIds.length > 0) {
-                    dto.memberIds.forEach(id => formData.append('memberIds', id.toString()));
+                    dto.memberIds.forEach((id) => formData.append('memberIds', id.toString()));
                 }
-                
+
                 // Ajouter le fichier image
                 formData.append('groupImage', dto.groupImage);
-                
+
                 const response = await ApiService.post(`${this.basePath}/groups`, formData, {
                     headers: {
                         'Content-Type': 'multipart/form-data',
@@ -80,17 +80,17 @@ export class MessagingRepository {
             // Si une image est fournie, utiliser FormData pour multipart/form-data
             if (dto.groupImage) {
                 const formData = new FormData();
-                
+
                 // Ajouter les champs du DTO seulement s'ils sont définis
                 if (dto.name !== undefined) formData.append('name', dto.name);
                 if (dto.description !== undefined) formData.append('description', dto.description);
                 if (dto.type !== undefined) formData.append('type', dto.type);
                 if (dto.isPrivate !== undefined) formData.append('isPrivate', dto.isPrivate.toString());
                 if (dto.tagId !== undefined) formData.append('tagId', dto.tagId.toString());
-                
+
                 // Ajouter le fichier image
                 formData.append('groupImage', dto.groupImage);
-                
+
                 const response = await ApiService.patch(`${this.basePath}/groups/${groupId}`, formData, {
                     headers: {
                         'Content-Type': 'multipart/form-data',
@@ -107,7 +107,7 @@ export class MessagingRepository {
                 throw new ApiError(400, 'Données invalides pour la modification du groupe');
             }
             if (error.response?.status === 403) {
-                throw new ApiError(403, "Seul le propriétaire peut modifier le groupe");
+                throw new ApiError(403, 'Seul le propriétaire peut modifier le groupe');
             }
             if (error.response?.status === 404) {
                 throw new ApiError(404, 'Groupe non trouvé');
@@ -208,15 +208,15 @@ export class MessagingRepository {
             return response.data;
         } catch (error: any) {
             if (error.response?.status === 400) {
-                throw new ApiError(400, 'Vous n\'êtes pas membre de ce groupe');
+                throw new ApiError(400, "Vous n'êtes pas membre de ce groupe");
             }
             if (error.response?.status === 403) {
-                throw new ApiError(403, 'Le propriétaire ne peut pas quitter le groupe avec d\'autres membres');
+                throw new ApiError(403, "Le propriétaire ne peut pas quitter le groupe avec d'autres membres");
             }
             if (error.response?.status === 404) {
                 throw new ApiError(404, 'Groupe non trouvé');
             }
-            throw new ApiError(500, "Erreur lors de la sortie du groupe");
+            throw new ApiError(500, 'Erreur lors de la sortie du groupe');
         }
     }
 
@@ -343,13 +343,11 @@ export class MessagingRepository {
 
     async revokeInvitation(membershipId: number): Promise<{ success: boolean }> {
         try {
-            const response = await ApiService.delete(
-                `${this.basePath}/groups/invitations/${membershipId}`
-            );
+            const response = await ApiService.delete(`${this.basePath}/groups/invitations/${membershipId}`);
             return response.data;
         } catch (error: any) {
             if (error.response?.status === 404) {
-                throw new ApiError(404, "Invitation introuvable");
+                throw new ApiError(404, 'Invitation introuvable');
             }
             if (error.response?.status === 403) {
                 throw new ApiError(403, "Vous n'êtes pas autorisé à révoquer cette invitation");

@@ -42,11 +42,11 @@ export class MessagingUc {
             if (!groupId) {
                 throw new Error("L'ID du groupe est requis");
             }
-            
+
             if (dto.name !== undefined && !dto.name.trim()) {
                 throw new Error('Le nom du groupe ne peut pas être vide');
             }
-            
+
             if (dto.description !== undefined && !dto.description.trim()) {
                 throw new Error('La description du groupe ne peut pas être vide');
             }
@@ -145,7 +145,7 @@ export class MessagingUc {
             if (error instanceof Error) {
                 throw new Error(error.message);
             }
-            throw new Error("Erreur lors de la sortie du groupe");
+            throw new Error('Erreur lors de la sortie du groupe');
         }
     }
 
@@ -156,10 +156,10 @@ export class MessagingUc {
             }
 
             const members = await this.messagingRepository.getGroupMembers({ groupId });
-            
+
             // Pré-charger les utilisateurs dans le cache
             userCache.preloadGroupMembers(members);
-            
+
             return members;
         } catch (error) {
             if (error instanceof Error) {

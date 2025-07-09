@@ -9,12 +9,15 @@ import EventDetails from '@/containers/EventDetails/EventDetails.tsx';
 import MyNeighborhoodPage from '@/containers/MyNeighborhood/MyNeighborhoodPage.tsx';
 import NeighborhoodEventsPage from '@/containers/NeighborhoodEvents/NeighborhoodEventsPage.tsx';
 import NeighborhoodJournalPage from '@/containers/NeighborhoodJournal/NeighborhoodJournalPage.tsx';
-import NeighborhoodMaterialsPage from '@/containers/NeighborhoodMaterials/NeighborhoodMaterialsPage.tsx';
 import CreateEventPage from '@/containers/CreateEvent/CreateEventPage.tsx';
 import JoinNeighborhood from '@/containers/JoinNeighborhood/JoinNeighborhood.tsx';
 import NeighborhoodDetails from '@/containers/NeighborhoodDetails/NeighborhoodDetails.tsx';
 import ManageNeighborhood from '@/containers/ManageNeighborhood/ManageNeighborhood.tsx';
 import ProfilPage from '@/containers/ProfilPage/ProfilPage.tsx';
+import ItemsPage from '@/containers/Items/ItemsPage.tsx';
+import ItemDetailsPage from '@/containers/Items/ItemDetailsPage.tsx';
+import AddItemPage from '@/containers/Items/AddItemPage.tsx';
+import EditItemPage from '@/containers/Items/EditItemPage.tsx';
 
 export default function App() {
     return (
@@ -29,13 +32,16 @@ export default function App() {
                 <Route path="/my-neighborhood" element={<MyNeighborhoodPage />} />
                 <Route path="/neighborhood-events" element={<NeighborhoodEventsPage />} />
                 <Route path="/neighborhood-journal" element={<NeighborhoodJournalPage />} />
-                <Route path="/neighborhood-materials" element={<NeighborhoodMaterialsPage />} />
                 <Route path="/neighborhoods/invite/:token" element={<NeighborhoodInvitation />} />
                 <Route path="/events/create" element={<CreateEventPage />} />
                 <Route path="/join-neighborhoods" element={<JoinNeighborhood />} />
                 <Route path={'/neighborhood/details/:neighborhoodId'} element={<NeighborhoodDetails />} />
                 <Route path={'/neighborhood-manage'} element={<ManageNeighborhood />} />
                 <Route path={'/user/:userId'} element={<ProfilPage />} />
+                <Route path={'/items'} element={<ItemsPage />} />
+                <Route path={'/items/new'} element={<AddItemPage />} />
+                <Route path={'/items/:itemId'} element={<ItemDetailsPage />} />
+                <Route path={'/items/:itemId/edit'} element={<EditItemPage />} />
             </Routes>
         </Router>
     );

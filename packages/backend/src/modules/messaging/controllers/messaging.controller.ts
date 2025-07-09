@@ -53,7 +53,7 @@ import {
 @Controller('messaging')
 @UseGuards(IsLoginGuard)
 export class MessagingController {
-    constructor(private readonly messagingService: MessagingService) { }
+    constructor(private readonly messagingService: MessagingService) {}
 
     // ========== GROUP MANAGEMENT ==========
 

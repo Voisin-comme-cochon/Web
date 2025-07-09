@@ -226,7 +226,6 @@ export class MessagingGateway implements OnGatewayInit, OnGatewayConnection, OnG
         }
     }
 
-
     notifyUserJoinedGroup(groupId: number, user: UserJoinedGroupEvent['user']): void {
         const roomName = `group-${groupId}`;
         const event: UserJoinedGroupEvent = {

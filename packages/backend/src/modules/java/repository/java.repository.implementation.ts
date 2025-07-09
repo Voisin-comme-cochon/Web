@@ -20,7 +20,6 @@ export class JavaRepositoryImplementation implements JavaRepository {
         return version;
     }
 
-
     async createVersion(version: string, fileName: string): Promise<JavaVersion> {
         const repo = this.dataSource.getRepository(JavaVersion);
         const javaVersion = repo.create({ version, fileName });

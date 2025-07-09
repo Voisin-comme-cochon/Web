@@ -7,6 +7,9 @@ import { SalesEntity } from './sales.entity';
 import { NeighborhoodUserEntity } from './neighborhood-user.entity';
 import { NeighborhoodInvitationEntity } from './neighborhood-invitation.entity';
 import { UserTagEntity } from './user-tag.entity';
+import { ItemEntity } from './item.entity';
+import { LoanRequestEntity } from './loan-request.entity';
+import { LoanEntity } from './loan.entity';
 
 @Entity({ name: 'users' })
 export class UserEntity {
@@ -86,4 +89,13 @@ export class UserEntity {
 
     @OneToMany(() => UserTagEntity, (userTag) => userTag.user)
     tags?: UserTagEntity[];
+
+    @OneToMany(() => ItemEntity, (item) => item.owner, { onDelete: 'CASCADE' })
+    owned_items?: ItemEntity[];
+
+    @OneToMany(() => LoanRequestEntity, (request) => request.borrower, { onDelete: 'CASCADE' })
+    loan_requests?: LoanRequestEntity[];
+
+    @OneToMany(() => LoanEntity, (loan) => loan.borrower, { onDelete: 'CASCADE' })
+    loans?: LoanEntity[];
 }

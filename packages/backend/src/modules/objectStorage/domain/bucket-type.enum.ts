@@ -4,4 +4,5 @@ export enum BucketType {
     EVENT_IMAGES = 'event-images',
     JAVA_VERSION = 'java-version',
     GROUP_IMAGES = 'group-images',
+    ITEM_IMAGES = 'item-images',
 }
