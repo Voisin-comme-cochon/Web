@@ -12,7 +12,11 @@ import { SalesModule } from './modules/sales/sales.module';
 import { MessagingModule } from './modules/messaging/messaging.module';
 import { JavaModule } from './modules/java/java.modules';
 import { Neo4jModule } from './neo4j/neo4j.module';
-import { UserEntitySubscriber } from './subscribers/my-entity.subscriber';
+import { UserEntitySubscriber } from './subscribers/user-entity.subscriber';
+import { NeighborhoodEntitySubscriber } from './subscribers/neighborhood-entity.subscriber';
+import { NeighborhoodUserEntitySubscriber } from './subscribers/neighborhood-users-entity.subscriber';
+import { TagEntitySubscriber } from './subscribers/tag-entity.subscriber';
+import { UserTagsEntitySubscriber } from './subscribers/user-tags-entity.subscriber';
 
 @Module({
     imports: [
@@ -37,11 +41,23 @@ import { UserEntitySubscriber } from './subscribers/my-entity.subscriber';
             logging: false,
             synchronize: process.env.VCC_DATABASE_SYNCHRONIZE === 'true' || true,
             entities: [__dirname + '/**/*.entity{.ts,.js}'],
-            subscribers: [UserEntitySubscriber],
+            subscribers: [
+                UserEntitySubscriber,
+                NeighborhoodEntitySubscriber,
+                NeighborhoodUserEntitySubscriber,
+                TagEntitySubscriber,
+                UserTagsEntitySubscriber,
+            ],
             autoLoadEntities: true,
         }),
         Neo4jModule,
     ],
-    providers: [UserEntitySubscriber],
+    providers: [
+        UserEntitySubscriber,
+        NeighborhoodEntitySubscriber,
+        NeighborhoodUserEntitySubscriber,
+        TagEntitySubscriber,
+        UserTagsEntitySubscriber,
+    ],
 })
 export class AppModule {}

@@ -40,7 +40,10 @@ export class UserEntitySubscriber implements EntitySubscriberInterface<UserEntit
 
     async afterRemove(user: RemoveEvent<UserEntity>) {
         const session = neo4jDriver.session();
-        const { id } = user.entity!;
+        if (!user.entity) {
+            return;
+        }
+        const { id } = user.entity;
         try {
             await session.run(`MATCH (n:UserEntity {id: $id}) DETACH DELETE n`, { id });
         } finally {
