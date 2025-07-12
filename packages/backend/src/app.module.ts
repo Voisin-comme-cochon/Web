@@ -17,6 +17,8 @@ import { NeighborhoodEntitySubscriber } from './subscribers/neighborhood-entity.
 import { NeighborhoodUserEntitySubscriber } from './subscribers/neighborhood-users-entity.subscriber';
 import { TagEntitySubscriber } from './subscribers/tag-entity.subscriber';
 import { UserTagsEntitySubscriber } from './subscribers/user-tags-entity.subscriber';
+import { EventEntitySubscriber } from './subscribers/event-entity.subscriber';
+import { EventRegisterEntitySubscriber } from './subscribers/event-register-entity.subscriber';
 
 @Module({
     imports: [
@@ -47,6 +49,8 @@ import { UserTagsEntitySubscriber } from './subscribers/user-tags-entity.subscri
                 NeighborhoodUserEntitySubscriber,
                 TagEntitySubscriber,
                 UserTagsEntitySubscriber,
+                EventEntitySubscriber,
+                EventRegisterEntitySubscriber,
             ],
             autoLoadEntities: true,
         }),
@@ -58,6 +62,8 @@ import { UserTagsEntitySubscriber } from './subscribers/user-tags-entity.subscri
         NeighborhoodUserEntitySubscriber,
         TagEntitySubscriber,
         UserTagsEntitySubscriber,
+        EventEntitySubscriber,
+        EventRegisterEntitySubscriber,
     ],
 })
 export class AppModule {}

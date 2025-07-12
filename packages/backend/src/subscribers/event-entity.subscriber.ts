@@ -1,51 +1,49 @@
 import { EntitySubscriberInterface, EventSubscriber, InsertEvent, RemoveEvent, UpdateEvent } from 'typeorm';
-import { UserEntity } from '../core/entities/user.entity';
 import { neo4jDriver } from '../neo4j/neo4j.provider';
+import { EventEntity } from '../core/entities/event.entity';
 
 @EventSubscriber()
-export class UserEntitySubscriber implements EntitySubscriberInterface<UserEntity> {
+export class EventEntitySubscriber implements EntitySubscriberInterface<EventEntity> {
     listenTo() {
-        return UserEntity;
+        return EventEntity;
     }
 
-    async afterInsert(user: InsertEvent<UserEntity>) {
+    async afterInsert(event: InsertEvent<EventEntity>) {
         const session = neo4jDriver.session();
-        const { id, firstName, lastName } = user.entity;
+        const { id, name } = event.entity;
         try {
             await session.run(
-                `MERGE (n:UserEntity {id: $id})
-                SET n.firstName = $firstName,
-                    n.lastName = $lastName`,
-                { id, firstName, lastName }
+                `MERGE (n:EventEntity {id: $id})
+                SET n.name = $name`,
+                { id, name }
             );
         } finally {
             await session.close();
         }
     }
 
-    async afterUpdate(user: UpdateEvent<UserEntity>) {
+    async afterUpdate(event: UpdateEvent<EventEntity>) {
         const session = neo4jDriver.session();
-        const { id, firstName, lastName } = user.entity as UserEntity;
+        const { id, name } = event.entity as EventEntity;
         try {
             await session.run(
-                `MATCH (n:UserEntity {id: $id})
-                SET n.firstName = $firstName,
-                    n.lastName = $lastName`,
-                { id, firstName, lastName }
+                `MATCH (n:EventEntity {id: $id})
+                SET n.name = $name`,
+                { id, name }
             );
         } finally {
             await session.close();
         }
     }
 
-    async afterRemove(user: RemoveEvent<UserEntity>) {
+    async afterRemove(event: RemoveEvent<EventEntity>) {
         const session = neo4jDriver.session();
-        if (!user.entity) {
+        if (!event.entity) {
             return;
         }
-        const { id } = user.entity;
+        const { id } = event.entity;
         try {
-            await session.run(`MATCH (n:UserEntity {id: $id}) DETACH DELETE n`, { id });
+            await session.run(`MATCH (n:EventEntity {id: $id}) DETACH DELETE n`, { id });
         } finally {
             await session.close();
         }
