@@ -19,6 +19,8 @@ import { TagEntitySubscriber } from './subscribers/tag-entity.subscriber';
 import { UserTagsEntitySubscriber } from './subscribers/user-tags-entity.subscriber';
 import { EventEntitySubscriber } from './subscribers/event-entity.subscriber';
 import { EventRegisterEntitySubscriber } from './subscribers/event-register-entity.subscriber';
+import { GroupEntitySubscriber } from './subscribers/group-entity.subscriber';
+import { GroupMembershipEntitySubscriber } from './subscribers/group-membership-entity.subscriber';
 
 @Module({
     imports: [
@@ -51,6 +53,8 @@ import { EventRegisterEntitySubscriber } from './subscribers/event-register-enti
                 UserTagsEntitySubscriber,
                 EventEntitySubscriber,
                 EventRegisterEntitySubscriber,
+                GroupEntitySubscriber,
+                GroupMembershipEntitySubscriber,
             ],
             autoLoadEntities: true,
         }),
@@ -64,6 +68,8 @@ import { EventRegisterEntitySubscriber } from './subscribers/event-register-enti
         UserTagsEntitySubscriber,
         EventEntitySubscriber,
         EventRegisterEntitySubscriber,
+        GroupEntitySubscriber,
+        GroupMembershipEntitySubscriber,
     ],
 })
 export class AppModule {}
