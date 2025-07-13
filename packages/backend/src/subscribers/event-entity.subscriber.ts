@@ -1,4 +1,11 @@
-import { EntitySubscriberInterface, EventSubscriber, InsertEvent, RemoveEvent, UpdateEvent } from 'typeorm';
+import {
+    BeforeRemove,
+    EntitySubscriberInterface,
+    EventSubscriber,
+    InsertEvent,
+    RemoveEvent,
+    UpdateEvent,
+} from 'typeorm';
 import { neo4jDriver } from '../neo4j/neo4j.provider';
 import { EventEntity } from '../core/entities/event.entity';
 
@@ -14,7 +21,7 @@ export class EventEntitySubscriber implements EntitySubscriberInterface<EventEnt
         try {
             await session.run(
                 `MERGE (n:EventEntity {id: $id})
-                SET n.name = $name`,
+         SET n.name = $name`,
                 { id, name }
             );
         } finally {
@@ -28,7 +35,7 @@ export class EventEntitySubscriber implements EntitySubscriberInterface<EventEnt
         try {
             await session.run(
                 `MATCH (n:EventEntity {id: $id})
-                SET n.name = $name`,
+         SET n.name = $name`,
                 { id, name }
             );
         } finally {
@@ -36,14 +43,17 @@ export class EventEntitySubscriber implements EntitySubscriberInterface<EventEnt
         }
     }
 
-    async afterRemove(event: RemoveEvent<EventEntity>) {
+    @BeforeRemove()
+    async beforeRemove(event: RemoveEvent<EventEntity>) {
+        const id = event.entity!.id;
         const session = neo4jDriver.session();
-        if (!event.entity) {
-            return;
-        }
-        const { id } = event.entity;
         try {
-            await session.run(`MATCH (n:EventEntity {id: $id}) DETACH DELETE n`, { id });
+            await session.run(
+                `MATCH (n:EventEntity {id: $id})
+         DETACH DELETE n`,
+                { id: id }
+            );
+            console.log(`Noeud EventEntity ${id} supprimé de Neo4j`);
         } finally {
             await session.close();
         }

@@ -1,4 +1,11 @@
-import { EntitySubscriberInterface, EventSubscriber, InsertEvent, RemoveEvent, UpdateEvent } from 'typeorm';
+import {
+    BeforeRemove,
+    EntitySubscriberInterface,
+    EventSubscriber,
+    InsertEvent,
+    RemoveEvent,
+    UpdateEvent,
+} from 'typeorm';
 import { UserEntity } from '../core/entities/user.entity';
 import { neo4jDriver } from '../neo4j/neo4j.provider';
 
@@ -38,7 +45,8 @@ export class UserEntitySubscriber implements EntitySubscriberInterface<UserEntit
         }
     }
 
-    async afterRemove(user: RemoveEvent<UserEntity>) {
+    @BeforeRemove()
+    async beforeRemove(user: RemoveEvent<UserEntity>) {
         const session = neo4jDriver.session();
         if (!user.entity) {
             return;

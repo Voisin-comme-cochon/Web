@@ -1,4 +1,11 @@
-import { EntitySubscriberInterface, EventSubscriber, InsertEvent, RemoveEvent, UpdateEvent } from 'typeorm';
+import {
+    BeforeRemove,
+    EntitySubscriberInterface,
+    EventSubscriber,
+    InsertEvent,
+    RemoveEvent,
+    UpdateEvent,
+} from 'typeorm';
 import { neo4jDriver } from '../neo4j/neo4j.provider';
 import { TagEntity } from '../core/entities/tag.entity';
 
@@ -36,7 +43,8 @@ export class TagEntitySubscriber implements EntitySubscriberInterface<TagEntity>
         }
     }
 
-    async afterRemove(tag: RemoveEvent<TagEntity>) {
+    @BeforeRemove()
+    async beforeRemove(tag: RemoveEvent<TagEntity>) {
         if (!tag.entity) {
             return;
         }

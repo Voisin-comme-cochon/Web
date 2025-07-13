@@ -56,11 +56,12 @@ export class EventsRepositoryImplementation implements EventsRepository {
         });
     }
 
-    public unregisterUserFromEvent(id: number, userId: number): void {
-        void this.dataSource.getRepository(EventRegistrationEntity).delete({
-            eventId: id,
-            userId: userId,
-        });
+    public async unregisterUserFromEvent(id: number, userId: number): Promise<void> {
+        const res = await this.dataSource.getRepository(EventRegistrationEntity).findOneBy({ id, userId });
+        if (!res) {
+            throw new Error('Inscription introuvable.');
+        }
+        await this.dataSource.getRepository(EventRegistrationEntity).remove(res);
     }
 
     public createEvent(event: EventEntity): Promise<EventEntity> {
@@ -89,6 +90,10 @@ export class EventsRepositoryImplementation implements EventsRepository {
     }
 
     public async deleteEvent(id: number): Promise<void> {
-        await this.dataSource.getRepository(EventEntity).delete({ id });
+        const evt = await this.dataSource.getRepository(EventEntity).findOneBy({ id });
+        if (!evt) {
+            throw new Error(`Event with id ${id} not found`);
+        }
+        await this.dataSource.getRepository(EventEntity).remove(evt);
     }
 }

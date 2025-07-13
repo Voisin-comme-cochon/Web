@@ -137,7 +137,7 @@ export class EventsService {
             throw new CochonError('user_not_registered', 'User is not registered for this event', 400);
         }
 
-        this.eventRepository.unregisterUserFromEvent(id, userId);
+        await this.eventRepository.unregisterUserFromEvent(id, userId);
     }
 
     public async createEvent(event: CreateEventInput): Promise<Event> {

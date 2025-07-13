@@ -1,4 +1,4 @@
-import { EntitySubscriberInterface, EventSubscriber, InsertEvent, RemoveEvent } from 'typeorm';
+import { BeforeRemove, EntitySubscriberInterface, EventSubscriber, InsertEvent, RemoveEvent } from 'typeorm';
 import neo4j from 'neo4j-driver';
 import { neo4jDriver } from '../neo4j/neo4j.provider';
 import { UserTagEntity } from '../core/entities/user-tag.entity';
@@ -30,7 +30,8 @@ export class UserTagsEntitySubscriber implements EntitySubscriberInterface<UserT
         }
     }
 
-    async afterRemove(userTag: RemoveEvent<UserTagEntity>) {
+    @BeforeRemove()
+    async beforeRemove(userTag: RemoveEvent<UserTagEntity>) {
         if (!userTag.entity) {
             return;
         }

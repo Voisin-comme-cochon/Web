@@ -1,4 +1,11 @@
-import { EntitySubscriberInterface, EventSubscriber, InsertEvent, RemoveEvent, UpdateEvent } from 'typeorm';
+import {
+    BeforeRemove,
+    EntitySubscriberInterface,
+    EventSubscriber,
+    InsertEvent,
+    RemoveEvent,
+    UpdateEvent,
+} from 'typeorm';
 import { neo4jDriver } from '../neo4j/neo4j.provider';
 import { GroupEntity } from '../core/entities/group.entity';
 
@@ -36,7 +43,8 @@ export class GroupEntitySubscriber implements EntitySubscriberInterface<GroupEnt
         }
     }
 
-    async afterRemove(group: RemoveEvent<GroupEntity>) {
+    @BeforeRemove()
+    async beforeRemove(group: RemoveEvent<GroupEntity>) {
         const session = neo4jDriver.session();
         if (!group.entity) {
             return;

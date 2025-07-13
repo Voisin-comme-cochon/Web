@@ -1,4 +1,11 @@
-import { EntitySubscriberInterface, EventSubscriber, InsertEvent, RemoveEvent, UpdateEvent } from 'typeorm';
+import {
+    BeforeRemove,
+    EntitySubscriberInterface,
+    EventSubscriber,
+    InsertEvent,
+    RemoveEvent,
+    UpdateEvent,
+} from 'typeorm';
 import neo4j from 'neo4j-driver';
 import { NeighborhoodEntity } from '../core/entities/neighborhood.entity';
 import { neo4jDriver } from '../neo4j/neo4j.provider';
@@ -43,7 +50,8 @@ export class NeighborhoodEntitySubscriber implements EntitySubscriberInterface<N
         }
     }
 
-    async afterRemove(e: RemoveEvent<NeighborhoodEntity>) {
+    @BeforeRemove()
+    async beforeRemove(e: RemoveEvent<NeighborhoodEntity>) {
         const { id } = e.entity!;
         const session = neo4jDriver.session({ defaultAccessMode: neo4j.session.WRITE });
         try {

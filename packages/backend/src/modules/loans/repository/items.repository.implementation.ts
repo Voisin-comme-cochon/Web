@@ -4,10 +4,10 @@ import { ItemAvailabilityEntity } from '../../../core/entities/item-availability
 import { ItemAvailabilitySlotEntity } from '../../../core/entities/item-availability-slot.entity';
 import { ItemsRepository } from '../domain/items.abstract.repository';
 import {
+    CreateItemAvailabilityRequest,
+    CreateItemRequest,
     Item,
     ItemAvailability,
-    CreateItemRequest,
-    CreateItemAvailabilityRequest,
     ItemFilters,
 } from '../domain/item.model';
 import { ItemsAdapter } from '../adapters/items.adapter';
@@ -82,7 +82,11 @@ export class ItemsRepositoryImplementation implements ItemsRepository {
     }
 
     async deleteItem(id: number): Promise<void> {
-        await this.dataSource.getRepository(ItemEntity).delete(id);
+        const item = await this.dataSource.getRepository(ItemEntity).findOneBy({ id });
+        if (!item) {
+            throw new Error(`Item with id ${id} not found`);
+        }
+        await this.dataSource.getRepository(ItemEntity).remove(item);
     }
 
     async getItemAvailabilities(itemId: number): Promise<ItemAvailability[]> {
@@ -118,7 +122,11 @@ export class ItemsRepositoryImplementation implements ItemsRepository {
     }
 
     async deleteItemAvailability(id: number): Promise<void> {
-        await this.dataSource.getRepository(ItemAvailabilityEntity).delete(id);
+        const availability = await this.dataSource.getRepository(ItemAvailabilityEntity).findOneBy({ id });
+        if (!availability) {
+            throw new Error(`Item availability with ID ${id} not found`);
+        }
+        await this.dataSource.getRepository(ItemAvailabilityEntity).remove(availability);
     }
 
     async checkItemAvailability(itemId: number, startDate: Date, endDate: Date): Promise<boolean> {

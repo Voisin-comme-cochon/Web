@@ -1,4 +1,4 @@
-import { EntitySubscriberInterface, EventSubscriber, InsertEvent, RemoveEvent } from 'typeorm';
+import { BeforeRemove, EntitySubscriberInterface, EventSubscriber, InsertEvent, RemoveEvent } from 'typeorm';
 import neo4j from 'neo4j-driver';
 import { neo4jDriver } from '../neo4j/neo4j.provider';
 import { GroupMembershipEntity } from '../core/entities/group-membership.entity';
@@ -30,7 +30,8 @@ export class GroupMembershipEntitySubscriber implements EntitySubscriberInterfac
         }
     }
 
-    async afterRemove(groupMember: RemoveEvent<GroupMembershipEntity>) {
+    @BeforeRemove()
+    async beforeRemove(groupMember: RemoveEvent<GroupMembershipEntity>) {
         if (!groupMember.entity) {
             return;
         }

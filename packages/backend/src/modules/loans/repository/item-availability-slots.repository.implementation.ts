@@ -2,10 +2,10 @@ import { DataSource } from 'typeorm';
 import { ItemAvailabilitySlotEntity } from '../../../core/entities/item-availability-slot.entity';
 import { ItemAvailabilitySlotsRepository } from '../domain/item-availability-slots.abstract.repository';
 import {
-    ItemAvailabilitySlot,
     CreateItemAvailabilitySlotRequest,
-    UpdateItemAvailabilitySlotRequest,
+    ItemAvailabilitySlot,
     ItemAvailabilitySlotFilters,
+    UpdateItemAvailabilitySlotRequest,
 } from '../domain/item-availability-slot.model';
 import { ItemAvailabilitySlotsAdapter } from '../adapters/item-availability-slots.adapter';
 
@@ -91,7 +91,11 @@ export class ItemAvailabilitySlotsRepositoryImplementation implements ItemAvaila
     }
 
     async deleteSlot(id: number): Promise<void> {
-        await this.dataSource.getRepository(ItemAvailabilitySlotEntity).delete(id);
+        const slot = await this.dataSource.getRepository(ItemAvailabilitySlotEntity).findOneBy({ id });
+        if (!slot) {
+            throw new Error(`Item availability slot with ID ${id} not found`);
+        }
+        await this.dataSource.getRepository(ItemAvailabilitySlotEntity).remove(slot);
     }
 
     async checkSlotOverlap(
