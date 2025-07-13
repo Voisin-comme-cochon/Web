@@ -1,6 +1,6 @@
 import fetch from 'node-fetch';
 
-const baseurl = 'http://localhost:3000';
+const baseurl = process.env.API_BASE_URL ?? 'http://localhost:3000';
 
 const rawTags = `
 2,Films,#000000
