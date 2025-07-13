@@ -18,7 +18,7 @@ export class GroupMembershipEntitySubscriber implements EntitySubscriberInterfac
         MERGE (u:UserEntity {id: $userId})
         WITH u
         MATCH (n:GroupEntity {id: $groupId})
-        MERGE (u)-[:REGISTERED]->(n)
+        MERGE (u)-[:IN_GROUP]->(n)
         `,
                 {
                     userId: neo4j.int(userId),
@@ -39,7 +39,7 @@ export class GroupMembershipEntitySubscriber implements EntitySubscriberInterfac
         try {
             await session.run(
                 `
-        MATCH (u:UserEntity {id: $userId})-[r:REGISTERED]->(n:GroupEntity {id: $groupId})
+        MATCH (u:UserEntity {id: $userId})-[r:IN_GROUP]->(n:GroupEntity {id: $groupId})
         DELETE r
         `,
                 {
