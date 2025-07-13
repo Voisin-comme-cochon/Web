@@ -14,12 +14,13 @@ import { LoanStatus } from '@/domain/models/loan.model';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import CarouselRecommendation from '@/components/CarouseulRecommendation/CarouselRecommendation.tsx';
 
 function MyNeighborhoodPage({ user, uc }: { user: UserModel | null; uc: HomeUc }) {
     const [events, setEvents] = useState<EventModel[]>([]);
-    const { goNeighborhoodEvents, goItems, goAddItem } = useAppNavigation();
+    const { goNeighborhoodEvents, goItems } = useAppNavigation();
     const neighborhoodId = localStorage.getItem('neighborhoodId');
-    
+
     // Hooks pour les prêts et emprunts
     const { receivedRequests } = useLoanRequests();
     const { myLoans, lentItems } = useLoans();
@@ -70,7 +71,6 @@ function MyNeighborhoodPage({ user, uc }: { user: UserModel | null; uc: HomeUc }
                 </div>
             </div>
             <div className={'px-32 relative -mt-24'}>
-                
                 <div className={'flex items-center gap-2 cursor-pointer'} onClick={goNeighborhoodEvents}>
                     <p>Prochains évènements</p>
                     <span className="material-symbols-outlined text-base">chevron_right</span>
@@ -82,14 +82,14 @@ function MyNeighborhoodPage({ user, uc }: { user: UserModel | null; uc: HomeUc }
                         <NotCreatedEvent />
                     )}
                 </div>
-                
+
                 {/* Section Mes emprunts */}
                 <div className="mt-12">
                     <div className={'flex items-center gap-2 cursor-pointer'} onClick={goItems}>
                         <p>Mes prêts et emprunts</p>
                         <span className="material-symbols-outlined text-base">chevron_right</span>
                     </div>
-                    
+
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
                         {/* Demandes reçues */}
                         <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={goItems}>
@@ -100,11 +100,16 @@ function MyNeighborhoodPage({ user, uc }: { user: UserModel | null; uc: HomeUc }
                                 </div>
                             </CardHeader>
                             <CardContent>
-                                {receivedRequests.filter(r => r.status === LoanRequestStatus.PENDING).length > 0 ? (
+                                {receivedRequests.filter((r) => r.status === LoanRequestStatus.PENDING).length > 0 ? (
                                     <div className="space-y-2">
                                         <div className="flex items-center gap-2">
                                             <Badge variant="default" className="text-sm">
-                                                {receivedRequests.filter(r => r.status === LoanRequestStatus.PENDING).length} en attente
+                                                {
+                                                    receivedRequests.filter(
+                                                        (r) => r.status === LoanRequestStatus.PENDING
+                                                    ).length
+                                                }{' '}
+                                                en attente
                                             </Badge>
                                         </div>
                                         <p className="text-sm text-gray-600">
@@ -126,16 +131,14 @@ function MyNeighborhoodPage({ user, uc }: { user: UserModel | null; uc: HomeUc }
                                 </div>
                             </CardHeader>
                             <CardContent>
-                                {myLoans.filter(l => l.status === LoanStatus.ACTIVE).length > 0 ? (
+                                {myLoans.filter((l) => l.status === LoanStatus.ACTIVE).length > 0 ? (
                                     <div className="space-y-2">
                                         <div className="flex items-center gap-2">
                                             <Badge variant="outline" className="text-sm">
-                                                {myLoans.filter(l => l.status === LoanStatus.ACTIVE).length} en cours
+                                                {myLoans.filter((l) => l.status === LoanStatus.ACTIVE).length} en cours
                                             </Badge>
                                         </div>
-                                        <p className="text-sm text-gray-600">
-                                            Objets que vous empruntez actuellement
-                                        </p>
+                                        <p className="text-sm text-gray-600">Objets que vous empruntez actuellement</p>
                                     </div>
                                 ) : (
                                     <p className="text-sm text-gray-600">Aucun emprunt en cours</p>
@@ -152,16 +155,15 @@ function MyNeighborhoodPage({ user, uc }: { user: UserModel | null; uc: HomeUc }
                                 </div>
                             </CardHeader>
                             <CardContent>
-                                {lentItems.filter(l => l.status === LoanStatus.ACTIVE).length > 0 ? (
+                                {lentItems.filter((l) => l.status === LoanStatus.ACTIVE).length > 0 ? (
                                     <div className="space-y-2">
                                         <div className="flex items-center gap-2">
                                             <Badge variant="outline" className="text-sm">
-                                                {lentItems.filter(l => l.status === LoanStatus.ACTIVE).length} en cours
+                                                {lentItems.filter((l) => l.status === LoanStatus.ACTIVE).length} en
+                                                cours
                                             </Badge>
                                         </div>
-                                        <p className="text-sm text-gray-600">
-                                            Objets que vous prêtez actuellement
-                                        </p>
+                                        <p className="text-sm text-gray-600">Objets que vous prêtez actuellement</p>
                                     </div>
                                 ) : (
                                     <p className="text-sm text-gray-600">Aucun prêt en cours</p>
@@ -169,13 +171,16 @@ function MyNeighborhoodPage({ user, uc }: { user: UserModel | null; uc: HomeUc }
                             </CardContent>
                         </Card>
                     </div>
-                    
+
                     <div className="mt-4 text-center">
                         <Button variant="outline" onClick={goItems} className="w-full sm:w-auto">
                             <span className="material-symbols-outlined text-sm mr-2">open_in_new</span>
                             Voir tous mes prêts et emprunts
                         </Button>
                     </div>
+
+                    <p>Mes voisins</p>
+                    <CarouselRecommendation neighborhoodId={neighborhoodId} uc={uc} />
                 </div>
             </div>
         </div>

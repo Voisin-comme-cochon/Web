@@ -70,6 +70,19 @@ services:
     depends_on:
       - backend
 
+  neo4j:
+    image: neo4j:latest
+    environment:
+      - NEO4J_AUTH={NEO4J_USER}/{NEO4J_PASSWORD}
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+    container_name: neo4j
+    volumes:
+      - ./logs:/logs
+      - ./config:/config
+      - ./data:/data
+      - ./plugins:/plugins
 volumes:
   postgres_data:
   mongo_data:

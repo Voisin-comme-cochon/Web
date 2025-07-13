@@ -45,6 +45,7 @@
     "cmdk": "^1.1.1",
     "date-fns": "^4.1.0",
     "dotenv": "16.5.0",
+    "embla-carousel-react": "^8.6.0",
     "jwt-decode": "4.0.0",
     "lucide-react": "^0.503.0",
     "mapbox-gl": "3.11.0",
@@ -59,6 +60,7 @@
     "react-router-dom": "7.5.3",
     "socket.io-client": "^4.8.1",
     "sonner": "^2.0.5",
+    "swiper": "^11.2.10",
     "tailwind-merge": "3.2.0",
     "tailwindcss-animate": "1.0.7",
     "zod": "^3.25.56"
