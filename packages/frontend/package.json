@@ -1,5 +1,6 @@
 {
   "name": "@voisin-comme-cochon/frontend",
+  "author": "MEY",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -8,7 +9,8 @@
     "build": "vite build",
     "lint": "eslint .",
     "format": "prettier --write \"src/**/*.ts\"",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "type-check": "tsc --noEmit"
   },
   "dependencies": {
     "@fullcalendar/core": "^6.1.17",
@@ -33,6 +35,7 @@
     "@radix-ui/react-switch": "^1.2.5",
     "@radix-ui/react-tabs": "^1.1.12",
     "@radix-ui/react-toast": "1.2.14",
+    "@radix-ui/react-tooltip": "^1.2.7",
     "@types/mapbox-gl": "3.4.1",
     "@types/react-map-gl": "6.1.7",
     "@types/socket.io-client": "^1.4.36",

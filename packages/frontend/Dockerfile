@@ -2,13 +2,15 @@ FROM node:20.11 AS build
 
 WORKDIR /app
 
+RUN npm install -g pnpm
+
 COPY package*.json ./
 
-RUN npm install
+RUN pnpm install
 
 COPY . .
 
-RUN npm run build
+RUN pnpm run build
 
 FROM nginx:alpine
 

@@ -99,7 +99,7 @@ export function useMessaging(neighborhoodId?: number, currentUserId?: number) {
                 );
 
                 // Mettre en cache les utilisateurs des messages
-                sortedMessages.forEach(message => {
+                sortedMessages.forEach((message) => {
                     if (message.user) {
                         userCache.set(message.user);
                     }
@@ -250,14 +250,10 @@ export function useMessaging(neighborhoodId?: number, currentUserId?: number) {
         async (groupId: number) => {
             try {
                 const members = await messagingUc.getGroupMembers(groupId);
-                
+
                 // Mettre à jour le groupe avec les membres chargés
-                setGroups((prev) =>
-                    prev.map((group) => 
-                        group.id === groupId ? { ...group, members } : group
-                    )
-                );
-                
+                setGroups((prev) => prev.map((group) => (group.id === groupId ? { ...group, members } : group)));
+
                 return members;
             } catch (err) {
                 return [];

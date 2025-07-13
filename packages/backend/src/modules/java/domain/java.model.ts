@@ -1,4 +1,4 @@
-export class JavaVersion{
+export class JavaVersion {
     id!: number;
     version!: string;
     fileName!: string;

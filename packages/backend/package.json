@@ -2,7 +2,7 @@
     "name": "@voisin-comme-cochon/backend",
     "version": "0.1.0",
     "description": "Backend for Voisin Comme Cochon",
-    "author": "",
+    "author": "MEY",
     "private": true,
     "license": "UNLICENSED",
     "scripts": {

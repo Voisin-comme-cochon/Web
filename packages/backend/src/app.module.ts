@@ -21,6 +21,7 @@ import { EventEntitySubscriber } from './subscribers/event-entity.subscriber';
 import { EventRegisterEntitySubscriber } from './subscribers/event-register-entity.subscriber';
 import { GroupEntitySubscriber } from './subscribers/group-entity.subscriber';
 import { GroupMembershipEntitySubscriber } from './subscribers/group-membership-entity.subscriber';
+import { LoansModule } from './modules/loans/loans.module';
 
 @Module({
     imports: [
@@ -35,6 +36,7 @@ import { GroupMembershipEntitySubscriber } from './subscribers/group-membership-
         ObjectStorageModule,
         JavaModule,
         MessagingModule,
+        LoansModule,
         TypeOrmModule.forRoot({
             type: 'postgres',
             host: process.env.VCC_DATABASE_HOST,

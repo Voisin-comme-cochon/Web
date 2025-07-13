@@ -13,7 +13,7 @@ export class NeighborhoodsAdapter {
             status: neighborhood.status,
             description: neighborhood.description,
             creationDate: neighborhood.creationDate,
-            images: NeighborhoodImagesAdapter.listDatabaseToDomain(neighborhood.images ?? []),
+            images: NeighborhoodImagesAdapter.listDatabaseToDomain(neighborhood.images),
             neighborhood_users: neighborhood.neighborhood_users?.map((user) => ({
                 id: user.id,
                 userId: user.userId,

@@ -32,7 +32,7 @@ export class MessagingService {
         private readonly usersService: UsersService,
         private readonly objectStorageService: ObjectStorageService,
         private readonly tagRepository: TagsRepository
-    ) { }
+    ) {}
 
     async createPrivateChat(userId: number, targetUserId: number, neighborhoodId: number): Promise<Group> {
         // Check si les deux sont dans le quartier
@@ -606,7 +606,7 @@ export class MessagingService {
         // Vérifier que la membership existe
         const membership = await this.membershipRepository.findById(membershipId);
         if (isNull(membership)) {
-            throw new CochonError('invitation_not_found', "Invitation introuvable", 404, { membershipId });
+            throw new CochonError('invitation_not_found', 'Invitation introuvable', 404, { membershipId });
         }
 
         // Vérifier que l'utilisateur appelant est owner du groupe
@@ -676,7 +676,7 @@ export class MessagingService {
 
         // Utiliser getUsersInNeighborhoodByStatus avec ACCEPTED pour exclure les utilisateurs en attente
         const [usersWithRole] = await this.neighborhoodUserRepository.getUsersInNeighborhoodByStatus(
-            neighborhoodId, 
+            neighborhoodId,
             NeighborhoodUserStatus.ACCEPTED
         );
 

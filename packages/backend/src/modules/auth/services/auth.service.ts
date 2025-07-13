@@ -115,7 +115,7 @@ export class AuthService {
                 template: Templates.WELCOME,
                 context: {
                     name: user.firstName + ' ' + user.lastName,
-                    profileLink: `${process.env.VCC_FRONT_URL ?? 'http://localhost:8080'}/user/` + user.id,
+                    profileLink: `${process.env.VCC_FRONT_URL ?? 'http://localhost:8080'}/user/${user.id}`,
                     communityLink: `${process.env.VCC_FRONT_URL ?? 'http://localhost:8080'}/community`,
                     supportEmail: process.env.VCC_SUPPORT_EMAIL,
                 },

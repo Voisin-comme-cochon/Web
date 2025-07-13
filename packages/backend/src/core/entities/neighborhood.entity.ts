@@ -4,6 +4,7 @@ import { EventEntity } from './event.entity';
 import { NeighborhoodImagesEntity } from './neighborhood-images.entity';
 import { NeighborhoodUserEntity } from './neighborhood-user.entity';
 import { NeighborhoodInvitationEntity } from './neighborhood-invitation.entity';
+import { ItemEntity } from './item.entity';
 
 @Entity({ name: 'neighborhoods' })
 export class NeighborhoodEntity {
@@ -55,4 +56,7 @@ export class NeighborhoodEntity {
         onDelete: 'CASCADE',
     })
     neighborhood_invitations?: NeighborhoodInvitationEntity[];
+
+    @OneToMany(() => ItemEntity, (item) => item.neighborhood, { onDelete: 'CASCADE' })
+    items?: ItemEntity[];
 }

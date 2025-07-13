@@ -13,7 +13,6 @@ export const useAppNavigation = () => {
     const goMyNeighborhood = () => navigate('/my-neighborhood');
     const goNeighborhoodEvents = () => navigate('/neighborhood-events');
     const goNeighborhoodJournal = () => navigate('/neighborhood-journal');
-    const goNeighborhoodMat = () => navigate('/neighborhood-materials');
     const goCreateEvent = () => navigate('/events/create');
     const goJoinNeighborhood = () => navigate('/join-neighborhoods');
     const goNeighborhoodDetails = (neighborhoodId: string | number) => {
@@ -21,6 +20,12 @@ export const useAppNavigation = () => {
     };
     const goUserProfile = (userId: number | string) => navigate(`/user/${userId}`);
     const goManageNeighborhood = () => navigate('/neighborhood-manage');
+
+    // Items navigation
+    const goItems = () => navigate('/items');
+    const goItemDetails = (itemId: number) => navigate(`/items/${itemId}`);
+    const goAddItem = () => navigate('/items/new');
+    const goEditItem = (itemId: number) => navigate(`/items/${itemId}/edit`);
 
     return {
         goLogin,
@@ -34,10 +39,13 @@ export const useAppNavigation = () => {
         goMyNeighborhood,
         goNeighborhoodEvents,
         goNeighborhoodJournal,
-        goNeighborhoodMat,
         goCreateEvent,
         goNeighborhoodDetails,
         goManageNeighborhood,
         goUserProfile,
+        goItems,
+        goItemDetails,
+        goAddItem,
+        goEditItem,
     };
 };
