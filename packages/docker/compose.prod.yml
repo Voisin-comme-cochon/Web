@@ -76,7 +76,7 @@ services:
     image: neo4j:latest
     container_name: vcc_neo4j
     environment:
-      - NEO4J_AUTH=${NEO4J_USER}/${NEO4J_PASSWORD}
+      - NEO4J_AUTH=${NEO4J_USER}/${NEO4J_PASS}
     ports:
       - "7474:7474"
       - "7687:7687"
