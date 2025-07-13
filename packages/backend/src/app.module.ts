@@ -11,6 +11,16 @@ import { EventsModule } from './modules/events/events.module';
 import { SalesModule } from './modules/sales/sales.module';
 import { MessagingModule } from './modules/messaging/messaging.module';
 import { JavaModule } from './modules/java/java.modules';
+import { Neo4jModule } from './neo4j/neo4j.module';
+import { UserEntitySubscriber } from './subscribers/user-entity.subscriber';
+import { NeighborhoodEntitySubscriber } from './subscribers/neighborhood-entity.subscriber';
+import { NeighborhoodUserEntitySubscriber } from './subscribers/neighborhood-users-entity.subscriber';
+import { TagEntitySubscriber } from './subscribers/tag-entity.subscriber';
+import { UserTagsEntitySubscriber } from './subscribers/user-tags-entity.subscriber';
+import { EventEntitySubscriber } from './subscribers/event-entity.subscriber';
+import { EventRegisterEntitySubscriber } from './subscribers/event-register-entity.subscriber';
+import { GroupEntitySubscriber } from './subscribers/group-entity.subscriber';
+import { GroupMembershipEntitySubscriber } from './subscribers/group-membership-entity.subscriber';
 import { LoansModule } from './modules/loans/loans.module';
 
 @Module({
@@ -37,9 +47,31 @@ import { LoansModule } from './modules/loans/loans.module';
             logging: false,
             synchronize: process.env.VCC_DATABASE_SYNCHRONIZE === 'true' || true,
             entities: [__dirname + '/**/*.entity{.ts,.js}'],
+            subscribers: [
+                UserEntitySubscriber,
+                NeighborhoodEntitySubscriber,
+                NeighborhoodUserEntitySubscriber,
+                TagEntitySubscriber,
+                UserTagsEntitySubscriber,
+                EventEntitySubscriber,
+                EventRegisterEntitySubscriber,
+                GroupEntitySubscriber,
+                GroupMembershipEntitySubscriber,
+            ],
             autoLoadEntities: true,
         }),
+        Neo4jModule,
     ],
-    providers: [],
+    providers: [
+        UserEntitySubscriber,
+        NeighborhoodEntitySubscriber,
+        NeighborhoodUserEntitySubscriber,
+        TagEntitySubscriber,
+        UserTagsEntitySubscriber,
+        EventEntitySubscriber,
+        EventRegisterEntitySubscriber,
+        GroupEntitySubscriber,
+        GroupMembershipEntitySubscriber,
+    ],
 })
 export class AppModule {}

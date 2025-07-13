@@ -8,6 +8,8 @@ import { UsersService } from '../users/services/users.service';
 import { MailerService } from '../mailer/services/mailer.service';
 import { UsersModule } from '../users/users.module';
 import { ObjectStorageModule } from '../objectStorage/objectStorage.module';
+import { Neo4jModule } from '../../neo4j/neo4j.module';
+import { Neo4jService } from '../../neo4j/neo4j.service';
 import { NeighborhoodController } from './controllers/neighborhood.controller';
 import { NeighborhoodService } from './services/neighborhood.service';
 import { NeighborhoodInvitationService } from './services/neighborhood-invitation.service';
@@ -24,6 +26,7 @@ import { NeighborhoodUserRepositoryImplementation } from './repository/neighborh
         AuthModule,
         UsersModule,
         MailerModule,
+        Neo4jModule,
         ObjectStorageModule,
         JwtModule.register({ secret: process.env.JWT_SECRET }),
     ],
@@ -89,6 +92,7 @@ import { NeighborhoodUserRepositoryImplementation } from './repository/neighborh
                     mailerService
                 ),
         },
+        Neo4jService,
     ],
     exports: [NeighborhoodService, NeighborhoodUserRepository, NeighborhoodRepository],
 })

@@ -165,13 +165,14 @@ export class NeighborhoodUserRepositoryImplementation implements NeighborhoodUse
     }
 
     async removeUserFromNeighborhood(userId: number, neighborhoodId: number): Promise<void> {
-        await this.dataSource
+        const neighborhoodUser = await this.dataSource
             .getRepository(NeighborhoodUserEntity)
-            .createQueryBuilder()
-            .delete()
-            .where('userId = :userId', { userId })
-            .andWhere('neighborhoodId = :neighborhoodId', { neighborhoodId })
-            .execute();
+            .findOneBy({ userId, neighborhoodId });
+        if (!neighborhoodUser) {
+            throw new Error(`User with ID ${userId} is not a member of neighborhood ${neighborhoodId}`);
+        }
+
+        await this.dataSource.getRepository(NeighborhoodUserEntity).remove(neighborhoodUser);
     }
 
     async updateMemberInNeighborhood(

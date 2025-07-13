@@ -6,9 +6,11 @@ export class AuthRepositoryImplementation implements AuthRepository {
     constructor(private readonly dataSource: DataSource) {}
 
     async deleteToken(token: string): Promise<void> {
-        await this.dataSource.getRepository(UserTokenEntity).delete({
-            token: token,
-        });
+        const tkn = await this.dataSource.getRepository(UserTokenEntity).findOneBy({ token });
+        if (!tkn) {
+            throw new Error(`User token ${token} not found`);
+        }
+        await this.dataSource.getRepository(UserTokenEntity).remove(tkn);
     }
 
     async getToken(token: string): Promise<UserTokenEntity | null> {

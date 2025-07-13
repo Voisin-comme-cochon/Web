@@ -35,6 +35,9 @@ import { isNull } from '../../../utils/tools';
 import { UserAdapter } from '../../users/adapters/user.adapter';
 import { NeighborhoodUserEntity } from '../../../core/entities/neighborhood-user.entity';
 import { NeighborhoodInvitation } from '../domain/neighborhood-invitation.model';
+import { ResponseUserDto } from '../../users/controllers/dto/users.dto';
+import { Neo4jService } from '../../../neo4j/neo4j.service';
+import { UsersService } from '../../users/services/users.service';
 import {
     CreateMultipleNeighborhoodInvitationsDto,
     CreatePublicNeighborhoodInvitationDto,
@@ -61,7 +64,9 @@ export class NeighborhoodController {
     constructor(
         private readonly neighborhoodService: NeighborhoodService,
         private readonly neighborhoodInvitationService: NeighborhoodInvitationService,
-        private readonly neighborhoodUserService: NeighborhoodUserService
+        private readonly neighborhoodUserService: NeighborhoodUserService,
+        private readonly neo4jService: Neo4jService,
+        private readonly usersService: UsersService
     ) {}
 
     /* Neighborhoods endpoints */
@@ -456,5 +461,43 @@ export class NeighborhoodController {
         @Request() req: { user: { id: number } }
     ): Promise<void> {
         await this.neighborhoodInvitationService.deleteInvitation(invitationId, req.user.id);
+    }
+
+    @Get(':neighborhoodId/recommandations')
+    @UseGuards(IsLoginGuard)
+    @ApiOperation({ summary: 'Get users recommendations in a neighborhood for a user' })
+    @ApiOkResponse({
+        description: 'Users recommendations found for the user',
+        type: [ResponseUserDto],
+        isArray: true,
+    })
+    @ApiNotFoundResponse({
+        description: 'Neighborhood not found or no invitations found',
+    })
+    async getRecommendationByUserAndNeighborhoodId(
+        @Request()
+        req: {
+            user: { id: number };
+        },
+        @Param('neighborhoodId') neighborhoodId: number,
+        @Query('limit') limit = 100
+    ): Promise<ResponseUserDto[]> {
+        const recommendations = await this.neo4jService.getRecommendationsByUserAndNeighborhood(
+            req.user.id,
+            neighborhoodId,
+            limit
+        );
+
+        if (isNull(recommendations) || recommendations.length === 0) {
+            return [];
+        }
+
+        recommendations.sort((a, b) => b.sharedLinks - a.sharedLinks);
+        return await Promise.all(
+            recommendations.map(async (rec) => {
+                const user = await this.usersService.getUserById(rec.user.id);
+                return UserAdapter.domainToResponseUser(user);
+            })
+        );
     }
 }

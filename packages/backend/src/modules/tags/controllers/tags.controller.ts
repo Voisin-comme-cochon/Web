@@ -12,13 +12,13 @@ import {
     UseInterceptors,
 } from '@nestjs/common';
 import {
+    ApiBadRequestResponse,
+    ApiBearerAuth,
+    ApiCreatedResponse,
     ApiNotFoundResponse,
     ApiOkResponse,
     ApiOperation,
     ApiTags,
-    ApiCreatedResponse,
-    ApiBadRequestResponse,
-    ApiBearerAuth,
 } from '@nestjs/swagger';
 import { TagsService } from '../services/tags.service';
 import { TagsAdapter } from '../adapters/tags.adapter';
@@ -55,7 +55,6 @@ export class TagsController {
     }
 
     @Post()
-    @UseGuards(IsLoginGuard, IsSuperAdminGuard)
     @ApiOperation({ summary: 'Create a new tag' })
     @ApiCreatedResponse({ description: 'Tag created successfully', type: TagDto })
     @ApiBadRequestResponse({ description: 'Invalid input data' })
