@@ -13,6 +13,7 @@ import { Roles } from '@/domain/models/Roles.ts';
 import { UserStatus } from '@/domain/models/UserStatus.ts';
 import { EventManageModel } from '@/domain/models/EventManageModel.ts';
 import { InvitationModel } from '@/domain/models/invitation.model.ts';
+import { CompleteUserModel } from '@/domain/models/complete-user.model.ts';
 
 export class HomeUc {
     constructor(
@@ -329,6 +330,17 @@ export class HomeUc {
                 throw new Error(error.message);
             }
             throw new Error('Une erreur est survenue lors de la mise à jour du quartier');
+        }
+    }
+
+    async getRecommendations(neighborhoodId: number | string, limit: number = 100): Promise<CompleteUserModel[]> {
+        try {
+            return await this.userFrontRepository.getRecommendations(neighborhoodId, limit);
+        } catch (error) {
+            if (error instanceof Error) {
+                throw new Error(error.message);
+            }
+            throw new Error('Une erreur est survenue lors de la récupération des recommandations');
         }
     }
 }
