@@ -72,22 +72,16 @@ export default function UserMenu({ user, uc }: { user: UserModel | null; uc: Hom
         <>
             <DropdownMenu>
                 <DropdownMenuTrigger>
-                <div className="cursor-pointer">
-                    <AvatarComponent image={(user as UserModel)?.profileImageUrl || undefined} />
-                </div>
-            </DropdownMenuTrigger>{' '}
-
+                    <div className="cursor-pointer">
+                        <AvatarComponent image={(user as UserModel)?.profileImageUrl || undefined} />
+                    </div>
+                </DropdownMenuTrigger>{' '}
                 <DropdownMenuContent className="w-56">
                     <DropdownMenuItem className="cursor-pointer" onClick={() => goUserProfile(user.id)}>
                         <span className="material-symbols-outlined text-sm mr-2">person</span>
                         Profil
                     </DropdownMenuItem>
-                    
-                    <DropdownMenuItem className="cursor-pointer" onClick={() => goItems()}>
-                        <span className="material-symbols-outlined text-sm mr-2">inventory_2</span>
-                        Matériel
-                    </DropdownMenuItem>
-                    
+
                     <DropdownMenuItem className="cursor-pointer">
                         <span className="material-symbols-outlined text-sm mr-2">settings</span>
                         Paramètres

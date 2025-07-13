@@ -37,7 +37,7 @@ export function useHeaderData() {
         };
 
         fetchConnectedData();
-    }, [uc]);
+    }, []);
 
     return {
         user,

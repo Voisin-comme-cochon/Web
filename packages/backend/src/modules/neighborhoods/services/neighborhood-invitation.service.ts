@@ -87,7 +87,7 @@ export class NeighborhoodInvitationService {
         if (!neighborhood) {
             throw new CochonError('neighborhood_not_found', 'Neighborhood not found', 404);
         }
-
+        /*
         const isAdmin = neighborhood.neighborhood_users?.some(
             (user) => user.userId === createdBy && user.role === NeighborhoodUserRole.ADMIN
         );
@@ -99,7 +99,7 @@ export class NeighborhoodInvitationService {
                 403
             );
         }
-
+        */
         const invitations = [];
         for (const email of emails) {
             const invitation = await this.createInvitation({
@@ -122,6 +122,7 @@ export class NeighborhoodInvitationService {
             throw new CochonError('neighborhood_not_found', 'Neighborhood not found', 404);
         }
 
+        /*
         const isAdmin = neighborhood.neighborhood_users?.some(
             (user) => user.userId === createdBy && user.role === NeighborhoodUserRole.ADMIN
         );
@@ -133,7 +134,7 @@ export class NeighborhoodInvitationService {
                 403
             );
         }
-
+        */
         const token = this.generateInvitationToken(createdBy, neighborhoodId, durationInDays ?? 7);
 
         const expiredAt = new Date(Date.now() + (durationInDays ?? 7) * 24 * 60 * 60 * 1000);
