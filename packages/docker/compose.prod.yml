@@ -51,7 +51,9 @@ services:
       - postgres
       - mongodb
       - minio
-
+    env_file:
+      - ../backend/.env
+      
   frontend:
     build:
       context: ../frontend
