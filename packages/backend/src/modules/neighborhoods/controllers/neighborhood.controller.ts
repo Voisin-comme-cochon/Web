@@ -480,7 +480,7 @@ export class NeighborhoodController {
             user: { id: number };
         },
         @Param('neighborhoodId') neighborhoodId: number,
-        @Query('limit') limit = 10
+        @Query('limit') limit = 100
     ): Promise<ResponseUserDto[]> {
         const recommendations = await this.neo4jService.getRecommendationsByUserAndNeighborhood(
             req.user.id,
@@ -493,7 +493,6 @@ export class NeighborhoodController {
         }
 
         recommendations.sort((a, b) => b.sharedLinks - a.sharedLinks);
-        console.log('Recommendations:', recommendations);
         return await Promise.all(
             recommendations.map(async (rec) => {
                 const user = await this.usersService.getUserById(rec.user.id);
