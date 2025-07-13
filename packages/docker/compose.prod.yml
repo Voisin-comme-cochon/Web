@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   postgres:
     image: postgis/postgis:latest
@@ -12,27 +14,27 @@ services:
       - postgres_data:/var/lib/postgresql/data
 
   minio:
+    image: quay.io/minio/minio
     container_name: vcc_minio
     restart: unless-stopped
-    image: quay.io/minio/minio
     environment:
-      - MINIO_ROOT_USER=${MINIO_ROOT_USER}
-      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
     ports:
       - "9000:9000"
       - "9001:9001"
     volumes:
       - minio_data:/data
-    command: 'server /data --console-address ":9001"'
+    command: server /data --console-address ":9001"
 
   mongodb:
     image: mongo:latest
     container_name: vcc_mongo
     restart: unless-stopped
     environment:
-      - MONGO_INITDB_DATABASE={MONGO_DB_NAME}
-      - MONGO_INITDB_ROOT_USERNAME={MONGO_ROOT_USER}
-      - MONGO_INITDB_ROOT_PASSWORD={MONGO_ROOT_PASSWORD}
+      - MONGO_INITDB_DATABASE=${MONGO_DB_NAME}
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_ROOT_USER}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_ROOT_PASSWORD}
     ports:
       - "27017:27017"
     volumes:
@@ -63,7 +65,7 @@ services:
   back-office:
     build:
       context: ../back-office
-      dockerfile: ./Dockerfile
+      dockerfile: Dockerfile
     container_name: vcc_back-office
     ports:
       - "8081:80"
@@ -72,17 +74,18 @@ services:
 
   neo4j:
     image: neo4j:latest
+    container_name: vcc_neo4j
     environment:
-      - NEO4J_AUTH="${NEO4J_USER}/${NEO4J_PASSWORD}"
+      - NEO4J_AUTH=${NEO4J_USER}/${NEO4J_PASSWORD}
     ports:
       - "7474:7474"
       - "7687:7687"
-    container_name: neo4j
     volumes:
       - ./logs:/logs
       - ./config:/config
       - ./data:/data
       - ./plugins:/plugins
+
 volumes:
   postgres_data:
   mongo_data:
