@@ -15,7 +15,6 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -39,7 +38,6 @@ import { formatMessageTime } from '@/utils/dateUtils';
 export default function ChatPanel({ onClose }: { onClose: () => void }) {
     const [newMessage, setNewMessage] = useState('');
     const [searchQuery, setSearchQuery] = useState('');
-    const [activeTab, setActiveTab] = useState('messages');
     const [createGroupOpen, setCreateGroupOpen] = useState(false);
     const [joinGroupOpen, setJoinGroupOpen] = useState(false);
     const [leaveGroupDialogOpen, setLeaveGroupDialogOpen] = useState(false);
@@ -59,32 +57,12 @@ export default function ChatPanel({ onClose }: { onClose: () => void }) {
         currentUserId: user?.id,
     });
 
-    // Filtrer les conversations selon l'onglet actif et la recherche
-    const filteredConversations = (() => {
-        if (activeTab === 'messages') {
-            // Onglet Messages : seulement les chats privés entre deux personnes
-            return chat.groups.filter(
-                (group) =>
-                    group.name.toLowerCase().includes(searchQuery.toLowerCase()) &&
-                    group.type === GroupType.PRIVATE_CHAT
-            );
-        } else {
-            // Onglet Groupes : seulement les groupes (publics et privés) mais pas les chats privés
-            return chat.groups.filter(
-                (group) =>
-                    group.name.toLowerCase().includes(searchQuery.toLowerCase()) &&
-                    group.type !== GroupType.PRIVATE_CHAT
-            );
-        }
-    })();
+    // Filtrer toutes les conversations selon la recherche
+    const filteredConversations = chat.groups.filter(
+        (group) =>
+            group.name.toLowerCase().includes(searchQuery.toLowerCase())
+    );
 
-    // Charger les groupes disponibles et les invitations quand on change d'onglet
-    useEffect(() => {
-        if (activeTab === 'groups' && neighborhoodId) {
-            chat.loadAvailableGroups();
-            chat.loadGroupInvitations();
-        }
-    }, [activeTab, neighborhoodId, chat.loadAvailableGroups, chat.loadGroupInvitations]);
 
     // Gestionnaire d'envoi de message
     const handleSendMessage = async () => {
@@ -123,19 +101,13 @@ export default function ChatPanel({ onClose }: { onClose: () => void }) {
             groupImage: group.groupImage,
         };
 
-        const newGroup = await chat.createAndSelectGroup(groupData);
-        if (newGroup) {
-            setActiveTab('messages');
-        }
+        await chat.createAndSelectGroup(groupData);
     };
 
     // Gestionnaire de rejoindre un groupe
     const handleJoinGroup = async (group: any) => {
-        const success = await chat.joinAndSelectGroup(group.id);
+        await chat.joinAndSelectGroup(group.id);
         showSuccess(`Vous avez rejoint le groupe ${group.name} avec succès.`);
-        if (success) {
-            setActiveTab('messages');
-        }
     };
 
     // Gestionnaire de refuser une invitation
@@ -162,7 +134,7 @@ export default function ChatPanel({ onClose }: { onClose: () => void }) {
         const success = await chat.leaveGroup(chat.activeConversation);
         if (success) {
             showSuccess(`Vous avez quitté le groupe ${chat.activeConversationData.name}.`);
-            chat.selectConversation(null); // Retourner à la liste des conversations
+            chat.selectConversation(null);
         }
         setLeaveGroupDialogOpen(false);
     };
@@ -170,13 +142,9 @@ export default function ChatPanel({ onClose }: { onClose: () => void }) {
     // Gestionnaire pour la mise à jour du groupe
     const handleGroupUpdated = async () => {
         if (chat.activeConversation) {
-            // Fermer la conversation actuelle et retourner à la liste
-            setActiveTab('messages'); // Retourner à l'onglet messages
-            chat.selectConversation(null); // Fermer la conversation actuelle
-
-            // Forcer le rechargement complet de toutes les données
-            chat.forceRefresh(); // Force la réinitialisation du cache et recharge les groupes
-            chat.loadAvailableGroups(); // Recharge les groupes disponibles
+            chat.selectConversation(null);
+            chat.forceRefresh();
+            chat.loadAvailableGroups();
         }
     };
 
@@ -419,19 +387,6 @@ export default function ChatPanel({ onClose }: { onClose: () => void }) {
             ) : (
                 // Conversation List
                 <div className="flex-1 flex flex-col min-h-0">
-                    {/* Tabs */}
-                    <div className="border-b border-border flex-shrink-0">
-                        <Tabs defaultValue="messages" value={activeTab} onValueChange={setActiveTab} className="w-full">
-                            <TabsList className="w-full bg-white border-b border-border">
-                                <TabsTrigger value="messages" className="flex-1 data-[state=active]:text-orange">
-                                    Messages
-                                </TabsTrigger>
-                                <TabsTrigger value="groups" className="flex-1 data-[state=active]:text-orange">
-                                    Groupes
-                                </TabsTrigger>
-                            </TabsList>
-                        </Tabs>
-                    </div>
 
                     {/* Search */}
                     <div className="p-3 border-b border-border flex-shrink-0">
@@ -441,11 +396,7 @@ export default function ChatPanel({ onClose }: { onClose: () => void }) {
                                 size={18}
                             />
                             <Input
-                                placeholder={
-                                    activeTab === 'groups'
-                                        ? 'Rechercher un groupe...'
-                                        : 'Rechercher une conversation privée...'
-                                }
+                                placeholder="Rechercher une conversation..."
                                 className="pl-10 border-border focus-visible:ring-orange"
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -454,30 +405,29 @@ export default function ChatPanel({ onClose }: { onClose: () => void }) {
                     </div>
 
                     {/* Group Actions */}
-                    {activeTab === 'groups' && (
-                        <div className="p-3 border-b border-border flex gap-2 flex-shrink-0">
-                            <Button
-                                onClick={() => setCreateGroupOpen(true)}
-                                className="flex-1 bg-orange hover:bg-orange-hover text-white"
-                                size="sm"
-                            >
-                                <Plus size={16} className="mr-1" />
-                                Créer
-                            </Button>
-                            <Button
-                                onClick={() => {
-                                    setJoinGroupOpen(true);
-                                    chat.loadGroupInvitations();
-                                }}
-                                variant="outline"
-                                className="flex-1 border-border text-primary"
-                                size="sm"
-                            >
-                                <Users size={16} className="mr-1" />
-                                Rejoindre
-                            </Button>
-                        </div>
-                    )}
+                    <div className="p-3 border-b border-border flex gap-2 flex-shrink-0">
+                        <Button
+                            onClick={() => setCreateGroupOpen(true)}
+                            className="flex-1 bg-orange hover:bg-orange-hover text-white"
+                            size="sm"
+                        >
+                            <Plus size={16} className="mr-1" />
+                            Créer
+                        </Button>
+                        <Button
+                            onClick={() => {
+                                setJoinGroupOpen(true);
+                                void chat.loadAvailableGroups();
+                                void chat.loadGroupInvitations();
+                            }}
+                            variant="outline"
+                            className="flex-1 border-border text-primary"
+                            size="sm"
+                        >
+                            <Users size={16} className="mr-1" />
+                            Rejoindre
+                        </Button>
+                    </div>
 
                     {/* Conversations */}
                     <div className="flex-1 overflow-y-auto" style={{ minHeight: 0 }}>
@@ -548,7 +498,7 @@ export default function ChatPanel({ onClose }: { onClose: () => void }) {
                             ))
                         ) : (
                             <div className="p-6 text-center text-muted-foreground">
-                                {activeTab === 'groups' ? 'Aucun groupe trouvé' : 'Aucune conversation privée trouvée'}
+                                Aucune conversation trouvée
                             </div>
                         )}
                     </div>

@@ -64,6 +64,7 @@ export class ItemsService {
                         end_date: av.end_date,
                         status: av.status,
                         created_at: av.created_at,
+                        slots: av.slots,
                     })),
                 }))
             ),
