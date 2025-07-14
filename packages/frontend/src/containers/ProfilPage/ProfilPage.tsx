@@ -70,7 +70,6 @@ function ProfilPage({ uc }: { uc: HomeUc }) {
                         <CardTitle className="mt-4 text-3xl">
                             {user.firstName} {user.lastName}
                         </CardTitle>
-                        <CardDescription>Profil n° {user.id}</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-6">
                         <div>
