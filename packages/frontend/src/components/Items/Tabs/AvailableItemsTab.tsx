@@ -1,12 +1,13 @@
-import { useCallback } from 'react';
 import { UserModel } from '@/domain/models/user.model';
-import { GetItemsFilters, ItemAvailabilityStatus } from '@/domain/models/item.model';
+import { GetItemsFilters } from '@/domain/models/item.model';
 import { useAppNavigation } from '@/presentation/state/navigate';
 import ItemCard from '@/components/Items/ItemCard/ItemCard';
 import FilterBar from '@/components/Items/FilterBar/FilterBar';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { filterItemsByStatus } from '@/utils/itemStatus.utils';
+import { useMemo } from 'react';
 
 interface AvailableItemsTabProps {
     user: UserModel;
@@ -33,9 +34,13 @@ export default function AvailableItemsTab({
     onCategoryChange,
     onStatusChange,
     onClearFilters,
-    onPageChange
+    onPageChange,
 }: AvailableItemsTabProps) {
     const { goAddItem } = useAppNavigation();
+
+    const filteredItems = useMemo(() => {
+        return filterItemsByStatus(items, filters.status);
+    }, [items, filters.status]);
 
     const renderPagination = () => {
         if (pagination.totalPages <= 1) return null;
@@ -137,8 +142,8 @@ export default function AvailableItemsTab({
                 <div className="flex items-center gap-2 text-sm text-gray-600">
                     <span className="material-symbols-outlined text-sm">inventory_2</span>
                     <span>
-                        {pagination.total} objet{pagination.total > 1 ? 's' : ''} trouvé
-                        {pagination.total > 1 ? 's' : ''}
+                        {filteredItems.length} objet{filteredItems.length > 1 ? 's' : ''} trouvé
+                        {filteredItems.length > 1 ? 's' : ''}
                     </span>
                 </div>
 
@@ -170,10 +175,10 @@ export default function AvailableItemsTab({
                         </div>
                     ))}
                 </div>
-            ) : items.length > 0 ? (
+            ) : filteredItems.length > 0 ? (
                 <>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                        {items.map((item) => (
+                        {filteredItems.map((item) => (
                             <ItemCard key={item.id} item={item} currentUserId={user.id} />
                         ))}
                     </div>
@@ -183,9 +188,7 @@ export default function AvailableItemsTab({
             ) : (
                 <div className="text-center py-12">
                     <div className="w-24 h-24 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
-                        <span className="material-symbols-outlined text-4xl text-gray-400">
-                            inventory_2
-                        </span>
+                        <span className="material-symbols-outlined text-4xl text-gray-400">inventory_2</span>
                     </div>
                     <h3 className="text-lg font-semibold text-gray-900 mb-2">Aucun objet trouvé</h3>
                     <p className="text-gray-600 mb-6">

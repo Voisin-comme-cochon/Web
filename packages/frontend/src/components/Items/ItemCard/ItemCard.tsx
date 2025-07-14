@@ -3,6 +3,7 @@ import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useAppNavigation } from '@/presentation/state/navigate';
+import { getItemStatusInfo } from '@/utils/itemStatus.utils';
 
 interface ItemCardProps {
     item: ItemModel;
@@ -14,26 +15,8 @@ export default function ItemCard({ item, currentUserId, onItemClick }: ItemCardP
     const { goItemDetails } = useAppNavigation();
 
     const getItemStatus = () => {
-        if (!item.availabilities || item.availabilities.length === 0) {
-            return { status: 'Pas de disponibilité', color: 'bg-gray-100 text-gray-800' };
-        }
-
-        const now = new Date();
-        const activeAvailabilities = item.availabilities.filter((a) => a.start_date <= now && a.end_date >= now);
-
-        if (activeAvailabilities.length === 0) {
-            return { status: 'Non disponible', color: 'bg-red-100 text-red-800' };
-        }
-
-        const availableCount = activeAvailabilities.filter((a) => a.status === ItemAvailabilityStatus.AVAILABLE).length;
-
-        if (availableCount === activeAvailabilities.length) {
-            return { status: 'Disponible', color: 'bg-green-100 text-green-800' };
-        } else if (availableCount > 0) {
-            return { status: 'Partiellement disponible', color: 'bg-yellow-100 text-yellow-800' };
-        } else {
-            return { status: 'Occupé', color: 'bg-orange-100 text-orange-800' };
-        }
+        const statusInfo = getItemStatusInfo(item);
+        return { status: statusInfo.label, color: statusInfo.color };
     };
 
     const handleClick = () => {

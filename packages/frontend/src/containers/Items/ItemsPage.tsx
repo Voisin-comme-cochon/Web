@@ -71,10 +71,11 @@ function ItemsPage({ user, neighborhoodId }: ItemsPageProps) {
         const finalFilters = {
             ...filters,
             search: debouncedSearch,
+            status: undefined,
         };
         fetchItems(finalFilters);
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [filters.neighborhoodId, filters.category, filters.status, filters.page, filters.limit, debouncedSearch]);
+    }, [filters.neighborhoodId, filters.category, filters.page, filters.limit, debouncedSearch]);
 
     useEffect(() => {
         refetchRequests();
@@ -121,7 +122,7 @@ function ItemsPage({ user, neighborhoodId }: ItemsPageProps) {
     const handleStatusChange = useCallback((status: string) => {
         setFilters((prev) => ({
             ...prev,
-            status: status === 'all' ? undefined : (status as ItemAvailabilityStatus),
+            status: status === 'all' ? undefined : status,
             page: 1,
         }));
     }, []);
@@ -148,8 +149,12 @@ function ItemsPage({ user, neighborhoodId }: ItemsPageProps) {
     };
 
     const getLoanStats = () => {
-        const activeLoans = myLoans.filter((l) => l.status === LoanStatus.ACTIVE || l.status === LoanStatus.PENDING_RETURN).length;
-        const activeLentItems = lentItems.filter((l) => l.status === LoanStatus.ACTIVE || l.status === LoanStatus.PENDING_RETURN).length;
+        const activeLoans = myLoans.filter(
+            (l) => l.status === LoanStatus.ACTIVE || l.status === LoanStatus.PENDING_RETURN
+        ).length;
+        const activeLentItems = lentItems.filter(
+            (l) => l.status === LoanStatus.ACTIVE || l.status === LoanStatus.PENDING_RETURN
+        ).length;
 
         return { activeLoans, activeLentItems };
     };

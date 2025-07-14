@@ -1,8 +1,7 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useRef, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ItemAvailabilityStatus } from '@/domain/models/item.model';
 
 interface FilterBarProps {
     searchTerm: string;
@@ -26,13 +25,16 @@ const CATEGORIES = [
     'Véhicules',
     'Livres',
     'Jouets',
-    'Autre'
+    'Autre',
 ];
 
 const STATUS_OPTIONS = [
-    { value: ItemAvailabilityStatus.AVAILABLE, label: 'Disponible' },
-    { value: ItemAvailabilityStatus.UNAVAILABLE, label: 'Non disponible' },
-    { value: ItemAvailabilityStatus.PARTIALLY_BOOKED, label: 'Partiellement réservé' }
+    { value: 'available_now', label: 'Disponible maintenant' },
+    { value: 'partially_available', label: 'Partiellement disponible' },
+    { value: 'occupied', label: 'Occupé' },
+    { value: 'not_available_now', label: 'Non disponible maintenant' },
+    { value: 'future_availability', label: 'Disponible plus tard' },
+    { value: 'no_availability', label: 'Pas de disponibilité' },
 ];
 
 const FilterBar = React.memo(function FilterBar({
@@ -43,11 +45,12 @@ const FilterBar = React.memo(function FilterBar({
     selectedStatus,
     onStatusChange,
     onClearFilters,
-    loading = false
+    loading = false,
 }: FilterBarProps) {
     const searchInputRef = useRef<HTMLInputElement>(null);
-    const hasActiveFilters = searchTerm || (selectedCategory && selectedCategory !== 'all') || (selectedStatus && selectedStatus !== 'all');
-    
+    const hasActiveFilters =
+        searchTerm || (selectedCategory && selectedCategory !== 'all') || (selectedStatus && selectedStatus !== 'all');
+
     useEffect(() => {
         if (searchInputRef.current && document.activeElement === searchInputRef.current) {
             return;
@@ -57,14 +60,12 @@ const FilterBar = React.memo(function FilterBar({
     return (
         <div className="bg-white p-4 rounded-lg border shadow-sm space-y-4">
             <div className="flex items-center gap-2 mb-4">
-                <span className="material-symbols-outlined text-gray-600">
-                    tune
-                </span>
+                <span className="material-symbols-outlined text-gray-600">tune</span>
                 <h3 className="font-medium">Filtrer les objets</h3>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <div className="relative">
+                <div className="relative">
                     <span className="material-symbols-outlined absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm">
                         search
                     </span>
@@ -78,11 +79,7 @@ const FilterBar = React.memo(function FilterBar({
                     />
                 </div>
 
-                <Select
-                    value={selectedCategory}
-                    onValueChange={onCategoryChange}
-                    disabled={loading}
-                >
+                <Select value={selectedCategory} onValueChange={onCategoryChange} disabled={loading}>
                     <SelectTrigger>
                         <SelectValue placeholder="Toutes les catégories" />
                     </SelectTrigger>
@@ -96,11 +93,7 @@ const FilterBar = React.memo(function FilterBar({
                     </SelectContent>
                 </Select>
 
-                <Select
-                    value={selectedStatus}
-                    onValueChange={onStatusChange}
-                    disabled={loading}
-                >
+                <Select value={selectedStatus} onValueChange={onStatusChange} disabled={loading}>
                     <SelectTrigger>
                         <SelectValue placeholder="Tous les statuts" />
                     </SelectTrigger>
@@ -120,9 +113,7 @@ const FilterBar = React.memo(function FilterBar({
                     disabled={!hasActiveFilters || loading}
                     className="w-full"
                 >
-                    <span className="material-symbols-outlined text-sm mr-2">
-                        clear_all
-                    </span>
+                    <span className="material-symbols-outlined text-sm mr-2">clear_all</span>
                     Effacer
                 </Button>
             </div>
@@ -132,8 +123,7 @@ const FilterBar = React.memo(function FilterBar({
                     <span className="text-sm text-gray-600">Filtres actifs :</span>
                     {searchTerm && (
                         <span className="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded">
-                            <span className="material-symbols-outlined text-xs">search</span>
-                            "{searchTerm}"
+                            <span className="material-symbols-outlined text-xs">search</span>"{searchTerm}"
                         </span>
                     )}
                     {selectedCategory && selectedCategory !== 'all' && (
@@ -145,7 +135,7 @@ const FilterBar = React.memo(function FilterBar({
                     {selectedStatus && selectedStatus !== 'all' && (
                         <span className="inline-flex items-center gap-1 px-2 py-1 bg-purple-100 text-purple-800 text-xs rounded">
                             <span className="material-symbols-outlined text-xs">visibility</span>
-                            {STATUS_OPTIONS.find(s => s.value === selectedStatus)?.label}
+                            {STATUS_OPTIONS.find((s) => s.value === selectedStatus)?.label}
                         </span>
                     )}
                 </div>
