@@ -21,6 +21,7 @@ import { CreateLoanRequestRequest } from '@/domain/models/loan-request.model';
 import { ItemAvailabilityStatus } from '@/domain/models/item.model';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
+import { getItemStatusInfo } from '@/utils/itemStatus.utils';
 
 interface ItemDetailsPageProps {
     user: UserModel;
@@ -53,46 +54,31 @@ function ItemDetailsPage({ user, neighborhoodId }: ItemDetailsPageProps) {
     };
 
     const getItemStatus = () => {
-        if (!item?.availabilities || item.availabilities.length === 0) {
-            return {
-                status: 'Pas de disponibilité',
-                color: 'bg-gray-100 text-gray-800',
-                description: 'Aucune période de disponibilité définie.',
-            };
+        const statusInfo = getItemStatusInfo(item);
+
+        let description = '';
+        switch (statusInfo.key) {
+            case 'available_now':
+                description = "Cet objet est actuellement disponible à l'emprunt.";
+                break;
+            case 'occupied':
+                description = "Cet objet est actuellement en cours d'emprunt.";
+                break;
+            case 'future_availability':
+                description = "Cet objet sera disponible à l'emprunt ultérieurement.";
+                break;
+            case 'no_availability':
+                description = 'Aucune période de disponibilité définie.';
+                break;
+            default:
+                description = "Statut de l'objet inconnu.";
         }
 
-        const now = new Date();
-        const activeAvailabilities = item.availabilities.filter((a) => a.start_date <= now && a.end_date >= now);
-
-        if (activeAvailabilities.length === 0) {
-            return {
-                status: 'Non disponible',
-                color: 'bg-red-100 text-red-800',
-                description: 'Aucune disponibilité active pour le moment.',
-            };
-        }
-
-        const availableCount = activeAvailabilities.filter((a) => a.status === ItemAvailabilityStatus.AVAILABLE).length;
-
-        if (availableCount === activeAvailabilities.length) {
-            return {
-                status: 'Disponible',
-                color: 'bg-green-100 text-green-800',
-                description: "Cet objet est actuellement disponible à l'emprunt.",
-            };
-        } else if (availableCount > 0) {
-            return {
-                status: 'Partiellement disponible',
-                color: 'bg-yellow-100 text-yellow-800',
-                description: 'Cet objet est partiellement disponible.',
-            };
-        } else {
-            return {
-                status: 'Occupé',
-                color: 'bg-orange-100 text-orange-800',
-                description: "Cet objet est actuellement en cours d'emprunt.",
-            };
-        }
+        return {
+            status: statusInfo.label,
+            color: statusInfo.color,
+            description: description,
+        };
     };
 
     if (loading) {
@@ -185,7 +171,7 @@ function ItemDetailsPage({ user, neighborhoodId }: ItemDetailsPageProps) {
                                 </div>
 
                                 {item.category && (
-                                    <Badge hover={false} variant="secondary" className="mb-4">
+                                    <Badge hover={false} variant="default" className="mb-4">
                                         {item.category}
                                     </Badge>
                                 )}

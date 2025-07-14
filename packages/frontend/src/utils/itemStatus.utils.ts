@@ -2,9 +2,7 @@ import { ItemAvailabilityStatus, ItemAvailabilitySlotStatus } from '@/domain/mod
 
 export type ItemStatusKey = 
     | 'available_now'
-    | 'partially_available'
     | 'occupied'
-    | 'not_available_now'
     | 'future_availability'
     | 'no_availability';
 
@@ -72,9 +70,9 @@ export function getItemStatusInfo(item: any): ItemStatusInfo {
         }
         
         return {
-            key: 'not_available_now',
-            label: 'Non disponible maintenant',
-            color: 'bg-red-100 text-red-800'
+            key: 'no_availability',
+            label: 'Pas de disponibilité',
+            color: 'bg-gray-100 text-gray-800'
         };
     }
 
@@ -112,24 +110,8 @@ export function getItemStatusInfo(item: any): ItemStatusInfo {
         }
     }
 
-    // Prioriser les statuts dans l'ordre : occupé > partiellement disponible > disponible
-    if (occupiedCount > 0 && (availableCount === 0 && partiallyAvailableCount === 0)) {
-        return {
-            key: 'occupied',
-            label: 'Occupé',
-            color: 'bg-orange-100 text-orange-800'
-        };
-    }
-    
-    if (partiallyAvailableCount > 0 || (availableCount > 0 && occupiedCount > 0)) {
-        return {
-            key: 'partially_available',
-            label: 'Partiellement disponible',
-            color: 'bg-yellow-100 text-yellow-800'
-        };
-    }
-    
-    if (availableCount > 0) {
+    // Prioriser les statuts dans l'ordre : disponible > occupé
+    if (availableCount > 0 && occupiedCount === 0) {
         return {
             key: 'available_now',
             label: 'Disponible maintenant',
@@ -137,7 +119,7 @@ export function getItemStatusInfo(item: any): ItemStatusInfo {
         };
     }
     
-    // Cas par défaut : occupé
+    // Cas par défaut : occupé (dès qu'il y a des occupations)
     return {
         key: 'occupied',
         label: 'Occupé',

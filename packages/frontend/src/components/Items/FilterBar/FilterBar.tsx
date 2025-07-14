@@ -30,11 +30,9 @@ const CATEGORIES = [
 
 const STATUS_OPTIONS = [
     { value: 'available_now', label: 'Disponible maintenant' },
-    { value: 'partially_available', label: 'Partiellement disponible' },
     { value: 'occupied', label: 'Occupé' },
-    { value: 'not_available_now', label: 'Non disponible maintenant' },
-    { value: 'future_availability', label: 'Disponible plus tard' },
     { value: 'no_availability', label: 'Pas de disponibilité' },
+    { value: 'future_availability', label: 'Disponible plus tard' },
 ];
 
 const FilterBar = React.memo(function FilterBar({
