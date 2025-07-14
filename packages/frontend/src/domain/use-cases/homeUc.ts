@@ -136,6 +136,17 @@ export class HomeUc {
         }
     }
 
+    async getCompleteUserById(id: string | number): Promise<CompleteUserModel> {
+        try {
+            return await this.userFrontRepository.getUserById(id);
+        } catch (error) {
+            if (error instanceof Error) {
+                throw new Error(error.message);
+            }
+            throw new Error('Une erreur est survenue lors de la création du quartier');
+        }
+    }
+
     async getMyNeighborhoods(id: string | number): Promise<FrontNeighborhood[]> {
         try {
             return await this.neighborhoodRepository.getMyNeighborhoods(id);
