@@ -1,9 +1,8 @@
 import ApiService from '@/infrastructure/api/ApiService.ts';
-import { UserModel } from '@/domain/models/user.model.ts';
 import { CompleteUserModel } from '@/domain/models/complete-user.model.ts';
 
 export class UserFrontRepository {
-    async getUserById(id: number | string): Promise<UserModel> {
+    async getUserById(id: number | string): Promise<CompleteUserModel> {
         const response = await ApiService.get(`/users/${id}`);
         return response.data;
     }
