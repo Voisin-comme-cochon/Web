@@ -51,9 +51,10 @@ services:
       - postgres
       - mongodb
       - minio
+      - neo4j
     env_file:
       - ../backend/.env
-      
+
   frontend:
     build:
       context: ../frontend
