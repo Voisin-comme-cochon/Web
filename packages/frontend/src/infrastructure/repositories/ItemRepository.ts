@@ -9,6 +9,7 @@ import {
     GetItemsFilters,
 } from '@/domain/models/item.model';
 import { PaginatedResultModel } from '@/domain/models/paginated-result.model';
+import dayjs from 'dayjs';
 
 export class ItemRepository {
     async getItems(filters: GetItemsFilters): Promise<PaginatedResultModel<ItemModel>> {
@@ -87,16 +88,16 @@ export class ItemRepository {
         availability: CreateItemAvailabilityRequest
     ): Promise<ItemAvailabilityModel> {
         const response = await ApiService.post(`/items/${itemId}/availabilities`, {
-            start_date: availability.start_date.toISOString(),
-            end_date: availability.end_date.toISOString(),
+            start_date: dayjs(availability.start_date).format('YYYY-MM-DD'),
+            end_date: dayjs(availability.end_date).format('YYYY-MM-DD'),
         });
         return this.mapItemAvailability(response.data);
     }
 
     async updateItemAvailability(availabilityId: number, availability: UpdateItemAvailabilityRequest): Promise<void> {
         const data: any = {};
-        if (availability.start_date) data.start_date = availability.start_date.toISOString();
-        if (availability.end_date) data.end_date = availability.end_date.toISOString();
+        if (availability.start_date) data.start_date = dayjs(availability.start_date).format('YYYY-MM-DD');
+        if (availability.end_date) data.end_date = dayjs(availability.end_date).format('YYYY-MM-DD');
         if (availability.status) data.status = availability.status;
 
         await ApiService.put(`/items/availabilities/${availabilityId}`, data);
@@ -132,19 +133,19 @@ export class ItemRepository {
         return {
             id: data.id,
             item_id: data.item_id,
-            start_date: new Date(data.start_date),
-            end_date: new Date(data.end_date),
+            start_date: dayjs(data.start_date).toDate(),
+            end_date: dayjs(data.end_date).toDate(),
             status: data.status,
-            created_at: new Date(data.created_at),
+            created_at: dayjs(data.created_at).toDate(),
             slots:
                 data.slots?.map((slot: any) => ({
                     id: slot.id,
                     availability_id: slot.availability_id,
-                    start_date: new Date(slot.start_date),
-                    end_date: new Date(slot.end_date),
+                    start_date: dayjs(slot.start_date).toDate(),
+                    end_date: dayjs(slot.end_date).toDate(),
                     status: slot.status,
                     loan_request_id: slot.loan_request_id,
-                    created_at: new Date(slot.created_at),
+                    created_at: dayjs(slot.created_at).toDate(),
                 })) || [],
         };
     };
