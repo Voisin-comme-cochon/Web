@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { JavaPluginRepository } from '../domain/java-plugin.abstract.repository';
-import { JavaPluginDto } from '../adapters/java-plugin.adapter';
+import { JavaPluginDto } from '../controllers/dto/java-plugin.dto';
 import { ObjectStorageService } from '../../objectStorage/services/objectStorage.service';
 import { BucketType } from '../../objectStorage/domain/bucket-type.enum';
 
@@ -51,5 +51,42 @@ export class JavaPluginService {
             fileUrl: await this.objectStorageService.getFileLink(fileKey, BucketType.JAVA_PLUGINS),
             uploadedAt: javaPlugin.uploadedAt,
         };
+    }
+
+    public async getPluginById(id: number): Promise<JavaPluginDto | null> {
+        const plugin = await this.javaPluginRepository.getPluginById(id);
+        if (!plugin) return null;
+        const fileUrl = await this.objectStorageService.getFileLink(plugin.fileName, BucketType.JAVA_PLUGINS);
+        return {
+            id: plugin.id,
+            name: plugin.name,
+            version: plugin.version,
+            description: plugin.description,
+            fileName: plugin.fileName,
+            fileUrl,
+            uploadedAt: plugin.uploadedAt,
+        };
+    }
+
+    public async updatePlugin(id: number, data: Partial<JavaPluginDto>): Promise<JavaPluginDto> {
+        const updated = await this.javaPluginRepository.updatePlugin(id, data);
+        const fileUrl = await this.objectStorageService.getFileLink(updated.fileName, BucketType.JAVA_PLUGINS);
+        return {
+            id: updated.id,
+            name: updated.name,
+            version: updated.version,
+            description: updated.description,
+            fileName: updated.fileName,
+            fileUrl,
+            uploadedAt: updated.uploadedAt,
+        };
+    }
+
+    public async deletePlugin(id: number): Promise<void> {
+        const plugin = await this.javaPluginRepository.getPluginById(id);
+        if (plugin) {
+            await this.objectStorageService.deleteFile(plugin.fileName, BucketType.JAVA_PLUGINS);
+        }
+        await this.javaPluginRepository.deletePlugin(id);
     }
 } 

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { JavaRepository } from '../domain/java.abstract.repository';
-import { JavaDto } from '../adapters/java.adapter';
+import { JavaDto } from '../controllers/dto/java-version.dto';
 import { ObjectStorageService } from '../../objectStorage/services/objectStorage.service';
 import { BucketType } from '../../objectStorage/domain/bucket-type.enum';
 

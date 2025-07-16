@@ -21,4 +21,20 @@ export class JavaPluginRepositoryImplementation implements JavaPluginRepository 
         await repo.save(javaPlugin);
         return javaPlugin;
     }
+
+    async getPluginById(id: number): Promise<JavaPlugin | null> {
+        return await this.dataSource.getRepository(JavaPlugin).findOneBy({ id });
+    }
+
+    async updatePlugin(id: number, data: Partial<JavaPlugin>): Promise<JavaPlugin> {
+        const repo = this.dataSource.getRepository(JavaPlugin);
+        await repo.update(id, data);
+        const updated = await repo.findOneBy({ id });
+        if (!updated) throw new Error('Plugin not found');
+        return updated;
+    }
+
+    async deletePlugin(id: number): Promise<void> {
+        await this.dataSource.getRepository(JavaPlugin).delete(id);
+    }
 } 

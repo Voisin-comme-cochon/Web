@@ -7,15 +7,19 @@ import {
     UseInterceptors,
     UseGuards,
     BadRequestException,
+    Put,
+    Delete,
+    Param,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiBody, ApiConsumes, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { IsLoginGuard } from 'src/middleware/is-login.middleware';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { JavaService } from '../services/java.service';
 import { JavaPluginService } from '../services/java-plugin.service';
-import { CreateJavaVersionDto, JavaDto } from '../adapters/java.adapter';
-import { CreateJavaPluginDto, JavaPluginDto } from '../adapters/java-plugin.adapter';
+import { CreateJavaVersionDto, JavaDto } from './dto/java-version.dto';
+import { CreateJavaPluginDto, JavaPluginDto } from './dto/java-plugin.dto';
 import { IsSuperAdminGuard } from '../../../middleware/is-super-admin.middleware';
+import { UpdateJavaPluginDto } from './dto/update-java-plugin.dto';
 
 @ApiTags('Java')
 @Controller('java')
@@ -102,5 +106,35 @@ export class JavaController {
             throw new BadRequestException('Seuls les fichiers .jar sont autorisés');
         }
         return this.javaPluginService.createPlugin(body.name, body.version, body.description, file.buffer, file.originalname);
+    }
+
+    @Get('plugins/:id')
+    @ApiOperation({ summary: 'Récupérer un plugin Java par id' })
+    @ApiResponse({ status: 200, type: JavaPluginDto })
+    @ApiResponse({ status: 404, description: 'Plugin non trouvé' })
+    public async getPluginById(@Param('id') id: number): Promise<JavaPluginDto> {
+        const plugin = await this.javaPluginService.getPluginById(Number(id));
+        if (!plugin) throw new BadRequestException('Plugin non trouvé');
+        return plugin;
+    }
+
+    @Put('plugins/:id')
+    @UseGuards(IsLoginGuard, IsSuperAdminGuard)
+    @ApiBearerAuth()
+    @ApiOperation({ summary: 'Mettre à jour un plugin Java' })
+    @ApiBody({ type: UpdateJavaPluginDto })
+    public async updatePlugin(
+        @Param('id') id: number,
+        @Body() body: UpdateJavaPluginDto
+    ): Promise<JavaPluginDto> {
+        return this.javaPluginService.updatePlugin(Number(id), body);
+    }
+
+    @Delete('plugins/:id')
+    @UseGuards(IsLoginGuard, IsSuperAdminGuard)
+    @ApiBearerAuth()
+    @ApiOperation({ summary: 'Supprimer un plugin Java' })
+    public async deletePlugin(@Param('id') id: number): Promise<void> {
+        await this.javaPluginService.deletePlugin(Number(id));
     }
 }
