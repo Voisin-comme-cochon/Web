@@ -3,6 +3,7 @@ import { JavaPluginRepository } from '../domain/java-plugin.abstract.repository'
 import { JavaPluginDto } from '../controllers/dto/java-plugin.dto';
 import { ObjectStorageService } from '../../objectStorage/services/objectStorage.service';
 import { BucketType } from '../../objectStorage/domain/bucket-type.enum';
+import { NotFoundException, BadRequestException } from '@nestjs/common';
 
 @Injectable()
 export class JavaPluginService {
@@ -54,8 +55,9 @@ export class JavaPluginService {
     }
 
     public async getPluginById(id: number): Promise<JavaPluginDto | null> {
+        if (!id || isNaN(Number(id))) throw new BadRequestException('ID invalide');
         const plugin = await this.javaPluginRepository.getPluginById(id);
-        if (!plugin) return null;
+        if (!plugin) throw new NotFoundException('Plugin non trouvé');
         const fileUrl = await this.objectStorageService.getFileLink(plugin.fileName, BucketType.JAVA_PLUGINS);
         return {
             id: plugin.id,
@@ -69,6 +71,9 @@ export class JavaPluginService {
     }
 
     public async updatePlugin(id: number, data: Partial<JavaPluginDto>): Promise<JavaPluginDto> {
+        if (!id || isNaN(Number(id))) throw new BadRequestException('ID invalide');
+        const exists = await this.javaPluginRepository.getPluginById(id);
+        if (!exists) throw new NotFoundException('Plugin non trouvé');
         const updated = await this.javaPluginRepository.updatePlugin(id, data);
         const fileUrl = await this.objectStorageService.getFileLink(updated.fileName, BucketType.JAVA_PLUGINS);
         return {
@@ -83,10 +88,10 @@ export class JavaPluginService {
     }
 
     public async deletePlugin(id: number): Promise<void> {
+        if (!id || isNaN(Number(id))) throw new BadRequestException('ID invalide');
         const plugin = await this.javaPluginRepository.getPluginById(id);
-        if (plugin) {
-            await this.objectStorageService.deleteFile(plugin.fileName, BucketType.JAVA_PLUGINS);
-        }
+        if (!plugin) throw new NotFoundException('Plugin non trouvé');
+        await this.objectStorageService.deleteFile(plugin.fileName, BucketType.JAVA_PLUGINS);
         await this.javaPluginRepository.deletePlugin(id);
     }
 } 

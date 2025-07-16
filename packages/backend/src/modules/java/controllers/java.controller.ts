@@ -20,6 +20,7 @@ import { CreateJavaVersionDto, JavaDto } from './dto/java-version.dto';
 import { CreateJavaPluginDto, JavaPluginDto } from './dto/java-plugin.dto';
 import { IsSuperAdminGuard } from '../../../middleware/is-super-admin.middleware';
 import { UpdateJavaPluginDto } from './dto/update-java-plugin.dto';
+import { UpdateJavaVersionDto } from './dto/update-java-version.dto';
 
 @ApiTags('Java')
 @Controller('java')
@@ -136,5 +137,42 @@ export class JavaController {
     @ApiOperation({ summary: 'Supprimer un plugin Java' })
     public async deletePlugin(@Param('id') id: number): Promise<void> {
         await this.javaPluginService.deletePlugin(Number(id));
+    }
+
+    @Get('versions')
+    @ApiOperation({ summary: 'Récupérer toutes les versions Java' })
+    @ApiResponse({ status: 200, type: [JavaDto] })
+    public async getAllVersions(): Promise<JavaDto[]> {
+        return this.javaService.getAllVersions();
+    }
+
+    @Get('versions/:id')
+    @ApiOperation({ summary: 'Récupérer une version Java par id' })
+    @ApiResponse({ status: 200, type: JavaDto })
+    @ApiResponse({ status: 404, description: 'Version non trouvée' })
+    public async getVersionById(@Param('id') id: number): Promise<JavaDto> {
+        const version = await this.javaService.getVersionById(Number(id));
+        if (!version) throw new BadRequestException('Version non trouvée');
+        return version;
+    }
+
+    @Put('versions/:id')
+    @UseGuards(IsLoginGuard, IsSuperAdminGuard)
+    @ApiBearerAuth()
+    @ApiOperation({ summary: 'Mettre à jour une version Java' })
+    @ApiBody({ type: UpdateJavaVersionDto })
+    public async updateVersion(
+        @Param('id') id: number,
+        @Body() body: UpdateJavaVersionDto
+    ): Promise<JavaDto> {
+        return this.javaService.updateVersion(Number(id), body);
+    }
+
+    @Delete('versions/:id')
+    @UseGuards(IsLoginGuard, IsSuperAdminGuard)
+    @ApiBearerAuth()
+    @ApiOperation({ summary: 'Supprimer une version Java' })
+    public async deleteVersion(@Param('id') id: number): Promise<void> {
+        await this.javaService.deleteVersion(Number(id));
     }
 }
