@@ -1,5 +1,4 @@
 import { ApiProperty } from '@nestjs/swagger';
-
 import { IsDate, IsNotEmpty, IsString, IsNumber } from 'class-validator';
 
 export class JavaDto {
@@ -52,4 +51,4 @@ export class CreateJavaVersionDto {
     @IsString()
     @IsNotEmpty()
     fileName!: string;
-}
+} 

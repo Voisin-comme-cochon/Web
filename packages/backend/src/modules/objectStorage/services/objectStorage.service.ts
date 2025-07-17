@@ -126,6 +126,12 @@ export class ObjectStorageService implements OnModuleInit {
                 process.env.VCC_MINIO_JAVA_VERSION_BUCKET ?? BucketType.JAVA_VERSION
             );
         }
+        if (!this.buckets.has(BucketType.JAVA_PLUGINS)) {
+            this.buckets.set(
+                BucketType.JAVA_PLUGINS,
+                process.env.VCC_MINIO_JAVA_PLUGINS_BUCKET ?? BucketType.JAVA_PLUGINS
+            );
+        }
     }
 
     private async initBuckets(): Promise<void> {
