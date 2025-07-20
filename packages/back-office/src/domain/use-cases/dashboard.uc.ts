@@ -1,13 +1,13 @@
-import {ApiError} from "@/shared/errors/ApiError.ts";
-import {getTickets} from "@/infrastructure/repositories/ticket.repository.ts";
-import {getNeighborhoods} from "@/infrastructure/repositories/neighborhood.repository.ts";
-import {getUsers} from "@/infrastructure/repositories/user.repository.ts";
-import {getEvents} from "@/infrastructure/repositories/event.repository.ts";
-import {getMessages} from "@/infrastructure/repositories/group.repository.ts";
-import {getSales} from "@/infrastructure/repositories/sales.repository.ts";
-import {PaginatedResultModel} from "@/domain/models/paginated-result.model.ts";
-import {NeighborhoodModel} from "@/domain/models/neighborhood.model.ts";
-import {TicketModel} from "@/domain/models/ticket.model.ts";
+import { ApiError } from "@/shared/errors/ApiError.ts";
+import { getTickets } from "@/infrastructure/repositories/ticket.repository.ts";
+import { getNeighborhoods } from "@/infrastructure/repositories/neighborhood.repository.ts";
+import { getUsers } from "@/infrastructure/repositories/user.repository.ts";
+import { getEvents } from "@/infrastructure/repositories/event.repository.ts";
+import { getMessages } from "@/infrastructure/repositories/messaging.repository.ts";
+import { getSales } from "@/infrastructure/repositories/sales.repository.ts";
+import { PaginatedResultModel } from "@/domain/models/paginated-result.model.ts";
+import { NeighborhoodModel } from "@/domain/models/neighborhood.model.ts";
+import { TicketModel } from "@/domain/models/ticket.model.ts";
 
 export class DashboardUseCase {
     constructor() {
@@ -126,7 +126,7 @@ export class DashboardUseCase {
     public async getMessagesAmountData(): Promise<number> {
         try {
             const messages = await getMessages();
-            return messages.data;
+            return messages.data.count;
         } catch (error) {
             if (error instanceof ApiError) {
                 if ((error as ApiError).status === 400) {

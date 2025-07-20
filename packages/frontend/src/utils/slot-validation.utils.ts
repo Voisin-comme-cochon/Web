@@ -1,4 +1,4 @@
-import { differenceInDays, eachDayOfInterval, startOfDay, isWithinInterval } from 'date-fns';
+import { differenceInDays, eachDayOfInterval, startOfDay, isWithinInterval, isBefore, startOfToday } from 'date-fns';
 import { ItemAvailabilityModel, ItemAvailabilitySlotStatus } from '@/domain/models/item.model';
 
 export interface SlotValidationOptions {
@@ -26,6 +26,12 @@ export const validateSlotSelection = (
 
     if (duration > maxDuration) {
         return `La durée maximale est de ${maxDuration} jour(s)`;
+    }
+
+    // Vérifier que la date de début n'est pas antérieure ou égale à aujourd'hui
+    const today = startOfToday();
+    if (!isBefore(today, startOfDay(startDate))) {
+        return 'Start date cannot be in the past';
     }
 
     // Vérifier que tous les jours de la sélection sont disponibles

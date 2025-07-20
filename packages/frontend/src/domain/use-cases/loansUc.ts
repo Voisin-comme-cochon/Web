@@ -121,7 +121,7 @@ export class LoansUc {
 
     formatLoanDuration(loan: LoanModel): string {
         const diffTime = loan.end_date.getTime() - loan.start_date.getTime();
-        const days = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        const days = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
 
         if (days === 1) {
             return '1 jour';
