@@ -178,15 +178,15 @@ export class NeighborhoodController {
         @Param('neighborhoodId') neighborhoodId: number,
         @Body() body: RequestUpdateNeighborhoodDto,
         @Request() req: { user: { id: number } }
-    ): Promise<ResponseNeighborhoodDto> {
-        const neighborhood = await this.neighborhoodService.updateNeighborhood({
+    ): Promise<{ success: boolean }> {
+        await this.neighborhoodService.updateNeighborhood({
             id: neighborhoodId,
             name: body.name,
             description: body.description,
             userId: req.user.id,
         });
 
-        return NeighborhoodsAdapter.domainToDto(neighborhood);
+        return { success: true };
     }
 
     @Patch(':id')

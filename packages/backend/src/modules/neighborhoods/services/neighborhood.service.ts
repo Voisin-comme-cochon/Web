@@ -200,7 +200,7 @@ export class NeighborhoodService {
         name?: string;
         description?: string;
         userId: number;
-    }): Promise<ResponseNeighborhoodDto> {
+    }): Promise<void> {
         const neighborhood = await this.neighborhoodRepository.getNeighborhoodById(id);
         if (!neighborhood) {
             throw new CochonError('neighborhood_not_found', 'Neighborhood not found', 404);
@@ -219,8 +219,6 @@ export class NeighborhoodService {
         if (!updatedNeighborhood) {
             throw new CochonError('neighborhood_update_failed', 'Failed to update neighborhood', 500);
         }
-        console.log('Updated neighborhood:', updatedNeighborhood);
-        return NeighborhoodsAdapter.domainToDto(updatedNeighborhood);
     }
 
     private parseGeo(geo: string): Geography {
