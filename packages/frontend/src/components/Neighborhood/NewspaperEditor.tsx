@@ -5,6 +5,7 @@ import { useHeaderData } from '@/presentation/hooks/UseHeaderData';
 import ComboboxComponentTag from '@/components/ComboboxComponent/ComboboxComponentTag';
 import { TagRepository } from '@/infrastructure/repositories/TagRepository';
 import { TagModel } from '@/domain/models/tag.model';
+import { Button } from '@/components/ui/button';
 
 interface Props {
   onSuccess?: () => void;
@@ -88,7 +89,6 @@ export default function NewspaperEditor({
         required
         disabled={loading}
       />
-      <Editor value={content} onChange={handleContentChange} />
       <div className="mb-2">
         <ComboboxComponentTag
           tags={tags}
@@ -96,13 +96,15 @@ export default function NewspaperEditor({
           handleSetTag={handleSetTag}
         />
       </div>
-      <button
+      <Editor value={content} onChange={handleContentChange} />
+      <Button
         type="submit"
-        className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+        variant="orange"
+        className="mt-4 w-full h-12 text-base font-bold bg-orange hover:bg-orange-hover text-white"
         disabled={loading}
       >
         Publier
-      </button>
+      </Button>
     </form>
   );
 } 

@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import NewspaperEditor from "@/components/Neighborhood/NewspaperEditor";
 import { useHeaderData } from '@/presentation/hooks/UseHeaderData';
 import DashboardHeader from '@/components/Header/DashboardHeader.tsx';
+import { Button } from '@/components/ui/button';
 
 export default function NeighborhoodNewspaperCreatePage() {
   const { neighborhoodId } = useHeaderData();
@@ -47,12 +48,13 @@ export default function NeighborhoodNewspaperCreatePage() {
         />
         {error && <div className="text-red-500 mt-2">{error}</div>}
         {loading && <div className="text-gray-400 mt-2">Envoi en cours...</div>}
-        <button
-          className="mt-4 px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400"
+        <Button
+          variant="orange"
+          className="mt-4 w-full max-w-xs h-12 text-base font-bold bg-orange hover:bg-orange-hover text-white"
           onClick={() => navigate("/neighborhood-newspaper")}
         >
           Retour
-        </button>
+        </Button>
       </div>
     </>
   );

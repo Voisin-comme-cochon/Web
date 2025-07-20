@@ -1,12 +1,15 @@
 import { useEffect, useState } from "react";
 import NewspaperEditor from "@/components/Neighborhood/NewspaperEditor";
-import { useHeaderData } from '@/presentation/hooks/UseHeaderData';
+import { withHeaderData } from '@/containers/Wrapper/Wrapper';
 import { NeighborhoodFrontRepository } from '@/infrastructure/repositories/NeighborhoodFrontRepository';
 import ApiService from '@/infrastructure/api/ApiService';
 import { useNavigate } from 'react-router-dom';
 import DashboardHeader from '@/components/Header/DashboardHeader.tsx';
+import { Button } from '@/components/ui/button';
 import { TagRepository } from '@/infrastructure/repositories/TagRepository';
 import { TagModel } from '@/domain/models/tag.model';
+import type { UserModel } from '@/domain/models/user.model';
+import type { HomeUc } from '@/domain/use-cases/homeUc';
 
 interface Newspaper {
   id: string;
@@ -16,14 +19,19 @@ interface Newspaper {
   tagIds?: number[];
 }
 
-export default function NeighborhoodNewspaperPage() {
-  const { user } = useHeaderData();
-  const neighborhoodId = localStorage.getItem('neighborhoodId');
+interface NeighborhoodNewspaperPageProps {
+  user: UserModel;
+  neighborhoodId: string;
+  uc: HomeUc;
+}
+
+function NeighborhoodNewspaperPage({ user, neighborhoodId, uc }: NeighborhoodNewspaperPageProps) {
   const [newspapers, setNewspapers] = useState<Newspaper[]>([]);
   const [canCreate, setCanCreate] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [tags, setTags] = useState<TagModel[]>([]);
+  const [selectedTag, setSelectedTag] = useState<number | null>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -62,7 +70,7 @@ export default function NeighborhoodNewspaperPage() {
         console.log('[DEBUG:NEWSPAPER_RAW]', res.data);
         setNewspapers((res.data || []).map((j: any) => ({
           ...j,
-          id: j.id || j._id || j.journalId // adapte ici selon la vraie clé
+          id: j.id || j._id || j.journalId
         })));
       } catch (e) {
         setError("Erreur lors du chargement des journaux.");
@@ -110,12 +118,35 @@ export default function NeighborhoodNewspaperPage() {
 
   return (
     <>
-      <div>
-        <DashboardHeader />
-      </div>
+      <DashboardHeader />
       <div className="max-w-2xl mx-auto py-8">
         <h1 className="text-2xl font-bold mb-4">Journaux du quartier</h1>
-        <h2 className="text-xl font-semibold mt-8 mb-2">Historique</h2>
+        {canCreate && (
+          <div className="flex justify-center mb-8">
+            <Button
+              variant="orange"
+              className="w-full max-w-xs h-12 text-base font-bold bg-orange hover:bg-orange-hover text-white"
+              onClick={() => navigate("/neighborhood/newspaper/create")}
+            >
+              Créer un journal
+            </Button>
+          </div>
+        )}
+        {/* Filtre par tag */}
+        <div className="mb-4">
+          <label htmlFor="tag-filter" className="mr-2 font-medium">Filtrer par tag :</label>
+          <select
+            id="tag-filter"
+            className="border rounded px-2 py-1"
+            value={selectedTag ?? ''}
+            onChange={e => setSelectedTag(e.target.value ? Number(e.target.value) : null)}
+          >
+            <option value="">Tous</option>
+            {tags.map(tag => (
+              <option key={tag.id} value={tag.id}>{tag.name}</option>
+            ))}
+          </select>
+        </div>
         <div className="space-y-6">
           {(() => { console.log('[DEBUG:NEWSPAPER_IDS] ids des journaux listés:', newspapers.map(np => np.id)); return null; })()}
           {loading ? (
@@ -126,7 +157,10 @@ export default function NeighborhoodNewspaperPage() {
             <div className="text-gray-500">Aucun journal pour ce quartier.</div>
           ) : (
             newspapers
+              .slice()
+              .reverse() 
               .filter(np => np.id)
+              .filter(np => !selectedTag || (np.tagIds && np.tagIds.includes(selectedTag)))
               .map((np, idx) => (
                 <div
                   key={np.id || idx}
@@ -153,17 +187,9 @@ export default function NeighborhoodNewspaperPage() {
               ))
           )}
         </div>
-        {canCreate && (
-          <div className="flex justify-center mt-8">
-            <button
-              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-              onClick={() => navigate("/neighborhood/newspaper/create")}
-            >
-              Créer un journal
-            </button>
-          </div>
-        )}
       </div>
     </>
   );
-} 
+}
+
+export default withHeaderData(NeighborhoodNewspaperPage); 
