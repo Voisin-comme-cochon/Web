@@ -43,7 +43,7 @@ export default function LoanRequestCard({
         const start = new Date(loanRequest.start_date);
         const end = new Date(loanRequest.end_date);
         const diffTime = end.getTime() - start.getTime();
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
 
         if (diffDays === 1) {
             return '1 jour';
