@@ -1,4 +1,5 @@
 import { Geography } from 'typeorm';
+import { Roles } from '@voisin-comme-cochon/frontend/src/domain/models/Roles';
 import { CreateEventInput, Event, EventType } from '../domain/events.model';
 import { EventsAdapter } from '../adapters/events.adapter';
 import { EventsRepository } from '../domain/events.abstract.repository';
@@ -12,6 +13,7 @@ import { NeighborhoodService } from '../../neighborhoods/services/neighborhood.s
 import { TagsService } from '../../tags/services/tags.service';
 import { isNull } from '../../../utils/tools';
 import { Templates } from '../../mailer/domain/templates.enum';
+import { NeighborhoodUserRole } from '../../../core/entities/neighborhood-user.entity';
 
 export class EventsService {
     constructor(
@@ -32,11 +34,25 @@ export class EventsService {
 
     public async deleteEvent(id: number, userId: number, reason: string): Promise<void> {
         const event = await this.eventRepository.getEventById(id);
-        if (!event) {
+
+        if (isNull(event)) {
             throw new CochonError('event_not_found', 'Event not found', 404);
         }
 
-        if (event.createdBy !== userId) {
+        const neighborhood = await this.neighborhoodService.getNeighborhoodById(event.neighborhoodId);
+
+        if (isNull(neighborhood)) {
+            throw new CochonError('neighborhood_not_found', 'Neighborhood not found', 404);
+        }
+
+        const neighborhoodMembers = neighborhood.neighborhood_users;
+
+        if (
+            event.createdBy !== userId &&
+            !neighborhoodMembers?.some(
+                (member) => member.userId === userId && member.role === NeighborhoodUserRole.ADMIN
+            )
+        ) {
             throw new CochonError('forbidden_delete', 'You cant delete this event', 403);
         }
 
