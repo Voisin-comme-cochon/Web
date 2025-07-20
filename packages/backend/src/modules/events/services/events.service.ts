@@ -1,5 +1,4 @@
 import { Geography } from 'typeorm';
-import { Roles } from '@voisin-comme-cochon/frontend/src/domain/models/Roles';
 import { CreateEventInput, Event, EventType } from '../domain/events.model';
 import { EventsAdapter } from '../adapters/events.adapter';
 import { EventsRepository } from '../domain/events.abstract.repository';
