@@ -36,6 +36,7 @@ export default function NeighborhoodManageInvitationsPage({
         const remaining = invitations.filter((inv) => !selectedIds.includes(inv.id));
         setInvitations(remaining);
         setSelectedIds([]);
+        showSuccess('Invitations supprimées avec succès !');
     };
 
     const handleSort = (field: keyof InvitationModel) => {
@@ -153,6 +154,7 @@ export default function NeighborhoodManageInvitationsPage({
                                         await uc.deleteInvitation(inv.id);
                                         setInvitations((prev) => prev.filter((i) => i.id !== inv.id));
                                         setSelectedIds((prev) => prev.filter((x) => x !== inv.id));
+                                        showSuccess('Invitation supprimée avec succès !');
                                     }}
                                 >
                                     <Trash2 className="h-4 w-4 text-red-500" />
