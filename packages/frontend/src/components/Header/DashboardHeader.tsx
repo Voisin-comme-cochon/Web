@@ -22,7 +22,7 @@ export default function DashboardHeader() {
     const {
         goMyNeighborhood,
         goNeighborhoodEvents,
-        goNeighborhoodJournal,
+        goNeighborhoodNewspaper,
         goItems,
         goJoinNeighborhood,
         goManageNeighborhood,
@@ -99,8 +99,8 @@ export default function DashboardHeader() {
             id: 3,
             icon: 'newsmode',
             label: 'Journal',
-            action: goNeighborhoodJournal,
-            path: ['neighborhood-journal'],
+            action: goNeighborhoodNewspaper,
+            path: ['neighborhood-newspaper'],
         },
         {
             id: 4,

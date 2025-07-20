@@ -18,6 +18,9 @@ import ItemsPage from '@/containers/Items/ItemsPage.tsx';
 import ItemDetailsPage from '@/containers/Items/ItemDetailsPage.tsx';
 import AddItemPage from '@/containers/Items/AddItemPage.tsx';
 import EditItemPage from '@/containers/Items/EditItemPage.tsx';
+import NeighborhoodNewspaperPage from '@/containers/Neighborhood/NeighborhoodNewspaperPage';
+import NeighborhoodNewspaperCreatePage from '@/containers/Neighborhood/NeighborhoodNewspaperCreatePage';
+import NeighborhoodNewspaperDetailPage from '@/containers/Neighborhood/NeighborhoodNewspaperDetailPage';
 
 export default function App() {
     return (
@@ -42,6 +45,9 @@ export default function App() {
                 <Route path={'/items/new'} element={<AddItemPage />} />
                 <Route path={'/items/:itemId'} element={<ItemDetailsPage />} />
                 <Route path={'/items/:itemId/edit'} element={<EditItemPage />} />
+                <Route path="/neighborhood-newspaper" element={<NeighborhoodNewspaperPage />} />
+                <Route path="/neighborhood/newspaper/create" element={<NeighborhoodNewspaperCreatePage />} />
+                <Route path="/neighborhood/newspaper/:id" element={<NeighborhoodNewspaperDetailPage />} />
             </Routes>
         </Router>
     );
