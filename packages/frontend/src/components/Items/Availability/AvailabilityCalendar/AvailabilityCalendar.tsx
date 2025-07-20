@@ -40,6 +40,7 @@ interface DayInfo {
     isSelected: boolean;
     isInSelectionRange: boolean;
     isDisabled: boolean;
+    isPastDate: boolean;
 }
 
 export default function AvailabilityCalendar({
@@ -119,7 +120,8 @@ export default function AvailabilityCalendar({
                     end: selectionStart < selectionEnd ? selectionEnd : selectionStart
                 }) : false;
 
-            const isDisabled = normalizedDate < today || (isReserved || isOccupied) || !isAvailable;
+            const isPastDate = normalizedDate <= today;
+            const isDisabled = isPastDate || (isReserved || isOccupied) || !isAvailable;
 
             return {
                 date: normalizedDate,
@@ -129,7 +131,8 @@ export default function AvailabilityCalendar({
                 isOccupied,
                 isSelected,
                 isInSelectionRange,
-                isDisabled
+                isDisabled,
+                isPastDate
             };
         });
     };
@@ -198,6 +201,11 @@ export default function AvailabilityCalendar({
     // Obtenir les classes CSS pour un jour
     const getDayClasses = (dayInfo: DayInfo): string => {
         const baseClasses = 'aspect-square rounded text-xs font-medium border transition-all cursor-pointer flex items-center justify-center';
+        
+        // Priorité aux jours passés - style grisé et transparent
+        if (dayInfo.isPastDate) {
+            return `${baseClasses} bg-gray-100 text-gray-400 cursor-not-allowed border-gray-200 opacity-60`;
+        }
         
         // Priorité aux couleurs spécifiques pour les slots occupés/réservés
         if (dayInfo.isOccupied) {
