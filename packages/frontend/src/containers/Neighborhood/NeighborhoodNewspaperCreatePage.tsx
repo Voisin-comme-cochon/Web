@@ -7,8 +7,8 @@ import { Button } from '@/components/ui/button';
 
 export default function NeighborhoodNewspaperCreatePage() {
   const { neighborhoodId } = useHeaderData();
-  const [profileImage, setProfileImage] = useState<string | null>(null); // dataURL pour l'aperçu
-  const [profileImageFile, setProfileImageFile] = useState<File | null>(null); // fichier pour l'upload
+  const [profileImage, setProfileImage] = useState<string | null>(null);
+  const [profileImageFile, setProfileImageFile] = useState<File | null>(null); 
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -16,10 +16,10 @@ export default function NeighborhoodNewspaperCreatePage() {
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      setProfileImageFile(file); // stocke le fichier pour l'upload
+      setProfileImageFile(file);
       const reader = new FileReader();
       reader.onloadend = () => {
-        setProfileImage(reader.result as string); // dataURL pour l'aperçu
+        setProfileImage(reader.result as string); 
       };
       reader.readAsDataURL(file);
     }
@@ -39,7 +39,7 @@ export default function NeighborhoodNewspaperCreatePage() {
         </form>
         <NewspaperEditor
           profileImage={profileImage}
-          profileImageFile={profileImageFile} // nouvelle prop
+          profileImageFile={profileImageFile}
           neighborhoodId={neighborhoodId}
           onSuccess={() => navigate("/neighborhood-newspaper")}
           onError={setError}
@@ -48,13 +48,6 @@ export default function NeighborhoodNewspaperCreatePage() {
         />
         {error && <div className="text-red-500 mt-2">{error}</div>}
         {loading && <div className="text-gray-400 mt-2">Envoi en cours...</div>}
-        <Button
-          variant="orange"
-          className="mt-4 w-full max-w-xs h-12 text-base font-bold bg-orange hover:bg-orange-hover text-white"
-          onClick={() => navigate("/neighborhood-newspaper")}
-        >
-          Retour
-        </Button>
       </div>
     </>
   );

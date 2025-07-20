@@ -89,8 +89,8 @@ export default function NeighborhoodNewspaperDetailPage() {
               <img
                 src={journal.profileImageUrl || journal.profileImage}
                 alt="Profil"
-                className="w-40 h-40 aspect-square object-cover "
-                style={{ minWidth: 100, minHeight: 100, maxWidth: 600, maxHeight: 600 }}
+                className="w-full max-h-96 object-cover rounded-t-2xl"
+                style={{ minWidth: 0, minHeight: 0, maxWidth: '100%', maxHeight: 384 }}
               />
             ) : null}
             <h1 className="text-2xl font-bold mb-2">{journal.title}</h1>

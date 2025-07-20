@@ -13,8 +13,9 @@ interface Props {
   loading?: boolean;
   setLoading?: (b: boolean) => void;
   profileImage?: string | null;
-  profileImageFile?: File | null; // nouvelle prop
+  profileImageFile?: File | null;
   neighborhoodId?: string | null;
+  onCancel?: () => void;
 }
 
 export default function NewspaperEditor({
@@ -24,7 +25,8 @@ export default function NewspaperEditor({
   setLoading,
   profileImage,
   profileImageFile,
-  neighborhoodId
+  neighborhoodId,
+  onCancel
 }: Props) {
   const { user } = useHeaderData();
   const [title, setTitle] = useState("");
@@ -77,7 +79,7 @@ export default function NewspaperEditor({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="mb-8 p-4 border rounded bg-white space-y-4">
+    <form onSubmit={handleSubmit} className="mb-8 p-4 border rounded bg-white space-y-4 max-w-3xl mx-auto">
       {profileImage && (
         <img src={profileImage} alt="Aperçu" className="w-24 h-24 object-cover rounded-full border mx-auto mb-2" />
       )}
@@ -96,15 +98,28 @@ export default function NewspaperEditor({
           handleSetTag={handleSetTag}
         />
       </div>
-      <Editor value={content} onChange={handleContentChange} />
-      <Button
-        type="submit"
-        variant="orange"
-        className="mt-4 w-full h-12 text-base font-bold bg-orange hover:bg-orange-hover text-white"
-        disabled={loading}
-      >
-        Publier
-      </Button>
+      <div style={{ minHeight: 180 }}>
+        <Editor value={content} onChange={handleContentChange} style={{ minHeight: 300 }} />
+      </div>
+      <div className="flex flex-row gap-4 mt-4">
+        <Button
+          type="button"
+          variant="ghost"
+          className="h-12 w-1/2 text-base font-bold bg-gray-200 hover:bg-gray-300 text-gray-700"
+          onClick={() => (typeof onCancel === 'function' ? onCancel() : window.history.back())}
+          disabled={loading}
+        >
+          Retour
+        </Button>
+        <Button
+          type="submit"
+          variant="orange"
+          className="h-12 w-1/2 text-base font-bold bg-orange hover:bg-orange-hover text-white"
+          disabled={loading}
+        >
+          Publier
+        </Button>
+      </div>
     </form>
   );
 } 

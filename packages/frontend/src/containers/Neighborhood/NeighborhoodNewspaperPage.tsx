@@ -10,6 +10,7 @@ import { TagRepository } from '@/infrastructure/repositories/TagRepository';
 import { TagModel } from '@/domain/models/tag.model';
 import type { UserModel } from '@/domain/models/user.model';
 import type { HomeUc } from '@/domain/use-cases/homeUc';
+import MultiSelectTagComponent from '@/components/SelectComponent/MultiSelectTagComponent';
 
 interface Newspaper {
   id: string;
@@ -31,7 +32,8 @@ function NeighborhoodNewspaperPage({ user, neighborhoodId, uc }: NeighborhoodNew
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [tags, setTags] = useState<TagModel[]>([]);
-  const [selectedTag, setSelectedTag] = useState<number | null>(null);
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [searchTitle, setSearchTitle] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -116,36 +118,48 @@ function NeighborhoodNewspaperPage({ user, neighborhoodId, uc }: NeighborhoodNew
     return tag ? tag.name : null;
   }
 
+  // Fonction utilitaire pour extraire le texte brut du contenu html
+  function getExcerpt(content: Newspaper['content'], maxLength = 180) {
+    let html = '';
+    if (typeof content === 'string') html = content;
+    else if (content && typeof content === 'object' && 'html' in content && typeof content.html === 'string') html = content.html;
+    else if (content && typeof content === 'object' && 'text' in content && typeof content.text === 'string') html = content.text;
+    // Remplace les <br> et <br/> par des retours à la ligne
+    html = html.replace(/<br\s*\/?>/gi, '\n');
+    // Supprime les autres balises HTML
+    let text = html.replace(/<[^>]+>/g, '');
+    // Découpe sur les vrais retours à la ligne (\n, \r\n, \r)
+    const lines = text.split(/\r?\n|\r/).map(l => l.trim()).filter(Boolean);
+    const firstLine = lines[0] || '';
+    return firstLine.length > maxLength ? firstLine.slice(0, maxLength) + '…' : firstLine;
+  }
+
   return (
     <>
       <DashboardHeader />
       <div className="max-w-2xl mx-auto py-8">
-        <h1 className="text-2xl font-bold mb-4">Journaux du quartier</h1>
-        {canCreate && (
-          <div className="flex justify-center mb-8">
+        <div className="flex items-center justify-between mb-6 gap-2">
+          <h1 className="text-2xl font-bold">Journaux du quartier</h1>
+          {canCreate && (
             <Button
               variant="orange"
-              className="w-full max-w-xs h-12 text-base font-bold bg-orange hover:bg-orange-hover text-white"
+              className="h-9 px-4 text-sm font-bold bg-orange hover:bg-orange-hover text-white"
               onClick={() => navigate("/neighborhood/newspaper/create")}
             >
               Créer un journal
             </Button>
-          </div>
-        )}
-        {/* Filtre par tag */}
-        <div className="mb-4">
-          <label htmlFor="tag-filter" className="mr-2 font-medium">Filtrer par tag :</label>
-          <select
-            id="tag-filter"
-            className="border rounded px-2 py-1"
-            value={selectedTag ?? ''}
-            onChange={e => setSelectedTag(e.target.value ? Number(e.target.value) : null)}
-          >
-            <option value="">Tous</option>
-            {tags.map(tag => (
-              <option key={tag.id} value={tag.id}>{tag.name}</option>
-            ))}
-          </select>
+          )}
+        </div>
+        {/* Barre de recherche et filtre multi-sélection par tag alignés */}
+        <div className="mb-4 flex flex-row gap-4 items-center">
+          <input
+            type="text"
+            placeholder="Rechercher par titre..."
+            value={searchTitle}
+            onChange={e => setSearchTitle(e.target.value)}
+            className="border rounded px-2 py-1 w-full max-w-xs"
+          />
+          <MultiSelectTagComponent tags={tags} onSelect={setSelectedTags} />
         </div>
         <div className="space-y-6">
           {(() => { console.log('[DEBUG:NEWSPAPER_IDS] ids des journaux listés:', newspapers.map(np => np.id)); return null; })()}
@@ -157,31 +171,44 @@ function NeighborhoodNewspaperPage({ user, neighborhoodId, uc }: NeighborhoodNew
             <div className="text-gray-500">Aucun journal pour ce quartier.</div>
           ) : (
             newspapers
-              .slice()
-              .reverse() 
+              .slice() // copie pour ne pas muter l'état
+              .reverse() // ordre inverse (plus récent en haut)
               .filter(np => np.id)
-              .filter(np => !selectedTag || (np.tagIds && np.tagIds.includes(selectedTag)))
+              .filter(np => {
+                if (!searchTitle.trim()) return true;
+                return (np.title || '').toLowerCase().includes(searchTitle.trim().toLowerCase());
+              })
+              .filter(np => {
+                if (!selectedTags.length) return true;
+                // On récupère le nom du tag du journal
+                const tagName = getTagName(np.tagIds);
+                return tagName && selectedTags.includes(tagName);
+              })
               .map((np, idx) => (
                 <div
                   key={np.id || idx}
-                  className="border rounded p-4 flex gap-4 items-start cursor-pointer hover:bg-gray-50 transition bg-white"
+                  className="border rounded-2xl p-8 flex gap-8 items-start cursor-pointer hover:bg-gray-50 transition bg-white mb-6 shadow-lg"
+                  style={{ minHeight: 180 }}
                   onClick={() => navigate(`/neighborhood/newspaper/${np.id}`)}
                 >
                   {np.profileImageUrl && (
                     <img
                       src={np.profileImageUrl}
                       alt="Profil"
-                      className="w-16 h-16 object-cover rounded-full border"
-                      style={{ minWidth: 64, minHeight: 64 }}
+                      className="w-32 h-32 object-cover rounded-full border shadow"
+                      style={{ minWidth: 128, minHeight: 128 }}
                     />
                   )}
-                  <div className="flex-1">
-                    <h3 className="font-bold mb-2">{np.title}</h3>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-bold text-2xl mb-2 truncate">{np.title}</h3>
                     {getTagName(np.tagIds) && (
                       <span className="inline-block bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded mb-2 mr-2">
                         {getTagName(np.tagIds)}
                       </span>
                     )}
+                    <div className="text-gray-600 text-base mt-2 truncate" style={{ maxWidth: '100%' }}>
+                      {getExcerpt(np.content)}
+                    </div>
                   </div>
                 </div>
               ))
