@@ -11,7 +11,9 @@ import { EventsModule } from './modules/events/events.module';
 import { SalesModule } from './modules/sales/sales.module';
 import { MessagingModule } from './modules/messaging/messaging.module';
 import { JavaModule } from './modules/java/java.modules';
+import { NewspaperModule } from './modules/newspaper/newspaper.module';
 import { Neo4jModule } from './neo4j/neo4j.module';
+import { MongooseModule } from '@nestjs/mongoose';
 import { UserEntitySubscriber } from './subscribers/user-entity.subscriber';
 import { NeighborhoodEntitySubscriber } from './subscribers/neighborhood-entity.subscriber';
 import { NeighborhoodUserEntitySubscriber } from './subscribers/neighborhood-users-entity.subscriber';
@@ -61,7 +63,12 @@ import { LoansModule } from './modules/loans/loans.module';
             autoLoadEntities: true,
         }),
         Neo4jModule,
-    ],
+        NewspaperModule,
+        MongooseModule.forRoot(
+            process.env.VCC_MONGO_URI || "mongodb://admin:adminpass@localhost:27017/mongo?authSource=admin"
+          )          
+
+    ], 
     providers: [
         UserEntitySubscriber,
         NeighborhoodEntitySubscriber,

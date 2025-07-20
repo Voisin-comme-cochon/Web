@@ -22,7 +22,7 @@ export default function DashboardHeader() {
     const {
         goMyNeighborhood,
         goNeighborhoodEvents,
-        goNeighborhoodJournal,
+        goNeighborhoodNewspaper,
         goItems,
         goJoinNeighborhood,
         goManageNeighborhood,
@@ -31,8 +31,12 @@ export default function DashboardHeader() {
     const [page, setPage] = useState<string>('');
 
     useEffect(() => {
-        const page = window.location.href.split('/')[3] || '';
-        setPage(page.split('?')[0]);
+        const pathParts = window.location.pathname.split('/').filter(Boolean);
+        let currentPage = pathParts[0] || '';
+        if (pathParts[0] === 'neighborhood' && pathParts[1] === 'newspaper') {
+            currentPage = 'neighborhood-newspaper';
+        }
+        setPage(currentPage);
     }, []);
 
     const uc = new HomeUc(
@@ -99,8 +103,9 @@ export default function DashboardHeader() {
             id: 3,
             icon: 'newsmode',
             label: 'Journal',
-            action: goNeighborhoodJournal,
-            path: ['neighborhood-journal'],
+            action: goNeighborhoodNewspaper,
+            // Ajoute toutes les variantes de routes du journal
+            path: ['neighborhood-newspaper', 'neighborhood/newspaper', 'neighborhood/newspaper/create'],
         },
         {
             id: 4,
