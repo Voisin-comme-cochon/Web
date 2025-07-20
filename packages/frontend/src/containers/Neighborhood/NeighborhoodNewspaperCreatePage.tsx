@@ -34,7 +34,7 @@ export default function NeighborhoodNewspaperCreatePage() {
       <div className="max-w-2xl mx-auto py-8">
         <h1 className="text-2xl font-bold mb-4">Créer un journal</h1>
         <form className="mb-8 p-4 border rounded bg-white space-y-4" onSubmit={e => e.preventDefault()}>
-          <label className="block mb-2 font-semibold">Image de profil</label>
+          <label className="block mb-2 font-semibold">Image du journal</label>
           <input type="file" accept="image/*" onChange={handleImageChange} />
         </form>
         <NewspaperEditor

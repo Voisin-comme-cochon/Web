@@ -171,8 +171,8 @@ function NeighborhoodNewspaperPage({ user, neighborhoodId, uc }: NeighborhoodNew
             <div className="text-gray-500">Aucun journal pour ce quartier.</div>
           ) : (
             newspapers
-              .slice() // copie pour ne pas muter l'état
-              .reverse() // ordre inverse (plus récent en haut)
+              .slice() 
+              .reverse()
               .filter(np => np.id)
               .filter(np => {
                 if (!searchTitle.trim()) return true;
@@ -187,24 +187,32 @@ function NeighborhoodNewspaperPage({ user, neighborhoodId, uc }: NeighborhoodNew
               .map((np, idx) => (
                 <div
                   key={np.id || idx}
-                  className="border rounded-2xl p-8 flex gap-8 items-start cursor-pointer hover:bg-gray-50 transition bg-white mb-6 shadow-lg"
-                  style={{ minHeight: 180 }}
+                  className="border rounded-2xl p-0 flex gap-0 items-stretch cursor-pointer hover:bg-gray-50 transition bg-white mb-6 shadow-lg overflow-hidden min-h-[240px] relative"
+                  style={{ minHeight: 240, height: 'auto' }}
                   onClick={() => navigate(`/neighborhood/newspaper/${np.id}`)}
                 >
-                  {np.profileImageUrl && (
-                    <img
-                      src={np.profileImageUrl}
-                      alt="Profil"
-                      className="w-32 h-32 object-cover rounded-full border shadow"
-                      style={{ minWidth: 128, minHeight: 128 }}
-                    />
-                  )}
-                  <div className="flex-1 min-w-0">
+                  <div className="flex-shrink-0 w-[320px] h-auto relative">
+                    {np.profileImageUrl ? (
+                      <img
+                        src={np.profileImageUrl}
+                        alt="Profil"
+                        className="object-cover absolute left-0 top-0 h-full w-full"
+                        style={{ minHeight: '100%', height: '100%', width: '100%', maxHeight: 'none' }}
+                      />
+                    ) : (
+                      <div className="flex items-center justify-center absolute left-0 top-0 h-full w-full bg-gray-200">
+                        <span className="material-symbols-outlined text-6xl text-gray-400 select-none">no_photography</span>
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0 flex flex-col justify-center p-8 z-10">
                     <h3 className="font-bold text-2xl mb-2 truncate">{np.title}</h3>
                     {getTagName(np.tagIds) && (
-                      <span className="inline-block bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded mb-2 mr-2">
-                        {getTagName(np.tagIds)}
-                      </span>
+                      <div className="flex flex-row items-center mb-2">
+                        <span className="inline-block bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded mr-2 max-w-xs truncate">
+                          {getTagName(np.tagIds)}
+                        </span>
+                      </div>
                     )}
                     <div className="text-gray-600 text-base mt-2 truncate" style={{ maxWidth: '100%' }}>
                       {getExcerpt(np.content)}
