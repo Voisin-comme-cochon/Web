@@ -10,6 +10,8 @@ import { TagsService } from '../../tags/services/tags.service';
 import { BucketType } from '../../objectStorage/domain/bucket-type.enum';
 import { NewspaperRepository } from '../domain/newspaper.abstract.repository';
 import { NewspaperRepositoryImplementation } from '../repository/newspaper.repository.implementation';
+import { NeighborhoodUserService } from '../../neighborhoods/services/neighborhood-user.service';
+import { NeighborhoodUserRole } from '../../../core/entities/neighborhood-user.entity';
 
 @Injectable()
 export class NewspaperService {
@@ -19,6 +21,7 @@ export class NewspaperService {
     private readonly usersService: UsersService,
     private readonly neighborhoodService: NeighborhoodService,
     private readonly tagsService: TagsService,
+    private readonly neighborhoodUserService: NeighborhoodUserService,
   ) {}
 
   async create(data: {
@@ -33,13 +36,18 @@ export class NewspaperService {
     const { userId, neighborhoodId, content, profileImageUrl, title, tagId, profileImage } = data;
     const user = await this.usersService.getUserById(userId);
     if (!user) throw new CochonError('user_not_found', 'User not found', 404);
-    if (!user.newsletter) throw new CochonError('user_no_newsletter', 'User must be reporter to write a newspaper', 403);
+    const neighborhoodUser = await this.neighborhoodUserService['neighborhoodUserRepository'].getUserInNeighborhood(neighborhoodId, userId);
+    if (
+      !user.isSuperAdmin &&
+      (!neighborhoodUser || ![NeighborhoodUserRole.ADMIN, NeighborhoodUserRole.JOURNALIST].includes(neighborhoodUser.role as NeighborhoodUserRole))
+    ) {
+      throw new CochonError('user_no_permission', 'User must be admin, journalist, or super admin to write a newspaper', 403);
+    }
     const neighborhood = await this.neighborhoodService.getNeighborhoodById(neighborhoodId);
     if (!neighborhood) throw new CochonError('neighborhood_not_found', 'Neighborhood not found', 404);
     if (tagId) {
-      await this.tagsService.getTagById(tagId); // throw si pas trouvé
+      await this.tagsService.getTagById(tagId); 
     }
-    // Upload image si présente
     let finalProfileImageUrl = profileImageUrl;
     if (profileImage) {
       const fileName = await this.objectStorageService.uploadFile(
@@ -104,25 +112,25 @@ export class NewspaperService {
     userId?: number;
     neighborhoodId?: number;
   }>) {
-    // Récupération du journal existant
+
     const existing = await this.newspaperRepository.findOne(id);
     if (!existing) {
       throw new CochonError('NEWSPAPER_UPDATE_NOT_FOUND', 'Journal à mettre à jour non trouvé.', 404, { id });
     }
-    // Vérification user
+
     const userIdToCheck = data.userId ?? existing.userId;
     if (userIdToCheck) {
       const user = await this.usersService.getUserById(Number(userIdToCheck));
       if (!user) throw new CochonError('user_not_found', 'User not found', 404);
       if (!user.newsletter) throw new CochonError('user_no_newsletter', 'User must be subscribed to the newsletter to update a newspaper', 403);
     }
-    // Vérification neighborhood
+
     const neighborhoodIdToCheck = data.neighborhoodId ?? existing.neighborhoodId;
     if (neighborhoodIdToCheck) {
       const neighborhood = await this.neighborhoodService.getNeighborhoodById(Number(neighborhoodIdToCheck));
       if (!neighborhood) throw new CochonError('neighborhood_not_found', 'Neighborhood not found', 404);
     }
-    // Vérification tag
+
     if (data.tagId) {
       await this.tagsService.getTagById(data.tagId); // throw si pas trouvé
     }
@@ -160,4 +168,4 @@ export class NewspaperService {
     }
     return deleted;
   }
-} 
+}

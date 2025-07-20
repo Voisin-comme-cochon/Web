@@ -94,6 +94,6 @@ import { NeighborhoodUserRepositoryImplementation } from './repository/neighborh
         },
         Neo4jService,
     ],
-    exports: [NeighborhoodService, NeighborhoodUserRepository, NeighborhoodRepository],
+    exports: [NeighborhoodService, NeighborhoodUserRepository, NeighborhoodRepository, NeighborhoodUserService],
 })
 export class NeighborhoodModule {}
