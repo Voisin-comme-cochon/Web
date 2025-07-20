@@ -59,7 +59,11 @@ function ProfilPage({ uc }: { uc: HomeUc }) {
                     <CardHeader>
                         <Avatar className="w-24 h-24">
                             {user.profileImageUrl ? (
-                                <AvatarImage src={user.profileImageUrl} alt={`${user.firstName} ${user.lastName}`} />
+                                <AvatarImage
+                                    className={'object-cover'}
+                                    src={user.profileImageUrl}
+                                    alt={`${user.firstName} ${user.lastName}`}
+                                />
                             ) : (
                                 <AvatarFallback>
                                     {user.firstName.charAt(0)}

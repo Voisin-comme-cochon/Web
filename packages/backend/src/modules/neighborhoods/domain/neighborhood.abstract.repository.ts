@@ -15,5 +15,5 @@ export abstract class NeighborhoodRepository {
 
     abstract setNeighborhoodStatus(id: number, status: NeighborhoodStatusEntity): Promise<Neighborhood | null>;
 
-    abstract updateNeighborhood(id: number, name?: string, description?: string): Promise<Neighborhood | null>;
+    abstract updateNeighborhood(id: number, name?: string, description?: string): Promise<boolean>;
 }

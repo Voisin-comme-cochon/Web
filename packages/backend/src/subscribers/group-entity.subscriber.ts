@@ -29,20 +29,6 @@ export class GroupEntitySubscriber implements EntitySubscriberInterface<GroupEnt
         }
     }
 
-    async afterUpdate(group: UpdateEvent<GroupEntity>) {
-        const session = neo4jDriver.session();
-        const { id, name } = group.entity as GroupEntity;
-        try {
-            await session.run(
-                `MATCH (n:GroupEntity {id: $id})
-                SET n.name = $name`,
-                { id, name }
-            );
-        } finally {
-            await session.close();
-        }
-    }
-
     @BeforeRemove()
     async beforeRemove(group: RemoveEvent<GroupEntity>) {
         const session = neo4jDriver.session();
